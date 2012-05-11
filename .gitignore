@@ -1,0 +1,54 @@
+# intermediate files
+make.log
+*.bak
+
+# tex temporary files
+*.aux
+*.log
+*.out
+*.nav
+*.snm
+*.toc
+*.tpt
+*.vrb
+*.pdf
+*.blg
+*.idx
+*.ilg
+*.ind
+*.tpt
+*.backup
+*~
+
+# intermediate files
+stage[1,2,3]
+*.bak
+Installation.*
+make.log
+
+# ignore front end since it is managed in another repository
+mccparser
+
+# binaries
+*.state
+bin/.local
+bin/sicstusprolog
+bin/swiprolog
+bin/parsecurry
+bin/pakcs
+bin/currytest
+bin/currycreatemake
+bin/currydoc
+bin/currybrowse
+bin/dataToXml
+bin/erd2curry
+curry2prolog/prologbasics.pl
+curry2prolog/libswi
+frontend
+www/submitform
+
+# documentation
+lib/CDOC
+lib/TEXDOC
+docs/src/lib
+docs/src/markdown_syntax.tex

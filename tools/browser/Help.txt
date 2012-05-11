@@ -1,0 +1,200 @@
+How to use CurryBrowser:
+========================
+
+CurryBrowser is a tool to browse through the modules and
+functions of programs written in the declarative multi-paradigm
+language Curry.
+
+It contains operations to analyze the properties of functions
+of a Curry module. Moreover, it is constructed in a way so that
+new analyzers can be easily connected to CurryBrowser
+(see the source code of module "BrowserAnalysis" for details).
+
+
+Start CurryBrowser:
+===================
+
+CurryBrowser is part of the PAKCS
+(http://www.informatik.uni-kiel.de/~pakcs/) distribution and can be
+started in two ways:
+
+- In the command shell via the command: [pakcs/bin/]currybrowse mod
+
+- In the PAKCS environment after loading the module "mod" and typing
+  the command ":browse"
+
+Here, "mod" is the name of the main module of a Curry application.
+After the start, CurryBrowser loads the interfaces of the main
+module and all imported modules before a GUI is created.
+
+
+The GUI of CurryBrowser:
+========================
+
+Selecting modules and imports:
+------------------------------
+The column "Select module" shows the hierarchical structure of
+modules and their imports. If a module name is prefixed by "+",
+its imports are not shown. Clicking on such a module name will
+open their imports, i.e., all directly imported modules are
+shown below. The imported module names are indented so that
+the hierarchy is directly visible.
+
+After selecting a module in the list of modules, its source code,
+interface, or various other formats of the module can be shown
+in the main (right) text area (see menu "Show selected module as...").
+Furthermore, various properties of all exported functions defined in
+the selected module can be analyzed (see menu "Analyse selected module").
+If the function list box contains all functions of the selected
+module, then all of them are analyzed by this menu, otherwise
+the exported ones are loaded before analyzing them.
+
+Finally, the list of exported or all functions defined in the
+selected module or various other list of functions (see menu
+"Select functions...") can be shown in the left lower "Functions"
+column.
+
+
+Selecting functions:
+--------------------
+After selecting and showing a list of functions in the left lower
+column, individually selected functions can be analyzed by selecting
+a function analysis (see menu "Select analysis...") from the list of
+available analysis.
+
+
+Analyzing functions:
+--------------------
+The results of the analysis of individually selected functions
+are shown in the lower right text area, and the results of analyzing
+complete modules are shown by prefixes in the function list box
+(the explanation about these prefixes are shown in the lower right
+text area).
+
+Note that the analyses require different amounts of time.
+Local analyses are usually fast since they are based on looking
+on the code of an indiviual function only, whereas global analyses
+require the consideration of all functions occurring on the module
+and their (directly and indirectly) imported modules.
+
+
+Focusing functions:
+-------------------
+If the button "focus in code" is checked, individually selected
+functions are focused in the source code, i.e., whenever a function
+is selected in the function list box, the source code of the
+corresponding module is shown in the right text area
+where the focus is put on the definition of the function.
+Note that, if you select a function that has been introduced
+by some compiler transformations (e.g., lambda lifting),
+the source code cannot be focused on this function.
+
+
+The analyses of CurryBrowser:
+=============================
+
+The following analysis are currently available:
+
+Curry code (local analysis):
+----------------------------
+Show the intermediate FlatCurry code in (almost) Curry syntax,
+whenever possible.
+
+FlatCurry code (local analysis):
+--------------------------------
+Show the intermediate FlatCurry code in human-readable syntax.
+This is useful to see the pattern matching in the form of case
+expressions.
+
+FlatCurry expression (local analysis):
+--------------------------------------
+Show the intermediate FlatCurry code as an expression according
+to the FlatCurry representation in the Curry module "FlatCurry".
+
+Calls directly (local analysis):
+--------------------------------
+Which functions are directly called in the rules defining this
+function? Since the called functions are shown qualified with
+their module name, the result is useful to spot the directly
+called functions in larger applications.
+
+Depends on (global analysis):
+-----------------------------
+On which functions does the current function depend, i.e., what
+are the functions that might be called (directly or indirectly)
+when this function is executed?
+
+Depends on externals (global analysis):
+---------------------------------------
+On which external functions (i.e., functions that are not
+defined in Curry) does the current function depend, i.e., what
+are the external functions that might be called (directly or
+indirectly) when this function is executed?
+
+Dependency graph (global analysis):
+-----------------------------------
+Show the complete dependency graph of the selected function
+(with the graph visualization tool "dot").
+
+Local dependency graph (global analysis):
+-----------------------------------------
+Show the dependency graph of the selected function local
+to the current module, i.e., do not show dependencies
+that are defined in imported modules. Thus, imported functions
+are leaves of the dependency graph that are shown in a different
+layout.
+
+Called by (global analysis):
+----------------------------
+Which functions of the current module call this function
+directly or indirectly?
+
+Overlapping rules (local analysis):
+-----------------------------------
+Is the function defined by overlapping left-hand sides?
+
+Right-linear rules (local analysis):
+------------------------------------
+Is the function defined by right-linear rules?
+
+Right-linearity (global analysis):
+----------------------------------
+Is the function defined by right-linear rules and does it only depend
+on functions defined by right-linear rules?
+
+Pattern completeness (local analysis):
+--------------------------------------
+Is the pattern matching exhaustive, i.e., is the function reducible
+for any (well-typed) ground constructor arguments?
+
+Totally defined (global analysis):
+----------------------------------
+Is the function totally defined, i.e., does the function evaluate to a value
+for any (well-typed) ground constructor arguments?
+
+Solution complete (global analysis):
+------------------------------------
+Is the function operationally complete, i.e., does its execution
+not suspend for any arguments?
+
+Nondeterministic (global analysis):
+-----------------------------------
+Is the function nondeterministic, i.e., is it directly or indirectly
+defined by overlapping rules so that it might deliver
+(nondeterministically) two values for the same ground constructor
+arguments?
+
+Set-valued (global analysis):
+-----------------------------
+Is the function set-valued, i.e., is it directly or indirectly defined
+by overlapping rules or rules containing extra variables so that
+an application to some ground constructor arguments is equal to
+different values?
+
+Purity (global analysis):
+-------------------------
+Is the function pure (referentially transparent), i.e., is it ensured
+that it delivers always the same values for the same ground constructor
+arguments at each time and all schedulings of the evaluation?
+This might not be the case if committed choice or sending via ports
+is executed.

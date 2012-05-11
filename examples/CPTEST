@@ -1,0 +1,268 @@
+#!/bin/sh
+PAKCS="../bin/pakcs"
+LOGFILE=xxx$$
+../bin/cleancurry -r
+cat << EOM | $PAKCS -Dmoresolutions=no > $LOGFILE
+:set +verbose
+:set printdepth 0
+:l rev
+append [1,2] [3,4]
+
+rev [1,2,3,4,5,6,7,8,9,10]
+
+
+:l higher
+g1
+
+g2
+
+g3
+
+g4
+
+g5
+
+
+:l quicksort
+qsort [2,3,1,0]
+
+
+:l qsortlet
+qsort [2,3,1,0]
+
+
+:l inflists
+goal1
+
+goal2
+
+
+:l family_rel
+goal1 child  where child free
+y
+y
+
+grandfather g c  where g,c free
+y
+y
+y
+y
+
+
+:l family_fun
+father child =:= John  where child free
+y
+y
+
+grandfather g c  where g,c free
+y
+y
+y
+y
+
+
+:l horseman
+horseman m h (int2nat 8) (int2nat 20)  where m,h free
+y
+
+horseman m h (S (S O)) f  where m,h,f free
+y
+
+
+:l first
+goal1
+
+goal2 x y  where x,y free
+
+
+:l member
+goal2 x    where x free
+y
+
+
+:l colormap
+goal1 l1 l2 l3 l4   where l1,l2,l3,l4 free
+y
+
+goal2 l1 l2 l3 l4   where l1,l2,l3,l4 free
+y
+
+
+:l account
+goal1 b  where b free
+y
+
+goal2 b  where b free
+y
+
+goal3 s  where s free
+y
+
+
+:l maxtree
+goal2
+
+
+:l assembler
+goal
+
+
+:l ralign
+goal1
+
+goal2
+
+
+:l tctest
+:t f
+:t i
+:t k
+:l rectype
+:t h
+:l iodemo
+dialog
+michael
+
+
+:l england
+q1 x  where x free
+
+q2 x y  where x,y free
+
+q4l
+
+q5l
+
+q7 x  where x free
+
+q10
+
+
+:l queens
+queens [1,2,3,4]
+
+:l diamond
+diamond 10
+
+:l chords
+run sounds
+
+run nicolas
+
+:cd listcomp
+:l arithseq
+l1
+
+l2
+
+l3
+
+l4
+
+:l multgen
+goal1
+
+goal2
+
+goal3
+
+:l psort
+goal 6
+
+:l default
+abs 0
+
+abs 3
+
+swap [3]
+
+swap [3,4]
+
+swap [3,4,5]
+
+:cd ..
+:l casetest
+swap [1]
+
+swap [1,2]
+
+swap [1,2,3]
+
+f [1,2]
+
+g (Just "xyz")
+
+g (Just "ab")
+
+h [1,2]
+
+h [1,3]
+
+h [2,div 1 0]
+
+:cd parsing
+:l expr_parser
+expression val "(10+5*2)/4" =:= []  where val free
+
+:l palindrome
+pali "abaaba" =:= []
+
+pali5
+
+:cd ..
+:cd CLP
+:l mortgage
+mortgage 100000.0 180.0 0.01 r 0.0  where r free
+
+:l smm
+smm l  where l free
+
+:cd ..
+
+:cd distcurry
+:l accountport
+goal1 b  where b free
+y
+
+goal2 b  where b free
+y
+
+
+:l nameserver
+:fork serve
+gn1
+gn2
+pn1
+pn2
+gn1
+gn2
+closeServer
+
+:l addserver
+:fork addServer
+addClient "localhost" 3 4
+stopServer "localhost"
+
+:cd ..
+:q
+EOM
+################ end of tests ####################
+# load definition of SICSTUSDIR, SWIPROLOG etc:
+. ../bin/.pakcs_variables
+
+DIFF=diff$$
+if [ "$SICSTUSDIR" != "" ] ; then
+  diff CPTEST.sicstusresult $LOGFILE > $DIFF
+elif [ "$SWIPROLOG" != "" ] ; then
+  diff CPTEST.swiresult $LOGFILE > $DIFF
+fi
+if [ "`cat $DIFF`" = "" ] ; then
+  echo "Regression test successfully executed!"
+  /bin/rm -f $LOGFILE $DIFF
+else
+  echo "Differences in regression test occurred:"
+  cat $DIFF
+  /bin/rm -f $DIFF
+  /bin/mv -f $LOGFILE LOGFILE
+  echo "Test output saved in file 'LOGFILE'."
+fi

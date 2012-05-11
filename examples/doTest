@@ -1,0 +1,30 @@
+#!/bin/sh
+# script to execute tests for Curry
+PAKCSHOME=..
+
+$PAKCSHOME/bin/cleancurry
+
+# load definition of SICSTUS, SWIPROLOG etc:
+. $PAKCSHOME/bin/.pakcs_variables
+
+BACKEND=`echo "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" | $PAKCSHOME/bin/pakcs -l Distribution -q 2> /dev/null`
+
+# test for basic language features
+TESTLANG="testFunctional testInfinite testHigher testNarr testNondet testCase testLetRec testNonStrictUnif testFuncPattern"
+
+# test for standard libraries
+TESTLIBS="testPrelude testCombinatorial testDatabase testDirectory testDynamic testFlatCurryGoodies testFlatCurryXML testGlobal testGlobalVariable testInteger testIOExts testList testSetFunctions testSort testSystem testTraversal testArray testDequeue testFiniteMap testRedBlackTree"
+
+# additional library tests for PAKCS with various Prolog back ends:
+TESTLIBSBACKEND=
+case "$BACKEND" in
+  sicstus3 ) TESTLIBSBACKEND="testIO testCLPB " ;;
+  sicstus4 ) TESTLIBSBACKEND="testCLPB " ;;
+  swi5     ) TESTLIBSBACKEND="testIO " ;;
+esac
+
+ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND"
+
+# execute all unit tests:
+echo "Executing unit tests for back end $BACKEND..."
+$PAKCSHOME/bin/currytest --window $ALLTESTS

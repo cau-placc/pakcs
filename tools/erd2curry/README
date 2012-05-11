@@ -1,0 +1,51 @@
+This directory contains a compiler for database applications
+specified by entity-relationship diagrams (ERDs) into Curry programs.
+The basic ideas and details about this approach are described in
+
+B. Brassel, M. Hanus, M. Mueller:
+High-Level Database Programming in Curry
+In Proc. of the Tenth International Symposium on
+Practical Aspects of Declarative Languages (PADL 2008), 
+Springer LNCS, 2008
+
+----------------------------------------------------------------------
+
+Basic use with Umbrello UML Modeller:
+
+1. Create an XML description of the ERD (with Umbrello)
+   in xmi format, e.g., stored in "myerd.xmi".
+
+2. Compile it into a Curry program with
+
+   erd2curry myerd.xmi
+
+
+Use without Umbrello UML Modeller and XML files:
+
+1. Create an ERD description as a Curry term of type ERD
+   (w.r.t. type definition given in module ERD.curry), e.g.,
+   stored in "myerd.term".
+
+2. Compile it into a Curry program with
+
+   erd2curry -t myerd.term
+
+Visualization:
+--------------
+
+To visualize an ERD term as a graph with dotty, execute
+
+erd2curry -v myerd.term
+
+
+Inclusion in the Curry application:
+-----------------------------------
+
+To compile the generated database code, include this directory
+into your Curry module path or copy the file ERDGeneric.curry
+into the directory of the generated database code.
+
+
+---
+Further infos and contact:
+Michael Hanus <mh@informatik.uni-kiel.de>

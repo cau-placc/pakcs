@@ -1,0 +1,85 @@
+/* Use monospace fonts for typewriter styles */
+pre, tt, code { font-family: monospace }
+
+/* Use always white background */
+body { background: white; color: black }
+
+/* Show hyperlinks without underscore */
+a:visited, a:link, a:active { text-decoration: none }
+
+/* Show underscore when over hyperlink */
+a:hover { text-decoration: underline }
+
+h1 {
+  margin: 10px 0 15px 0px;
+  padding: 5px;
+  font-size: 20pt;
+  background: #0000ff;
+  color: #cccccc;
+  text-align: center;
+}
+
+h1 a { color: #ffffff }
+
+table h2 {
+  margin: 0px 0px 5px 0px;
+  padding: 4px;
+  background: #0000ff;
+  color: #ffffff;
+  font-size: 12pt;
+}
+
+table h3 {
+  margin: 0px 0px 5px 5px;
+}
+
+p {
+  margin: 5px 5px 10px 5px;
+  font-size: 12pt;
+}
+
+pre {
+  margin: 5px 5px 10px 20px;
+  font-size: 10pt;
+}
+
+code { font-size: 10pt; }
+
+dt { padding-left: 5px; }
+
+/* function name in the documentation of a exported functions */
+.opname {
+  font-weight: bold;
+  font-size: 12pt;
+}
+
+/* style for explanation categories like "Constructors:" */
+.explaincat {
+  font-style: italic;
+}
+
+.keyword { color:blue }
+.constructorname_constrpattern { color : #FF00FF }
+.constructorname_constrcall { color : #FF00FF }
+.constructorname_constrdecla { color : #FF00FF }
+.constructorname_otherconstrkind { color : #FF00FF }
+.typeconstructor_typedecla  { color : #ff7f50 }
+.typeconstructor_typeuse  { color : #ff7f50 }
+.typeconstructor_typeexport  { color : #ff7f50 }
+.function_infixfunction  { color : #800080 }
+.function_typsig  { color : #800080 }
+.function_fundecl  { color : #800080 }
+.function_functioncall  { color : #800080 }
+.function_otherfunctionkind  { color : #800080 }
+.moduleName  { color : #800000 }
+.commentary  { color : green }
+.numberCode  { color : #008080 }
+.stringCode  { color : #800000 }
+.charCode  { color : #800000 }
+.symbol  { color : #666666 }
+.identifier_iddecl   { color : black }
+.identifier_idoccur   { color : black }
+.identifier_unknownid   { color : black }
+.codeWarning  {font-weight: bold;font-style:italic; color : red }
+.codeError  { font-style:italic; color : #a52a2a }
+.notParsed  { font-style:italic; color : #C0C0C0 }

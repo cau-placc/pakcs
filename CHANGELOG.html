@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+
+<title>
+PAKCS change log
+</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h1>
+PAKCS change log
+</h1>
+
+<h2>
+Recent changes done in PAKCS (ordered by date):
+</h2>
+
+<dl>
+
+<dt>
+March 16, 2009
+</dt>
+
+<dd>
+Prolog code of the run-time system slightly changed to avoid
+ problems with SWI-Prolog Version 5.7. In particular,
+meta_predicate declarations are now omitted.
+</dd>
+
+<dt>
+August 26, 2008
+</dt>
+
+<dd>
+Generated Prolog files (.pl/.po) are now stored in specific
+directory .pakcs.
+</dd>
+
+<dt>
+July 3, 2008
+</dt>
+
+<dd>
+Representation of AbstractCurry extended with a constructor
+CmtFunc so that one can also
+represent functions having a comment.
+This comment is formatted by the AbstractCurryPrinter as
+a documentation comment.
+</dd>
+
+<dt>
+June 17, 2008
+</dt>
+
+<dd>
+Module WUI: renderTaggedTuple added.
+</dd>
+
+<dt>
+May 23, 2008
+</dt>
+
+<dd>
+Handling of environment variables changed.
+SICSTUS and SPLD replaced by SICSTUSDIR
+</dd>
+
+<dt>
+May 19, 2008
+</dt>
+
+<dd>
+Bug fix for function patterns with logic variables as actual arguments
+</dd>
+
+<dt>
+April 22, 2008
+</dt>
+
+<dd>
+PAKCS exits with code 2 in case of "no more solutions".
+</dd>
+
+<dt>
+March 7, 2008
+</dt>
+
+<dd>
+Library Directory: renameFile and renameDirectory added.
+
+</dd>
+
+<dt>
+March 6, 2008
+</dt>
+
+<dd>
+Library Directory: removeFile and removeDirectory added.
+</dd>
+
+<dt>
+February 7, 2008
+</dt>
+
+<dd>
+lib/System.curry: Implementation of (un)setEnv changed
+</dd>
+
+<dt>
+October 31, 2007
+</dt>
+
+<dd>
+Problem: if main modules are loaded from other directories,
+imports in the same directories are not found for compilation.
+Fixed by changing parser imports in bin/.parsecurry
+
+</dd>
+
+<dt>
+October 22, 2007
+</dt>
+
+<dd>
+Tool <tt>erd2curry</tt> to compile entity-relationship diagrams
+into Curry programs added.
+</dd>
+
+<dt>
+September 4, 2007
+</dt>
+
+<dd>
+Implicit starting of CPNS demon moved from Prolog code to CPNS.registerPort
+</dd>
+
+<dt>
+August 29, 2007
+</dt>
+
+<dd>
+Parser warnings for shadowing improved.
+</dd>
+
+<dt>
+July 11, 2007
+</dt>
+
+<dd>
+Library Float: atan added
+</dd>
+
+<dt>
+July 9, 2007
+</dt>
+
+<dd>
+System: evalTime/evalSpace moved into library Profile
+</dd>
+
+<dt>
+June 14, 2007
+</dt>
+
+<dd>
+AbstractCurryPrinter: export declarations added (by Marion Mueller)
+</dd>
+
+<dt>
+June 5, 2007
+</dt>
+
+<dd>
+socketListen removed
+</dd>
+
+<dt>
+June 4, 2007
+</dt>
+
+<dd>
+IOExts: connectToSocket removed since it is contained in library Socket, choiceStreamOrMsgs removed since one can also use IO.hWaitForInputsOrMsg.
+</dd>
+
+<dt>
+May 11, 2007
+</dt>
+
+<dd>
+Implementation made compatible with SICStus4
+</dd>
+
+<dt>
+May 11, 2007
+</dt>
+
+<dd>
+Library Socket: socketINET and socketBind removed and integrated into
+new external function listenOn.
+
+</dd>
+
+<dt>
+May 9, 2007
+</dt>
+
+<dd>
+lib/Mail.curry: code and documentation improved
+</dd>
+
+<dt>
+April 20, 2007
+</dt>
+
+<dd>
+lib/Time: clockTimeToInt added
+</dd>
+
+<dt>
+April 16, 2007
+</dt>
+
+<dd>
+Implementation of CPNS demon changed to raw sockets.
+</dd>
+
+<dt>
+April 13, 2007
+</dt>
+
+<dd>
+lib/HTML.curry: bug fix for cookies
+</dd>
+
+<dt>
+March 27, 2007
+</dt>
+
+<dd>
+Bug fix in AbstractCurryPrinter
+</dd>
+
+<dt>
+March 22, 2007
+</dt>
+
+<dd>
+currydoc extended to TeX document generation
+</dd>
+
+<dt>
+March 18, 2007
+</dt>
+
+<dd>
+Bug in Dynamic.retractFact fixed
+</dd>
+
+<dt>
+March 13, 2007
+</dt>
+
+<dd>
+Library WUI: wSelectInt added
+</dd>
+
+<dt>
+March 13, 2007
+</dt>
+
+<dd>
+Database and KeyDatabase added.
+</dd>
+
+<dt>
+March 13, 2007
+</dt>
+
+<dd>
+Implementation of dynamic web pages changed from central event handler
+server (based on string communication) to servers for each web page.
+Library HtmlServer removed and library HtmlCgi added.
+</dd>
+
+<dt>
+March 13, 2007
+</dt>
+
+<dd>
+Eta expansion in code generation removed and implementation
+of I/O actions changed.
+</dd>
+
+<dt>
+March 6, 2007
+</dt>
+
+<dd>
+Library Distribution and parsecurry: reading of CurrySyntax supported
+</dd>
+
+<dt>
+March 6, 2007
+</dt>
+
+<dd>
+Library Distribution: front end call interface changed
+</dd>
+
+<dt>
+February 27, 2007
+</dt>
+
+<dd>
+Library HTML:
+<code>intForm(Main)</code> added to execute web pages in
+interactive mode.
+</dd>
+
+<dt>
+February 27, 2007
+</dt>
+
+<dd>
+Library GUI: addRegionStyle and removeRegionStyle added
+</dd>
+
+<dt>
+February 5, 2007
+</dt>
+
+<dd>
+lib/WUI: wui2html returns a "WUI handler" instead of a standard
+HTML handler in order to enable JavaScript checking before submission.
+wuiHandler2button transforms such a handler to a standard HTML button.
+</dd>
+
+<dt>
+February 5, 2007
+</dt>
+
+<dd>
+lib/WUIjs.curry (like WUI but with JavaScript support) added
+</dd>
+
+<dt>
+February 5, 2007
+</dt>
+
+<dd>
+currycreatemake tool added
+</dd>
+
+<dt>
+February 1, 2007
+</dt>
+
+<dd>
+FileGoodies: findFileInPath renamed to lookupFileInPath
+</dd>
+
+<dt>
+January 26, 2007
+</dt>
+
+<dd>
+lib/meta/CompactFlatCurry improved:
+modules are read in a demand-driven manner
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+tools/curry2js added
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+tools: currydocs.css + icons moved to include
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+lib/meta/CompactFlatCurry added and tools/optimize/CompactFlat
+changed accordingly
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+lib/JavaScript added
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+curry2prolog: Error handling improved: errors during Curry execution
+set now exit state 1 when leaving PAKCS.
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+lib/HTML: styleSheet, FormOnSubmit, addFormParams, addAttrs,
+runCgiWithKeyAndFormParams added.
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+bin/makecurrycgi: Parameter -wuijs added (preliminary)
+</dd>
+
+<dt>
+January 22, 2007
+</dt>
+
+<dd>
+lib/Distribution: installDir made public
+</dd>
+
+<dt>
+December 22, 2006
+</dt>
+
+<dd>
+Library Time: operations to/from ClockTime changed in order to
+provide a better distinction between UTC time and local time.
+</dd>
+
+<dt>
+December 22, 2006
+</dt>
+
+<dd>
+Library System: Date/getDate removed
+</dd>
+
+<dt>
+December 21, 2006
+</dt>
+
+<dd>
+Directory.getModificationTime returns a ClockTime instead of an Int
+
+</dd>
+
+<dt>
+December 21, 2006
+</dt>
+
+<dd>
+Library Time: internal representation of ClockTime changed
+
+</dd>
+
+<dt>
+December 19, 2006
+</dt>
+
+<dd>
+Bug fix for CURRYPATH in CurryBrowser
+</dd>
+
+<dt>
+December 18, 2006
+</dt>
+
+<dd>
+CurryBrowser: menu item "file information" added
+</dd>
+
+<dt>
+December 12, 2006
+</dt>
+
+<dd>
+lib/Distribution: scheme for finding loadpath improved
+</dd>
+
+<dt>
+December 11, 2006
+</dt>
+
+<dd>
+lib/XML.curry: updateXmlFile added
+</dd>
+
+<dt>
+December 11, 2006
+</dt>
+
+<dd>
+lib/Time.curry: toDayString added
+</dd>
+
+<dt>
+December 8, 2006
+</dt>
+
+<dd>
+Implementation of function pattern fixed so that function pattern variables are also shared in order to correctly implement call-time choice
+</dd>
+
+<dt>
+December 7, 2006
+</dt>
+
+<dd>
+lib/System: unsetEnviron added and set environment variables are now exported to every system call
+</dd>
+
+<dt>
+November 22, 2006
+</dt>
+
+<dd>
+lib/System: setEnviron added (and environ replaced by getEnv in Prolog sources)
+</dd>
+
+<dt>
+November 13, 2006
+</dt>
+
+<dd>
+tools/optimize/CompactFlat: Prelude.ensureNotFree added to list of defaults (since it is implicitly called by "$#").
+</dd>
+
+<dt>
+November 10, 2006
+</dt>
+
+<dd>
+lib/HTML.curry: updated for conformity with XHTML, in particular, constructor <code>HtmlElem</code> removed from datatype <code>HTML</code>.
+</dd>
+
+<dt>
+November 10, 2006
+</dt>
+
+<dd>
+lib/HTML_Parser.curry: updated for conformity with XHTML, i.e., reading extended for XHTML documents, and module renamed to <b>HtmlParser</b>
+</dd>
+
+<dt>
+November 7, 2006
+</dt>
+
+<dd>
+lib/XML.curry: hex coding of special characters is now recognized
+</dd>
+
+<dt>
+November 1, 2006
+</dt>
+
+<dd>
+lib/GUI.curry: appendTaggedValue replaced by appendStyledValue which offers more flexibility
+</dd>
+
+<dt>
+November 1, 2006
+</dt>
+
+<dd>
+lib/HTML.curry: bug w.r.t. line breaks in pre element fixed
+</dd>
+
+<dt>
+October 17, 2006
+</dt>
+
+<dd>
+matchHead/matchLast added to lib/Dequeue.curry
+</dd>
+
+<dt>
+September 29, 2006
+</dt>
+
+<dd>
+Coloring of HTML source code documentations integrated into currydoc
+</dd>
+
+<dt>
+September 27, 2006
+</dt>
+
+<dd>
+Shell script <code>curry2prolog/curry2prolog</code> removed (since everything is now done in the Prolog implementation), new PAKCS option <code>-m</code> added and old option <code>-i PROG F</code> changed to <code>-i PROG -m F</code>
+</dd>
+
+<dt>
+September 26, 2006
+</dt>
+
+<dd>
+Directory <code>parser</code> removed from distribution (<code>parser/parsecurry</code> moved to <code>bin/.parsecurry</code>)
+</dd>
+
+<dt>
+September 26, 2006
+</dt>
+
+<dd>
+Definition of <code>Prelude.failed</code> made external
+</dd>
+
+<dt>
+September 22, 2006
+</dt>
+
+<dd>
+<code>GUI.getCursorPosition</code> added
+</dd>
+
+</dl>
+
+<hr/>
+<address><a href="http://www.informatik.uni-kiel.de/~mh/">Michael Hanus</a></address>This web page is powered by <a href="http://www.informatik.uni-kiel.de/~curry"><img src="http://www.informatik.uni-kiel.de/~curry/currysmallsymbol.gif" alt="Curry" align="middle" border="0"/></a>
+</body>
+
+</html>

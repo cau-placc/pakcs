@@ -1,0 +1,187 @@
+#****************************************************************************
+# PAKCS: The Portland Aachen Kiel Curry System
+# ============================================
+#
+# An Prolog-based implementation of the functional logic language Curry
+# developed by
+#
+# Sergio Antoy, Bernd Brassel, Martin Engelke, Michael Hanus, Klaus Hoeppner,
+# Johannes Koj, Philipp Niederau, Ramin Sadre, Frank Steiner
+#
+# (contact: mh@informatik.uni-kiel.de)
+#****************************************************************************
+
+# Logfile for make:
+MAKELOG=make.log
+# Directory where local executables are stored:
+LOCALBIN=bin/.local
+
+#
+# Install all components of PAKCS
+#
+.PHONY: all
+all: config
+	@rm -f ${MAKELOG}
+	@echo "Make started at `date`" > ${MAKELOG}
+	${MAKE} install 2>&1 | tee -a ${MAKELOG}
+	@echo "Make finished at `date`" >> ${MAKELOG}
+	@echo "Make process logged in file ${MAKELOG}"
+
+#
+# Install all components of PAKCS
+#
+.PHONY: install
+install:
+	# install cabal front end if sources are present:
+	@if [ -d frontend ] ; then ${MAKE} installfrontend ; fi
+	# install the front-end if necessary:
+	cd bin && rm -f parsecurry && ln -s .pakcs_wrapper parsecurry
+	# pre-compile all libraries:
+	@cd lib && ${MAKE} fcy
+	# install the Curry2Prolog compiler as a saved system:
+	rm -f bin/pakcs
+	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; then cd curry2prolog && ${MAKE} ; fi
+	# compile all libraries:
+	@cd lib && ${MAKE} acy
+	# prepare for separate compilation by compiling all librariers to Prolog code:
+	@if [ -r bin/pakcs ] ; then cd lib && ${MAKE} pl ; fi
+	# compile the Curry Port Name Server demon:
+	@if [ -r bin/pakcs ] ; then cd cpns && ${MAKE} ; fi
+	# compile the event handler demon for dynamic web pages:
+	@if [ -r bin/pakcs ] ; then cd www && ${MAKE} ; fi
+	# compile the tools:
+	@if [ -r bin/pakcs ] ; then cd tools && ${MAKE} ; fi
+	# compile documentation, if necessary:
+	@if [ -d docs/src ] ; then cd docs/src && ${MAKE} install ; fi
+	chmod -R go+rX .
+
+# Configure installation w.r.t. variables in bin/.pakcs_variables:
+.PHONY: config
+config:
+	@./update-pakcsrc
+	@./configure-pakcs
+
+# install new front end:
+.PHONY: installfrontend
+installfrontend:
+	@if [ ! -d ${LOCALBIN} ] ; then mkdir ${LOCALBIN} ; fi
+	cabal update
+	cabal install mtl
+	cd frontend/curry-base && cabal install
+	cd frontend/curry-frontend && cabal install
+	# copy cabal installation of front end into local directory
+	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
+
+#
+# Create documentation for system libraries:
+#
+.PHONY: libdoc
+libdoc:
+	@if [ ! -r bin/currydoc ] ; then \
+	  echo "Cannot create library documentation: currydoc not available!" ; exit 1 ; fi
+	@rm -f ${MAKELOG}
+	@echo "Make libdoc started at `date`" > ${MAKELOG}
+	@cd lib && ${MAKE} doc 2>&1 | tee -a ../${MAKELOG}
+	@echo "Make libdoc finished at `date`" >> ${MAKELOG}
+	@echo "Make libdoc process logged in file ${MAKELOG}"
+
+# Clean the system files, i.e., remove the installed PAKCS components
+.PHONY: clean
+clean:
+	rm -f ${MAKELOG}
+	${MAKE} cleantools
+	cd lib && ${MAKE} clean
+	cd examples && ../bin/cleancurry -r
+	if [ -d docs/src ] ; then cd docs/src && ${MAKE} clean ; fi
+	cd bin && rm -f sicstusprolog swiprolog
+
+# Clean the generated PAKCS tools
+.PHONY: cleantools
+cleantools:
+	cd curry2prolog && ${MAKE} clean
+	cd tools && ${MAKE} clean
+	cd cpns && ${MAKE} clean
+	cd www && ${MAKE} clean
+	cd bin && rm -f pakcs
+	rm -rf ${LOCALBIN}
+
+#################################################################################
+# Create distribution versions of the complete system as tar files pakcs*.tar.gz:
+
+# temporary directory to create distribution version
+PAKCSDIST=/tmp/pakcs
+# repository with new front-end:
+FRONTENDREPO=http://www-ps.informatik.uni-kiel.de/kics2/repos
+
+# install the sources of the front end from its repository
+.PHONY: frontendsources
+frontendsources:
+	if [ -d frontend ] ; then \
+	 cd frontend/curry-base && git pull && cd ../curry-frontend && git pull ; \
+	 else mkdir frontend && cd frontend && \
+	      git clone ${FRONTENDREPO}/curry-base.git && \
+	      git clone ${FRONTENDREPO}/curry-frontend.git ; fi
+
+.PHONY: dist
+dist:
+	rm -f pakcs*.tar.gz            # remove old distributions
+	cp -r -p . ${PAKCSDIST}        # create complete copy of this version
+	# install front end sources if they are not present:
+	if [ ! -d frontend ] ; then \
+	  cd ${PAKCSDIST} && ${MAKE} frontendsources ; fi
+	cd ${PAKCSDIST} && ${MAKE} cleandist  # delete unnessary files
+	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/bin/.pakcs_variables.init > ${PAKCSDIST}/bin/.pakcs_variables
+	rm ${PAKCSDIST}/bin/.pakcs_variables.init
+	# delete Prolog files of libraries
+	cd ${PAKCSDIST}/lib && ${MAKE} cleanpl
+	# generate binary distributions on remote hosts:
+	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
+	${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
+	# generate source distribution:
+	cp Makefile ${PAKCSDIST}/Makefile
+	cd ${PAKCSDIST}/lib && ${MAKE} clean # delete precompiled libraries
+	sed -e "/distribution/,\$$d" < Makefile > ${PAKCSDIST}/Makefile
+	cd /tmp && tar cf pakcs_src.tar pakcs && gzip pakcs_src.tar
+	mv /tmp/pakcs_src.tar.gz .
+	chmod 644 pakcs_src.tar.gz pakcs_`uname -s`.tar.gz
+	rm -rf ${PAKCSDIST}
+	@echo "----------------------------------------------------------------"
+	@echo "Distribution files pakcs_*.tar.gz generated."
+
+# generate distribution on a remote host:
+dist_%:
+	cp Makefile ${PAKCSDIST}/Makefile
+	sed -e "/distribution/,\$$d" < Makefile > ${PAKCSDIST}/Makefile
+	scp -p -q -r ${PAKCSDIST} $*:${PAKCSDIST}
+	scp -q Makefile $*:${PAKCSDIST}/../Makefile
+	ssh $* "cd ${PAKCSDIST} && ${MAKE} -f ../Makefile genbindist"
+	scp -p $*:/tmp/pakcs_\*.tar.gz .
+	ssh $* rm -rf ${PAKCSDIST} /tmp/pakcs_\*.tar.gz /tmp/Makefile
+
+# compile cabal parser from the sources, replace them by binaries
+# and put everything into a .tar.gz file:
+.PHONY: genbindist
+genbindist:
+	rm -f pakcs*.tar.gz
+	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make installfrontend
+	rm -rf frontend
+	cd /tmp && tar cf pakcs_`uname -s`.tar pakcs && gzip pakcs_`uname -s`.tar
+
+
+#
+# Clean all files that should not be included in a distribution
+#
+.PHONY: cleandist
+cleandist:
+	rm -f ${MAKELOG}
+	${MAKE} cleantools
+	rm -rf frontend/curry-base/.git frontend/curry-base/.gitignore
+	rm -rf frontend/curry-frontend/.git frontend/curry-frontend/.gitignore
+	rm -rf frontend/curry-base/dist frontend/curry-frontend/dist
+	rm -rf docs/src
+	rm -rf lib/CDOC lib/TEXDOC
+	rm -f CVS-description KNOWN_BUGS VERSIONS CHANGELOG.html
+	rm -rf CVS */CVS */*/CVS */*/*/CVS
+	rm -f *~ */*~ */*/*~ */*/*/*~ */*/*/*/*~
+	cd bin && rm -f sicstusprolog swiprolog .??*~ .??*.bak
+	cd examples && ../bin/cleancurry -r

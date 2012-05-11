@@ -1,0 +1,25 @@
+#####################################################################
+# Set up the default variables according to the local installation:
+
+# This variable must be defined only if the sources of the new front-end
+# should be compiled.
+# Glasow Haskell Compiler:
+GHC=
+
+
+######################################################################
+# The following entries are only necessary for Curry->Prolog compiler,
+# i.e., the main Curry programming environment of PAKCS:
+# (undefined = do not install Curry2Prolog, TasteCurry etc)
+
+# Directory of the Sicstus-Prolog installation, i.e.,
+# $SICSTUSDIR/bin/sicstus should be the name of the interpreter executable:
+SICSTUSDIR=
+
+# SWI-Prolog (if you don't have Sicstus-Prolog)
+# Note that the complete functionality of PAKCS is not available with
+# SWI-Prolog and the efficiency is also slower than with Sicstus-Prolog.
+SWIPROLOG=
+
+
+#####################################################################

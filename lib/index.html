@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel="stylesheet" type="text/css" href="http://www.informatik.uni-kiel.de/~pakcs/pakcs.css"/>
+  <title>PAKCS Libraries</title>
+</head>
+
+<body bgcolor="#ffffff">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%" class="titlebackground">
+ <colgroup>
+   <col width="30%"/>
+   <col/>
+ </colgroup>
+ <tr>
+  <td colspan="2">
+   <table width="100%" cellspacing="0" >
+    <tr>
+     <td class="coloredtitle"><h1>PAKCS: System Libraries</h1></td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign="top" width="30%">
+   <table class="fastmenu">
+    <tr>
+     <td><img src="http://www.informatik.uni-kiel.de/~pakcs/ball.gif" border="0" alt="o"/>&nbsp;</td>
+     <td> <a class="button" href="#general">General libraries</a></td>
+    </tr>
+    <tr>
+     <td><img src="http://www.informatik.uni-kiel.de/~pakcs/ball.gif" border="0" alt="o"/>&nbsp;</td>
+     <td> <a class="button" href="#algorithms">Data structures and algorithms</a></td>
+    </tr>
+    <tr>
+     <td><img src="http://www.informatik.uni-kiel.de/~pakcs/ball.gif" border="0" alt="o"/>&nbsp;</td>
+     <td> <a class="button" href="#web">Libraries for web applications</a></td>
+    </tr>
+    <tr>
+     <td><img src="http://www.informatik.uni-kiel.de/~pakcs/ball.gif" border="0" alt="o"/>&nbsp;</td>
+     <td> <a class="button" href="#meta">Libraries for meta-programming</a></td>
+    </tr>
+    <tr>
+     <td><img src="http://www.informatik.uni-kiel.de/~pakcs/ball.gif" border="0" alt="o"/>&nbsp;</td>
+     <td> <a class="button" href="CDOC/findex.html">Index to all library functions</a></td>
+    </tr>
+    <tr>
+     <td><img src="http://www.informatik.uni-kiel.de/~pakcs/ball.gif" border="0" alt="o"/>&nbsp;</td>
+     <td> <a class="button" href="CDOC/cindex.html">Index to all library constructors</a></td>
+    </tr>
+   </table>
+  </td>
+
+<td class="main">
+
+<p>
+Here is the collection of libraries contained in the
+distribution of
+<a href="http://www.informatik.uni-kiel.de/~pakcs/">PAKCS</a>.
+Most of these libraries have been implemented during the development
+of larger Curry applications. If you have suggestions for
+changes/improvements or if you want to contribute your own library,
+please contact <a href="mailto:mh@informatik.uni-kiel.de">Michael Hanus</a>.
+</p>
+
+<hr />
+
+<a name="general" />
+<h2>General libraries:</h2>
+<ul>
+<li> <a href="CDOC/Prelude.html"><code>Prelude</code></a>:
+This is the standard prelude, i.e., the main library which is added
+to every Curry program.
+</li>
+
+
+<li> <a href="CDOC/AllSolutions.html"><code>AllSolutions</code></a>:
+This library contains a collection of functions for
+obtaining lists of solutions to constraints.
+These operations are useful to encapsulate
+non-deterministic operations between I/O actions in
+order to connects the worlds of logic and functional programming
+and to avoid non-determinism failures on the I/O level.
+</li>
+
+<li> <a href="CDOC/Assertion.html"><code>Assertion</code></a>:
+This library defines the datatype and functions for the
+Curry module tester "currytest".
+</li>
+
+<li> <a href="CDOC/Char.html"><code>Char</code></a>:
+This library contains some useful functions on characters.
+</li>
+
+<li> <a href="CDOC/CLPFD.html"><code>CLPFD</code></a>:
+This library supports constraint programming with
+finite domain constraints.
+</li>
+
+<li> <a href="CDOC/CLPR.html"><code>CLPR</code></a>:
+This library supports constraint programming with
+arithmetic constraints over real numbers.
+</li>
+
+<li> <a href="CDOC/CLPB.html"><code>CLPB</code></a>:
+This library provides a Boolean constraint solver based on BDDs.
+</li>
+
+<li> <a href="CDOC/Combinatorial.html"><code>Combinatorial</code></a>:
+This library contains a collection of common non-deterministic
+and/or combinatorial operations.
+</li>
+
+<li> <a href="CDOC/Constraint.html"><code>Constraint</code></a>:
+This library contains
+some useful operations for constraint programming.
+</li>
+
+<li> <a href="CDOC/CSV.html"><code>CSV</code></a>:
+This library supports reading/writing files in CSV
+(comma separated values) format that can be imported and exported
+by most spreadsheed and database applications.
+</li>
+
+<li> <a href="CDOC/Database.html"><code>Database</code></a>:
+Library for accessing and storing data in databases.
+The contents of a database is represented in this library
+as dynamic predicates that are defined by facts than can change over
+time and can be persistently stored.
+All functions in this library distinguishes between <em>queries</em> that
+access the database and <em>transactions</em> that manipulates data
+in the database. Transactions have a monadic structure.
+Both queries and transactions can be executed as I/O actions.
+However, arbitrary I/O actions cannot be embedded in transactions.
+The ideas of this library are described in
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL08.html">this paper</a>.
+</li>
+
+<li> <a href="CDOC/DaVinci.html"><code>DaVinci</code></a>:
+This library supports the visualization of graphs by the
+<a href="http://www.tzi.de/daVinci/">daVinci graph drawing tool</a>.
+</li>
+
+<li> <a href="CDOC/Directory.html"><code>Directory</code></a>:
+This library supports the access to the directory structure of the
+underlying operating system.
+</li>
+
+<li> <a href="CDOC/Distribution.html"><code>Distribution</code></a>:
+This library contains functions to obtain information concerning the current
+distribution of the Curry implementation, e.g., compiler version,
+load paths, front end.
+</li>
+
+<li> <a href="CDOC/Dynamic.html"><code>Dynamic</code></a>:
+This library supports the manipulation of dynamic predicates,
+i.e., predicates that are defined by facts than can change over
+time and can be persistently stored.
+The ideas of this library are described in
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/JFLP04_dyn.html">this paper</a>.
+<b>Remark:</b>
+<em>This library has been revised to the library <code>Database</code>.
+Thus, it might not be further supported in the future.</em>
+</li>
+
+<li> <a href="CDOC/FileGoodies.html"><code>FileGoodies</code></a>:
+A collection of useful operations when dealing with files.
+</li>
+
+<li> <a href="CDOC/Float.html"><code>Float</code></a>:
+A collection of operations on floating point numbers.
+</li>
+
+<li> <a href="CDOC/Global.html"><code>Global</code></a>:
+This library provides functionality for global entities.
+A global entity has a name declared in the program.
+Its value can be accessed and modified by IO actions.
+Furthermore, global entities can be persistent so that
+their values are stored across different program executions.
+</li>
+
+<li>
+  <a href="CDOC/GlobalVariable.html"><code>GlobalVariable</code></a>:
+  This library implements global variables.
+  A global variable has a name declared in the program.
+  Its value can be accessed and modified by IO actions.
+  Values of global variables can contain logic variables shared with
+  computations running in the same computation space.
+  As a consequence, values of global variables are not kept
+  across different program executions.
+</li>
+
+<li> <a href="CDOC/GUI.html"><code>GUI</code></a>:
+This library contains definitions and functions to
+implement graphical user interfaces for Curry programs.
+It is based on Tcl/Tk and its basic ideas are described in detail
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL00.html">here</a>.
+This library is an improved and updated version of the older library
+<a href="CDOC/Tk.html"><code>Tk</code></a>.
+The latter might not be supported in the future.
+</li>
+
+<li> <a href="CDOC/Integer.html"><code>Integer</code></a>:
+A collection of common operations on integer numbers.
+</li>
+
+<li> <a href="CDOC/IO.html"><code>IO</code></a>:
+This library contains IO operations, like reading and writing files,
+that are not already contained in the prelude.
+</li>
+
+<li> <a href="CDOC/IOExts.html"><code>IOExts</code></a>:
+This library contains some useful extensions to the IO monad,
+in particular, the implementation of a global state.
+</li>
+
+<li> <a href="CDOC/JavaScript.html"><code>JavaScript</code></a>:
+A library to represent JavaScript programs.
+</li>
+
+<li> <a href="CDOC/KeyDatabase.html"><code>KeyDatabase</code></a>:
+This library provides a general interface for databases
+(persistent predicates based on the library <code>Database</code>)
+where each entry consists of a key and an info part.
+</li>
+
+<li> <a href="CDOC/KeyDatabaseSQLite.html"><code>KeyDatabaseSQLite</code></a>:
+This library provides a general interface for databases
+(persistent predicates based on the library <code>Database</code>)
+where each entry consists of a key and an info part.
+It reimplements the interface of the module
+<code>KeyDatabase</code> based on the
+<a href="http://sqlite.org/">SQLite</a> database engine.
+</li>
+
+<li> <a href="CDOC/KeyDB.html"><code>KeyDB</code></a>:
+This library provides a general interface for databases
+(persistent predicates) where each entry consists of a key and an info
+part.
+<b>Remark:</b>
+<em>This library has been revised to the library <code>KeyDatabase</code>.
+Thus, it might not be further supported in the future.</em>
+</li>
+
+<li> <a href="CDOC/List.html"><code>List</code></a>:
+This library contains some useful operations on lists which are not
+contained in the <a href="CDOC/Prelude.html"><code>standard prelude</code></a>.
+</li>
+
+<li> <a href="CDOC/Maybe.html"><code>Maybe</code></a>:
+This library contains some useful operations on the Maybe type which are not
+contained in the <a href="CDOC/Prelude.html"><code>standard prelude</code></a>.
+</li>
+
+<li> <a href="CDOC/NamedSocket.html"><code>NamedSocket</code></a>:
+This library contains operations for network programming with sockets
+where sockets are addressed by symbolic names rather than numbers.
+</li>
+
+<li> <a href="CDOC/Parser.html"><code>Parser</code></a>:
+This library defines (functional logic) parser combinators
+to support a simple implementation of parsers in Curry.
+It is adapted from Rafael Caballero and Francisco J. Lopez-Fraguas:
+A Functional Logic Perspective of Parsing,
+Proc. FLOPS'99, Springer LNCS 1722, pp. 85-99, 1999
+</li>
+
+<li> <a href="CDOC/Ports.html"><code>Ports</code></a>:
+This library supports the development of concurrent and
+distributed applications in Curry by defining ports
+for sending and receiving messages, possibly containing
+logical variables. A detailed description
+of the idea and use of ports can be found
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PPDP99.html">here</a>.
+</li>
+
+<li> <a href="CDOC/Pretty.html"><code>Pretty</code></a>:
+This library provides combinators to support the definition
+of pretty printers for structured text.
+</li>
+
+<li> <a href="CDOC/Profile.html"><code>Profile</code></a>:
+This library contains limited and preliminary support
+for profiling. Currently, it supports the possibility
+to show the time and space needed to evaluate a term to its normal form.
+</li>
+
+<li> <a href="CDOC/PropertyFile.html"><code>PropertyFile</code></a>:
+This library defines some functions to read and update files
+containing properties in the usual equational syntax.
+</li>
+
+<li> <a href="CDOC/Read.html"><code>Read</code></a>:
+This library defines some functions for reading special tokens
+(naturals, integers, hexadecimal numbers) from strings.
+<em>This library is included for backward compatibility only.
+You should use the library <code>ReadNumeric</code> which provides a better interface
+for these functions.</em>
+</li>
+
+<li> <a href="CDOC/ReadNumeric.html"><code>ReadNumeric</code></a>:
+This library defines some functions for reading numeric tokens
+(naturals, integers, hexadecimal numbers) from strings and converting
+them to numbers.
+</li>
+
+<li> <a href="CDOC/ReadShowTerm.html"><code>ReadShowTerm</code></a>:
+This library contains functions for converting ground data terms
+to strings and vice versa.
+</li>
+
+<li>
+   <a href="CDOC/SetFunctions.html"><code>SetFunctions</code></a>:
+   This library contains a prototypical implementation of set functions
+   to encapsulate nondeterministic computations. The general idea of
+   set functions is described in
+   <a href="http://www.informatik.uni-kiel.de/~mh/papers/PPDP09.html" target="_blank">this paper</a>
+   but the implementation in this library is more restricted than
+   the general approach.
+</li>
+
+<li> <a href="CDOC/Socket.html"><code>Socket</code></a>:
+This library contains basic operations for network programming with sockets.
+</li>
+
+<li> <a href="CDOC/System.html"><code>System</code></a>:
+This library supports the access to parts of the system environment,
+like the current date and time, environment variables,
+system calls etc.
+</li>
+
+<li> <a href="CDOC/Time.html"><code>Time</code></a>:
+This library contains definitions and functions to
+handle date and time information.
+</li>
+
+<li> <a href="CDOC/Tk.html"><code>Tk</code></a>:
+This library contains definitions and functions to
+implement graphical user interfaces for Curry programs.
+It is based on Tcl/Tk and described in detail
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL00.html">here</a>.
+</li>
+
+<li> <a href="CDOC/Unsafe.html"><code>Unsafe</code></a>:
+This library contains unsafe operations which should not be used.
+</li>
+</ul>
+
+<a name="algorithms" />
+<h2>Data structures and algorithms:</h2>
+<ul>
+<li> <a href="CDOC/Array.html"><code>Array</code></a>:
+An implementation of arrays with Braun Trees.
+</li>
+
+<li> <a href="CDOC/Dequeue.html"><code>Dequeue</code></a>:
+An implementation of double-ended queues supporting access at both
+ends in constant amortized time.
+</li>
+
+<li> <a href="CDOC/FiniteMap.html"><code>FiniteMap</code></a>:
+An implementation of finite maps.
+A finite map is an efficient purely functional data structure 
+to store a mapping from keys to values.
+</li>
+
+<li> <a href="CDOC/GraphInductive.html"><code>GraphInductive</code></a>:
+A library for inductive graphs (port of a Haskell library by Martin Erwig).
+Graphs are composed and decomposed in an inductive way.
+</li>
+
+<li> <a href="CDOC/Random.html"><code>Random</code></a>:
+This library provides operations for generating pseudo-random
+number sequences.
+</li>
+
+<li> <a href="CDOC/RedBlackTree.html"><code>RedBlackTree</code></a>:
+This library provides an efficient implementation of red-black trees.
+It serves as the base for the libraries <code>SetRBT</code>
+and <code>TableRBT</code>.
+All the operations on trees are generic, i.e., one has to provide
+explicit order predicates on elements.
+</li>
+
+<li> <a href="CDOC/SetRBT.html"><code>SetRBT</code></a>:
+This library provides an efficient implementation of sets
+as red-black trees. The implementation is generic in the types
+of elements and the set operations require an ordering predicate on elements.
+The library also contains a generic sort function
+with complexity O(n*log(n)) based on insertion into red-black trees.
+</li>
+
+<li> <a href="CDOC/Sort.html"><code>Sort</code></a>:
+A collection of useful functions for sorting and comparing
+characters, strings, and lists.
+</li>
+
+<li> <a href="CDOC/TableRBT.html"><code>TableRBT</code></a>:
+This library provides an efficient implementation of tables
+(i.e., finite mappings from keys to values) as red-black trees.
+The implementation is generic in the types of keys and values
+and the table operations require an ordering predicate on keys.
+</li>
+
+<li> <a href="CDOC/Traversal.html"><code>Traversal</code></a>:
+This library supports lightweight generic traversals through tree-structured data.
+</li>
+
+</ul>
+
+<a name="web" />
+<h2>Libraries for web applications:</h2>
+<ul>
+<li> <a href="CDOC/CategorizedHtmlList.html"><code>CategorizedHtmlList</code></a>:
+This library provides functions to categorize a list of entities
+into a HTML page with an index access (e.g., "A-Z") to these entities.
+</li>
+
+<li> <a href="CDOC/HTML.html"><code>HTML</code></a>:
+This library supports HTML and CGI programming, i.e.,
+the generation of (dynamic) web pages. A detailed description
+of this library and its basic ideas can be found
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL01.html">here</a>.
+</li>
+
+<li> <a href="CDOC/HtmlParser.html"><code>HtmlParser</code></a>:
+This library contains a parser for HTML documents.
+It does not perform any syntax checks but returns
+only a generic representation according to the definition of
+HTML documents provided in the library
+<a href="CDOC/HTML.html"><code>HTML</code></a>.
+</li>
+
+<li> <a href="CDOC/Mail.html"><code>Mail</code></a>:
+This library contains functions for sending emails.
+The implementation might need to be adapted to the local environment.
+</li>
+
+<li> <a href="CDOC/Markdown.html"><code>Markdown</code></a>:
+Library to translate markdown documents into HTML or LaTeX.
+</li>
+
+<li> <a href="CDOC/URL.html"><code>URL</code></a>:
+This library contains functions related to URLs,
+in particular, downloading of documents accessible by a URL.
+</li>
+
+<li> <a href="CDOC/WUI.html"><code>WUI</code></a>:
+Library to support type-oriented construction of web user interfaces.
+The ideas behind the application and implementation of this library are
+described in paper that is available via
+<a href="http://www.informatik.uni-kiel.de/~pakcs/WUI">this web page</a>.
+</li>
+
+<li> <a href="CDOC/XML.html"><code>XML</code></a>:
+Library for processing data in XML format.
+It contains a definition of a datatype for representing
+XML terms and a parser and pretty printing for converting
+strings into such XML terms and vice versa.
+</li>
+
+<li> <a href="CDOC/XmlConv.html"><code>XmlConv</code></a>:
+This library provides type-based combinators to construct XML converters.
+Arbitrary XML data can be represented as algebraic datatypes and vice versa.
+See <a href="http://www-ps.informatik.uni-kiel.de/~sebf/projects/xmlconv/">
+here</a> for a description of this library.
+</li>
+</ul>
+
+<a name="meta" />
+<h2>Libraries for meta-programming:</h2>
+<ul>
+<li> <a href="CDOC/AbsCurry.html"><code>AbsCurry</code></a>:
+This library contains a definition of an abstract representation
+of Curry programs in Curry. It is only included for backward
+compatibility and should not be used.
+Use the library AbstractCurry instead.
+</li>
+
+<li> <a href="CDOC/AbsCurryIO.html"><code>AbsCurryIO</code></a>:
+This library supports functions to read Curry program in the
+old AbsCurry representation (based on reading files in the
+new AbstractCurry format).
+</li>
+
+<li> <a href="CDOC/AbstractCurry.html"><code>AbstractCurry</code></a>:
+This library contains a definition for representing Curry programs
+in Curry and an I/O action to read Curry programs and
+transform them into this abstract representation.
+</li>
+
+<li> <a href="CDOC/AbstractCurryPrinter.html"><code>AbstractCurryPrinter</code></a>:
+This library contains a pretty printer for AbstractCurry programs
+in order to show an AbstractCurry program in standard Curry syntax.
+</li>
+
+<li> <a href="CDOC/CompactFlatCurry.html"><code>CompactFlatCurry</code></a>:
+This library contains functions to reduce the size of FlatCurry programs
+by combining the main module and all imports into a single program
+that contains only the functions directly or indirectly called from
+a set of main functions.
+</li>
+
+<li> <a href="CDOC/CurryStringClassifier.html"><code>CurryStringClassifier</code></a>:
+This library contains a simple tool to process strings containing
+Curry source code in order to perform simple manipulations of source programs
+(e.g., adding type signatures, removing comments).
+</li>
+
+<li> <a href="CDOC/Flat.html"><code>Flat</code></a>:
+This library supports meta-programming, i.e., the manipulation of
+Curry programs in Curry. For this purpose, the library contains
+definitions of datatypes for the representation of so-called
+FlatCurry programs and an I/O action to read Curry programs
+and transform them into this representation.
+<br />
+<b>Remark:</b>
+<em>This library has been revised to the library <code>FlatCurry</code>.
+In the near future, it will not be further supported.</em>
+</li>
+
+<li> <a href="CDOC/FlatTools.html"><code>FlatTools</code></a>:
+This library extends the library <code>Flat</code> for meta-programming.
+It contains the definition of a show function for a string representation
+of FlatCurry programs, a function for showing FlatCurry expressions in
+(almost) Curry syntax, and an I/O action for storing a FlatCurry program into
+an <code>.flc</code> file (which can be further compiled by the Curry2Prolog
+compiler, compare the PAKCS User Manual).
+<br />
+<b>Remark:</b>
+<em>This library has been revised to the library <code>FlatCurryTools</code>.
+In the near future, it will not be further supported.</em>
+</li>
+
+<li> <a href="CDOC/FlatCurry.html"><code>FlatCurry</code></a>:
+This library supports meta-programming, i.e., the manipulation of
+Curry programs in Curry. For this purpose, the library contains
+definitions of datatypes for the representation of so-called
+FlatCurry programs and an I/O action to read Curry programs
+and transform them into this representation.
+<br />
+<b>Remark:</b>
+<em>This library is a revised version of the library <code>Flat</code>,
+i.e., the representation of FlatCurry programs is improved
+to simplify the implementation of meta-programming tools
+(interpreter, compiler, analyzer etc.).
+In the near future, only this representation will be further
+supported.</em>
+</li>
+
+<li> <a href="CDOC/FlatCurryGoodies.html"><code>FlatCurryGoodies</code></a>:
+This library provides selector functions, test and update operations 
+as well as some useful auxiliary functions for manipulating
+FlatCurry data terms.
+</li>
+
+<li> <a href="CDOC/FlatCurryRead.html"><code>FlatCurryRead</code></a>:
+This library defines operations to read a FlatCurry programs or interfaces
+together with all its imported modules in the current load path.
+</li>
+
+<li> <a href="CDOC/FlatCurryShow.html"><code>FlatCurryShow</code></a>:
+This library contains functions to transform FlatCurry programs
+into string representations, either in a FlatCurry format
+or in a Curry-like syntax.
+</li>
+
+<li> <a href="CDOC/FlatCurryTools.html"><code>FlatCurryTools</code></a>:
+This library is outdated and might be deleted in future releases.
+Use the library <a href="CDOC/FlatCurryShow.html"><code>FlatCurryShow</code></a>
+instead of this library.
+</li>
+
+<li> <a href="CDOC/FlatCurryXML.html"><code>FlatCurryXML</code></a>:
+This library contains functions to
+convert FlatCurry programs into XML terms and vice versa.
+</li>
+
+<li> <a href="CDOC/FlatXML.html"><code>FlatXML</code></a>:
+This library contains functions to
+convert FlatCurry programs into XML terms and vice versa.
+A detailed specification of the XML format used here can be found in
+<a href="http://www.informatik.uni-kiel.de/~mh/curry/flat/">
+ <code>http://www.informatik.uni-kiel.de/~curry/flat/</code></a>.
+</li>
+
+<li> <a href="CDOC/FlexRigid.html"><code>FlexRigid</code></a>:
+This library provides a function to compute the rigid/flex status
+of a FlatCurry expression (right-hand side of a function definition).
+</li>
+
+<li> <a href="CDOC/PrettyAbstract.html"><code>PrettyAbstract</code></a>:
+This library contains a pretty printer for AbstractCurry programs
+in order to show an AbstractCurry program in human-readable Curry syntax.
+In contrast to the library <code>AbstractCurryPrinter</code>,
+this library implements a better human-readable pretty printing
+of AbstractCurry programs.
+</li>
+
+</ul>
+
+<hr />
+
+Back to <a href="http://www.informatik.uni-kiel.de/~pakcs/">Homepage of PAKCS</a>
+
+</td>
+</tr>
+</table>
+
+<hr/>
+
+<address>
+ <a href="http://www.informatik.uni-kiel.de/~mh/">Michael Hanus</a>
+</address>
+
+<p>
+  <a href="http://validator.w3.org/check?uri=referer">
+   <img src="http://www.w3.org/Icons/valid-xhtml10"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a>
+</p>
+
+</body>
+</html>
+
+

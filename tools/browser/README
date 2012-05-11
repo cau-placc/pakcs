@@ -1,0 +1,32 @@
+CurryBrowser
+------------
+
+A tool to browse through the modules and functions of a Curry program,
+show them in various formats, and analyze their properties.
+
+Note:
+Functionalities of the Browser marked by "(DOT)" require an
+installed graph visualization tool (dot, see below), otherwise
+they have no effect.
+
+Developed by
+Michael Hanus (CAU Kiel, Germany, mh@informatik.uni-kiel.de)
+
+Version of 22/03/2012
+
+
+Software requirements:
+----------------------
+
+* PAKCS (for compiling and running the browser)
+  http:/www.informatik.uni-kiel.de/~pakcs
+
+* Tcl/Tk (for running the browser GUI)
+  http://www.scriptics.com/software/tcltk/
+
+* dot/ghostview (for visualizing import graphs):
+  http://www.graphviz.org/
+
+  Adapt definition of dot viewer according to your local installation
+  with the menu "Settings". If you don't have this software,
+  you can't use the browser functions marked by "(DOT)".

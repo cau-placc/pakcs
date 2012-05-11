@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# Main script to run the components of PAKCS
+#########
+# IT WILL NOT WORK IF THE INDIVIDUALS PROGRAMS ARE NOT CALLED VIA
+# THEIR ORIGINAL NAMES!
+# (i.e., do not use links to the bin-dir with different program names)
+#
+
+# Load the definition of JAVA, SICSTUS and others specifying auxiliary tools:
+PATHNAME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
+. "$PATHNAME/.pakcs_variables"
+
+export PIZZACLASSES # used in Curry2Java
+export CLASSPATH    # used in Curry2Java
+
+# Compute the main directory where PAKCS is installed:
+PAKCSHOME=`expr "$PATHNAME" : '\(.*\)/bin'`
+export PAKCSHOME
+
+# Define load path for standard libraries provided by PAKCS:
+# (used by the various programming tools to search for modules if they
+# are not found elsewhere)
+PAKCSLIBPATH=$PAKCSHOME/lib:$PAKCSHOME/lib/meta
+export PAKCSLIBPATH
+
+# The name of the currently called program:
+progname=`basename "$0"`
+
+# add $SICSTUSDIR/bin to path so that command "sicstus..." becomes executable:
+if [ -n "$SICSTUSDIR" ] ; then
+  PATH=$SICSTUSDIR/bin:$PATH
+  export PATH
+fi
+
+if [ $progname = pakcs -o $progname = curry2prolog ] ; then
+  # start the Curry->Prolog compiler:
+  # use readline wrapper rlwrap if it is installed and we have tty as stdin:
+  USERLWRAP=no
+  if tty -s ; then
+    RLWRAP=`which rlwrap`
+    if [ -x "$RLWRAP" ] ; then
+      USERLWRAP=yes
+    fi
+  fi
+
+  for i in $* ; do
+    if [ $i = "--noreadline" ] ; then
+      USERLWRAP=no
+    fi
+  done
+
+  if [ $USERLWRAP = yes ] ; then
+    exec rlwrap -a -c -f "$PAKCSHOME/tools/rlwrap" "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
+  else
+    exec "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
+  fi
+
+elif [ $progname = curry2java ] ; then
+  # start the Curry->Java compiler:
+  exec "$PAKCSHOME/tc2java/curry2java" ${1+"$@"}
+
+elif [ $progname = tastecurry ] ; then
+  # start the TasteCurry interpreter:
+  exec "$PAKCSHOME/tastecurry/tastecurry.state"
+
+elif [ $progname = parsecurry ] ; then
+  # start the Curry front end:
+  exec "$PAKCSHOME/bin/.parsecurry" ${1+"$@"}
+
+elif [ $progname = sicstusprolog -o $progname = sicstus ] ; then
+  # call current version of SICStus-Prolog
+  if [ -z "$SICSTUSDIR" ] ; then
+    echo "ERROR: Variable SICSTUSDIR undefined in PAKCS, can't execute 'sicstusprolog'!" >&2
+    exit 1
+  else
+    exec "$SICSTUSDIR/bin/sicstus" ${1+"$@"}
+  fi
+
+elif [ $progname = swiprolog ] ; then
+  # call current version of SWI-Prolog
+  if [ -z "$SWIPROLOG" ] ; then
+    echo "ERROR: Variable SWIPROLOG undefined in PAKCS, can't execute 'swiprolog'!" >&2
+    exit 1
+  else
+    exec "$SWIPROLOG" ${1+"$@"}
+  fi
+
+else
+  echo "Error: unknown program '$progname'"
+  exit 1
+fi
+

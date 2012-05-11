@@ -1,0 +1,39 @@
+Application of list comprehensions:
+
+Implementation of DEFAULT RULES by a syntactic transformation
+
+Consider you have a Haskell-like function definition with default
+rules:
+
+f p = r
+f x = s
+
+(where p is a pattern and x a variable). The sequential reading
+of these rules can be implemented by the following syntactic
+transformation:
+
+f x = let l = [r | p <- [x]]
+      in if l==[] then s else head l
+
+
+
+Example 1: Consider the Haskell definition
+
+abs 0 = 0
+abs x = 1
+
+We implement this as
+
+> abs x = let l = [0 | 0 <- [x]]
+>         in  if l==[] then 1 else head l
+
+
+Example 2: Consider the Haskell definition
+
+swap [x,y] = [y,x]
+swap l = l
+
+We implement this as
+
+> swap z = let l = [[y,x] | [x,y] <- [z]]
+>          in  if l==[] then z else head l

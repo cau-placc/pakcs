@@ -1,0 +1,44 @@
+This directory contains a collection of (mainly small) example
+programs for Curry and PAKCS. An index and a short description of
+most of these programs are contained in the file "index.html".
+
+Further useful files:
+
+CPTEST: a shell script to test the curry2prolog system.
+        In order to test the system after some modifications,
+        do the following steps:
+
+           ./CPTEST > xxx
+           # if you use SICStus Prolog:
+           diff CPTEST.sicstusresult xxx
+           # or if you use SWI Prolog:
+           diff CPTEST.swiresult xxx
+
+        If the output of "diff" is empty, you are lucky:
+        the old examples are still working!
+
+
+CJTEST: a shell script to test the curry2java system.
+        In order to test the system after some modifications,
+        do the following steps:
+
+           ./CJTEST > xxx
+           diff CJTEST.result xxx
+
+        Note: even if the modifications are working, there will
+        be some differences due to other run times and different
+	orders of solutions (remind that the curry2java system
+	is an OR-parallel implementations, i.e., the order of
+	solutions depends on the Java scheduler).
+
+
+TCTEST: a shell script to test the tastecurry system.
+        In order to test the system after some modifications,
+        do the following steps:
+
+           ./TCTEST > xxx
+           diff TCTEST.result xxx
+
+        Note: even if the modifications are working, there might
+        be some differences due to new variable numbers or similar
+        things.

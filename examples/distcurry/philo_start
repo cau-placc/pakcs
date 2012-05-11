@@ -1,0 +1,17 @@
+#!/bin/sh
+# script to start all semaphores for the dining philosophers:
+
+echo ':l philo_ext
+      start_room' | curry2prolog &
+echo ':l philo_ext
+      start_fork0' | curry2prolog &
+echo ':l philo_ext
+      start_fork1' | curry2prolog &
+echo ':l philo_ext
+      start_fork2' | curry2prolog &
+echo ':l philo_ext
+      start_fork3' | curry2prolog &
+echo ':l philo_ext
+      start_fork4' | curry2prolog &
+
+# now you can start the philosophers

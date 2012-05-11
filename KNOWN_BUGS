@@ -1,0 +1,30 @@
+Performing IO actions in curry2java:
+- an I/O action contained in a data structure or in a locally declared
+  variable is performed only once even it is applied several times.
+  This effect is due to sharing.
+  Example for this behavior:
+
+  iotest = act >> act
+    where act = putStrLn "hello!"
+
+  Here, hello is printed only once.
+
+  Solution: no sharing of results of type IO a
+
+
+Occur check in higher-order objects in curry2prolog:
+- no occur check is performed in curry2prolog in higher-order objects,
+  i.e., in  partially applied functions (which are considered as
+  constructors). Thus, the unification
+
+    f =:= (.) f
+
+  does not terminate although it should fail due to the occur check.
+
+  Solution: generate additional clauses for partially applied functions
+  in the definition of the predicate "occurs_not". However, this increases
+  the size of the generated programs considerably. On the other hand,
+  this case occurs very rarely (up to know there is no application making
+  use of a real unification of higher-order objects).
+
+

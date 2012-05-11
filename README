@@ -1,0 +1,61 @@
+This is PAKCS (the Portland Aachen Kiel Curry system),
+an implementation of Curry developed by RWTH Aachen,
+University of Kiel and Portland State University
+(email contact: mh@informatik.uni-kiel.de)
+
+This directory contains:
+
+RELNOTES.html:
+  Some information about the current release and changes w.r.t. previous
+  releases of PAKCS.
+
+RESOURCES.html:
+  A description of various resources related to PAKCS and Curry.
+  This is helpful for new users.
+
+INSTALL.html:
+  Instructions to install the system.
+
+bin:
+  A directory containing various scripts that implement the main
+  commands to execute the components of PAKCS.
+
+cpns:
+  This directory contains scripts and executables for the
+  Curry Port Name Server (CPNS) which is responsible for managing the
+  symbolic names assigned to the named ports on a local machine
+  (see library Ports for more details).
+
+curry2prolog:
+  This directory contains the compiler from Curry into Prolog which
+  is the basis of the main component of PAKCS: the interactive
+  development environment.
+
+docs:
+  This directory contains some documentation (Curry Report, PAKCS User Manual,
+  DTD for XML representation of FlatCurry).
+
+examples:
+  This directory contains a collection of example Curry programs
+  and test files (prefixed by "test") to check the system using
+  the currytest tool. All tests can be executed by the shell script
+  "doTest" in this directory.
+
+frontend: 
+  This directory contains the sources of the Curry front-end, i.e., a parser
+  for Curry programs. It is adapted from the parser of the Muenster Curry
+  Compiler (MCC).
+
+lib:
+  This directory contains a collection of standard libraries
+  implemented in Curry (including the standard prelude).
+
+tools:
+  This directory contains various tools for the PAKCS system
+  (see the README there for a more detailed description).
+
+www:
+  This directory contains scripts and executables for the
+  event handler server that is required to execute dynamic web
+  pages implemented with the libraries HTML or WUI.
+

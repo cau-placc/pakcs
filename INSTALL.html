@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+   <title>PAKCS Installation</title>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h1>PAKCS: The Portland Aachen Kiel Curry System</h1>
+<h2>Installation Instructions</h2>
+
+The current version of PAKCS runs on Unix-based platforms
+and has been tested under SunOS, Linux, and Mac OS X.
+If you want to install and run the complete system
+on your computer, you need the following software:
+<ul>
+<li>
+<a href="http://www.sics.se/sicstus.html" target="_blank">SICStus-Prolog</a> (Version 3 #5
+or higher) (recommended) </li>
+<li>
+<a href="http://www.swi-prolog.org" target="_blank">SWI-Prolog</a>
+(if you do not have SICStus-Prolog, but then the execution is less
+efficient and some functionality (e.g., constraint solvers) is
+not available) </li>
+</ul>
+
+<h3>How to generate and install the PAKCS kernel:</h3>
+
+<ol>
+<li>
+Go into the main directory of PAKCS (which contains
+this file). In the following, we assume that <tt><em>pakcshome</em></tt>
+is the name of this directory.
+</li>
+<li>
+If you have the executables <tt>sicstus</tt> (for SICStus-Prolog)
+or <tt>pl</tt> (for SWI-Prolog)
+in your path, execute "<tt>make</tt>" which installs PAKCS
+(after asking you to confirm the values for <tt>java</tt> and <tt>sicstus</tt>).
+The values for <tt>sicstus</tt> or <tt>pl</tt> are stored
+in the home directory in file <tt>.pakcsinitrc</tt> so that they are
+available for future installations of new versions of PAKCS.
+</li>
+<li>
+Otherwise, modify in the shell script
+"<tt><em>pakcshome/</em>bin/.pakcs_variables</tt>"
+the definition of the variables <tt>SICSTUSDIR</tt> or <tt>SWI</tt>
+according to your local installation.
+If both variables are undefined,
+the PAKCS compiler system is not installed (i.e.,
+only the front-end is installed).
+</li>
+<li>
+If you install PAKCS from the source code distribution, you need also the
+<a href="http://www.haskell.org/ghc/">Glasgow Haskell Compiler</a>
+(executable <code>ghc</code>) to compile the front end of PAKCS.
+The make script will ask you for it.
+</li>
+<li>
+Now, install PAKCS by "<tt>make</tt>"
+(if you have already an older installation of PAKCS, do "<tt>make clean</tt>" before).
+</li>
+<li>
+Add the directory "<tt><em>pakcshome/</em>bin</tt>"
+to your path, e.g., by the command
+<center>
+<tt>export PATH=$PATH:<em>pakcshome</em>/bin</tt>
+</center>
+in the <tt>bash</tt>.
+</li>
+<li>
+Now you can start the PAKCS compiler system via the command
+"<tt>pakcs</tt>".
+</li>
+<li>
+If you want, you can also execute "<tt>make libdoc</tt>"
+to generate a local version of the documentation of all system libraries
+by the CurryDoc tool into the directory
+"<tt><em>pakcshome/</em>lib/CDOC</tt>".
+However, this is only necessary if you want to work offline since
+you can also access the documentation online at
+<a href="http://www.informatik.uni-kiel.de/~pakcs/lib/">
+http://www.informatik.uni-kiel.de/~pakcs/lib/</a>.
+</li>
+<li>
+You can configure the behavior of PAKCS by various setting
+in a "pakcsrc" file. For doing so, copy the file
+<tt><em>pakcshome/</em>pakcsrc</tt> as "<tt>.pakcsrc</tt>"
+into you home directory and modify the settings.
+</li>
+<li>
+  If you like to have support for <em>line editing or history functionality</em>
+  in the PAKCS interactive environment (as supported by the readline
+  library), you should have the Unix/Linux command "rlwrap" installed
+  on your local machine. PAKCS uses "rlwrap" if called on a terminal
+  without the parameter "--noreadline".
+</ol>
+
+<h3>How to install additional packages:</h3>
+
+The distribution of PAKCS contains various additional packages
+and libraries. Some require additional software packages that are
+described below.
+
+<ol>
+<li>
+If you want to use the <b>library for GUI programming in Curry</b>
+(<em>pakcshome/</em><tt>lib/GUI.curry</tt>), you need also a
+Tcl/Tk implementation (including the windowing shell <tt>wish</tt>)
+which can be downloaded
+<a href="http://www.scriptics.com/software/tcltk/">here</a>.
+In this case, the windowing shell <tt>wish</tt> must be
+in your path (or you can also modify the definition of the
+function <tt>openWish</tt> in the library <tt>GUI.curry</tt>).
+</li>
+<li>
+If you want to use the <b>DaVinci library for the visualization of graphs</b>
+(<tt><em>pakcshome/</em>lib/DaVinci.curry</tt>), you need also an
+installed daVinci system which can be downloaded
+<a href="http://www.tzi.de/daVinci/">here</a>.
+In this case, you have to modify the definition of the constant
+<tt>dvHome</tt> in the library <tt><em>pakcshome/</em>lib/DaVinci.curry</tt>
+according to the installation path of daVinci.
+</li>
+</ol>
+
+<h3>Changing system constants:</h3>
+
+The distribution of PAKCS is configured with a
+<b>maximal tuple arity of 15</b>, i.e., Curry programs containing larger
+tuple sizes cannot be compiled. If you want to increase this size
+(usually, it is preferable to change your program), you have to change
+(in a source distribution of PAKCS)
+two system files and install your system as follows:
+<ol>
+<li>
+Change the definition of the constant <code>maxTupleArity</code>
+in the files <tt><em>pakcshome/</em>mccparser/src/PatchPrelude.hs</tt>
+and <tt><em>pakcshome/</em>curry2prolog/compiler.pl</tt>
+according to your required maximal arity.
+</li>
+<li>
+Delete the file <tt><em>pakcshome/</em>lib/Prelude.fcy</tt>.
+</li>
+<li>
+Re-install PAKCS by <tt>make</tt>.
+</li>
+</ol>
+
+<h2>Hints for specific platforms</h2>
+
+<h3>Ubuntu 7.10</h3>
+<p>
+If you install PAKCS from the binary Linux distribution,
+the pre-compiled executable of the front-end might not find
+the library <code>libgmp.so.3</code>. This problem can be fixed
+by the following commands (executed as root):
+</p>
+<pre>
+  cd /usr/lib 
+  ln -s libgmp.so.3.4.1 libgmp.so.3 
+</pre>
+
+<p>
+If you use SWI-Prolog, you should install the packages
+<code>swi-prolog</code> as well as <code>swi-prolog-clib</code>
+from the Ubuntu distribution.
+The latter package is necessary if sockets, ports, and
+other system-oriented features should be used in Curry.
+</p>
+
+<p>
+(Thanks to Sergio Antoy and Steffen Mazanek for these hints.)
+</p>
+
+<hr/>
+
+<address>
+ <a href="http://www.informatik.uni-kiel.de/~mh/">Michael Hanus</a>
+</address>
+
+<p>
+  <a href="http://validator.w3.org/check?uri=referer">
+   <img src="http://www.w3.org/Icons/valid-xhtml10"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a>
+</p>
+
+</body>
+</html>

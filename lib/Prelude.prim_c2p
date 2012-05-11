@@ -1,0 +1,176 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="$!" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_applySeq[raw]</entry>
+ </primitive>
+ <primitive name="$!!" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_applyNormalForm[raw]</entry>
+ </primitive>
+ <primitive name="$#" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_applyNotFree[raw]</entry>
+ </primitive>
+ <primitive name="$##" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_applyGroundNormalForm[raw]</entry>
+ </primitive>
+ <primitive name="prim_Int_plus" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Int_plus</entry>
+ </primitive>
+ <primitive name="prim_Int_minus" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Int_minus</entry>
+ </primitive>
+ <primitive name="prim_Int_times" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Int_times</entry>
+ </primitive>
+ <primitive name="prim_Int_div" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Int_div</entry>
+ </primitive>
+ <primitive name="prim_Int_mod" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Int_mod</entry>
+ </primitive>
+ <primitive name="prim_negateFloat" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_negateFloat</entry>
+ </primitive>
+ <primitive name="seq" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_seq[raw]</entry>
+ </primitive>
+ <primitive name="ensureNotFree" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_ensureNotFree[raw]</entry>
+ </primitive>
+ <primitive name="prim_ord" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_ord</entry>
+ </primitive>
+ <primitive name="prim_chr" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_chr</entry>
+ </primitive>
+ <primitive name="prim_show" arity="1">
+  <library>prim_readshowterm</library>
+  <entry>prim_showTerm</entry>
+ </primitive>
+ <primitive name="prim_error" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_error</entry>
+ </primitive>
+ <primitive name="failed" arity="0">
+  <library>prim_standard</library>
+  <entry>prim_failed[raw]</entry>
+ </primitive>
+ <primitive name="==" arity="2">
+  <library>prim_standard</library>
+  <entry>boolEq[raw]</entry>
+ </primitive>
+ <primitive name="=:=" arity="2">
+  <library>prim_standard</library>
+  <entry>constrEq[raw]</entry>
+ </primitive>
+ <primitive name="=:&lt;=" arity="2">
+  <library>prim_standard</library>
+  <entry>unifEq[raw]</entry>
+ </primitive>
+ <primitive name="=:&lt;&lt;=" arity="2">
+  <library>prim_standard</library>
+  <entry>unifEqLinear[raw]</entry>
+ </primitive>
+ <primitive name="ifVar" arity="3">
+  <library>prim_standard</library>
+  <entry>prim_ifVar[raw]</entry>
+ </primitive>
+ <primitive name="success" arity="0">
+  <library>prim_standard</library>
+  <entry>prim_success</entry>
+ </primitive>
+ <primitive name="&amp;" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_concurrent_and[raw]</entry>
+ </primitive>
+ <primitive name="apply" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_apply[raw]</entry>
+ </primitive>
+ <primitive name="cond" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_cond[raw]</entry>
+ </primitive>
+ <primitive name="letrec" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_letrec[raw]</entry>
+ </primitive>
+ <primitive name="findall" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_findall[raw]</entry>
+ </primitive>
+ <primitive name="findfirst" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_findfirst[raw]</entry>
+ </primitive>
+ <primitive name="compare" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_compare[raw]</entry>
+ </primitive>
+ <primitive name="try" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_try[raw]</entry>
+ </primitive>
+ <primitive name="failure" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_failure[raw]</entry>
+ </primitive>
+ <primitive name="&gt;&gt;=" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Monad_bind[raw]</entry>
+ </primitive>
+ <primitive name="&gt;&gt;" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_Monad_seq[raw]</entry>
+ </primitive>
+ <primitive name="return" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_return[raw]</entry>
+ </primitive>
+ <primitive name="prim_putChar" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_putChar</entry>
+ </primitive>
+ <primitive name="getChar" arity="0">
+  <library>prim_standard</library>
+  <entry>prim_getChar</entry>
+ </primitive>
+ <primitive name="prim_readFile" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_readFile</entry>
+ </primitive>
+ <primitive name="prim_readFileContents" arity="1">
+  <library>prim_standard</library>
+  <entry>prim_readFileContents[raw]</entry>
+ </primitive>
+ <primitive name="prim_writeFile" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_writeFile[raw]</entry>
+ </primitive>
+ <primitive name="prim_appendFile" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_appendFile[raw]</entry>
+ </primitive>
+ <primitive name="catch" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_catch[raw]</entry>
+ </primitive>
+ <primitive name="catchFail" arity="2">
+  <library>prim_standard</library>
+  <entry>prim_catchFail[raw]</entry>
+ </primitive>
+</primitives>

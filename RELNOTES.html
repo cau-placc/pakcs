@@ -1,0 +1,885 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title>PAKCS Release Notes</title>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h1>PAKCS: Release Notes</h1>
+
+<h3>Release notes for PAKCS Version 1.10.0 (November 18, 2011)</h3>
+
+Changes to version 1.9.2:
+<ul>
+<li>
+  Assertions used in the tool currytest are now operations
+  rather than constructors, i.e., one has to write <code>assertEqual</code>
+  instead of <code>assertEqual</code> since the type <code>Assertion</code>
+  is abstract.
+</li>
+<li>
+<code>ReadShowTerm.readsQTerm</code> also reads unqualified
+constructor (if they are unique) for compatibility with
+other Curry implementations that show terms always without qualifiers.
+</li>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.9.2 (April 30, 2011)</h3>
+Changes to version 1.9.1:
+<ul>
+<li>
+  Bug fix for the translation of as-patterns with non-deterministic
+  arguments (sharing was missing in previous releases).
+</li>
+<li>
+  Intermediate representations of Curry programs (files with suffixes
+  .fint/.fcy/.acy) are now stored in a specific
+  directory <code>.curry</code> so that they are not directly visible.
+  The libraries FlatCurry, FlatCurryRead, AbstractCurry etc
+  are adapted to deal with these new file names.
+  In order to be independent on the specific names of intermediate
+  files, application programs should use the corresponding
+  operations to obtain the name of an intermediate file from the
+  program name (see FlatCurry.flatCurryFileName,
+  FlatCurry.flatCurryIntName, AbstractCurry.abstracCurryFileName).
+</li>
+</li>
+  Generated Prolog files (.pl/.po) are now stored in specific
+  directory <code>.curry/pakcs</code>.
+</li>
+<li>
+  Non-ASCII characters removed from source files.
+</li>
+<li>
+  Printing of free variables in results improved.
+  They are now printed in the form "_a", "_b" etc instead
+  of "_9435", "_4325".
+</li>
+<li>
+  Prelude: type <code>IOError</code> and operations
+  <code>userError</code>, <code>ioError</code>, <code>showError</code>,
+  and <code>catch</code> added for exception handling in the I/O monad.
+</li>
+<li>
+  Prelude: <code>negateFloat</code> added to avoid an error
+  when reading negative numbers.
+</li>
+<li>
+  Library List: inits, tails, isInfixOf added
+</li>
+<li>
+  Library CompactFlatCurry: The <code>target</code> parameter of
+  <code>generateCompactFlatCurryFile</code>
+  must contain the real name of the target file (i.e., with a
+  potential suffix ".fcy").
+</li>
+<li>
+  Library Profile: profileTime/profileSpace measures execution of
+  an I/O action, profileTimeNF/profileSpaceNF added to measure
+  the execution of a normal form computation.
+</li>
+<li>
+  Libraries Constraint, GlobalVariable, SetFunctions, KeyDatabaseSQLite added.
+</li>
+<li>
+  Library HTML: operation <code>answerEncText</code> added.
+</li>
+<li>
+  Library XML: selector operations <code>tagOf</code>, <code>elemsOf</code>,
+  <code>textOf</code> added.
+</li>
+<li>
+  Implementation of tool currytest changed from ports to sockets for
+  the internal communication.
+</li>
+<li>
+  Tool erd2curry improved: String attributes where null values are
+  allowed are no longer represented as type <code>Maybe String</code>
+  but as type <code>String</code> where a null value corresponds
+  to the empty string. This representation simplifies many
+  application programs. Furthermore, the type specifying cardinalities
+  in relationship has been slightly changed to make it more readable.
+  For instance, (Range 0 Nothing) is now written as (Beetween 0 Infinite),
+  and (Range 0 (Just 2)) is now written as (Beetween 0 (Max 2)).
+</li>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.9.1 (May 9, 2009)</h3>
+
+Changes to version 1.9.0:
+<ul>
+<li>
+  Method to ask for more solutions slightly changed to options
+  yes/no/all.
+</li>
+<li>
+  PAKCS commands ":modules" and ":programs" added (to show all currently
+  loaded modules and all available programs), command ":dir" removed.
+</li>
+<li>
+  PAKCS command ":analyze igraph" removed (the same functionality is
+  available in the CurryBrowser).
+</li>
+</li>
+  Generated Prolog files (.pl/.po) are now stored in specific
+  directory <code>.pakcs</code>.
+</li>
+</li>
+  Prolog code of the run-time system slightly changed to avoid
+  problems with SWI-Prolog Version 5.7.
+</li>
+<li>
+  Handling of global environment variables for PAKCS changed in order to
+  make it compatible with recent releases of SICStus Prolog.
+  Environment variables SICSTUS and SPLD (usually stored in $HOME/.pakcsinitrc)
+  replaced by SICSTUSDIR.
+</li>
+<li>
+  PAKCS is called with the readline wrapper "rlwrap" (if it is available
+  on the local machine) to support line editing or history functionality.
+</li>
+<li>
+  Exit codes of PAKCS: PAKCS terminates with a non-zero exit code
+  if the evaluation of the last goal had a run-time error (exit code 1)
+  or terminated with "No more solutions" (exit code 2).
+</li>
+<li>
+  Library AbstractCurry: constructor CmtFunc added to represent functions
+  with documentation comments.
+</li>
+<li>
+  Library CLPR is now available for SWI-Prolog (Vers. 5.6).
+  To support it, the code generator has been slightly modified
+  which requires the recompilation of existing Curry programs.
+</li>
+<li>
+  Library Directory: removeFile, removeDirectory,
+  renameFile, renameDirectory,setWorkingDirectory added.
+</li>
+<li>
+  Library System: Implementation of (un)setEnv changed from primitive
+  to an implementation using library Global.
+</li>
+<li>
+  Library Traveral added.
+</li>
+<li>
+  Library WUI: <code>renderTaggedTuple</code> added and
+  type of <code>wuiInForm</code> and <code>wuiWithErrorForm</code>
+  slightly changed.
+</li>
+<li>
+  Tool erd2curry: all generated operations contain documentation comments.
+</li>
+<li>
+  Libraries for declarative user interface programming added
+  (in <code>tools/ui</code>).
+</li>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.9.0 (December 14, 2007)</h3>
+
+Changes to version 1.8.1:
+<ul>
+<li>
+  Implementation made compatible to SICStus Prolog 4.0.2.
+  However, the implementation of PAKCS with SICStus Prolog 4.0.2
+  is still incomplete due to missing features in this Prolog version.
+  In particular, the library CLPB and the operation <code>IO.hSeek</code>
+  cannot be used.
+</li>
+<li>
+  The internal Prolog representation of characters has been changed.
+  Therefore, all compiled Prolog files (programs, databases)
+  must be recompiled. Usually, this is automatically done
+  when Curry programs are compiled with the new PAKCS version.
+</li>
+<li>
+  Memory leaks due to unnecessary creation of choice points removed.
+</li>
+<li>
+  Bug in failure printing (option +consfail) fixed.
+</li>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.8.1 (October 21, 2007)</h3>
+
+Changes to version 1.8.0:
+<ul>
+<li> Implementation made compatible to SICStus Prolog 4.0
+     (however, there are problems due to bugs in this Prolog version). </li>
+<li> Parser reports better shadowing warnings. </li>
+<li> parsecurry: Option "-q" should now work (which is the default when
+     reading Curry programs with the libraries FlatCurry or AbstractCurry).</li>
+<li> Command line options of some tools (parsecurry, currydoc, currytest)
+     changed. For compatibility, the old parameters are still accepted.</li>
+<li> Library Database improved with better reporting of transaction errors.
+     For this purpose, the type of <code>runT</code> has been changed
+     so that it also returns transaction errors.</li>
+<li> Library Global added.</li>
+<li> Library IOExts: connectToSocket removed (use Socket.connectToSocket),
+     choiceStreamOrMsgs removed (use IO.hWaitForInputsOrMsg).</li>
+<li> Library Socket: listenOn is now rigid in its argument, listenOnFresh
+     added, socketListen removed.</li>
+<li> Library System: evalTime/evalSpace moved into library Profile.</li>
+<li> Library NamedSocket added.</li>
+<li> Library HTML: implementation improved and communication
+     changed from library Ports to library NamedSocket.</li>
+<li> Tool <tt>erd2curry</tt> to compile entity-relationship diagrams
+     into Curry programs added.</li>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.8.0 (March 13, 2007)</h3>
+
+Changes to version 1.7.3:
+<ul>
+<li> Code generation changed: eta-expansion (i.e., translation of all equations
+     to first-order rules) removed. This has some consequences to the
+     implementation of I/O actions that has been changed accordingly.</li>
+
+<li> Implementation of dynamic web pages (library HTML) changed.
+     The new implementation starts a server process for the first
+     invocation of a web page. The server keeps the event handlers
+     for this page so that the communication with the central event handler
+     server (as in version 1.7.3) is no longer necessary.</li>
+
+<li> Libraries Database and KeyDatabase added as a replacement for
+     Dynamic and KeyDB with a better interface for transaction-safe
+     programming.</li>
+
+</ul>
+
+<h3>Release notes for PAKCS Version 1.7.3 (February 27, 2007)</h3>
+
+Changes to version 1.7.2:
+<ul>
+<li> <a href="http://www.informatik.uni-kiel.de/~pakcs/COOSy/">COOSy Observation Debugger</a>
+     added to PAKCS distribution (executable by new command ":coosy").</li>
+
+<li> External function interface improved. The PAKCS compiler now generates
+     a standard interface for external functions that do not suspend
+     so that an external function of arity N can be simply implemented
+     by a Prolog predicate of arity (N+1).
+     The old raw interface is still used if the entry name specified
+     in the corresponding "*.prim_c2p" file is suffixed by "[raw]".</li>
+
+<li> PAKCS program option "-i" added to load a Curry program and evaluate
+     an initialization operation (typically an I/O operation)
+     directly after loading.</li>
+
+<li> Option "+consfail" extended to report complete failure traces and examine
+     them in an interactive mode.</li>
+
+<li> Prelude: operation "getSomeValue" added to extract a single value from
+     a nondeterministic computation.</li>
+
+<li> Tool "currycreatemake" to create simple makefiles for a Curry
+     application added.</li>
+
+<li> Library CLPB (Boolean constraint solver) added.</li>
+
+<li> Library CompactFlatCurry for reducing the size of Curry applications
+     added.</li>
+
+<li> Libraries Distribution, PropertyFile, and ReadNumeric added.</li>
+
+<li> Library System: functions getLoadPath, getLoadPathForFile, findFileInLoadPath
+     moved into new library Distribution.</li>
+
+<li> Library CLPFD: all_different and scalar_product renamed.</li>
+
+<li> Library Directory: createDirectory, removeFile added,
+     getModificationTime returns a ClockTime instead of an Int</li>
+
+<li> Library Dynamic: checking of type restrictions on dynamic predicates
+     extended (e.g., it is not allowed to store handles or IORefs in
+     dynamic predicates).</li>
+
+<li> Library FileGoodies: findFileInPath renamed to lookupFileInPath.</li>
+
+<li> Library GUI: appendTaggedValue replaced by appendStyledValue
+     which offers more flexibility. addRegionStyle and removeRegionStyle
+     added.</li>
+
+<li> Library HTML.curry: updated for conformity with XHTML, in particular,
+     constructor <code>HtmlElem</code> removed from datatype <code>HTML</code>.
+     <code>intForm(Main)</code> added to execute web pages in
+     interactive mode.
+</li>
+
+<li> Library HTML_Parser: renamed to HtmlParser and updated for conformity
+     with XHTML, i.e., reading extended for XHTML documents.</li>
+
+<li> Library Mail for sending emails added.</li>
+
+<li> Library System: setEnviron,unsetEnviron added, Date and getDate removed
+     (since library Time contains equivalent functionality).</li>
+
+<li> Library Time: internal representation of ClockTime changed,
+     functions for transforming to and from ClockTime modified
+     in order to distinguish between UTC and local time values.</li>
+
+<li> currybrowser: User interface redesigned so that it contains less frames.
+</li>
+
+<li> currytest: Handling of syntax errors in test programs added.</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.7.2 (March 29, 2006)</h3>
+
+Changes to version 1.7.0:
+<ul>
+<li> Name of standard prelude changed from "prelude" into "Prelude".
+     <b>Important note: due to this name change, for all Curry applications
+     the old code must be deleted and then recompiled, i.e.,
+     perform <code>cleancurry</code> before you compile your Curry
+     application again!</b>
+</li>
+<li> Changing of maximal arity of tuples enabled
+     (see installation instructions).
+</li>
+<li> Option "+consfail" added for reporting errors due to non-exhaustive
+     pattern definitions.
+</li>
+<li> Bug fix in front end w.r.t. polymorphic expression in list comprehensions.
+</li>
+<li> Front end extended to support function patterns (see
+     pakcs/examples/testFuncPattern.curry for an example and more
+     information).
+</li>
+<li> Front end extended to allow for transformations on FlatCurry files
+     after parsing and before compiling in order to integrate optimization
+     phases (see pakcs/parser/README for details).
+</li>
+<li> Usage of old front end no longer supported.
+</li>
+<li> Prelude extended with functions like $!!, $#, $##, compare.
+     Comparison operations defined as polymorphic on ground data terms.
+</li>
+<li> Library Array added.
+</li>
+<li> Library CLPFD: made available for SWI-Prolog-based implementation.
+</li>
+<li> Library FlatCurryTools renamed into FlatCurryShow.
+</li>
+<li> Library FlatCurryXML modified (implementation simplified by using XmlConv).
+</li>
+<li> Library FlatCurryGoodies added.
+</li>
+<li> Library Float: comparison operations removed (since the
+     corresponding prelude operations can now be used).
+</li>
+<li> Library GUI: controlling of GUIs via stream handlers added.
+     Type of reconfiguration options changed from (WidgetRef,ConfItem)
+     into ReconfigureItem in order to support dynamic addition of
+     new stream handlers.
+</li>
+<li> Library HTML extended with concept of HTML pages and parameters
+     (extension by Marco Comini).
+</li>
+<li> Library IO extended with direct access operation (hSeek) on files.
+</li>
+<li> Library KeyDB extended.
+</li>
+<li> Library Ports: openStdInOutPort removed (replaced by operations in library IO).
+</li>
+<li> Library Socket added.
+</li>
+<li> Library WUI added.
+</li>
+<li> Library XmlConv added.
+</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.7.0 (December 5, 2005)</h3>
+
+Changes to version 1.6.1:
+<ul>
+<li> Free variable mode changed: as a default, free variables in initial goals
+     must now be declared (by let-free or where-free). The declaration is
+     not necessary of the option "+free" is set.
+</li>
+<li> New front end (adapted from the Muenster Curry Compiler by
+     Wolfang Lux) added. Since the front end is implemented in Haskell,
+     Java is no longer necessary to execute PAKCS (however, the
+     Glasgow Haskell Compiler is necessary for developers to
+     compile the front end).
+</li>
+<li> Implementation of Curry2Prolog modified so that it can be
+     also executed with SWI-Prolog.
+</li>
+<li> Library HTML: implementation of dynamic web pages based on a new
+     client/server architecture. Now, a local server stores all event handlers
+     and previous input fields so that they are no longer encoded in
+     the web page (which could cause security problems).
+</li>
+<li> Library AllSolutions: getFirstSolution renamed into getOneSolution,
+     getOneValue added, getAllValues moved into prelude.
+</li>
+<li> Documentation currydoc: option "onlyindex" added (used for generation
+     of library documentation).
+</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.6.1 (September 30, 2005)</h3>
+
+Changes to version 1.5.0:
+<ul>
+<li> Possibility to suppress front-end parsing and Prolog loading messages
+     added (see .pakcsrc).
+</li>
+<li> Format of FlatCurry and .fcy files slightly changed w.r.t. datatype
+     CombType. This change requires the deletion and recompilation
+     of all .fcy files!
+</li>
+<li> Separate compilation introduced.
+</li>
+<li> New concept to connect primitive operations to Curry2Prolog
+     (see curry2prolog/external.pl).
+</li>
+<li> Curry2Prolog, library FlatCurry, and corresponding tools extended
+     to support recursive let's.
+</li>
+<li> PAKCS command ":eval" eliminated since the same functionality
+     is contained in the new browser tool.
+</li>
+<li> New browser tool added (see PAKCS command ":browse").
+</li>
+<li> New library GUI for programming graphical user interfaces added.
+</li>
+<li> Libary HTML: Passing of logical variables to event handlers supported.
+     Image buttons, redirections, and headed tables added.
+     Event handler expressions are not passed in web pages but stored
+     on the server side via a server process (see library HtmlServer).
+</li>
+<li> Primitive prelude.seq does no longer suspend on free variables.
+</li>
+<li> New primitives prelude.ensureNotFree and prelude.ensureSpine
+     for suspension on free variables added.
+</li>
+<li> Defaults for "eval" annotation changed to "flex".
+</li>
+<li> Library Ports improved: new operations waitAndConnectPort and
+     connectPortWait added which supports waiting until an external
+     port has been registered. Furthermore, there are new operations
+     newObject, newNamedObject, and runNamedServer to create a new port and
+     run a server object on it. It is recommended to use these operations
+     instead of openPort/openNamedPort since the latter are more
+     primitive and might not be supported in the future.
+</li>
+<li> New improved mode for (X)Emacs added that supports also the use
+     of PAKCS in an Emacs buffer (see tools/emacs/README).
+</li>
+<li> Parameters for "makecurrycgi" changed in order to simplify its use
+     for small web scripts.
+</li>
+<li> Tool currytest improved so that it can be also used with a GUI.
+</li>
+
+<li> New tool "dataToXml" to generate conversion functions
+     between data types and XML representations.
+</li>
+
+<li> New tool "addtypes" for adding type signatures to source programs.
+</li>
+
+<li> Library "Tk" improved so that event handlers can also be
+     reconfigured.
+</li>
+<li> Libraries CategorizedHtmlList, Dequeue, Dynamic added.
+</li>
+
+<li> Libraries TermDB and Term removed (the functionality of Term is
+  available in ReadShowTerm, and TermDB is no longer supported by
+  Sicstus-Prolog).
+</li>
+
+<li> Module lib/meta/CurryStringClassifier added and all libraries
+  for meta-programming moved to lib/meta
+</li>
+
+<li> prelude: (?) added.
+</li>
+
+<li> Module lib/Combinatorial: (!) and allSubsets omitted.
+</li>
+
+<li> Module lib/HTML extended.
+</li>
+
+<li> Support for generating <em>standalone executables</em>
+  with Sicstus-Prolog added.
+  This requires the definition of the Sicstus-Prolog application builder
+  as variable SPLD in <code>pakcs/bin/.pakcs_variables</code> and the setting
+  of the option "standalone" in .paksrc.
+</li>
+
+<li> New FlatCurry representation introduced. The corresponding intermediate
+  representation files are now suffixed with ".fcy" (instead of ".flc).
+</li>
+
+<li> FlatTools.writeFLC and FlatCurryTools.writeFLC are
+  omitted. Use Flat2Fcy.writeFCY instead and change file suffix into ".fcy".
+</li>
+
+<li> Warnings for non-adjacent function rules are provided.
+</li>
+
+<li> Handling of external functions in the compiler improved.
+</li>
+
+<li> Configuration file pakcsrc added. In order to use it, one can
+     copy it as ".paksrc" into the home directory and change
+     some values according to the local preferences.
+</li>
+
+<li> Module system is now fully supported.
+</li>
+
+<li> New module lib/IO with functions for reading and writing files.
+</li>
+
+<li> New module lib/Sort with functions for sorting and string comparisons.
+</li>
+
+<li> Module lib/Tk:
+  Resizing improved by using grid structures,
+  configuration options TkFill* added and composition options TkExpand*
+  removed since they are no longer necessary.
+</li>
+
+<li> Modules lib/SetRBT and lib/TableRBT:
+  Interface has changed: the ordering predicate must be supplied
+  only for the empty set and table and not for all insert operations.
+  (The old versions are still available as SetRBT0 and TableRBT0
+   but will be deleted in the future).
+</li>
+
+<li> New tools "importgraph" and "importcalls" added which are accessible
+  via the new PAKCS command ":analyze".
+</li>
+
+<li> prelude.readFile does no longer support reading of URLs
+  (use URL.getContentsOfUrl)
+</li>
+
+<li> Library "Term" renamed to "ReadShowTerm" and extended.
+</li>
+
+<li> New printer for FlatCurry interface files added.
+</li>
+
+<li> Module lib/FlatCurry(Tools) with an improved representation of
+  FlatCurry programs added.
+</li>
+
+<li> Command "runcurry" omitted since it is no longer necessary because
+  the saved state
+  is always patched (by bin/.makesavedstate) with necessary
+  environment information.
+</li>
+
+<li> New modules FlatCurry/FlatCurryTools with improved representation
+  of FlatCurry programs added.
+</li>
+
+<li> Representation of characters in compiled Prolog files changed
+  so that all old programs must be recompiled.
+</li>
+
+<li> Implementation of sharing improved so that some memory leaks
+  in tail recursive programs are eliminated.
+</li>
+
+<li> Functions AbsCurry.readCurryFile and Flat.readFlatCurryFile
+  changed so that the suffix (".acy" or ".flc") must be contained
+  in the filename for these functions.
+</li>
+
+<li> Front-end extended to deal with qualified identifers.
+  As a consequence, function composition "." must be surrounded by blanks
+  (which is conform with the language specification but was not necessary
+  up to now).
+</li>
+
+<li> -compact option added for producing more compact code.
+</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.5.0 (May 25, 2003)</h3>
+
+Changes to version 1.4.5:
+<ul>
+<li> In rules with multiple guards all guards must be of type "Bool".
+</li>
+
+<li> Case expressions are now supported.
+</li>
+
+<li> Let bindings of variables supported in top-level of curry2prolog.
+</li>
+
+<li> Library Flat supports reading of FlatCurry programs with and
+  without implicit parsing.
+</li>
+
+<li> Translation of literate into standard programs integrated into
+  the parser (this speeds up the entire parsing process).
+</li>
+
+<li> Handling of external port communication changed:
+  <ul>
+  <li> constructors are prefixed by their module name</li>
+  <li> external ports can be also send as data</li>
+  <li> syntax of sent messages changed to standard Curry syntax</li>
+  </ul>
+</li>
+
+<li> unsafePerformIO and trace moved from prelude into library Unsafe
+</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.4.5 (November 7, 2002)</h3>
+
+Changes to version 1.4.1:
+<ul>
+<li> Long command formats (e.g., ":load" instead of ":l") added.
+</li>
+
+<li> Parser bugfix: parser can now read files ending with local
+  declarations.
+</li>
+
+<li> Options "-l" and "-c" added to pakcs/curry2prolog
+</li>
+
+<li> Compiler issues a warning in case of non-trivial overlapping rules,
+  i.e., rules that have different patterns in overlapping cases,
+  like in
+<pre>
+    f 0 = 0
+    f x = 1
+</pre>
+</li>
+
+<li> Debug mode moved from command (":d") to an option (":set +debug")
+ and debug commands changed into options.
+</li>
+
+<li> Header information included in generated Prolog files so that the
+  system can check the compiler options and can automatically
+  recompile and reload programs when options (printfail/debug) are
+  changed.
+</li>
+
+<li> Option ":set printfail" included in PAKCS. This option adds special
+  code during compilation so that failures during the reduction of
+  expressions are shown.
+</li>
+
+<li> Change in frontend: internal names have now the form
+  "&lt;module_name&gt;.&lt;local_name&gt;" instead of
+  "&lt;module_name&gt;_&lt;local_name&gt;".
+  The previous name caused problems when the module name contained
+  underscores.
+</li>
+
+<li> Modules HTML and HTML_Parser: all tags and attribute names are
+  now in lowercase letters.
+</li>
+
+<li> curry2prolog backend changed so that characters are no longer
+  equivalent to integers but are represented as a distinguished
+  data type at run time (i.e., characters are represented as
+  one-letter atoms in Prolog).
+  This change requires the recompilation of all compiled Curry programs!
+</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.4.1 (September 17, 2002)</h3>
+
+Changes to version 1.4:
+<ul>
+<li> Defaults for flex/rigid functions changed according to new Curry report
+  (i.e., functions of type IO are rigid, all other flexible).
+</li>
+
+<li> Names of functions in modules CLPR and CLPFD changed to make
+  them more conform.
+</li>
+
+<li> Commands in interactive environment changed
+  (command ":set..." introduced).
+</li>
+
+<li> Restrictions on free variables in initial goals introduced
+  (must be start with an uppercase letter; this default can be relaxed
+  by the command ":set -free").
+</li>
+
+<li> Command "pakcs" is equivalent to "curry2prolog" and
+  no longer starts implicitly the server
+</li>
+</ul>
+
+
+<h3>Release notes for PAKCS Version 1.4 (May 23, 2002)</h3>
+
+This version contains the following changes (apart from the usual
+bug fixes) in comparison to the previous
+<a href="http://www.informatik.uni-kiel.de/~mh/pakcs13">version 1.3</a>:
+
+
+<ul>
+<li> Module system added (not yet fully implemented; see the manual
+     for a description of the current restrictions).
+  As a consequence of this addition, import declarations are
+  no longer written as "<code>--import Mod</code>" but
+  are now written in the standard syntax as "<code>import Mod</code>".
+</li>
+
+<li> CurryTest tool added (see manual for a description).
+</li>
+
+<li> System modules "Combinatorial", "Integer", and "Random" added
+     (thanks to Sergio Antoy).
+</li>
+
+<li> CurryDoc documentation tool added (see manual for a description).
+</li>
+
+<li> Internal implementation of ports changed so that all port
+  communication is now done over one Unix socket which can be specified
+  by the environment variable PAKCS_SOCKET. This is useful for
+  distributed Curry programs running behind a firewall based on
+  simple socket number filtering.
+</li>
+
+<li> System module "DaVinci" added. This module supports the
+  visualization of graphs by the <a href="http://www.tzi.de/daVinci/">
+  daVinci graph drawing tool</a>.
+</li>
+
+<li> System modules "SetRBT" and "TableRBT" added. These modules
+  contains efficient implementation of sets and tables (finite maps)
+  by red-black trees. SetRBT also contains a efficient generic
+  sort function "sortRBT" based on red-black trees.
+</li>
+
+<li> System module "TermDB" for storing data terms in an
+  external persistent database added.
+</li>
+
+<li> System module "Directory" for accessing the directory structure added.
+</li>
+
+<li> Prelude extended with some useful functions (catchFail, unsafePerformIO,
+  trace,...).
+</li>
+
+<li> XML support for FlatCurry programs added, i.e., Flat.readFlatCurry
+  and curry2prolog can now read programs in XML format
+  (see <a href="http://www.informatik.uni-kiel.de/~curry/flat/">here</a>
+  for a more detailed description of this format)
+  so that curry2prolog could also be used as a back end for
+  other functional logic languages that can be translated into
+  the FlatCurry format.
+  In addition, the pakcs/curry2prolog environment offers a new
+  command ":xml" for translating Curry programs into this XML format.
+</li>
+
+<li> Interface generator added:
+  The pakcs/curry2prolog environment offers a new command ":if"
+  for showing the interface of a Curry module, i.e., the data types
+  and the types of all top-level functions defined in this module.
+  Since this command can be also applied to system libraries,
+  it is useful for getting a quick overview of the functionality
+  offered by a library.
+</li>
+
+<li> Partial evaluator integrated:
+  The pakcs/curry2prolog environment offers a new command ":peval"
+  for the partial evaluation of Curry programs (compare manual).
+</li>
+
+<li> Structure of FlatCurry programs modified (system module Flat).
+</li>
+
+<li> Reading of programs with Flat.readFlatCurry and curry2prolog
+  modified so that it is now possible to read .flc files where
+  there is no corresponding source file.
+</li>
+
+<li> Structure of .flc changed so that they are compatible with the
+  definition of FlatCurry. Due to this change, it is necessary
+  to recompile all existing Curry programs (i.e., by "cleancurry"
+  and compiling again).
+</li>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.3 (December 15, 2000)</h3>
+
+This version contains the following changes (apart from the usual
+bug fixes) in comparison to the previous
+<a href="http://www.informatik.uni-kiel.de/~mh/pakcs12">version 1.2</a>:
+
+<ul>
+<li> The definition of ports (datatype <tt>Port</tt> and its
+associated operations for distributed programming)
+has been moved from the prelude into the new system module
+<tt>Ports.lcurry</tt>. Thus, all applications using ports
+must now have the import declaration "<tt>--import Ports</tt>".
+</li>
+
+<li> The functionality of ports has been extended: ports can now be named
+by arbitrary symbolic names (instead of socket numbers as in the previous
+version). The name resolution is done by a specific
+Curry port name server (which is actually implemented in Curry).
+</li>
+
+<li> The Curry2Prolog compiler is based on a new intermediate
+language (*.flc files instead of *.flat files) which is closer
+to the definition of FlatCurry in the corresponding system module.
+The precise syntax of the new intermediate language is described
+in the PAKCS manual.
+</li>
+
+<li> The system library (a short description of all modules can be
+found <a href="lib/">here</a>) has been extended with new modules
+for parsing HTML documents and tools for supporting meta-programming
+based on FlatCurry.
+</li>
+
+</ul>
+
+<hr />
+
+Back to <a href="index.html">Homepage of PAKCS</a>
+
+<hr/>
+
+<address>
+ <a href="http://www.informatik.uni-kiel.de/~mh/">Michael Hanus</a>
+</address>
+
+<p>
+  <a href="http://validator.w3.org/check?uri=referer">
+   <img src="http://www.w3.org/Icons/valid-xhtml10"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a>
+</p>
+
+</body>
+</html>
+

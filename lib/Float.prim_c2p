@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="prim_Float_plus" arity="2">
+  <library>prim_float</library>
+  <entry>prim_Float_plus</entry>
+ </primitive>
+ <primitive name="prim_Float_minus" arity="2">
+  <library>prim_float</library>
+  <entry>prim_Float_minus</entry>
+ </primitive>
+ <primitive name="prim_Float_times" arity="2">
+  <library>prim_float</library>
+  <entry>prim_Float_times</entry>
+ </primitive>
+ <primitive name="prim_Float_div" arity="2">
+  <library>prim_float</library>
+  <entry>prim_Float_div</entry>
+ </primitive>
+ <primitive name="prim_i2f" arity="1">
+  <library>prim_float</library>
+  <entry>prim_i2f</entry>
+ </primitive>
+ <primitive name="prim_round" arity="1">
+  <library>prim_float</library>
+  <entry>prim_round</entry>
+ </primitive>
+ <primitive name="prim_truncate" arity="1">
+  <library>prim_float</library>
+  <entry>prim_truncate</entry>
+ </primitive>
+ <primitive name="prim_sqrt" arity="1">
+  <library>prim_float</library>
+  <entry>prim_sqrt</entry>
+ </primitive>
+ <primitive name="prim_log" arity="1">
+  <library>prim_float</library>
+  <entry>prim_log</entry>
+ </primitive>
+ <primitive name="prim_exp" arity="1">
+  <library>prim_float</library>
+  <entry>prim_exp</entry>
+ </primitive>
+ <primitive name="prim_sin" arity="1">
+  <library>prim_float</library>
+  <entry>prim_sin</entry>
+ </primitive>
+ <primitive name="prim_cos" arity="1">
+  <library>prim_float</library>
+  <entry>prim_cos</entry>
+ </primitive>
+ <primitive name="prim_tan" arity="1">
+  <library>prim_float</library>
+  <entry>prim_tan</entry>
+ </primitive>
+ <primitive name="prim_atan" arity="1">
+  <library>prim_float</library>
+  <entry>prim_atan</entry>
+ </primitive>
+</primitives>

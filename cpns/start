@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# Start the Curry Port Name Server demon, if it is not already
+# started on this machine:
+
+PIDFILE="/tmp/PAKCS_CPNSD_PID"
+LOGFILE="/tmp/PAKCS_CPNSD_LOG"
+LOCKFILE="/tmp/PAKCS_CPNSD.LOCK" # for startup control
+CPNSPROG="`dirname "$0"`/CPNS.state"
+
+STARTSERVER=no
+
+if test ! -f $PIDFILE ; then
+  STARTSERVER=yes
+else
+  # test whether the server process is still existent:
+  PID=`cat $PIDFILE`
+  touch $PIDFILE # to avoid automatic remove if file is too old
+  ps -p $PID | fgrep $PID > /tmp/TESTPID$$
+  if test ! -s /tmp/TESTPID$$ ; then
+    STARTSERVER=yes
+    rm -f $PIDFILE
+    echo "CPNS demon seems to be aborted. I try to restart it..." >&2
+  fi
+  rm -f /tmp/TESTPID$$
+fi
+
+if [ $STARTSERVER = yes ] ; then
+  if lockfile -r0 $LOCKFILE ; then
+    echo "Starting demon for Curry Port Name Server..." >&2
+    if test ! -f $LOGFILE ; then
+      # create log file with correct access rights:
+      touch $LOGFILE
+      chmod -f 666 $LOGFILE # make log file accessible for everybody
+    fi
+    echo "Log information in file '$LOGFILE'" >&2
+    echo "CPNS demon started at `date`" >> $LOGFILE
+  
+    echo 1 > $PIDFILE # initialize pid file with existing process
+    chmod -f 666 $PIDFILE  # make the pid file readable for everybody
+    nohup "$CPNSPROG" start >> $LOGFILE 2>&1  &
+    echo $! > $PIDFILE # write real cpns process into pid file
+    lockfile -1 $LOCKFILE # wait for lockfile deletion by CPNS demon startup
+    rm -f $LOCKFILE
+    echo "CPNS demon started." >&2
+  else
+    echo "CPNS demon seems already started by other process" >&2
+    echo "If this is not the case, delete file $LOCKFILE" >&2
+    lockfile -1 $LOCKFILE # wait for lockfile deletion by CPNS demon startup
+    rm -f $LOCKFILE
+  fi
+fi

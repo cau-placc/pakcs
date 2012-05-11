@@ -1,0 +1,598 @@
+<html>
+<head>
+<title>Curry Examples</title>
+</head>
+
+<body bgcolor="#ffffff">
+<h1>Curry: Example Programs</h1>
+<p>
+Here is a collection of (small) Curry programs.
+References to larger applications can be found
+<a href="http://www.informatik.uni-kiel.de/~curry/applications.html">here</a>.
+Usually, each program contains
+some example goals at the end in order to see its
+intended application.
+</p>
+<hr />
+The programs are sorted by the main language features they use
+so that people interested in the various features of Curry
+can look at these examples:
+<ul>
+<li><a href="#funprogs">Purely functional programs</a></li>
+<li><a href="#logprogs">Purely logic programs</a></li>
+<li><a href="#flprogs">Functional logic programs</a></li>
+<li><a href="#nondetfunc">Non-deterministic functions</a></li>
+<li><a href="#passcon">Passive constraints (logic programming with coroutining)</a></li>
+<li><a href="#residuation">Residuation and concurrent programming</a></li>
+<li><a href="#monadicio">Input/Output (monadic I/O)</a></li>
+<li><a href="#listcomp">Arithmetic sequences and list comprehensions:</a></li>
+<li><a href="#search">Encapsulated search</a></li>
+<li><a href="#modules">Modules</a></li>
+<li><a href="#escher">Comparison with Escher</a></li>
+<li><a href="#CLP">Functional logic programming with constraints</a></li>
+<li><a href="#distcurry">Distributed functional logic programming</a></li>
+<li><a href="#meta">Meta-programming</a></li>
+<li><a href="#guicurry">Examples for GUI programming with library "GUI"</a></li>
+<li><a href="#parsing">Examples for functional logic parsers</a></li>
+<li><a href="#various">Various examples programs</a></li>
+</ul>
+<hr />
+
+
+<h3><a name="funprogs">Purely functional programs:</a></h3>
+<ul>
+<li> <a href="rev.curry">rev.curry</a>:
+list concatenation and naive reverse
+</li>
+
+<li> <a href="higher.curry">higher.curry</a>:
+some standard higher-order functions: map and foldr
+</li>
+
+<li> <a href="quicksort.curry">quicksort.curry</a>:
+functional quicksort based on filtering the smaller and larger elements
+</li>
+
+<li> <a href="qsortlet.curry">qsortlet.curry</a>:
+quicksort based on splitting the unsorted list into a pair of lists
+with smaller and larger elements
+</li>
+
+<li> <a href="inflists.curry">inflists.curry</a>:
+functions defined on infinite lists, like fib and primes
+</li>
+
+<li> <a href="escher_higher.curry">escher_higher.curry</a>:
+implementation of module "Higher" from the Escher report
+</li>
+
+</ul>
+<hr />
+
+<h3><a name="logprogs">Purely logic programs:</a></h3>
+<ul>
+<li> <a href="colormap.curry">colormap.curry</a>:
+map coloring with classical generate-and-test
+</li>
+
+<li> <a href="family_rel.curry">family_rel.curry</a>:
+a database for family relationships (relational style)
+</li>
+
+<li> <a href="family_con.curry">family_con.curry</a>:
+a database for family relationships (constraint style)
+</li>
+</ul>
+<hr />
+
+<h3><a name="flprogs">Functional logic programs:</a></h3>
+<ul>
+<li> <a href="nats.curry">nats.curry</a>:
+a basic example: natural numbers are represented as S-terms
+and the substraction between numbers is defined by reversing
+the addition
+</li>
+
+<li> <a href="family_fun.curry">family_fun.curry</a>:
+a database for family relationships (functional logic style)</li>
+
+<li> <a href="family_nd.curry">family_nd.curry</a>:
+a database for family relationships (functional logic style
+with non-deterministic functions)</li>
+
+<li> <a href="horseman.curry">horseman.curry</a>:
+a puzzle from equational logic programming (solving questions like
+"How many men and horses have 8 heads and 20 feet?")
+</li>
+
+<li> <a href="first.curry">first.curry</a>:
+lazy functional logic programming with infinite lists
+</li>
+
+<li> <a href="last.curry">last.curry</a>:
+compute the last element of a list using a flexible append function
+(i.e., inverting list concatenation)
+</li>
+
+<li> <a href="member.curry">member.curry</a>:
+list membership defined by a single conditional rule based on
+a flexible append function (i.e., inverting list concatenation)
+</li>
+
+<li> <a href="mergesort.curry">mergesort.curry</a>:
+merge sort: sorting two lists by merging the sorted first
+and second half of the list
+</li>
+
+<li> <a href="assembler.curry">assembler.curry</a>:
+a one-pass assembler:
+translation of a sequence of arbitrary jump-instructions into machine code
+where logical variables are used to resolve forward jump addresses
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="nondetfunc">Non-deterministic functions:</a></h3>
+<ul>
+<li> <a href="nondetfunc.curry">nondetfunc.curry</a>:
+some "classical" examples for non-deterministic functions
+like non-deterministic list insertion, permutation,
+and permutation sort
+</li>
+
+<li> <a href="family_nd.curry">family_nd.curry</a>:
+a database for family relationships (functional logic style
+with non-deterministic functions)
+</li>
+
+<li> <a href="colormap_nd.curry">colormap_nd.curry</a>:
+graph coloring with non-deterministic functions
+exploiting the demand-driven search due to lazy evaluation in Curry
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="passcon">Passive constraints (logic programming with coroutining):</a></h3>
+<ul>
+<li> <a href="colormap.curry">colormap.curry</a>:
+map coloring with test-and-generate
+(corresponds to logic programming with delays)
+</li>
+
+<li> <a href="digit.curry">digit.curry</a>:
+small example for the use of arithmetic functions acting
+as passive constraints
+</li>
+
+<li> <a href="rigidadd.curry">rigidadd.curry</a>:
+small example from the POPL'97 paper for the evaluation
+with residuation: the addition of natural numbers acts as
+a passive constraint waiting for the instantiation of is arguments
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="residuation">Residuation and concurrent programming:</a></h3>
+<ul>
+<li> <em>see also all examples for <a href="#passcon">passive constraints</a>
+     </em></li>
+
+<li> <a href="infresiduate.curry">infresiduate.curry</a>:
+an example for a potential disadvantage of residuation [Hanus JLP'95]:
+with residuation, the program has an infinite search space
+but with narrowing, the search space is finite
+</li>
+
+<li> <a href="account.curry">account.curry</a>:
+concurrent object-oriented programming: a bank account implemented
+as an active object ("account server")
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="monadicio">Input/Output (monadic I/O):</a></h3>
+<ul>
+<li> <a href="iodemo.curry">iodemo.curry</a>:
+some demos of the monadic I/O concept
+</li>
+
+<li> <a href="diamond.curry">diamond.curry</a>:
+printing a regular diamond of numbers on the standard output
+(an adaptation from the Prolog programming contest at JICSLP'98 in Manchester)
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="listcomp">Arithmetic sequences and list comprehensions:</a></h3>
+<ul>
+<li> <a href="listcomp/arithseq.curry">arithseq.curry</a>:
+some simple examples for the arithmetic sequence notation
+</li>
+
+<li> <a href="listcomp/multgen.curry">multgen.curry</a>:
+a few examples for list comprehensions with multiple generators
+</li>
+
+<li> <a href="listcomp/psort.curry">psort.curry</a>:
+an implementation of permutation sort using list comprehensions
+</li>
+
+<li> <a href="listcomp/default.lcurry">default.lcurry</a>:
+an implementation of Haskell-like default rules with list comprehensions
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="search">Encapsulated search:</a></h3>
+<ul>
+<li> <a href="allsols.curry">allsols.curry</a>:
+a few examples for the use of the library "AllSolutions"
+</li>
+
+<li> <a href="search.curry">search.curry</a>:
+a simple example for encapsulated search
+</li>
+
+<li> <a href="prolog.curry">prolog.curry</a>:
+a simulation of the Prolog top-level shell with different search strategies
+</li>
+
+<li> <a href="best.curry">best.curry</a>:
+a simple example for the best solution search strategy
+</li>
+
+<li> <a href="england.curry">england.curry</a>:
+a relational database with encapsulated search examples
+</li>
+
+<li> <a href="sportsdb.curry">sportsdb.curry</a>:
+module SportsDB from the Escher report
+showing the implementation of Escher's "forall" construct
+by encapsulated search
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="modules">Modules:</a></h3>
+<ul>
+<li> <a href="modules/ModConc.curry">ModConc.curry</a>:
+a module defining list concatenation several times to be important
+by the example modules below
+</li>
+
+<li> <a href="modules/UseConc1.curry">UseConc1.curry</a>:
+a module importing module <code>ModConc</code>
+</li>
+
+<li> <a href="modules/UseConc2.curry">UseConc2.curry</a>:
+a module importing module <code>ModConc</code> qualified
+in order to avoid name conflicts
+</li>
+
+</ul>
+<hr />
+
+
+<h3><a name="escher">Comparison with Escher:</a></h3>
+Here are a few examples that are implementations of
+programs from John Lloyd's papers on Escher.
+<ul>
+<li> <a href="escher_perm.curry">escher_perm.curry</a>:
+module "Permute" from new Escher report
+(computation of permutations with a concatentation and a split
+function)
+</li>
+
+<li> <a href="escher_higher.curry">escher_higher.curry</a>:
+implementation of module "Higher" from the Escher report
+</li>
+
+<li> <a href="escher_cond.curry">escher_cond.curry</a>:
+module "Conditional" from the Escher report
+(check membership in a list)
+</li>
+
+<li> <a href="relational.curry">relational.curry</a>:
+module "Relational" from the Escher report
+(computing with relations)
+</li>
+
+<li> <a href="sportsdb.curry">sportsdb.curry</a>:
+module SportsDB from the Escher report
+showing the implementation of Escher's "forall" construct
+by encapsulated search
+</li>
+
+<li> <a href="england.curry">england.curry</a>:
+a geographical database and some queries from the Escher report
+</li>
+
+</ul>
+<hr />
+
+<h3><a name="CLP">Functional logic programming with constraints:</a></h3>
+<B>Important note:</B> <EM>The programs in this section
+work only with implementations
+of Curry that support real arithmetic and finite domain constraints,
+see, for instance,
+<a href="http://www.informatik.uni-kiel.de/~pakcs">PAKCS</a>.</EM>
+<ul>
+<li> <a href="CLP/mortgage.curry">mortgage.curry</a>:
+a classical example for constraint logic programming over
+reals: define a mortgage relationship between the principal,
+the life of the loan in months, the interest rate, the monthly
+repayment, and the outstanding balance. Due to the constraint
+programming features, one can solve various problems with
+this simple definition.
+</li>
+
+<li> <a href="CLP/circuit.curry">circuit.curry</a>:
+a further classical example for constraint logic programming over
+reals: analysis of electrical circuits
+</li>
+
+<li> <a href="CLP/queens.curry">queens.curry</a>:
+a classical example for constraint logic programming over
+finite domains: solving the n-queens problem
+</li>
+
+<li> <a href="CLP/smm.curry">smm.curry</a>:
+a further classical example for constraint logic programming over
+finite domains: solving the "send+more=money" puzzle
+</li>
+
+<li> <a href="CLP/sudoku.curry">sudoku.curry</a>:
+solving Su Doku puzzles in Curry with finite domain constraints.
+This examples shows the use of higher-order functions to set up
+a set of constraints in a compact way.
+</li>
+
+<li> <a href="CLP/magicseries.curry">magicseries.curry</a>:
+an example for constraint logic programming over
+finite domains where lazy evaluation is exploited:
+the computation of magic series
+</li>
+
+</ul>
+<hr />
+<h3><a name="distcurry">Distributed functional logic programming</a></h3>
+<B>Important note:</B> <EM>Most of the programs in this section
+work only with implementations
+of Curry that support distributed programming with port constraints
+as described in the
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PPDP99.html">PPDP'99 paper</a>.</EM>
+<ul>
+<li> <a href="distcurry/accountport.curry">accountport.curry</a>:
+the same program as
+<a href="account.curry">account.curry</a>
+(a bank account implemented as a concurrent object)
+but with the use of port constraints
+</li>
+
+<li> <a href="distcurry/counter.curry">counter.curry</a>:
+a simple counter which can be incremented and queried
+from any machine connected to the Internet
+</li>
+
+<li> <a href="distcurry/nameserver.curry">nameserver.curry</a>:
+a name server storing an association between names and numbers
+which can be queried in a simple manner
+from any machine connected to the Internet
+</li>
+
+<li> <a href="distcurry/talk.curry">talk.curry</a>:
+a simple program implementing the kernel of the Unix "talk"
+to enable a conversation between two partners on different machines
+connected to the Internet
+</li>
+
+<li> <a href="distcurry/sema.curry">sema.curry</a>:
+an implementation of semaphores in Curry
+</li>
+
+<li> <a href="distcurry/philo.curry">philo.curry</a>:
+an implementation of "dining philosophers" problem
+using semaphores implemented via ports
+</li>
+
+<li> <a href="distcurry/httpget.curry">httpget.curry</a>:
+a simple example showing the connection to Unix sockets
+(not implemented with ports but with more low level Socket library)
+</li>
+
+<li> <a href="distcurry/addserver.curry">addserver.curry</a>:
+an example showing the implementation of a simple client/server application
+(the server provides a service to add two numbers).
+The implementation does not use ports but the more low level Socket library.
+</li>
+
+<li> <a href="distcurry/addnamedserver.curry">addnamedserver.curry</a>:
+an example showing the implementation of a simple client/server application
+(the server provides a service to add two numbers).
+The implementation does Unix sockets with symbolic names
+based on the library NamedSocket.
+</li>
+
+<li> <a href="distcurry/addtimeoutserver.curry">addtimeoutserver.curry</a>:
+an example showing the implementation of a simple client/server application
+(the server provides a service to add two numbers).
+The implementation uses the Socket library and shows the use of
+time limits for socket connections on the server side.
+</li>
+
+</ul>
+
+<hr />
+<h3><a name="meta">Examples for meta-programming</a></h3>
+<B>Important note:</B> <EM>The programs in this section
+work only with the libraries of the PAKCS environment for meta-programming
+(see library directory <code>pakcs/lib/meta</code> of the current
+PAKCS distribution).</EM>
+<ul>
+<li> <a href="meta/Imports.curry">Imports.curry</a>:
+Example for using the library <code>CurryStringClassifier</code>:
+extracts the names of all imported modules from a Curry source file.
+</li>
+
+<li> <a href="meta/putModuleHead.curry">putModuleHead.curry</a>:
+Example for using the library <code>CurryStringClassifier</code>:
+adds a standard module header to a Curry source file if it is not already there.
+</li>
+
+</ul>
+
+<hr />
+<h3><a name="guicurry">Examples for the GUI library "GUI"</a></h3>
+<B>Important note:</B> <EM>The programs in this section
+work only with the library <TT>GUI</TT> which is available for
+the PAKCS environment. A description
+of the ideas behind this library can be found in the
+<a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL00.html">PADL'00 paper</a>.</EM>
+Most of the programs have a function "main" to start the GUI.
+<ul>
+<li> <a href="GUI/hello.curry">hello.curry</a>:
+a simple "Hello world" GUI
+</li>
+
+<li> <a href="GUI/counter.curry">counter.curry</a>:
+a simple counter GUI
+</li>
+
+<li> <a href="GUI/temperature.curry">temperature.curry</a>:
+a converter from Celsius to Fahrenheit and Kelvin where the Celsius
+value of the temperature in Celsius is fixed by a slider
+</li>
+
+<li> <a href="GUI/calc.curry">calc.curry</a>:
+a desk calculator showing the combination of GUIs with
+local state where the state is stored in an object
+</li>
+
+<li> <a href="GUI/checkbutton.curry">checkbutton.curry</a>:
+a simple demo for the use of checkbuttons
+</li>
+
+<li> <a href="GUI/config.curry">config.curry</a>:
+a simple demo to show the dynamic reconfiguration of
+widget parameters
+</li>
+
+<li> <a href="GUI/events.curry">events.curry</a>:
+a simple demo to show the handling of different events
+(e.g., left and right mouse buttons) inside one widget.
+</li>
+
+<li> <a href="GUI/inputmask.curry">inputmask.curry</a>:
+a demo (simple address database) to show widgets in a tabular
+orientation by exploiting the <code>Matrix</code>
+construct for widget composition
+</li>
+
+<li> <a href="GUI/hilbert.curry">hilbert.curry</a>:
+drawing a Hilbert curve in a canvas widget
+</li>
+
+<li> <a href="GUI/sierpinski.curry">sierpinski.curry</a>:
+drawing a Sierpinski curve in a canvas widget
+</li>
+
+<li> <a href="GUI/fractal.curry">fractal.curry</a>:
+drawing a fractal curve in a canvas widget
+</li>
+
+<li> <a href="GUI/mail.curry">mail.curry</a>:
+a simple mail widget to write and send an email
+</li>
+
+<li> <a href="GUI/menu.curry">menu.curry</a>:
+a simple counter GUI to demonstrate the use of menu buttons
+</li>
+
+<li> <a href="GUI/radiotraffic.curry">radiotraffic.curry</a>:
+a simple demo for the use of radiobuttons: traffic light controller
+ensures exclusion in traffic lights.
+</li>
+
+<li> <a href="GUI/scrollbar.curry">scrollbar.curry</a>:
+a simple demo for the use of scrollbars
+</li>
+
+<li> <a href="GUI/textappend.curry">textappend.curry</a>:
+a simple GUI demonstrating the use of <code>appendValue</code>
+in <code>TextEdit</code> widgets
+</li>
+
+<li> <a href="GUI/textstyledappend.curry">textstyledappend.curry</a>:
+a simple GUI demonstrating the use of <code>appendStyledValue</code>
+in <code>TextEdit</code> widgets (where text can be shown with
+colors and font styles)
+</li>
+
+<li> <a href="GUI/counter_controlled.curry">counter_controlled.curry</a>:
+a simple counter GUI which can be controlled not only by the user
+but also by external processes that send messages to the GUI
+</li>
+
+</ul>
+<hr />
+
+<h3><a name="parsing">Examples for functional logic parsers</a></h3>
+Here are simple examples for the use of the functional logic parser
+combinators which are defined in the parser library
+<TT>Parser</TT> and are adapted from the paper
+"A Functional Logic Perspective of Parsing"
+by R. Caballero and F.J. Lopez-Fraguas
+(Proc. FLOPS'99, Springer LNCS 1722, pp. 85-99, 1999).
+<ul>
+<li> <a href="parsing/expr_parser.curry">expr_parser.curry</a>:
+a parser for arithmetic expressions over natural numbers
+</li>
+
+<li> <a href="parsing/palindrome.curry">palindrome.curry</a>:
+a parser for palindromes over the alphabet 'a' and 'b'
+showing also the possibility to generate correct sentences
+with functional logic parsers
+</li>
+
+</ul>
+<hr />
+
+<h3><a name="various">Various example programs</a></h3>
+<ul>
+<li> <a href="chords.curry">chords.curry</a>:
+this program is able to generate appropriate chords for the accompaniment
+of a given melody. There is also a
+<a href="http://www.informatik.uni-kiel.de/~mh/reports/LIFO-98-08.html"> 
+paper</a> which sketches the implementation and describes
+the advantages of Curry to implement this application.
+</li>
+
+<li> <a href="daVinciTest.curry">daVinciTest.curry</a>:
+some examples to show the use of the library <TT>DaVinci</TT>
+for the visualization of graphs
+</li>
+
+</ul>
+<hr />
+
+Back to <a href="http://www.informatik.uni-kiel.de/~curry/">Homepage of Curry</a>
+
+<hr>
+<address><a href="http://www.informatik.uni-kiel.de/~mh/">Michael Hanus</a></address>
+</body>
+</html>
+

@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="prim_listenOn" arity="1">
+  <library>prim_socket</library>
+  <entry>prim_listenOn</entry>
+ </primitive>
+ <primitive name="listenOnFresh" arity="0">
+  <library>prim_socket</library>
+  <entry>prim_listenOnFresh</entry>
+ </primitive>
+ <primitive name="prim_socketAccept" arity="1">
+  <library>prim_socket</library>
+  <entry>prim_socketAccept</entry>
+ </primitive>
+ <primitive name="prim_waitForSocketAccept" arity="2">
+  <library>prim_socket</library>
+  <entry>prim_waitForSocketAccept</entry>
+ </primitive>
+ <primitive name="prim_sClose" arity="1">
+  <library>prim_socket</library>
+  <entry>prim_sClose</entry>
+ </primitive>
+ <primitive name="prim_connectToSocket" arity="2">
+  <library>prim_socket</library>
+  <entry>prim_connectToSocket</entry>
+ </primitive>
+</primitives>

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>PAKCS Resources</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="keywords" content="Pakcs, Curry, distribution, documentation, use">
+  <meta name="description" content="Resources for using the Pakcs distribution of Curry">
+</head>
+
+<body text="000000" bgcolor="cccccc" link="0000ef"
+      vlink="51188e" alink="FF0000">
+
+<h1>PAKCS Resources</h1>
+
+<h3>Summary</h3>
+
+This page is intended for newcomers to PAKCS, the 
+Portland Aachen Kiel Curry System.
+It contains links to distribution sites, to local documentation,
+to examples, and a short overview of the use of the compiler
+interpreter.
+
+<h3>Links</h3>
+
+<h4>Downloading and installing PAKCS</h4>
+<blockquote>
+
+This section tells you where to find the distribution of PAKCS,
+what to download and what is needed on the host computer.
+If you are reading this file, you may have already
+downloaded and installed the PAKCS distribution. 
+Thus, this section may not be of interest to you.<br/><br/>
+
+<b>Q:</b> Where can I run PAKCS?<br/>
+<b>A:</b> PAKCS runs under <a href="http://www.linux.org/" target="_blank">Linux</a>,
+ <a href="http://wwws.sun.com/software/solaris/" target="_blank">Solaris</a>,
+ and <a href="http://www.apple.com/macosx/" target="_blank">Mac OS X</a>.<br/><br/>
+
+<b>Q:</b> What software do I need to install to run PAKCS?<br/>
+<b>A:</b> The host computer must have installed
+<a href="http://www.sics.se/sicstus/" target="_blank">SICStus Prolog</a> or
+<a href="http://www.swi-prolog.org" target="_blank">SWI-Prolog</a>.<br/><br/>
+
+<b>Q:</b> Where can I download PAKCS?<br/>
+<b>A:</b> There is an 
+<a href="http://www.informatik.uni-kiel.de/~pakcs/">official site</a>
+at the University of Kiel.
+There is also a <a href="http://redstar.cs.pdx.edu/~pakcs/">
+mirror site</a> at Portland State.<br/><br/>
+
+<b>Q:</b> What should I download to run PAKCS?<br/>
+<b>A:</b> Look for "<b>Download PAKCS</b>" in a PAKCS website.
+The distribution consists of a gzipped tar archive of about 3 - 5 Mb
+(depending on your architecture).
+It includes all you need to run PAKCS plus several libraries,
+documentation and examples.<br/><br/>
+
+<b>Q:</b> Do I need a license to run PAKCS?<br/>
+<b>A:</b> No. However, you may need a license for both Solaris
+and SICStus Prolog.<br/><br/>
+
+<b>Q:</b> How do I install PAKCS?<br/>
+<b>A:</b> Open the downloaded archive using the Unix command
+<tt><b>tar zxf ~/pakcs_....tar.gz</b></tt>. This will create a directory
+called <tt><b>pakcs</b></tt>.
+Follow the instructions contained in the file
+<tt><b><a href="http://www.informatik.uni-kiel.de/~pakcs/download/INSTALL.html">INSTALL.html</a></b></tt> in this directory.<br/><br/>
+</blockquote>
+
+<h4>Running the first program</h4>
+<blockquote>
+
+This section tells you how to execute your first Curry program.
+It assumes a successful installation of PAKCS.
+PAKCS is installed by a script that also tests the correctness
+of the installation.
+
+<ul>
+<li> Verify that the compiler/interpreter and other tools
+are in your <i>PATH</i> environment variable.
+Issue the <tt><b>which</b></tt> command to the shell prompt
+as shown below:
+<pre>
+    [antoy@redstar test]$ which pakcs
+    ~/local/pakcs/bin/pakcs
+    [antoy@redstar test]$ 
+</pre>
+You should see a line such as <tt><b>~/local/pakcs/bin/pakcs</b></tt>.
+The exact content is not important.
+If you see a line containing <tt><b>no pakcs in ...</b></tt>
+you must extend your <i>PATH</i> environment variable.
+Many details depend on your computer system and you should
+ask them to your system administrator.
+
+<p><li> Create a file which name extension "<tt><b>curry</b></tt>"
+for example <tt><b>first.curry</b></tt>.  The file contains the
+following single line of code:
+<pre>
+    test n = take n [0,2..]
+</pre>
+
+<p><li> Start the compiler/interpreter as follows:
+<pre>
+    [antoy@redstar test]$ pakcs
+</pre>
+Several lines are output, including the PAKCS logo till you see
+<pre>
+    Type ":h" for help
+
+    Prelude>
+</pre>
+"<tt><b>Prelude&gt;</b></tt>" is the prompt you get when no
+file has been loaded yet.
+As suggested, you may try typing "<tt><b>:h</b></tt>"
+for a list of available commands, or you can load 
+the Curry program you created.
+
+<p><li> Load your Curry program with the command "<tt><b>:l</b></tt>"
+followed by a file name, i.e. "<tt><b>first</b></tt>"
+in this example.  It is not necessary to type the file extension
+"<tt><b>.curry</b></tt>":
+<pre>
+    Prelude> :l first
+</pre>
+Several line of informative messages are printed.
+No error or warning message should be generated for the
+above program.
+The prompt is changed to "<tt><b>first&gt;</b></tt>",
+the name of the program you have just loaded.
+
+<p><li> Execute some function of your program.
+In this example, only one function by the name of <tt><b>test</b></tt>
+has been defined. This function take an argument which should
+be a non-negative integer.  When the argument is <i>n</i>,
+the list of the first <i>n</i> (starting from 0) even number is
+printed. E.g.:
+<pre>
+    first> test 8
+    Result: [0,2,4,6,8,10,12,14] ?
+</pre>
+The program is now waiting for your input.
+If you enter a semicolon followed by a carriage return,
+the program attempts to find another result for your
+input.  In this case, there are no other results,
+thus you get the message
+"<tt><b>No more solutions.</b></tt>"
+and the prompt.
+If you enter carriage return, you get immediately the prompt.
+
+<p><li> At this point you can execute again some function of
+your program, load another file or quit by entering the
+command "<tt><b>:q</b></tt>".
+
+</ul>
+</blockquote>
+
+<h4>Learning more</h4>
+<blockquote>
+
+This section contains links to both resource coming with the distribution
+and external resources for learning Curry and using PAKCS.
+<p>
+
+<a href="./docs/CurryReport.pdf">Curry Report</a>
+<blockquote> 
+This document precisely describes the Curry programming language.
+It is appropriate as a reference for all the technical aspects of
+the language, but it may be difficult for the beginner.
+</blockquote>
+
+<a href="./docs/Manual.pdf">PAKCS User Manual</a>
+<blockquote>
+This document describes the use of the PAKCS compiler/interpreter
+and the differences between the implementation and the Curry Report.
+</blockquote>
+
+<a href="http://www.informatik.uni-kiel.de/~curry/tutorial/">Tutorial</a>
+<blockquote>
+This document, still incomplete at the time of this writing,
+is an introduction to the Curry programming language suitable
+for the beginner.
+</blockquote>
+
+<a href="http://www.informatik.uni-kiel.de/~pakcs/lib/">Libraries</a>
+<blockquote>
+The PAKCS distribution comes with a collection of libraries
+for application programming.
+The documentation of these libraries is generated by the <i>currydoc</i> tool,
+which is optionally executed during the installation.
+It allows a developer to navigate the interfaces of the libraries.
+</blockquote>
+
+<a href="./examples/index.html">Examples</a>
+<blockquote>
+This document is an index to a collection of small examples
+contained in the standard distribution.
+They may be useful to get a sense of the Curry features and
+how they can be used.
+</blockquote>
+
+<a href="http://www.informatik.uni-kiel.de/~pakcs/">PAKCS Homepage</a><br/>
+<blockquote>
+This site contains the current and latest distributions,
+links to several resources, information about developers and
+sponsors, etc.
+</blockquote>
+
+<a href="http://www.informatik.uni-kiel.de/~curry/">Curry Homepage</a>
+<blockquote>
+This site is the starting point of information about the programming
+language Curry of which PAKCS is the most advanced compiler/interpreter.
+</blockquote>
+
+<a href="http://www-ps.informatik.uni-kiel.de/currywiki/">CurryWiki</a>
+<blockquote>
+This site contains more information about Curry, tools for Curry,
+alternative implementations etc.
+</blockquote>
+
+<a href="http://www.cs.pdx.edu/~antoy/flp/patterns/">FLP Patterns</a>
+<blockquote>
+This site contains a collection of Functional Logic Patterns,
+advanced programming solutions to recurring non-trivial problems.
+It may be interesting to more experienced developers.
+</blockquote>
+
+<a href="http://www.cs.pdx.edu/~antoy/flp/acm/">PNW 2001 ACM Context</a>
+<blockquote>
+Curry implementations of the set of problems of the
+Pacific NW Regional selection of the 2001 ACM programming context.
+</blockquote>
+
+<a href="http://www-ps.informatik.uni-kiel.de/currywiki/tools/currybrowser">CurryBrowser</a>
+<blockquote>
+This site describes <i>CurryBrowser</i>, a generic analysis
+environment for Curry implemented in Curry.
+CurryBrowser supports browsing through the program code of all modules of
+an application written in Curry.
+Each module can be shown in different formats
+(e.g., source code, interface, intermediate code) and, inside each module,
+various properties of functions defined in this module can be analyzed.
+This tool is already included in the distribution of PAKCS.
+</blockquote>
+
+<a href="http://www-ps.informatik.uni-kiel.de/currywiki/tools/currytest">CurryTest</a>
+<blockquote>
+This site describes <i>CurryTest</i>, a simple tool
+to write and run repeatable unit tests.
+This tool is already included in the distribution of PAKCS.
+</blockquote>
+
+<a href="http://www.informatik.uni-kiel.de/~pakcs/COOSy/">COOSy</a>
+<blockquote>
+This site describes <i>COOSy</i>, the Curry Object Observation System,
+a lightweight approach for debugging Curry programs by observations.
+This tool is already included in the distribution of PAKCS.
+</blockquote>
+
+</blockquote>
+
+<hr/>
+Last updated: Fri May 23 11:37:57 CEST 2008
+
+</body>
+</html>

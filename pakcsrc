@@ -1,0 +1,56 @@
+############################################################################
+# PAKCS configuration file
+#
+# The syntax of this file is 
+#
+# property=value\n
+#
+# Lines starting with '#' are comments.
+#
+############################################################################
+
+# Define path for searching modules in addition to standard PAKCS libraries:
+# (this path is placed in front of the standard PAKCS library path)
+libraries=
+
+# Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
+verboserc=no
+
+# Allow PAKCS extensions (currently: function patterns) in Curry programs
+# (values: yes | no):
+pakcsextensions=yes
+
+# Show messages relating to parsing of modules (values: yes | no):
+parsermessages=yes
+
+# Show loading of fcy files (values: yes | no):
+showfcyload=no
+
+# Show loading/compiling of Prolog files (values: yes | no):
+showplload=no
+
+# Show warnings for non-trivial overlapping rules (values: yes | no)
+warnoverlapping=yes
+
+# Show messages related to dynamic predicates (such as loading,
+# waiting for lock files, etc), compare lib/Dynamic. Values: yes | no
+dynamicmessages=yes
+
+# Default value when asking for more solutions (values: yes | no | all)
+moresolutions=yes
+
+# Show parse errors when parsing terms with ReadShowTerm.read(sQ)Term
+# (values: yes | no)
+readtermerrors=no
+
+# Create smaller saved states without the interactive system and compiler
+# with the command ":save expression" (take slightly more time)
+# Values: yes | no
+smallstate=no
+
+# Create stand-alone executables when saving states via ":save" command
+# (works only with Sicstus 3.10 or higher).
+# Values: yes | no
+standalone=no
+
+############################################################################

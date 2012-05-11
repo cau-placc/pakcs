@@ -1,0 +1,57 @@
+This directory contains various tools for the PAKCS system.
+
+Currently it contains:
+
+FlexRigid.curry:
+   A module defining a function to compute the rigid/flex status
+   of a FlatCurry expression.
+
+ModImports:
+   A tool to visualize the module dependencies of a program
+   as a graph with DaVinci.
+
+Peval:
+   Directory containing a partial evaluator (integrated in the
+   Curry2Prolog compiler environment by the command ":peval").
+   See the README there for more details.
+
+addtypes.curry:
+   A tool that adds type signaturs to a given Curry program.
+
+analysis:
+   A directory containing various analyzers for Curry program.
+
+check.curry:
+   This program implements the ":analyze"/"functions" command of the
+   Curry2Prolog compiler environment.
+
+curry-mode.el:
+   Emacs mode for editing Curry programs
+
+curry2xml.curry:
+   A translator for Curry programs into their
+   corresponding FlatCurry representation in XML.
+
+currydoc.curry:
+   A documentation generator for Curry programs.
+
+currytest.curry:
+   A test tool for Curry programs.
+
+genint.curry:
+   A program for generating module interfaces and source code
+   of a Curry module (used by the commands ":interface" and ":show"
+   of the Curry2Prolog compiler environment).
+
+icons:
+   Directory containing some icons used by currydoc.
+
+optimize:
+   Directory containing a simple optimizer for FlatCurry programs
+   (integrated in the Curry2Prolog compiler environment by the
+   option "compact").
+
+xmldata:
+   Directory containing a tool to generate conversion functions
+   between data types and XML representations. The corresponding
+   tool is called by "pakcs/bin/dataToXml".

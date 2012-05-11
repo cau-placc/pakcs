@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='us-ascii'?>
+
+<!--
+     This documents describes a DTD for specifying functional logic programs
+     in an intermediate form where all functions are global and
+     patterns are compiled into case expressions.
+     In order to cover a wide range of declarative languages,
+     the representation is oriented towards FlatCurry, an intermediate
+     representation for Curry programs.
+-->
+
+
+<!--
+     Each module is represented as a separate program to support
+     incremental compilation. Thus, a program consists of the module name,
+     the list of imported modules, the data types and functions defined
+     in this module, and a list of operator declarations and a translation
+     table. The last two elements might be used by interactive back ends
+     that allow the user to evaluate arbitrary expressions.
+-->
+<!ELEMENT prog (module,import,types,functions,operators,translation)>
+
+<!--
+     A module name is a string and an import list is a list of module names:
+-->
+<!ELEMENT module (#PCDATA)>
+<!ELEMENT import (module*)>
+
+<!--
+     A type expression is a function type (with argument and result type
+     as type expressions), a (user-defined) type constructor application
+     (with the name of the type constructor as an attribute and the list
+     of argument type expressions), or a type variable. A type variable
+     is represented by an integer index where all type variables indices
+     are unique inside each type declaration (usually numbered from 0).
+-->
+<!ENTITY % typeexpr "functype|tcons|tvar">
+<!ELEMENT functype  ((%typeexpr;),(%typeexpr;))>
+<!ELEMENT tcons (%typeexpr;)*>
+   <!ATTLIST tcons  name CDATA #REQUIRED>
+<!ELEMENT tvar  (#PCDATA)>
+
+<!--
+     A data type declaration consists of a list of type variables as
+     parameters (for polymorphic data structures) and a list of constructor
+     declarations where each constructor declaration contains the name
+     and arity of the data constructor (as attributes) and a list of
+     type expressions (the argument types of this data constructor):
+-->
+<!ELEMENT types (type*)>
+<!ELEMENT type (params,cons*)>
+   <!ATTLIST type  name CDATA #REQUIRED>
+<!ELEMENT params (tvar*)>
+<!ELEMENT cons (%typeexpr;)*>
+   <!ATTLIST cons
+        name   CDATA #REQUIRED
+        arity  CDATA #REQUIRED
+   >
+
+
+<!--
+     A function declaration consists of the name and arity of the function
+     as attributes together with a type expression specifying the function's
+     type and a rule specifying the function's meaning. For external functions
+     (i.e., primitive functions not defined in this or another module)
+     the rule is replaced by an "external" element containing the external
+     name of this function.
+-->
+<!ELEMENT functions (func*)>
+<!ELEMENT func ((%typeexpr;),(rule|external))>
+   <!ATTLIST func
+        name   CDATA #REQUIRED
+        arity  CDATA #REQUIRED
+   >
+<!ELEMENT rule (lhs,rhs)>
+<!ELEMENT external (#PCDATA)>
+
+<!--
+     The left-hand side of a rule is a list of variables, i.e., pattern
+     matching is represented by case expressions on the right-hand side.
+     The length of the variable list is the declared arity of the function.
+     A variable is represented by an integer index where all variables indices
+     are unique inside each function declarations (usually numbered from 0),
+     i.e., different variables have different indices.
+-->
+<!ELEMENT lhs (var*)>
+<!ELEMENT var  (#PCDATA)>
+
+<!--
+     The right-hand side of a rule is an expression containing only variables
+     from the left-hand side or variables explicitly introduced in patterns,
+     constraints, guarded expressions or let expressions.
+     An expression is a variable, a literal (constant), a combination
+     (i.e., the application of a known function or data constructor to
+     a list of arguments), an application of two expressions (where the
+     first must evaluate to a function), a constraint (where some
+     existantially quantified variables are introduced), a disjunction
+     ("or" expression for overlapping patterns or non-deterministic
+     functions), a case expression, a guarded expression (representing
+     conditional rules where some free variables can be introduced),
+     a choice (representing committed choice), or a letrec expression
+     representing local (possible recursive) bindings of variables.
+-->
+<!ENTITY % expr "var|lit|comb|apply|constr|or|case|guardedexpr|choice|letrec">
+<!ELEMENT rhs (%expr;)>
+
+<!ELEMENT lit    (intc|floatc|charc)>
+ <!ELEMENT intc     (#PCDATA)>   <!-- integer constant -->
+ <!ELEMENT floatc   (#PCDATA)>   <!-- floating point constant -->
+ <!ELEMENT charc    (#PCDATA)>   <!-- character, represented as ASCII value -->
+
+<!--
+     The "type" of a combination is either "FuncCall" (a call to a function),
+     "ConsCall" (a call with a constructor at the top), or "PartCall"
+     (a partial application, i.e., FuncCall or ConsCall where not all
+     arguments are provided). The "name" attribute contains the name
+     of the function or data constructor.
+-->
+<!ELEMENT comb (%expr;)*>
+   <!ATTLIST comb
+        type   CDATA #REQUIRED
+        name   CDATA #REQUIRED
+   >
+<!ELEMENT apply  ((%expr;),(%expr;))>
+<!ELEMENT constr (freevars,(%expr;))>
+<!ELEMENT or     ((%expr;),(%expr;))>
+
+<!--
+     The "type" of a case expression is either "Rigid" or "Flex".
+     Rigid case expressions suspend if the case argument is an unbound
+     variable whereas flexible case expressions instantiate such unbound
+     variables non-deterministically to some pattern of this case expression.
+     arguments. A branch in a case expression contains a pattern and an
+     expression. The pattern is either a data constructor together with
+     its variable arguments or a literal constant ("lpattern").
+     For source languages supporting higher-order matching, there is
+     also a "hpattern" which is similar to "pattern" but represents
+     a partial pattern, i.e., a constructor or function of arity n
+     where the argument list contains less than n variables.
+-->
+<!ELEMENT case   ((%expr;),branch*)>
+   <!ATTLIST case
+        type   CDATA #REQUIRED
+   >
+<!ELEMENT branch ((pattern|lpattern|hpattern),(%expr;))>
+<!ELEMENT pattern (var*)>
+   <!ATTLIST pattern
+        name   CDATA #REQUIRED
+   >
+<!ELEMENT lpattern (intc|floatc|charc)>
+<!ELEMENT hpattern (var*)>
+   <!ATTLIST hpattern
+        name   CDATA #REQUIRED
+   >
+
+<!--
+     A guarded expression consists of a list of new (free) variables
+     occurring in the guard or the right-hand side, a guard (a
+     constraint expression to be solved) and a right-hand side. A guarded
+     expression is reducible (to its right-hand side) if the guard
+     constraint is solvable.
+-->
+<!ELEMENT guardedexpr (freevars,(%expr;),(%expr;))>
+
+<!--
+     A choice expression represents a committed choice (i.e., don't care
+     choice) between different alternatives (represented by "or" expressions
+     inside the choice). A choice expression reduces to the first
+     guarded expression inside this choice whose constraint is satisfied.
+     Operationally, a choice is evaluated by creating independent
+     search spaces for all disjunctions inside this choice until one
+     space can satisfy its constraint. Thus, inside this choice
+     only guarded expressions occur possibly combined with "or"
+     and "case" expressions.
+-->
+<!ELEMENT choice (%expr;)>
+
+<!--
+     A let(rec) expression represents local (in letrec possible recursive)
+     bindings of variables inside an expression. This is useful for
+     expressing sharing or programs making use of graph structures.
+-->
+<!ELEMENT let     (binding*,(%expr;))>
+<!ELEMENT letrec  (binding*,(%expr;))>
+<!ELEMENT binding (var,(%expr;))>
+
+<!ELEMENT freevars (var*)>
+
+<!--
+     An operator declaration consists of the fixity (InfixOp/InfixlOp/InfixrOp)
+     and the precedence of the operator as attributes together with
+     the name of the operator. Although an operator declaration contains
+     no semantic information, it might be used by interactive back ends
+     that allow the user to type in and evaluate arbitrary expressions.
+-->
+<!ELEMENT operators (op*)>
+<!ELEMENT op    (#PCDATA)>
+   <!ATTLIST op
+        fixity CDATA #REQUIRED
+        prec   CDATA #REQUIRED
+   >
+
+<!--
+     The translation table describes the mapping of identifiers
+     (type constructors, data constructors, defined functions)
+     used in the source program into their corresponding internal names
+     used in the translated program (since it is often necessary to rename
+     identifiers to avoid name clashes, e.g., the internal names are
+     prefixed by the module name). Only the externally visible names
+     (i.e., names exported by this module) are listed here.
+     This information might be used by back ends for representing
+     intermediate (e.g., during debugging) or final results or to
+     allow the user to type in and evaluate arbitrary expressions.
+-->
+<!ELEMENT translation (trans*)>
+<!ELEMENT trans (name,intname)>
+<!ELEMENT name     (#PCDATA)>
+<!ELEMENT intname  (#PCDATA)>

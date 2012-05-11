@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="prim_assertFact" arity="1">
+  <library>prim_dynamic</library>
+  <entry>prim_assertFact</entry>
+ </primitive>
+ <primitive name="prim_retractFact" arity="1">
+  <library>prim_dynamic</library>
+  <entry>prim_retractFact</entry>
+ </primitive>
+ <primitive name="getDynamicKnowledge" arity="0">
+  <library>prim_dynamic</library>
+  <entry>prim_getDynamicKnowledge</entry>
+ </primitive>
+ <primitive name="prim_isKnownAtTime" arity="2">
+  <library>prim_dynamic</library>
+  <entry>prim_isKnownAtTime</entry>
+ </primitive>
+ <primitive name="startTransaction" arity="0">
+  <library>prim_dynamic</library>
+  <entry>prim_startTransaction</entry>
+ </primitive>
+ <primitive name="prim_commitTransaction" arity="1">
+  <library>prim_dynamic</library>
+  <entry>prim_commitTransaction</entry>
+ </primitive>
+ <primitive name="abortTransaction" arity="0">
+  <library>prim_dynamic</library>
+  <entry>prim_abortTransaction</entry>
+ </primitive>
+</primitives>

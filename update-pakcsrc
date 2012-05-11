@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Install or update the configuration file .pakcsrc in the home directory:
+
+# Compute home of PAKCS installation:
+PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
+
+if [ "$HOME" = "" ] ; then
+  exit 0  # exit since $HOME not set
+fi
+
+cd "$HOME"
+
+if [ -f .pakcsrc ] ; then
+  if [ "`ls -rt \"$PAKCSHOME/pakcsrc\" .pakcsrc | head -1`" = .pakcsrc ] ; then
+    mv -f .pakcsrc .pakcsrc.bak
+    cp "$PAKCSHOME/pakcsrc" pakcsrc$$
+    # Update pakcsrc but keep old user-defined values:
+    for i in `sed -n '/^[A-Za-z]*=/p' < .pakcsrc.bak`
+    do 
+      VAR=`expr $i : '\(.*\)=.*'`
+      VALUE=`expr $i : '.*=\(.*\)'`
+      #echo VAR: $VAR \| VALUE: $VALUE
+      mv pakcsrc$$ pakcsrc$$.sav
+      sed 's|^'$VAR'=.*$|'$VAR=$VALUE'|' < pakcsrc$$.sav > pakcsrc$$
+    done
+    rm -f pakcsrc$$.sav
+    mv pakcsrc$$ .pakcsrc
+    echo ">>> $HOME/.pakcsrc updated (old version saved in $HOME/.pakcsrc.bak)"
+  fi
+else
+  cp "$PAKCSHOME/pakcsrc" .pakcsrc
+  echo ">>> $HOME/.pakcsrc installed."
+fi

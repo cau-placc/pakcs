@@ -1,0 +1,72 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="prim_FD_plus" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_plus</entry>
+ </primitive>
+ <primitive name="prim_FD_minus" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_minus</entry>
+ </primitive>
+ <primitive name="prim_FD_times" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_times</entry>
+ </primitive>
+ <primitive name="prim_FD_equal" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_equal</entry>
+ </primitive>
+ <primitive name="prim_FD_notequal" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_notequal</entry>
+ </primitive>
+ <primitive name="prim_FD_le" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_le</entry>
+ </primitive>
+ <primitive name="prim_FD_leq" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_leq</entry>
+ </primitive>
+ <primitive name="prim_FD_ge" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_ge</entry>
+ </primitive>
+ <primitive name="prim_solve_reify" arity="1">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_solve_reify</entry>
+ </primitive>
+ <primitive name="prim_FD_geq" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_geq</entry>
+ </primitive>
+ <primitive name="prim_domain" arity="3">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_domain</entry>
+ </primitive>
+ <primitive name="prim_sum" arity="3">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_sum</entry>
+ </primitive>
+ <primitive name="prim_scalarProduct" arity="4">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_scalar_product</entry>
+ </primitive>
+ <primitive name="prim_count" arity="4">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_count</entry>
+ </primitive>
+ <primitive name="prim_allDifferent" arity="1">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_all_different</entry>
+ </primitive>
+ <primitive name="prim_indomain" arity="1">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_indomain</entry>
+ </primitive>
+ <primitive name="prim_labeling" arity="2">
+  <library>prim_clpfd</library>
+  <entry>prim_FD_labeling</entry>
+ </primitive>
+</primitives>

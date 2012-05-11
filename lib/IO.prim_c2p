@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="stdin" arity="0">
+  <library>prim_io</library>
+  <entry>prim_stdin</entry>
+ </primitive>
+ <primitive name="stdout" arity="0">
+  <library>prim_io</library>
+  <entry>prim_stdout</entry>
+ </primitive>
+ <primitive name="stderr" arity="0">
+  <library>prim_io</library>
+  <entry>prim_stderr</entry>
+ </primitive>
+ <primitive name="prim_openFile" arity="2">
+  <library>prim_io</library>
+  <entry>prim_openFile</entry>
+ </primitive>
+ <primitive name="prim_hClose" arity="1">
+  <library>prim_io</library>
+  <entry>prim_hClose</entry>
+ </primitive>
+ <primitive name="prim_hFlush" arity="1">
+  <library>prim_io</library>
+  <entry>prim_hFlush</entry>
+ </primitive>
+ <primitive name="prim_hIsEOF" arity="1">
+  <library>prim_io</library>
+  <entry>prim_hIsEOF</entry>
+ </primitive>
+ <primitive name="prim_hSeek" arity="3">
+  <library>prim_io</library>
+  <entry>prim_hSeek</entry>
+ </primitive>
+ <primitive name="prim_hWaitForInputs" arity="2">
+  <library>prim_io</library>
+  <entry>prim_hWaitForInputs[raw]</entry>
+ </primitive>
+ <primitive name="prim_hWaitForInputsOrMsg" arity="2">
+  <library>prim_io</library>
+  <entry>prim_hWaitForInputsOrMsg[raw]</entry>
+ </primitive>
+ <primitive name="prim_hGetChar" arity="1">
+  <library>prim_io</library>
+  <entry>prim_hGetChar</entry>
+ </primitive>
+ <primitive name="prim_hPutChar" arity="2">
+  <library>prim_io</library>
+  <entry>prim_hPutChar</entry>
+ </primitive>
+ <primitive name="prim_hIsReadable" arity="1">
+  <library>prim_io</library>
+  <entry>prim_hIsReadable</entry>
+ </primitive>
+ <primitive name="prim_hIsWritable" arity="1">
+  <library>prim_io</library>
+  <entry>prim_hIsWritable</entry>
+ </primitive>
+</primitives>

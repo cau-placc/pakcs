@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Terminate the Curry Port Name Server demon, if it is not already terminated:
+
+PIDFILE="/tmp/PAKCS_CPNSD_PID"
+LOCKFILE="/tmp/PAKCS_CPNSD.LOCK" # for startup control
+CPNSPROG="`dirname $0`/CPNS.state"
+
+if test ! -f $PIDFILE ; then
+  rm -f $LOCKFILE
+  echo "CPNS demon does not seem to be started." >&2
+  exit
+elif test ! -f $CPNSPROG ; then
+  rm -f $LOCKFILE
+  echo "CPNS demon does not seem to be generated." >&2
+  exit
+else
+  # test whether the server process is still existent:
+  PID=`cat $PIDFILE`
+  ps -p $PID | fgrep $PID > /tmp/TESTPID$$
+  if test ! -s /tmp/TESTPID$$ ; then
+    rm -f $PIDFILE /tmp/TESTPID$$ $LOCKFILE
+    echo "CPNS demon seems to be already aborted." >&2
+    exit
+  fi
+fi
+
+$CPNSPROG stop >&2
+rm -f $PIDFILE /tmp/TESTPID$$ $LOCKFILE

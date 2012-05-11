@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="unsafePerformIO" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_unsafePerformIO[raw]</entry>
+ </primitive>
+ <primitive name="spawnConstraint" arity="2">
+  <library>prim_unsafe</library>
+  <entry>prim_spawnConstraint[raw]</entry>
+ </primitive>
+ <primitive name="prim_isVar" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_isVar</entry>
+ </primitive>
+ <primitive name="prim_identicalVar" arity="2">
+  <library>prim_unsafe</library>
+  <entry>prim_identicalVar</entry>
+ </primitive>
+ <primitive name="prim_showAnyTerm" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_showAnyTerm</entry>
+ </primitive>
+ <primitive name="prim_showAnyQTerm" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_showAnyQTerm</entry>
+ </primitive>
+ <primitive name="prim_readsAnyUnqualifiedTerm" arity="2">
+  <library>prim_unsafe</library>
+  <entry>prim_readsAnyUnqualifiedTerm</entry>
+ </primitive>
+ <primitive name="prim_readsAnyQTerm" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_readsAnyQTerm</entry>
+ </primitive>
+ <primitive name="showAnyExpression" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_showAnyExpression[raw]</entry>
+ </primitive>
+ <primitive name="showAnyQExpression" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_showAnyQExpression[raw]</entry>
+ </primitive>
+ <primitive name="prim_readsAnyQExpression" arity="1">
+  <library>prim_unsafe</library>
+  <entry>prim_readsAnyQExpression</entry>
+ </primitive>
+</primitives>

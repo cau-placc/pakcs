@@ -1,0 +1,44 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE primitives SYSTEM "http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd">
+<primitives>
+ <primitive name="getCPUTime" arity="0">
+  <library>prim_system</library>
+  <entry>prim_getCPUTime</entry>
+ </primitive>
+ <primitive name="getElapsedTime" arity="0">
+  <library>prim_system</library>
+  <entry>prim_getElapsedTime</entry>
+ </primitive>
+ <primitive name="getArgs" arity="0">
+  <library>prim_system</library>
+  <entry>prim_getArgs</entry>
+ </primitive>
+ <primitive name="prim_getEnviron" arity="1">
+  <library>prim_system</library>
+  <entry>prim_getEnviron</entry>
+ </primitive>
+ <primitive name="getHostname" arity="0">
+  <library>prim_system</library>
+  <entry>prim_getHostname</entry>
+ </primitive>
+ <primitive name="getPID" arity="0">
+  <library>prim_system</library>
+  <entry>prim_getPID</entry>
+ </primitive>
+ <primitive name="getProgName" arity="0">
+  <library>prim_system</library>
+  <entry>prim_getProgName</entry>
+ </primitive>
+ <primitive name="prim_system" arity="1">
+  <library>prim_system</library>
+  <entry>prim_system</entry>
+ </primitive>
+ <primitive name="prim_exitWith" arity="1">
+  <library>prim_system</library>
+  <entry>prim_exitWith</entry>
+ </primitive>
+ <primitive name="prim_sleep" arity="1">
+  <library>prim_system</library>
+  <entry>prim_sleep</entry>
+ </primitive>
+</primitives>
