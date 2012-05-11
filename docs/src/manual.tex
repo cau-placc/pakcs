@@ -245,7 +245,7 @@ It is recommended to use the system module \code{AllSolutions}
 for encapsulating search.
 \item
 There is currently no general connection to external constraint solvers.
-However, the Curry2Prolog compiler provides constraint
+However, the PAKCS compiler provides constraint
 solvers for arithmetic and finite domain constraints
 (see Appendix~\ref{sec:libraries}).
 \end{itemize}
@@ -280,7 +280,7 @@ of the main program and the system module directories
 \ccode{$pakcshome$/lib} and \ccode{$pakcshome$/lib/meta}.
 This search path can be extended
 by setting the environment variable \code{CURRYPATH}\pindex{CURRYPATH}
-(which can be also set in a PAKCS session by the Curry2Prolog command
+(which can be also set in a PAKCS session by the command
 \ccode{:set path}\pindex{path}\pindex{:set path},
 see below)
 to a list of directory names separated by colons (\ccode{:}).
@@ -307,18 +307,13 @@ does not contain an explicit import declaration for the module
 
 \newpage
 
-\section{PAKCS/Curry2Prolog: An Interactive Curry Development System}
+\section{PAKCS: An Interactive Curry Development System}
 \label{sec-curry2prolog}
 
-PAKCS/Curry2Prolog\index{Curry2Prolog}\index{PAKCS},
+PAKCS\index{PAKCS},
 in the following just called ``PAKCS'',
 is an interactive system to develop applications
-written in Curry.\footnote{There are also two other implementations
-of Curry contained in the PAKCS distribution (Curry2Java and TasteCurry, see
-Appendix~\ref{sec-curry2java} and~\ref{sec-tastecurry-interpreter} for more details).
-Since the other implementations are no longer actively supported
-and Curry2Prolog is the most advanced implementation,
-we recommend the use of the Curry2Prolog compiler system.}
+written in Curry.
 It is implemented in Prolog and compiles
 Curry programs into Prolog programs. It contains various tools,
 a source-level debugger,
@@ -765,7 +760,7 @@ that supports the development of Curry programs in
 the (X)Emacs environment.
 This mode includes support for syntax highlighting,
 finding declarations in the current buffer, and
-loading Curry programs into the PAKCS/Curry2Prolog compiler system
+loading Curry programs into the PAKCS compiler system
 in an Emacs shell.
 
 The Curry mode has been adapted from a similar mode for Haskell programs.
@@ -1164,7 +1159,7 @@ started in two ways:
 \item
 In the command shell via the command: \code{$pakcshome$/bin/currybrowser mod}
 \item
-In the PAKCS/Curry2Prolog environment after loading the module
+In the PAKCS environment after loading the module
 \code{mod} and typing the command \ccode{:browse}.
 \end{itemize}
 Here, \ccode{mod} is the name of the main module of a Curry application.
@@ -1591,7 +1586,7 @@ please write to
 
 {\setlength{\parindent}{0.0cm}
 
-The PAKCS/Curry2Prolog compiler system provides an extensive collection
+The PAKCS compiler system provides an extensive collection
 of libraries for application programming.
 The libraries for arithmetic constraints over real numbers,
 finite domain constraints,
@@ -1614,7 +1609,7 @@ the program must contain the import declaration
 \startprog
 import CLPR
 \stopprog
-Floating point arithmetic is supported in Curry2Prolog
+Floating point arithmetic is supported in PAKCS
 via arithmetic constraints, i.e., the equational constraint
 \ccode{2.3 +.~x =:= 5.5} is solved by binding \code{x} to \code{3.2}
 (rather than suspending the evaluation of the addition,
@@ -2085,57 +2080,17 @@ In this figure, boxes denote different components of PAKCS
 and names in boldface denote files containing
 various intermediate representations during the translation
 process (see Section~\ref{sec-auxfiles} below).
-The PAKCS distribution contains a common front end for reading (parsing and
-type checking) Curry programs and three different back ends
-for executing them:\footnote{Note that only the Curry2Prolog compiler
-will be installed in the standard installation. See
-Appendix~\ref{sec-curry2java} and~\ref{sec-tastecurry-interpreter}
-how to install the other back ends.}
-\begin{enumerate}
-\item
-The {\bf Curry2Prolog}\index{Curry2Prolog}
-compiler is currently the most efficient
-implementation of Curry inside PAKCS. Due to its simple user interface
-(e.g., it can be used without any knowledge about PAKCS and its
-translation process) and its advanced debugging features,
-we recommend the use of the Curry2Prolog compiler system
-for most applications. Therefore, the programming environment
-with the integrated Curry2Prolog compiler is available
-by the executable \ccode{pakcs} (see Section~\ref{sec-general}
-for the general use of PAKCS). Moreover, it also
-contains constraint solvers for
+The PAKCS distribution contains a front end for reading (parsing and
+type checking) Curry programs that can be also used by
+other Curry implementations.
+The back end (formerly known as ``Curry2Prolog''\index{Curry2Prolog})
+compiles Curry programs into Prolog programs.
+It also support constraint solvers for
 arithmetic constraints over real numbers and finite domain constraints,
 and further libraries for GUI programming, meta-programming etc.
 Currently, it does not implement encapsulated search in full generality
 (only a strict version of \code{findall} is supported),
 and concurrent threads are not executed in a fair manner.
-\item
-The {\bf Curry2Java}\index{Curry2Java} compiler \cite{HanusSadre99JFLP}
-translates Curry programs
-into Java classes (to be precise, the Pizza extension \cite{OderskyWadler97}
-of Java is used). The most distinctive feature of this implementation
-is the use of Java threads to implement disjunctive computations
-at the top-level and concurrent conjunctions of constraints
-(i.e., it implements OR- and AND-parallelism via Java threads).
-These threads are executed in a fair manner in contrast to
-the Curry2Prolog compiler. Although the execution speed of
-the generated programs are acceptable for many applications,
-this implementation inherits the lack of efficiency
-of current Java implementations. In particular, the Java compiler needs
-a lot of time to translate Curry programs into JVM code.
-\item
-The {\bf TasteCurry Interpreter}\index{TasteCurry}
-is a slow but fairly complete implementation
-of Curry. It is an interpreter written in Prolog and does not
-implement sharing but uses pure term rewriting for executing programs.
-It should only be used to run smaller programs involving
-advanced language constructs like committed choice or encapsulated search.
-Since this interpreter is a non-sharing implementation, it often
-evaluates complex terms in a very inefficient way and computes,
-in the presence of
-non-deterministic functions, sometimes results which are not
-conform with the language definition.
-\end{enumerate}
 
 
 \newpage
@@ -2146,8 +2101,7 @@ conform with the language definition.
 During the translation and execution of a Curry program with PAKCS,
 various intermediate representations of the source program are created
 and stored in different files which are shortly explained in this section.
-If you only use the Curry2Prolog compiler system, the Curry2Java compiler,
-or the TasteCurry interpreter, it is not necessary to know about
+If you use the PAKCS, it is not necessary to know about
 these auxiliary files because they are automatically generated
 and updated. You should only remember the command for deleting
 all auxiliary files (\ccode{cleancurry}, see Section~\ref{sec-general})
@@ -2156,15 +2110,6 @@ to clean up your directories.
 The various components of PAKCS create
 the following auxiliary files.
 \begin{description}
-\item[\code{prog.fl}:] This file contains the Curry program
-translated into the internal TasteCurry syntax
-(see Section~\ref{sec-internal-syntax}). It is implicitly
-generated when the TasteCurry interpreter or the Curry2Java
-compiler is used. It can be also
-explicitly generated by the command\pindex{parsecurry}
-\startprog
-parsecurry --fl prog
-\stopprog
 \item[\code{prog.fcy}:] This file contains the Curry program
 in the so-called ``FlatCurry'' representation where all functions are global
 (i.e., lambda lifting has been performed) and pattern matching
@@ -2173,7 +2118,7 @@ is translated into explicit case/or expressions
 This representation might be useful for other back ends and
 compilers for Curry and is the basis doing meta-programming in Curry.
 This file is implicitly
-generated when a program is read by the Curry2Prolog compiler.
+generated when a program is read by PAKCS.
 It can be also explicitly generated by the command\pindex{parsecurry}
 \startprog
 parsecurry --flat prog
@@ -2198,8 +2143,7 @@ parsecurry --flat prog
 and stored in the same directory as \code{prog.fcy}.
 
 \item[\code{prog.pl}:] This file contains a Prolog program
-as the result of translating the Curry program with the
-Curry2Prolog compiler.
+as the result of translating the Curry program with PAKCS.
 If $dir$ is the directory where the Curry program is stored,
 the corresponding Prolog program is stored in the directory
 \ccode{$dir$/.curry/.pakcs}.
@@ -2209,676 +2153,14 @@ the corresponding Prolog program is stored in the directory
 This file is stored in the same directory as \code{prog.pl}.
 
 \item[\code{prog.state}:] This file contains the saved state
-after compiling and saving a program in the Curry2Prolog compiler
+after compiling and saving a program with PAKCS
 (see Section~\ref{sec-use-curry2prolog}).
 
-\item[\code{prog.def}:] This file contains an intermediate
-representation of the Curry program which will be used by
-the Curry2Java compiler. This file is implicitly
-generated when a program is compiled with this compiler.
-It can be also explicitly generated by the command\pindex{parsecurry}
-\startprog
-parsecurry --def prog
-\stopprog
-
-\item[\code{prog.pizza}:] This implicitly generated file contains a Java
-(more precisely, Pizza)
-program as the result of translating the Curry program with
-the Curry2Java compiler.
-
-\item[\code{prog.classes}:] This directory contains the JVM code
-of the compiled \code{prog.pizza} file.
 \end{description}
 
 
 \newpage
 
-\section{Curry2Java: A Compiler from Curry into Java}
-\label{sec-curry2java}
-
-\paragraph{Important note:}
-\emph{The implementation of Curry2Java is no longer supported.
-The documentation is only included for backward compatibility.}
-
-The Curry2Java compiler translates Curry programs into
-Java programs\footnote{More precisely,
-Curry2Java uses the Java extension Pizza.}
-as described in \cite{HanusSadre99JFLP} and contains
-a runtime system to execute the translated programs
-with different expressions. This compiler translates each
-defined Curry function into a Java class containing instructions
-of an abstract machine which is interpreted by the runtime
-system. Although this indirect execution is not highly efficient
-due to the current implementations of Java systems, it has
-several interesting features. The most distinctive one
-is the use of Java threads to implement disjunctive computations
-at the top-level and concurrent conjunctions of constraints
-(i.e., it implements OR- and AND-parallelism via Java threads).
-In particular, an infinite derivation branch at the top-level
-will not inhibit the computation of solutions by other
-alternative branches.
-
-The Curry2Java can be installed by executing \ccode{make curry2java}
-in the installation directory of PAKCS.
-To start the Curry2Java system, go into the directory where you have
-stored your Curry program and execute the command
-\startprog
-curry2java prog
-\stopprog
-(\code{curry2java} is a shell script usually stored in \code{$pakcshome$/bin}
-where $pakcshome$ is the installation directory of PAKCS;
-see Section~\ref{sec-general}).
-This command reads the file \code{prog.curry} which must contain
-a Curry program (or, if \code{prog.curry} does not exist,
-the file \code{prog.fl} which must contain a program in internal
-TasteCurry syntax) and performs the following compilation steps:
-\begin{enumerate}
-\item
-Parse the program in \code{prog.curry} and translate it into
-a corresponding program in internal TasteCurry syntax which
-will be stored in \code{prog.fl}.
-\item
-Read and check the program file \code{prog.fl} and generate
-an intermediate representation of all functions in \code{prog.def}.
-\item
-Read the function definitions stored in \code{prog.def}
-and translate them into a Java (more precisely, Pizza) program
-\code{prog.pizza}.
-\item
-Compile the program \code{prog.pizza} into Java bytecode
-(which is stored in the directory \code{prog.classes}) and
-start the runtime system.
-\end{enumerate}
-After the successful compilation, you can type in an expression
-to be evaluated. Expressions have the usual Curry
-syntax but there are some restrictions for initial expressions
-in the Curry2Java runtime shell:
-\begin{enumerate}
-\item All {\em applications} must be written in
-the prefix notation \ccode{$f$ $arg_1$\ldots$arg_n$},
-i.e., there are no infix operators. For instance,
-an arithmetic expression must be written in prefix
-notation like \ccode{+ 3 (* 5 6)}.
-\item 
-{\em Lists\/} can be written in the standard notation
-\code{[$e_1$,$e_2$,\ldots,$e_n$]}. Thus, to increment all
-elements in a list, one can write \ccode{map (+ 1) [3,4,5]}.
-One can also use the constructor \ccode{:} for lists,
-i.e., the list \code{[3,4,5]} can be also written as
-\ccode{:~1 (:~2 (:~3 []))}. Since the character \code{]} can
-also occur in identifiers, \emph{a separator must be inserted
-if the last element in a list is an identifier}, e.g.,
-one must write \ccode{[True,False ]}.
-\item
-The {\em concurrent conjunction of constraints} is written with
-the operator \verb"/\" (and not with \code{\&}).
-Furthermore, the symbol \code{=} is used instead of \code{=:=}
-for equational constraints.
-For instance, the constraint \code{x+x=:=y \& x=:=3}
-is written in the Curry2Java runtime shell as
-``\verb"/\ (= (+ x x) y) (= x 3)"''.
-\end{enumerate}
-To leave the Curry2Java runtime system, type the end-of-file
-character (Ctrl-D).
-
-\paragraph{Quiet mode.}
-You can also execute the Curry2Java system in a ``quiet'' mode by
-\startprog
-curry2java -q prog
-\stopprog
-If the program \code{prog} was already compiled in a previous
-session, then no system output is produced (except for the
-output computed in the Curry program).
-This option is useful if you want to write Curry programs
-which should act as a filter or which should only generate
-some textual output (e.g., in cgi scripts for WWW applications).
-For instance, if the file \code{hello.curry} contains the simple program
-\startprog
-main = putStrLn "Hello world."
-\stopprog
-which was compiled by a previous \code{curry2java} command,
-then the Unix command \ccode{echo main | curry2java -q hello}
-echos the string \ccode{Hello world.} on the standard output.
-If the file \code{hello.curry} contains the program
-\startprog
-main = do
- putStrLn "Content-type: text/html"
- putStrLn ""
- putStrLn "<html>"
- putStrLn "<h1>Hello <b>world</b>.</h1>"
- putStrLn "<p>This web page is generated by a Curry program.</p>"
- putStrLn "</html>"
-\stopprog
-and you execute this program via your web browser (by loading
-a cgi script containing the shell commands
-\ccode{echo main | curry2java -q hello})
-then the corresponding HTML page is produced by the Curry program.
-
-\paragraph{Restrictions:}
-Since the development of Curry2Java is no longer actively supported,
-the implemented subset of Curry is largely restricted.
-
-
-
-\newpage
-
-\section{The TasteCurry Interpreter}
-\label{sec-tastecurry-interpreter}
-
-\paragraph{Important note:}
-\emph{The implementation of TasteCurry is no longer supported.
-The documentation is only included for backward compatibility.}
-
-\subsection{How to Use the TasteCurry Interpreter}
-\label{sec-interpreter-use}
-
-The TasteCurry\index{TasteCurry} interpreter can be installed
-by executing \ccode{make tastecurry}
-in the installation directory of PAKCS.
-To start the TasteCurry interpreter,
-go into the directory where you have
-stored your Curry program and execute the command \ccode{tastecurry}
-(it is a shell script stored in \code{$pakcshome$/bin}
-where $pakcshome$ is the installation directory of PAKCS).
-When the interpreter is ready, you can type in the
-following commands:
-\begin{description}
-\item[\fbox{\code{read prog.}}]
-Load the file \code{prog.curry} which must contain a valid Curry program.
-If the name \code{prog} contains other characters than only lower case
-letters, it must be enclosed in single quotes (e.g., \code{read 'a2b'.}).
-After successful loading and checking, all functions and types defined in this
-file (plus the functions defined in the prelude)
-are known to the interpreter, i.e., now
-you can evaluate expressions containing these functions and constructors.
-
-If there is no file \code{prog.curry}, then the system searches for
-the file \code{prog.fl} which must contain a Curry program
-in the internal TasteCurry syntax (see Section~\ref{sec-internal-syntax}).
-If there exists a file \code{prog.curry}, it is translated
-into internal TasteCurry syntax which is subsequently stored
-in the file \code{prog.fl}.
-
-\item[\fbox{\code{\mbox{\it$<$expression$>$}.}}]
-Evaluate the {\it$<$expression$>$} w.r.t.\ the functions defined
-in the current program. The {\it$<$expression$>$} must be written
-in the internal TasteCurry syntax (see Section~\ref{sec-internal-syntax})
-and terminated by a dot.
-Before the expression is evaluated,
-it is checked whether it is well typed.
-The result (in general, a disjunctive expression which is not further
-reducible) is printed on the terminal.
-
-\item[\fbox{\code{trace.}}]
-Show each reduction step, i.e., show all intermediate expressions
-occurring during the evaluation of an expression.
-
-\item[\fbox{\code{notrace.}}]
-Turn off the \code{trace} mode.
-
-\item[\fbox{\code{single.}}]
-Turn on the single step execution mode. In this mode, the evaluation
-of an expression is stopped after each reduction step and the user
-is asked how to proceed (see the options there).
-
-\item[\fbox{\code{nosingle.}}]
-Turn off the \code{single} mode.
-
-\item[\fbox{\code{time.}}]
-After the evaluation of an expression,
-show the time needed to evaluate this expression.
-
-\item[\fbox{\code{notime.}}]
-Turn off the \code{time} mode.
-
-\item[\fbox{\code{opt.}}]
-Generate optimal definitional trees when reading the next Curry program.
-
-\item[\fbox{\code{noopt.}}]
-Turn off the \code{opt} mode.
-
-\item[\fbox{\code{type \mbox{\it$<$expression$>$}.}}]
-Show the type of the expression {\it$<$expression$>$}
-(which must be written in the internal TasteCurry syntax,
-see Section~\ref{sec-internal-syntax}).
-
-\item[\fbox{\code{eval $f$.}}]
-Show the definitional tree of the function $f$.
-
-\item[\fbox{\code{writeflat file.}}] Write the FlatCurry representation
-(see Appendix~\ref{sec-flatcurry}) of the
-  Curry program read in before to the file \code{file.flat}.
-
-\item[\fbox{\code{writeprelude file.}}] Write the FlatCurry representation of 
-   the prelude to the file \code{file.flat}.
-
-\item[\fbox{\code{exit.}}]
-Leave the TasteCurry interpreter.
-
-\end{description}
-
-
-
-\subsection{Restrictions on Curry Programs in the TasteCurry Interpreter}
-
-There is one additional minor restriction on Curry programs
-which are loaded into the TasteCurry interpreter.
-
-The difference between \emph{lowercase} and \emph{uppercase letters}
-is significant in Curry. However, since the TasteCurry interpreter uses
-internally a Prolog like syntax (see below), the first character
-of function and constructor names is automatically transformed
-into a lowercase letter (this is important to know if you use
-the interactive TasteCurry interpreter, see below).
-Therefore, two different objects should not only differ
-in the case of their first letter. For instance,
-the following program produces a type error
-since the names \code{fun} and \code{Fun} are both converted into
-\code{fun} which causes a name clash in the TasteCurry interpreter:
-\startprog
-fun = 0
-Fun = True
-\stopprog
-
-
-\subsection{Internal TasteCurry Syntax}
-\label{sec-internal-syntax}
-
-Since the TasteCurry interpreter is implemented in Prolog
-and uses the Prolog parser for reading programs and expressions,
-Curry programs are parsed and translated into a Prolog-like syntax
-which is called {\em internal TasteCurry syntax}
-throughout this document. Since one can also write
-programs directly in this syntax (then the files must have the suffix
-\ccode{.fl}), we describe in the following the differences between
-Curry and the internal TasteCurry syntax:
-\begin{itemize}
-\item
-Every declaration (datatype, function type, and rule)
-must be terminated by a dot (\ccode{.}) followed by a blank or newline.
-
-\item
-The \emph{names of functions, constructors and type constructors}
-must start with a lowercase letter followed by a sequence of
-letters and digits. The following predefined function names
-in Curry are different in TasteCurry:
-\begin{quote}
-\code{=} ~instead of~ \code{=:=}\\
-\verb+/\+ ~instead of~ \code{\&}\\
-\code{\{\}} ~instead of~ \code{success}\\
-\code{constraint} ~instead of~ \code{Success}
-\end{quote}
-There are some predefined names consisting of
-special characters which can be used as infix operators similarly to
-Curry (e.g., the type constructor \code{->}, and the functions
-\code{==}, \code{=}, \verb+/\+, \verb+&&+).
-
-\item
-The \emph{names of extra variables}, i.e., variables which do not
-occur in arguments of the left-hand side of a rule, should
-start with an underscore (\ccode{_})
-followed by a sequence of letters and digits.
-Otherwise, the TasteCurry interpreter will print a warning
-since this is a typical source of programming errors
-(typos in function names).
-
-\item
-The \emph{application} of an object $\varphi$ (type constructor, function,
-or data constructor) to $n$ arguments $a_1,\ldots,a_n$ is
-written as $\varphi(a_1,\ldots,a_n)$ (which is denoted in Curry
-by $\varphi~a_1 \ldots a_n$). If the first argument is not a simple
-name starting with a lowercase letter, the infix symbol \code{@}
-must be used to denote the application. For instance,
-if the function variable \code{F} should be applied to some argument
-$a$, it {\em must} be written as \code{F@$a$}.
-\code{@} associates to the left, i.e., an application
-of a variable \code{F} to two arguments $a_1,a_2$ can be written as
-\code{F@$a_1$@$a_2$}.
-
-\item
-A \emph{datatype declaration} is written in the form
-\startprog
-data $t$($A_1$,\ldots,$A_n$) = $c_1$($\tau_{11}$,\ldots,$\tau_{1n_1}$) ; $\ldots$ ; $c_k$($\tau_{k1}$,\ldots,$\tau_{kn_k})$.
-\stopprog
-where each $\tau_{ij}$ is a type expression built from the
-type variables $A_1,\ldots,A_n$ and some type constructors.
-In contrast to Curry, the single constructors
-are separated by \ccode{;} instead of \ccode{|}.
-
-\item
-The \emph{type of lists} with elements of type $t$ is denoted by \code{list($t$)}.
-The data constructor of a non-empty list is the dot \ccode{.}
-(instead of \ccode{:}). This data constructor is not defined
-as an infix operator. \code{[X|Xs]} is the
-notation for a non-empty list consisting of the head \code{X} and
-the tail \code{Xs}. Note that \code{[X|Xs]}
-is equivalent to the expressions \ccode{.(X,Xs)} and \ccode{(.)@X@Xs}.
-
-\item
-\emph{Characters} are identified with their ASCII values.
-Thus, the string \code{"Hello"} is identical to the integer list
-\code{[72,101,108,108,111]}. In particular, the standard monadic
-I/O actions for reading and writing characters or strings
-have in TasteCurry the types
-\startprog
-getChar  :: io(int).
-getLine  :: io(list(int)).
-putChar  :: int       -> io(unit).
-putStr   :: list(int) -> io(unit).
-putStrLn :: list(int) -> io(unit).
-\stopprog
-
-\item \emph{Tuples} are not yet implemented. However, there is
-a data type \code{pair} which is predefined by the declaration
-\startprog
-data pair(A,B) = (A,B).
-\stopprog
-Thus, \code{(1,2)} denotes a pair of integers, and \code{(1,2,3)}
-has type \code{pair(int,pair(int,int))} (i.e., the comma is a
-right-associative infix operator).
-
-\item \emph{Constraints} must be always enclosed in curly brackets
-(for an example, see the definition of \code{member} in the
-next paragraph).
-
-\item
-In a \emph{conditional rule}, the symbol \ccode{|} introducing the
-condition is replaced by \ccode{if}. For instance,
-the membership predicate based on list concatenation is defined
-in the internal TasteCurry syntax by
-\startprog
-member :: T -> list(T) -> bool.
-member(E,L)  if \{append(_,[E|_])=L\}  = true.
-\stopprog
-%Moreover, if the condition $b$ is not a constraint, i.e., if it
-%has not the form \code{\{\ldots\}}, it is syntactically replaced
-%by the constraint \code{\{$b$=true\}}.
-
-\item
-A \emph{lambda abstraction} always abstracts a single variable. For instance,
-the anonymous function with two arguments that adds its arguments
-must be written in the form
-\startprog
-\labs{}X -> (\labs{}Y -> X+Y)
-\stopprog
-In the initial expression (which is typed in after loading the program
-into the interpreter, see Section~\ref{sec-interpreter-use}),
-the use of lambda abstractions is even more restricted:
-in the initial expression, every subexpression of the form
-\code{\labs{}X->$e$} must satisfy:
-\begin{enumerate}
-\item $e$ must be of type \code{constraint}.
-\item $e$ does not contain any lambda abstraction.
-\end{enumerate}
-This is enough to allow the use of search operators in initial expressions.
-Other uses of lambda abstractions must always be written
-into the program.
-
-\item
-\emph{Local variables in constraints} are introduced by the
-keywords \code{local\ldots in} \emph{inside} the constraint.
-Thus, the Curry expression
-\startprog
-let l1,l2 free in append l1 l2 =:= [0,1]
-\stopprog
-is written in the internal TasteCurry syntax in the form
-\startprog
-\{local [_l1,_l2] in append(_l1,_l2) = [0,1]\}
-\stopprog
-The square brackets around the local variables are only necessary
-if there is more than one variable. Therefore, the Curry expression
-\startprog
-let l free in append [0] l =:= [0,1]
-\stopprog
-can be written in TasteCurry as
-\startprog
-\{local _l in append([0],_l) = [0,1]\}
-\stopprog
-
-\item
-Instead of \emph{\code{where}-clauses with free variables}, one has
-to introduce such free variables with the keyword \code{localIn}
-\emph{before} the constraint.
-Thus, the Curry rule
-\startprog
-last l | append xs [e] =:= l  = e  where xs,e free
-\stopprog
-is written in the internal TasteCurry syntax as
-\startprog
-last(L) if [Xs,E] localIn \{append(Xs,[E])=L\} = E.
-\stopprog
-and the indeterministic merge function is written in
-the internal TasteCurry syntax as
-\startprog
-merge :: list(A) -> list(A) -> list(A).
-merge(L1,L2) = choice \{L1=[]\}  -> L2;
-                      \{L2=[]\}  -> L1;
-                      [E,R] localIn \{L1=[E|R]\} -> [E|merge(R,L2)];
-                      [E,R] localIn \{L2=[E|R]\} -> [E|merge(L1,R)].
-
-\stopprog
-
-\item {\em Positions in evaluation annotations}
-contain the separator \ccode{\#} instead of the dot,
-e.g., the position \code{1.3.2} is denoted in the internal
-TasteCurry syntax by \code{1\#3\#2}.
-\end{itemize}
-The following function definitions (concatenation of lists and
-application of a function to all elements of a list)
-show further examples for the internal TasteCurry syntax.
-\startprog
-append :: list(T) -> list(T) -> list(T).
-append([],X)      = X.
-append([X|Xs],Ys) = [X|append(Xs,Ys)].
-~ 
-map :: (T1->T2) -> list(T1) -> list(T2). 
-map(F,[])       = [].
-map(F,[X|Xs])   = [F@X|map(F,Xs)].
-~
-\stopprog
-
-
-
-
-\subsection*{Local Declarations}
-
-At the end of each defining equation for a function,
-local value and function declarations can be added by a
-\emph{where clause}. A where clause is introduced by the keyword
-\code{where} followed by a semicolon-separated list of equations.
-Each equation defines either a local function (similar to top-level
-equations) or local variables (in this case the left-hand side
-must be a pattern). The newly introduced functions and variables can be used
-in the right-hand side of the equation where the where clause
-is added. Thus, a quicksort function by splitting
-the given list can be defined as follows:
-\startprog
-split(E,[]) = ([],[]).
-split(E,[X|Xs]) if E>=X = ([X|L],R)
-                if E<X  = (L,[X|R])
-                        where (L,R) = split(E,Xs).
-~
-qsort([])     = [].
-qsort([X|Xs]) = qsort(L) ++ [X|qsort(R)]  where (L,R) = split(X,Xs).
-\stopprog
-Nested where clauses are not allowed. Furthermore,
-local declarations with patterns in the left-hand side
-should only contain in its right-hand side
-argument variables from the globally defined function and other
-global functions. The TasteCurry interpreter automatically
-translates all local declarations into global functions with
-additional arguments. Thus, the evaluation annotations for
-functions with local declarations look different from
-the original definition.
-
-
-\subsection{Modules in the TasteCurry Interpreter}
-\label{sec-tcmodules}
-
-In the current implementation of PAKCS, modules are only supported
-in the internal TasteCurry syntax. Moreover, the module system
-slightly differs from the module system described in the
-Curry report. Therefore, we give here a complete description
-of this module system in this section.
-
-A {\em module} defines a collection of datatypes, constructors
-and functions which we call {\em entities} in the following.
-A module exports some of its entities which can be imported
-and used by other modules. An entity which is not exported
-is not accessible from other modules.
-
-A Curry {\em program} is a collection of modules.
-There is one main module which is loaded into a Curry system.
-The modules imported by the main module are implicitly loaded
-but not visible to the user. After loading the main module,
-the user can evaluate expressions which contain entities
-exported by the main module.
-
-There is one distinguished module, named \code{prelude},
-which is implicitly imported into all programs.
-Thus, the entities defined in the prelude (basic functions
-for arithmetic, list processing etc.) can be always used.
-
-A module always starts with the head which contains at least
-the name of the module, like
-\startprog
-module stack.
-\stopprog
-If a program does not contain a module head, the {\em standard module head}
-\ccode{module main.} is implicitly inserted.
-
-Without any further restrictions in the module head,
-all entities defined or imported in the module are exported.
-In order to restrict the exported entities of a module,
-an {\em export list} can be added to the module head.
-For instance, a module with the head
-\startprog
-module stack(stackType, push, pop, newStack).
-\stopprog
-exports the entities \code{stackType}, \code{push}, \code{pop},
-and \code{newStack}. An export list can contain the following entries:
-\begin{enumerate}
-\item
-Names of datatypes: This exports only the datatype defined in this
-module {\em but not} the constructors of the datatype.
-The export of a datatype
-without its constructors allows the definition of abstract datatypes.
-\item
-Datatypes with constructors: If the export list contains
-the entry \code{t(c$_1$,\ldots,c$_n$)}, then \code{t} must be a datatype
-defined in the module and \code{c$_1$},\ldots,\code{c$_n$}
-are constructors of this datatype. In this case,
-the datatype \code{t} and the constructors \code{c$_1$},\ldots,\code{c$_n$}
-are exported by this module.
-\item
-Datatypes with all constructors: If the export list contains
-the entry \code{t(..)}, then \code{t} must be a datatype
-defined in the module. In this case,
-the datatype \code{t} and all constructors of this datatype
-are exported.
-\item
-Names of functions: This exports the corresponding functions defined
-in this module. The types occurring in the
-argument and result type of this function are implicitly exported,
-otherwise the function may not be applicable outside this module.
-\item
-Modules: The set of all entities imported from a module $m$
-into the current module (see below)
-can be exported by a single entry \ccode{(module $m$)}
-in the export list. For instance, if the head of the module \code{stack}
-is defined as above, the module head
-\startprog
-module queue((module stack), enqueue, dequeue).
-\stopprog
-specifies that the module \code{queue} exports the entities
-\code{stackType}, \code{push}, \code{pop}, \code{newStack}, \code{enqueue},
-and \code{dequeue}.
-
-If the exported entities from imported modules should be further
-restricted, one can also add an export list to the exported module.
-This list can contain names of datatypes
-and functions imported from this module. If a datatype which is imported
-from another module is exported, the datatype is exported in the same way
-(i.e., with or without constructors) how it is imported
-into the current module. Thus, a further specification
-for the exported constructors is not necessary.
-For instance, the module head
-\startprog
-module queue((module stack(stackType,newStack)), enqueue, dequeue).
-\stopprog
-specifies that the module \code{queue} exports the entities
-\code{stackType} and \code{newStack}, which are imported from \code{stack},
-and \code{enqueue} and \code{dequeue}, which are defined in \code{queue}.
-\end{enumerate}
-The entities exported by a module can be brought into the scope
-of another module by an \code{import} declaration. An import declaration
-consists of the name of the imported module and (optionally)
-a list of entities imported from that module. If the list
-of imported entities is omitted, all entities exported by
-that module are imported. For instance,
-the import declaration
-\startprog
-import stack.
-\stopprog
-imports all entities exported by the module \code{stack},
-whereas the declaration
-\startprog
-import family(father, grandfather).
-\stopprog
-imports only the entities \code{father} and \code{grandfather}
-from the module \code{family}, provided that they are exported
-by \code{family}.
-
-The names of all imported entities are available in the current
-module, i.e., they are equivalent to top-level declarations.
-It is not allowed to write new top-level declarations
-for an imported entity, but the names can be shadowed
-by local declarations inside a function definition.
-As a consequence, several imports can only import different
-names. For instance, the imports
-\startprog
-module main.
-import m1.
-import m2.
-\stopprog
-are only allowed if the entities exported by \code{m1} and \code{m2}
-have different names. In case of conflicting names of imported
-entities, one can rename imported entities to solve the
-name conflicts. For instance, if both \code{m1} and \code{m2} exports
-functions named \code{f} and \code{g}, then the conflict can be resolved by
-the following imports:
-\startprog
-module main.
-import m1.
-import m2 renaming f to m2_f.
-          renaming g to m2_g.
-\stopprog
-In the subsequent body of this module, the name \code{f} refers
-to the entity exported by module \code{m1} and the name
-\code{m2_f} refers to the entity \code{f} exported by module \code{m2}.
-Only imported entities can be renamed, i.e., the import declaration
-\startprog
-import m(f) renaming g to mg.
-\stopprog
-will cause an error.
-%The current implementation of the module system requires that
-Only entities which are also exported can be renamed.
-
-The import dependencies between modules must be {\em non-circular},
-i.e., it is not allowed that module $m_1$ imports module $m_2$
-and module $m_2$ also imports (directly or indirectly)
-module $m_1$.
-
-The explicit import of the prelude as a module is not allowed.
-For each module $m$, an interface stored in the file \code{$m$.int}
-is automatically generated. This interface describes all
-entities which are exported by the module, i.e., the datatypes
-with their exported constructors and the functions with their
-type declarations.
-
-
-
-\newpage
 
 \section{Changing the Prelude or System Modules}
 
@@ -2929,18 +2211,12 @@ an external function as follows:
 (+) external
 \stopprog
 The further modifications to be done for an inclusion of
-an external function depend on the corresponding back end.
-In the following we describe the insertion of new external functions
-in Curry2Prolog and in the TasteCurry interpreter.
-
-
-\subsection{External Functions in Curry2Prolog}
-
-A new external function is added to the Curry2Prolog compiler system
+an external function has to be done in the back end.
+A new external function is added to the back end of PAKCS
 by informing the compiler about the existence of an external function
 and adding an implementation of this function in the run-time
 system. Therefore, the following items must be added
-in the Curry2Prolog compiler system:
+in the PAKCS compiler system:
 \begin{enumerate}
 \item
 If the Curry module \code{Mod} contains external functions,
@@ -3047,7 +2323,7 @@ Curry representation of a character with its ASCII value.
 \item
 If some arguments passed to the external functions are not fully evaluated
 or the external function might suspend, the implementation must follow
-the structure of the Curry2Prolog run-time system by using
+the structure of the PAKCS run-time system by using
 the \emph{raw interface}. In this case, the name of the external entry
 must be suffixed by \ccode{[raw]} in the \code{prim_c2p} file.
 For instance, if we want to use the raw interface for the external function
@@ -3096,81 +2372,15 @@ complex structures).
 \end{enumerate}
 %
 The Prolog code implementing the external functions must be accessible to the run-time
-system of Curry2Prolog by putting it into the directory containing the corresponding
+system of PAKCS by putting it into the directory containing the corresponding
 Curry module or into the system directory
 \code{$pakcshome$/curry2prolog/lib_src}.
 Then it will be automatically loaded into the run-time environment
 of each compiled Curry program.
 
-Note that arbitrary functions implemented in C or Java can be connected to the
-Curry2Prolog compiler system
-by using the corresponding interfaces of underlying Prolog system.
+Note that arbitrary functions implemented in C or Java can be connected to
+PAKCS by using the corresponding interfaces of underlying Prolog system.
 
-
-\subsection{External Functions in TasteCurry}
-
-In the TasteCurry interpreter, you can add external functions
-only in the prelude. In addition to the declarations in the source
-code of the prelude as described above,
-you must also add the following in order to include a new external
-function in the TasteCurry interpreter:
-\begin{enumerate}
-\item
-The file \code{$pakcshome$/tastecurry/prelude.flpreface} contains
-standard declarations in the internal TasteCurry syntax
-which are added in front of the prelude.
-%Add in the module head
-%(cf.\ Section~\ref{sec-tcmodules})
-%of this file the name of the external function
-%to the list of exported names (at the beginning in
-%\code{module Prelude(\ldots)}).
-Provide a type declaration in
-the body of this module prefixed with the keyword
-\code{external} in front of the type declaration. For instance,
-the primitive addition on integers is declared in
-\code{$pakcshome$/tastecurry/prelude.flpreface} by
-\startprog
-external (+)   :: int -> int -> int.
-\stopprog
-Since the defining rules for this implementation are unknown,
-a call to an external function is delayed until all arguments
-are known (i.e., in head normal form).
-Thus, for each external function an evaluation annotation
-with a rigid annotation for each argument is automatically
-generated if no other evaluation annotation is provided.
-For instance, for the function \code{+} the annotation
-\startprog
-(+) eval 1:rigid(_=>2:rigid(_=>rule))
-\stopprog
-is generated (the anonymous variable \code{_} denotes that the first
-argument must be matched against an arbitrary constant).
-Thus, in order to evaluate a call \code{$t_1$+$t_2$}, first $t_1$
-is evaluated to a head normal form, and if this is not a variable,
-$t_2$ is evaluated to a head normal form, followed by a call to
-the external implementation of \code{+} provided that $t_2$
-was not evaluated to a variable.
-\item
-The connection of the implementation of an external function to the
-TasteCurry interpreter is done by adding a special clause
-in the module \code{external.pl} of the interpreter's sources
-(stored in the directory \code{$pakcshome$/tastecurry}).
-To implement an $n$-ary external function $f$, \code{external.pl}
-must contain the following Prolog clause:
-\startprog
-external_call($f$(X$_1$,\ldots,X$_n$), Result) :- \mbox{$<$\rm{}code computing the \code{Result}$>$}
-\stopprog
-For instance, the external function \code{+} is implemented by the following
-clause:
-\startprog
-external_call(+(X,Y),Result) :- Result is X+Y.
-\stopprog
-By using the Prolog/C interface of SICStus-Prolog,
-arbitrary C functions can be connected to the TasteCurry interpreter.
-\item
-After adding all these declarations, recompile the TasteCurry
-interpreter by executing \code{make} in the
-directory $pakcshome$.
-\end{enumerate}
 
 \newpage
 \addcontentsline{toc}{section}{Index}

@@ -1,6 +1,8 @@
 # intermediate files
 make.log
 *.bak
+bin/.pakcs_variables
+.curry
 
 # tex temporary files
 *.aux
@@ -17,6 +19,7 @@ make.log
 *.ilg
 *.ind
 *.tpt
+*.synctex.gz
 *.backup
 *~
 
@@ -36,6 +39,7 @@ bin/sicstusprolog
 bin/swiprolog
 bin/parsecurry
 bin/pakcs
+bin/addtypes
 bin/currytest
 bin/currycreatemake
 bin/currydoc
@@ -50,5 +54,7 @@ www/submitform
 # documentation
 lib/CDOC
 lib/TEXDOC
+docs/src/manual.bbl
 docs/src/lib
 docs/src/markdown_syntax.tex
+docs/markdown_syntax.html
