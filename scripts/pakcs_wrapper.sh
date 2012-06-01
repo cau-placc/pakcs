@@ -7,13 +7,12 @@
 # (i.e., do not use links to the bin-dir with different program names)
 #
 
-# Load the definition of SICSTUS and others specifying auxiliary tools:
-PATHNAME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
-. "$PATHNAME/.pakcs_variables"
-
-# Compute the main directory where PAKCS is installed:
+# Define the main directory where PAKCS is installed:
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
+
+# Load the definition of SICSTUS and others specifying auxiliary tools:
+. "$PAKCSHOME/bin/.pakcs_variables"
 
 # Define load path for standard libraries provided by PAKCS:
 # (used by the various programming tools to search for modules if they
