@@ -6,6 +6,10 @@
 # - add path information to the saved state
 # - add locale information (LANG, LC_ALL) to the saved state
 
+# Compute the main directory where PAKCS is installed:
+PAKCSHOME=`echo PAKCSHOME must be defined here!`
+export PAKCSHOME
+
 STANDALONE=no
 if [ "$1" = "-standalone" ] ; then
   STANDALONE=yes
@@ -25,13 +29,8 @@ if [ $# != 1 ] ; then
   exit 1
 fi
 
-# Compute the main directory where PACKS is installed:
-PATHNAME=`(cd "\`dirname \"$0\"\`" ; pwd)`
-PAKCSHOME=`expr "$PATHNAME" : '\(.*\)/bin'`
-export PAKCSHOME
-
 # Load definition of SPLD
-. "$PATHNAME/.pakcs_variables"
+. "$PAKCSHOME/bin/.pakcs_variables"
 
 if [ "$PAKCSLIBPATH" = "" ] ; then
   PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"

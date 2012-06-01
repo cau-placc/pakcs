@@ -12,7 +12,7 @@ PATHNAME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
 . "$PATHNAME/.pakcs_variables"
 
 # Compute the main directory where PAKCS is installed:
-PAKCSHOME=`expr "$PATHNAME" : '\(.*\)/bin'`
+PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
 # Define load path for standard libraries provided by PAKCS:

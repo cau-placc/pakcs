@@ -51,10 +51,13 @@ module FiniteMap (
         eltsFM,
         fmSortBy,
 
-        minFM,maxFM,updFM, fmToListPreOrder
+        minFM,maxFM,updFM, fmToListPreOrder,
+
+        showFM, readFM
     ) where
 
 import Maybe
+import ReadShowTerm (readQTerm, showQTerm)
 
 --- order predicates are boolean 
 type LeKey key = key -> key -> Bool
@@ -413,6 +416,22 @@ fmToListPreOrder (FM _ fm) = pre fm []
 --- Duplicates are deleted.
 fmSortBy :: LeKey key -> [key] -> [key]
 fmSortBy p l = keysFM (listToFM p (zip l (repeat ())))
+
+-----------------------------------------------------
+-- reading/showing finite maps
+-----------------------------------------------------
+
+--- Transforms a finite map into a string. For efficiency reasons,
+--- the tree structure is shown which is valid for reading only if one
+--- uses the same ordering predicate.
+showFM :: FM _ _ -> String
+showFM (FM _ fm) = showQTerm fm
+
+--- Transforms a string representation of a finite map into a finite map.
+--- One has two provide the same ordering predicate as used in the
+--- original finite map.
+readFM :: LeKey key -> String -> FM key _
+readFM p s = FM p (readQTerm s)
 
 -----------------------------------------------------
 -- internal Implementation

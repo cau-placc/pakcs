@@ -1,6 +1,10 @@
 #!/bin/sh
 # Compile a Curry program (using the HTML library) into a cgi script
 
+# Compute the main directory where PAKCS is installed:
+PAKCSHOME=`echo PAKCSHOME must be defined here!`
+export PAKCSHOME
+
 # Standard suffix that will be added to the main script:
 CGISUFFIX="_CGIMAIN_$$"
 # Name of the main function in the main script (should not be in conflict
@@ -90,11 +94,6 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "             specifications) when generating JavaScript support code"
   exit 1
 fi
-
-# Compute the main directory where PACKS is installed:
-PATHNAME=`(cd \`dirname $0\` > /dev/null ; pwd)`
-PAKCSHOME=`expr $PATHNAME : '\(.*\)/bin'`
-export PAKCSHOME
 
 # Definitions for WUI/JavaScript generation:
 WUIJS_PREPROCESSOR=$PAKCSHOME/tools/curry2js/Curry2JS.state

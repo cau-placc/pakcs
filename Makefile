@@ -13,8 +13,12 @@
 
 # Logfile for make:
 MAKELOG=make.log
+# the root directory
+ROOT=${CURDIR}
+# binary directory and executables
+BINDIR=${ROOT}/bin
 # Directory where local executables are stored:
-LOCALBIN=bin/.local
+LOCALBIN=${BINDIR}/.local
 
 #
 # Install all components of PAKCS
@@ -31,7 +35,7 @@ all: config
 # Install all components of PAKCS
 #
 .PHONY: install
-install:
+install: installscripts
 	# install cabal front end if sources are present:
 	@if [ -d frontend ] ; then ${MAKE} installfrontend ; fi
 	# install the front-end if necessary:
@@ -60,6 +64,15 @@ install:
 config:
 	@./update-pakcsrc
 	@./configure-pakcs
+
+# install some scripts of PAKCS in the bin directory:
+.PHONY: installscripts
+installscripts:
+	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
+	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < scripts/pakcs_wrapper.sh > ${BINDIR}/.pakcs_wrapper
+	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < scripts/makecurrycgi.sh > ${BINDIR}/makecurrycgi
+	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < scripts/makesavedstate.sh > ${BINDIR}/.makesavedstate
+	cd ${BINDIR} && chmod 755 .pakcs_wrapper makecurrycgi .makesavedstate
 
 # install new front end:
 .PHONY: installfrontend

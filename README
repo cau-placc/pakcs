@@ -50,8 +50,11 @@ lib:
   This directory contains a collection of standard libraries
   implemented in Curry (including the standard prelude).
 
+scripts:
+  This directory contains scripts used in PAKCS.
+
 tools:
-  This directory contains various tools for the PAKCS system
+  This directory contains various tools for PAKCS
   (see the README there for a more detailed description).
 
 www:
