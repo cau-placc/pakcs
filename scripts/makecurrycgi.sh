@@ -165,7 +165,7 @@ fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-$PAKCSHOME/bin/curry2prolog $PAKCSOPTIONS $PRINTFAIL $ERRORMODE -m $MAINCALL -s $MAINMOD
+$PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL $ERRORMODE -m $MAINCALL -s $MAINMOD
 rm -f $MAINMOD.curry .curry/$MAINMOD.fcy .curry/$MAINMOD.fint .curry/pakcs/$MAINMOD.pl .curry/pakcs/$MAINMOD.po
 STATE=$MAINMOD.state
 

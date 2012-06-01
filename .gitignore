@@ -34,6 +34,9 @@ mccparser
 
 # binaries
 *.state
+bin/.makesavedstate
+bin/.pakcs_wrapper
+bin/makecurrycgi
 bin/.local
 bin/sicstusprolog
 bin/swiprolog

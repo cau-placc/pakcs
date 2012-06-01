@@ -137,8 +137,8 @@ frontendsources:
 
 .PHONY: dist
 dist:
-	rm -f pakcs*.tar.gz            # remove old distributions
-	cp -r -p . ${PAKCSDIST}        # create complete copy of this version
+	rm -rf pakcs*.tar.gz ${PAKCSDIST} # remove old distributions
+	cp -r -p . ${PAKCSDIST}           # create complete copy of this version
 	# install front end sources if they are not present:
 	if [ ! -d frontend ] ; then \
 	  cd ${PAKCSDIST} && ${MAKE} frontendsources ; fi
@@ -188,6 +188,7 @@ genbindist:
 cleandist:
 	rm -f ${MAKELOG}
 	${MAKE} cleantools
+	rm -rf .git .gitignore
 	rm -rf frontend/curry-base/.git frontend/curry-base/.gitignore
 	rm -rf frontend/curry-frontend/.git frontend/curry-frontend/.gitignore
 	rm -rf frontend/curry-base/dist frontend/curry-frontend/dist
