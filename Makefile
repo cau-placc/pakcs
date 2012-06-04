@@ -124,7 +124,7 @@ cleantools:
 # temporary directory to create distribution version
 PAKCSDIST=/tmp/pakcs
 # repository with new front-end:
-FRONTENDREPO=http://www-ps.informatik.uni-kiel.de/kics2/repos
+FRONTENDREPO=git://git-ps.informatik.uni-kiel.de/curry
 
 # install the sources of the front end from its repository
 .PHONY: frontendsources
