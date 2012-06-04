@@ -97,7 +97,7 @@ rd />= f = \childs -> case rd childs of (a,childs') -> f a childs'
 
 -- Monadic return for XML parser
 ret :: a -> XmlReads a
-ret = (,)
+ret x y = (x,y)
 
 --- Takes an XML converter and returns a function that consumes XML data
 --- and returns the remaining data along with the result.
