@@ -65,7 +65,6 @@ evaluateGoalAndExit(Goal) :-
 % evaluate an expression with a given type and a given list of free variables:
 evaluateMainExpression(Exp,Type,Vs) :-
 	setExitCode(0),
-	prompt(_,''),		% redefine prompt for trace mode
 	retract(allsolutionmode(_)), asserta(allsolutionmode(no)),
 	retract(numberOfCalls(_)), retract(numberOfExits(_)),
 	asserta(numberOfCalls(0)), asserta(numberOfExits(0)),

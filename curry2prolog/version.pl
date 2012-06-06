@@ -17,7 +17,7 @@ compilerVersion('PAKCS1.10').
 compilerMajorVersion(1,10).
 compilerMinorVersion(0).
 buildVersion(2).
-buildDate('01/06/12').
+buildDate('06/06/12').
 
 % Prolog compiler version included in .pl headers to distinguish
 % code for different Prolog systems
