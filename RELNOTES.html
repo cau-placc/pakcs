@@ -13,15 +13,25 @@
 
 <h1>PAKCS: Release Notes</h1>
 
-<h3>Release notes for PAKCS Version 1.10.0 (November 18, 2011)</h3>
+<h3>Release notes for PAKCS Version 1.10.0 (June 6, 2012)</h3>
 
 Changes to version 1.9.2:
 <ul>
+<li>
+  New front end (compatible with newer GHC version) added.
+</li>
+<li>
+  Distribution does not longer contain the backends TasteCurry and Curry2Java.
+</li>
 <li>
   Assertions used in the tool currytest are now operations
   rather than constructors, i.e., one has to write <code>assertEqual</code>
   instead of <code>assertEqual</code> since the type <code>Assertion</code>
   is abstract.
+</li>
+<li>
+Library <code>CLPFD</code>: new reifiable constraints for
+negation, conjunction, disjunction added.
 </li>
 <li>
 <code>ReadShowTerm.readsQTerm</code> also reads unqualified
