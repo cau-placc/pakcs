@@ -229,10 +229,11 @@ pakcs_prompt(Prompt) :-
 
 % main read-eval-print loop of the environment:
 main :-
+	prompt(_,''), % clear standard Prolog prompt
 	repeat,
+	pakcs_prompt(Prompt), write(Prompt),
 	flush_output(user_output),
 	flush_output(user_error),
-	pakcs_prompt(Prompt), prompt(_,Prompt),
 	(firstCmds([Input|NextCmds]) % is there already a command to process?
 	 -> storeFirstCmds(NextCmds)
 	    %write(Prompt), atom_codes(Inp,Input), write(Inp), nl
