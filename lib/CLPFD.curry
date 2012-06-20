@@ -22,12 +22,14 @@
 --- Sicstus-Prolog library.
 --- However, using the PAKCS interface for external functions, it is relatively
 --- easy to provide the complete functionality.
-
+---
+--- @author Michael Hanus
+--- @version June 2012
 ------------------------------------------------------------------------------
 
 module CLPFD(domain, (+#), (-#), (*#), (=#), (/=#), (<#), (<=#), (>#), (>=#),
              Constraint, (#=#), (#/=#), (#<#), (#<=#), (#>#), (#>=#),
-             (#=>#), (#<=>#), solve,
+             neg, (#/\#), (#\/#), (#=>#), (#<=>#), solve,
              sum, scalarProduct, allDifferent, all_different, count,
              indomain, labeling, LabelingOption(..)) where
 
@@ -38,6 +40,8 @@ infixl 7 *#
 infixl 6 +#, -#
 infix  4 =#, /=#, <#, <=#, >#, >=#
 infix  4 #=#, #/=#, #<#, #<=#, #>#, #>=#
+infixr 3 #/\#
+infixr 2 #\/#
 infixr 1 #=>#, #<=>#
 
 
@@ -125,6 +129,9 @@ data Constraint = FDEqual Int Int
                 | FDGreaterOrEqual Int Int
                 | FDLess Int Int
                 | FDLessOrEqual Int Int
+                | FDNeg   Constraint
+                | FDAnd   Constraint Constraint
+                | FDOr    Constraint Constraint
                 | FDImply Constraint Constraint
                 | FDEquiv Constraint Constraint
 
@@ -151,6 +158,21 @@ x #># y = FDGreater x y
 --- Reifyable "greater than or equal" constraint on FD variables.
 (#>=#)  :: Int -> Int -> Constraint
 x #>=# y = FDGreaterOrEqual x y
+
+--- The resulting constraint is satisfied if both argument constraints
+--- are satisfied.
+neg :: Constraint -> Constraint
+neg x = FDNeg x
+
+--- The resulting constraint is satisfied if both argument constraints
+--- are satisfied.
+(#/\#)  :: Constraint -> Constraint -> Constraint
+x #/\# y = FDAnd x y
+
+--- The resulting constraint is satisfied if both argument constraints
+--- are satisfied.
+(#\/#)  :: Constraint -> Constraint -> Constraint
+x #\/# y = FDOr x y
 
 --- The resulting constraint is satisfied if the first argument constraint
 --- do not hold or both argument constraints are satisfied.

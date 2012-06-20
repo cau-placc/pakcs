@@ -107,8 +107,15 @@ translateConstraint('CLPFD.FDGreater'(A,B),#>(C,D)) :-
 	translateConstraint(A,C), translateConstraint(B,D).
 translateConstraint('CLPFD.FDGreaterOrEqual'(A,B),#>=(C,D)) :-
 	translateConstraint(A,C), translateConstraint(B,D).
-translateConstraint('CLPFD.FDImply'(A,B),#=>(C,D)) :-
+translateConstraint('CLPFD.FDNeg'(A),#\(C)) :-
+	translateConstraint(A,C).
+translateConstraint('CLPFD.FDAnd'(A,B),#/\(C,D)) :-
 	translateConstraint(A,C), translateConstraint(B,D).
-translateConstraint('CLPFD.FDEquiv'(A,B),#<=>(C,D)) :-
+translateConstraint('CLPFD.FDOr'(A,B),#\/(C,D)) :-
 	translateConstraint(A,C), translateConstraint(B,D).
-
+translateConstraint('CLPFD.FDImply'(A,B),R) :-
+	translateConstraint(A,C), translateConstraint(B,D),
+	(prolog(sicstus) -> R = #=>(C,D) ; R = #==>(C,D)).
+translateConstraint('CLPFD.FDEquiv'(A,B),R) :-
+	translateConstraint(A,C), translateConstraint(B,D),
+	(prolog(sicstus) -> R = #<=>(C,D) ; R = #<==>(C,D)).
