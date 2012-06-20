@@ -5,11 +5,10 @@
 % if finite domains constraints are used
 
 :- use_module('../prologbasics').
-:- prolog(sicstus) -> use_module(library(clpfd))
-                    ; use_module(library('clp/bounds')). % for SWI-Prolog
+:- use_module(library(clpfd)).
 
 prim_FD_domain(L,A,B,R) :-
-	(prolog(sicstus) -> domain(L,A,B) ; in(L,'..'(A,B))),
+	(prolog(sicstus) -> domain(L,A,B) ; ins(L,'..'(A,B))),
 	R='Prelude.success'.
 
 prim_FD_sum(Vs,RelCall,V,R) :-
@@ -47,11 +46,7 @@ prim_FD_indomain(Var,R) :-
 
 prim_FD_labeling(Options,L,R) :-
 	map2M(user:translateLabelingOption,Options,PlOptions),
-	(prolog(sicstus)
-	 -> labeling(PlOptions,L)
-	  ; (PlOptions=[] -> true
-	           ; checkSICStusAndWarn('CLPFD.labeling: labeling options')),
-	    label(L)),
+	labeling(PlOptions,L),
 	R='Prelude.success'.
 
 translateLabelingOption('CLPFD.LeftMost',leftmost).
@@ -64,11 +59,12 @@ translateLabelingOption('CLPFD.Enum',enum).
 translateLabelingOption('CLPFD.Bisect',bisect).
 translateLabelingOption('CLPFD.Up',up).
 translateLabelingOption('CLPFD.Down',down).
-translateLabelingOption('CLPFD.All',all).
-translateLabelingOption('CLPFD.Minimize'(DomVar),minimize(DomVar)).
-translateLabelingOption('CLPFD.Maximize'(DomVar),maximize(DomVar)).
-translateLabelingOption('CLPFD.Assumptions'(Var),assumptions(Var)).
+translateLabelingOption('CLPFD.All',all) :- sicsLabel.
+translateLabelingOption('CLPFD.Minimize'(DomVar),minimize(DomVar)) :- sicsLabel.
+translateLabelingOption('CLPFD.Maximize'(DomVar),maximize(DomVar)) :- sicsLabel.
+translateLabelingOption('CLPFD.Assumptions'(Var),assumptions(Var)) :- sicsLabel.
 
+sicsLabel :- checkSICStusAndWarn('CLPFD.labeling: labeling options').
 
 prim_FD_plus(Y,X,R) :- #=(R,X+Y).
 
