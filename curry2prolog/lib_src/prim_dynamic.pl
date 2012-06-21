@@ -12,6 +12,7 @@
 :- use_module('../prologbasics').
 :- use_module('../basics').
 :- use_module('../version').
+:- use_module('../pakcsversion').
 
 :- dynamic dynamicTime/1, dynamicVersion/3, insideTransaction/0.
 

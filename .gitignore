@@ -28,6 +28,8 @@ stage[1,2,3]
 *.bak
 Installation.*
 make.log
+curry2prolog/pakcsversion.pl
+docs/src/version.tex
 
 # ignore front end since it is managed in another repository
 mccparser

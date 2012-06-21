@@ -1,23 +1,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Information about version of Curry2Prolog.
 
-:- module(version,[compilerVersion/1,
-		   compilerMajorVersion/2, compilerMinorVersion/1,
-		   prologMajor/1,
-		   printPakcsHeader/0]).
+:- module(version,[prologMajor/1, printPakcsHeader/0]).
 
 :- use_module(prologbasics).
 :- use_module(basics).
+:- use_module(pakcsversion).
 
 % Included in headers of compiler Prolog files.
 % Used to check already compiled Prolog files for correct
 % version w.r.t. run-time system
-compilerVersion('PAKCS1.10').
+%compilerVersion('PAKCS1.10').
 
-compilerMajorVersion(1,10).
-compilerMinorVersion(0).
-buildVersion(2).
-buildDate('06/06/12').
+%compilerMajorVersion(1,10).
+%compilerMinorVersion(0).
+%buildVersion(2).
+%buildDate('06/06/12').
 
 % Prolog compiler version included in .pl headers to distinguish
 % code for different Prolog systems
@@ -45,7 +43,7 @@ printPakcsHeader :-
 	writeNQ(' | |  | |   / /\\ \\    | |_/ /   | |      | |_____    Curry System'), nlNQ,
 	writeNQ(' | |__| |  / /__\\ \\   |  _  |   | |      |_____  |   '), nlNQ,
 	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersion, nlNQ,
-	writeNQ(' |_|     /_/      \\_\\ |_|  \\_\\  |______| |_______|   June 2012'), nlNQ,
+	writeNQ(' |_|     /_/      \\_\\ |_|  \\_\\  |______| |_______|   '), nlNQ,
 	nlNQ,
         writeNQ('Curry2Prolog('), writeNQ(Prolog),
 	writeNQ(' '), writeNQ(MajV), writeNQ('.'), writeNQ(MinV),

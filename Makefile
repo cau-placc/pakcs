@@ -11,6 +11,16 @@
 # (contact: mh@informatik.uni-kiel.de)
 #****************************************************************************
 
+# The major version numbers:
+MAJORVERSION1=1
+MAJORVERSION2=10
+# The minor version number:
+MINORVERSION=0
+# The build version number:
+BUILDVERSION=2
+# The version date:
+COMPILERDATE=21/06/12
+
 # Logfile for make:
 MAKELOG=make.log
 # the root directory
@@ -19,6 +29,10 @@ ROOT=${CURDIR}
 BINDIR=${ROOT}/bin
 # Directory where local executables are stored:
 LOCALBIN=${BINDIR}/.local
+# The version information file for Curry2Prolog:
+C2PVERSION=curry2prolog/pakcsversion.pl
+# The version information file for the manual:
+MANUALVERSION=docs/src/version.tex
 
 #
 # Install all components of PAKCS
@@ -44,7 +58,8 @@ install: installscripts
 	@cd lib && ${MAKE} fcy
 	# install the Curry2Prolog compiler as a saved system:
 	rm -f bin/pakcs
-	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; then cd curry2prolog && ${MAKE} ; fi
+	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; \
+	 then ${MAKE} ${C2PVERSION} && cd curry2prolog && ${MAKE} ; fi
 	# compile all libraries:
 	@cd lib && ${MAKE} acy
 	# prepare for separate compilation by compiling all librariers to Prolog code:
@@ -56,7 +71,8 @@ install: installscripts
 	# compile the tools:
 	@if [ -r bin/pakcs ] ; then cd tools && ${MAKE} ; fi
 	# compile documentation, if necessary:
-	@if [ -d docs/src ] ; then cd docs/src && ${MAKE} install ; fi
+	@if [ -d docs/src ] ; \
+	 then ${MAKE} ${MANUALVERSION} && cd docs/src && ${MAKE} install ; fi
 	chmod -R go+rX .
 
 # Configure installation w.r.t. variables in bin/.pakcs_variables:
@@ -84,6 +100,20 @@ installfrontend:
 	cd frontend/curry-frontend && cabal install
 	# copy cabal installation of front end into local directory
 	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
+
+# Create file with version information for Curry2Prolog:
+${C2PVERSION}: Makefile
+	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/2, compilerMinorVersion/1, buildVersion/1, buildDate/1]).' > $@
+	echo "compilerVersion('PAKCS${MAJORVERSION1}.${MAJORVERSION2}')." >> $@
+	echo 'compilerMajorVersion(${MAJORVERSION1},${MAJORVERSION2}).' >> $@
+	echo 'compilerMinorVersion(${MINORVERSION}).' >> $@
+	echo 'buildVersion(${BUILDVERSION}).' >> $@
+	echo "buildDate('${COMPILERDATE}')." >> $@
+
+# Create file with version information for the manual:
+${MANUALVERSION}: Makefile
+	echo '\\newcommand{\\pakcsversion}{${MAJORVERSION1}.${MAJORVERSION2}.${MINORVERSION}}' > $@
+	echo '\\newcommand{\\pakcsversiondate}{Version of ${COMPILERDATE}}' >> $@
 
 #
 # Create documentation for system libraries:

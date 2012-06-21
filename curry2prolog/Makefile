@@ -86,4 +86,5 @@ libswi/%.pl: lib_src/%.pl
 .PHONY: clean
 clean: 
 	rm -f c2p.state ../lib/.curry/pakcs/Prelude.pl ../bin/pakcs prologbasics.pl
+	rm -f pakcsversion.pl
 	rm -rf libswi/*

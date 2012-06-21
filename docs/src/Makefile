@@ -3,7 +3,7 @@
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: manual.tex currydoc.tex markdown_syntax.tex ../../lib/TEXDOC/LAST
+manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex ../../lib/TEXDOC/LAST
 	pdflatex manual
 	bibtex manual
 	pdflatex manual
@@ -45,6 +45,4 @@ clean:
 	/bin/rm -f manual.?? manual.??? version-defs.sty
 	/bin/mv manual.texx manual.tex
 	/bin/mv manual.bibx manual.bib
-	/bin/rm -f ../Manual.pdf ../Manual.ps.gz thumb*
-
-
+	/bin/rm -f ../Manual.pdf ../Manual.ps.gz thumb* version.tex

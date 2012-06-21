@@ -5,6 +5,7 @@
 
 :- use_module('../prologbasics').
 :- use_module('../version').
+:- use_module('../pakcsversion').
 
 prim_curryCompiler(CS) :- atom2String(pakcs,CS).
 
