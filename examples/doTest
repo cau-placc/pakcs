@@ -2,6 +2,11 @@
 # script to execute tests for Curry
 PAKCSHOME=..
 
+TESTPARAMS="--window"
+if [ "$1" = "--nogui" ] ; then
+  TESTPARAMS=
+fi
+
 $PAKCSHOME/bin/cleancurry
 
 # load definition of SICSTUS, SWIPROLOG etc:
@@ -27,4 +32,4 @@ ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND"
 
 # execute all unit tests:
 echo "Executing unit tests for back end $BACKEND..."
-$PAKCSHOME/bin/currytest --window $ALLTESTS
+$PAKCSHOME/bin/currytest $TESTPARAMS $ALLTESTS
