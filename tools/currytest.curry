@@ -4,8 +4,11 @@
 -- The GUI process messages sent by running tests with the test tool
 -- and summarizes the results in a GUI.
 --
+-- If the currytest tool is executed in batch mode, the return is
+-- positive if some error occurred.
+--
 -- @author Michael Hanus
--- @version November 2011
+-- @version June 2012
 ---------------------------------------------------------------------
 
 import Socket
@@ -31,10 +34,15 @@ main = do
    "-w":modnames -> startGUI modnames
    "-window":modnames -> startGUI modnames
    ["-f",portnums] -> forwardMessages (readNat portnums)
-   a:as -> mapIO_ (testModule putStr 0) (map stripSuffix (a:as))
-   _ -> putStrLn $ "ERROR: Illegal arguments for currytest: " ++
-                   concat (intersperse " " args) ++ "\n" ++
-                   "Usage: currytest [--window|-w] <module_names>"
+   a:as -> do rcs <- mapIO (testModule putStr 0) (map stripSuffix (a:as))
+              let ecode = foldr (+) 0 rcs
+              if ecode==0 then done
+               else putStrLn "FAILURE IN SOME TEST OCCURRED!!!"
+              exitWith ecode
+   _ -> do putStrLn $ "ERROR: Illegal arguments for currytest: " ++
+                      concat (intersperse " " args) ++ "\n" ++
+                      "Usage: currytest [--window|-w] <module_names>"
+           exitWith 1
 
 -- This operation creates a new socket to receive messages that are forwarded
 -- to a continues connection to a socket with the argument port number:
@@ -183,7 +191,7 @@ protocolGUI portnum initmods stateref =
      getNextTestModule stateref >>=  \nextmod ->
      maybe (setValue rstatus "ready" gp >>
             setConfig rstatus (Background "green") gp)
-           (\m -> testModule (printCompMsg gp) portnum m)
+           (\m -> testModule (printCompMsg gp) portnum m >> done)
            nextmod
 
    -- print a compilation message in corresponding widget:
@@ -239,7 +247,8 @@ incrText s = show (readInt s + 1)
 -- Arg 2: port number of socket where the test messages are sent
 --        (or 0 if no gui defined)
 -- Arg 3: module name
-testModule :: (String -> IO _) -> Int -> String -> IO ()
+-- The return code is positive if some tests failed and the GUI is not used
+testModule :: (String -> IO _) -> Int -> String -> IO Int
 testModule prtmsg portnum modname = do
   prtmsg ("Loading module \""++modname++"\"...\n")
   prog_or_error <- tryReadFlatCurry modname
@@ -247,13 +256,15 @@ testModule prtmsg portnum modname = do
 
 testModuleIfPossible prtmsg portnum _ (Right errmsg) = do
   prtmsg ("ERROR: compilation not successful:\n\n"++errmsg++"\n")
-  showTestCompileError portnum
+  if portnum==0 then done else showTestCompileError portnum
+  return 1
 testModuleIfPossible prtmsg portnum modname (Left prog) =
   execTestFunctions prtmsg portnum modname (getTestFunctionNames prog)
 
 execTestFunctions prtmsg portnum _ [] = do
   prtmsg "No test functions found.\n\n"
   if portnum==0 then done else showTestEnd portnum
+  return 0
 execTestFunctions prtmsg portnum modname fs@(_:_) = do
   prtmsg ("Exported top-level test functions:\n"
             ++ concatMap (++" ") fs ++ "\n\n")
@@ -268,13 +279,13 @@ execTestFunctions prtmsg portnum modname fs@(_:_) = do
                                         else "return ") ++ f)
                   fs)) ++
          " >>= writeAssertResult " ++
-         " >> putStrLn (take 60 (repeat (chr 61)))" ++
-         (if portnum/=0 then " >> showTestEnd "++show portnum++"" else "")
-  --putStrLn testgoal
-  system ("echo ':l "++modname++"\n"++testgoal++" ' | \"" ++
-          installDir++"/bin/pakcs\" -quiet -Dshowfcyload=no 2>&1" ++
-          if portnum==0 then "" else " &")
-  done
+         (if portnum/=0 then " >> showTestEnd "++show portnum
+                        else " >>= exitWith")
+      execCall = "echo ':l "++modname++"\n"++testgoal++" ' | \"" ++
+                 installDir++"/bin/pakcs\" -quiet -Dshowfcyload=no 2>&1"
+  putStrLn testgoal
+  if portnum==0 then system execCall
+                else system (execCall ++ " &") >> return 0
 
 
 -- Extract all test functions from a module:
