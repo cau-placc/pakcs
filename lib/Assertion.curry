@@ -3,7 +3,7 @@
 --- Curry module tester "currytest".
 ---
 --- @author Michael Hanus
---- @version November 2011
+--- @version June 2012
 ------------------------------------------------------------------------------
 
 module Assertion(-- for writing test cases:
@@ -91,7 +91,7 @@ seqStrActions a1 a2 =
 --- @return a protocol string and a flag whether the test was successful
 checkAssertion :: String -> ((String,Bool) -> IO (String,Bool)) -> Assertion _
                -> IO (String,Bool)
-checkAssertion asrtfname prot assrt =
+checkAssertion _ prot assrt =
    --catchNDIO asrtfname prot
    (execAsrt assrt)
  where
@@ -182,14 +182,14 @@ checkAssertEqualIO name action1 action2 = do
                  "Computed answer 1: "++show r1++"\n"++
                  "Computed answer 2: "++show r2++"\n\n",False)
 
---- Writes the results of assertion checking into a file and stdout,
---- if the results are non-empty.
+--- Prints the results of assertion checking.
+--- If failures occurred, the return code is positive.
 --- Used by the currytest tool.
-writeAssertResult :: (String,Bool) -> IO ()
+writeAssertResult :: (String,Bool) -> IO Int
 writeAssertResult (result,flag) =
   if flag
-  then putStrLn (result++"All tests successfully passed.")
-  else putStrLn (result++"FAILURE occurred in some assertions!\n")
+  then putStrLn (result++"All tests successfully passed.")         >> return 0
+  else putStrLn (result++"FAILURE occurred in some assertions!\n") >> return 1
 
 
 ----------------------------------------------------------------------------

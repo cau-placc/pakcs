@@ -19,7 +19,7 @@ MINORVERSION=0
 # The build version number:
 BUILDVERSION=2
 # The version date:
-COMPILERDATE=21/06/12
+COMPILERDATE=22/06/12
 
 # Logfile for make:
 MAKELOG=make.log
