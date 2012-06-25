@@ -4,7 +4,7 @@
 -- The GUI process messages sent by running tests with the test tool
 -- and summarizes the results in a GUI.
 --
--- If the currytest tool is executed in batch mode, the return is
+-- If the currytest tool is executed in batch mode, the return code is
 -- positive if some error occurred.
 --
 -- @author Michael Hanus
@@ -283,7 +283,7 @@ execTestFunctions prtmsg portnum modname fs@(_:_) = do
                         else " >>= exitWith")
       execCall = "echo ':l "++modname++"\n"++testgoal++" ' | \"" ++
                  installDir++"/bin/pakcs\" -quiet -Dshowfcyload=no 2>&1"
-  putStrLn testgoal
+  --putStrLn testgoal
   if portnum==0 then system execCall
                 else system (execCall ++ " &") >> return 0
 
