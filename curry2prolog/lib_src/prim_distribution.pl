@@ -9,9 +9,11 @@
 
 prim_curryCompiler(CS) :- atom2String(pakcs,CS).
 
-prim_curryCompilerMajorVersion(V) :- compilerMajorVersion(V1,V2), V is V1*10+V2.
+prim_curryCompilerMajorVersion(V) :- compilerMajorVersion(V).
 
 prim_curryCompilerMinorVersion(V) :- compilerMinorVersion(V).
+
+prim_curryCompilerRevisionVersion(V) :- compilerRevisionVersion(V).
 
 prim_curryRuntime(PrologS) :- prolog(Prolog), atom2String(Prolog,PrologS).
 

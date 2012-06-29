@@ -34,7 +34,7 @@ main = do
    "-w":modnames -> startGUI modnames
    "-window":modnames -> startGUI modnames
    ["-f",portnums] -> forwardMessages (readNat portnums)
-   a:as -> do rcs <- mapIO (testModule putStr 0) (map stripSuffix (a:as))
+   a:as -> do rcs <- mapIO (testModule putStrFlush 0) (map stripSuffix (a:as))
               let ecode = foldr (+) 0 rcs
               if ecode==0 then done
                else putStrLn "FAILURE IN SOME TEST OCCURRED!!!"
@@ -43,6 +43,8 @@ main = do
                       concat (intersperse " " args) ++ "\n" ++
                       "Usage: currytest [--window|-w] <module_names>"
            exitWith 1
+ where
+   putStrFlush s = putStr s >> hFlush stdout
 
 -- This operation creates a new socket to receive messages that are forwarded
 -- to a continues connection to a socket with the argument port number:
@@ -69,7 +71,7 @@ terminateForwardMessages portnum = do
   h <- connectToSocket "localhost" portnum
   hPutStrLn h "TERMINATE"
   hClose h
-   
+
 startGUI modnames = do
   (guiportnum,socket) <- listenOnFresh
   system (installDir++"/bin/currytest -f "++show guiportnum++" &")

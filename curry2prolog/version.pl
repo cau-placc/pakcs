@@ -12,8 +12,9 @@
 % version w.r.t. run-time system
 %compilerVersion('PAKCS1.10').
 
-%compilerMajorVersion(1,10).
-%compilerMinorVersion(0).
+%compilerMajorVersion(1).
+%compilerMinorVersion(10).
+%compilerRevisionVersion(0).
 %buildVersion(2).
 %buildDate('06/06/12').
 
@@ -26,7 +27,9 @@ prologMajor(PrologVersion) :-
 	atom_codes(PrologVersion,PrologVersionS), !.
 
 printVersion :-
-	compilerMajorVersion(V1,V2), compilerMinorVersion(V3),
+	compilerMajorVersion(V1),
+	compilerMinorVersion(V2),
+	compilerRevisionVersion(V3),
 	writeNQ(V1), writeNQ('.'),
 	writeNQ(V2), writeNQ('.'),
 	writeNQ(V3), writeNQ(' ('),

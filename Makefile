@@ -12,10 +12,11 @@
 #****************************************************************************
 
 # The major version numbers:
-MAJORVERSION1=1
-MAJORVERSION2=10
+MAJORVERSION=1
 # The minor version number:
-MINORVERSION=0
+MINORVERSION=10
+# The revision version number:
+REVISIONVERSION=0
 # The build version number:
 BUILDVERSION=2
 # The version date:
@@ -103,16 +104,17 @@ installfrontend:
 
 # Create file with version information for Curry2Prolog:
 ${C2PVERSION}: Makefile
-	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/2, compilerMinorVersion/1, buildVersion/1, buildDate/1]).' > $@
-	echo "compilerVersion('PAKCS${MAJORVERSION1}.${MAJORVERSION2}')." >> $@
-	echo 'compilerMajorVersion(${MAJORVERSION1},${MAJORVERSION2}).' >> $@
+	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1]).' > $@
+	echo "compilerVersion('PAKCS${MAJORVERSION}.${MINORVERSION}')." >> $@
+	echo 'compilerMajorVersion(${MAJORVERSION}).' >> $@
 	echo 'compilerMinorVersion(${MINORVERSION}).' >> $@
+	echo 'compilerRevisionVersion(${REVISIONVERSION}).' >> $@
 	echo 'buildVersion(${BUILDVERSION}).' >> $@
 	echo "buildDate('${COMPILERDATE}')." >> $@
 
 # Create file with version information for the manual:
 ${MANUALVERSION}: Makefile
-	echo '\\newcommand{\\pakcsversion}{${MAJORVERSION1}.${MAJORVERSION2}.${MINORVERSION}}' > $@
+	echo '\\newcommand{\\pakcsversion}{${MAJORVERSION}.${MINORVERSION}.${REVISIONVERSION}}' > $@
 	echo '\\newcommand{\\pakcsversiondate}{Version of ${COMPILERDATE}}' >> $@
 
 #
