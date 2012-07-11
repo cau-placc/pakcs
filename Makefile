@@ -181,7 +181,7 @@ dist:
 	cd ${PAKCSDIST}/lib && ${MAKE} cleanpl
 	# generate binary distributions on remote hosts:
 	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
-	${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
+	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
 	cp Makefile ${PAKCSDIST}/Makefile
 	cd ${PAKCSDIST}/lib && ${MAKE} clean # delete precompiled libraries
