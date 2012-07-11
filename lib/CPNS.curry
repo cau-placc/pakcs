@@ -57,7 +57,7 @@ data CPNSMessage = Terminate
                  | ShowRegistry
 
 -- The lock file to coordinate the startup of the CPNS demon:
-cpnsStartupLockfile = "/tmp/PAKCS_CPNSD.LOCK"
+cpnsStartupLockfile = "/tmp/CurryPNSD.lock"
 
 --- Starts the "Curry Port Name Server" (CPNS) running on the local machine.
 --- The CPNS is responsible to resolve symbolic names for ports

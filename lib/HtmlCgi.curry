@@ -364,7 +364,7 @@ getNChar n = if n<=0 then return ""
 
 ------------------------------------------------------------------------------
 --- The name of the file to register all cgi servers.
-cgiServerRegistry = "/tmp/PAKCS_CGIREGISTRY"
+cgiServerRegistry = "/tmp/CURRY_CGI_REGISTRY"
 
 -- Register a new cgi server process (for global management of all such
 -- processes on a host):

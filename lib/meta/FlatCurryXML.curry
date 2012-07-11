@@ -45,7 +45,7 @@ cImports      = eRep 	"import" (eString "module")
 cTypes	      = eRep	"types"	cType
 cType	      = eSeq4	"type" Type cQName cVis cTParams (rep cConsDecl)
 	      ! eSeq4	"typesyn" TypeSyn cQName cVis cTParams cTypeExpr
-cQName	      = seq2 	(,) (aString "module") (aString "name")
+cQName	      = seq2 	(\a b -> (a,b)) (aString "module") (aString "name")
 cVis	      = adapt	(b2v,v2b) (aBool "visibility" "public" "private")
 b2v b	      = if b then Public else Private
 v2b v	      = v==Public
@@ -88,7 +88,7 @@ cf	      = Case	Flex
 cBranch	      = eSeq2	"branch" Branch cPat cExpr
 cPat	      = eSeq2	"pattern" Pattern cQName cVars
 	      ! eSeq1	"lpattern" LPattern cLit
-cBind	      = eSeq2	"binding" (,) cVar cExpr
+cBind	      = eSeq2	"binding" (\a b -> (a,b)) cVar cExpr
 cOps	      = eRep	"operators" cOp
 cOp	      = eSeq3	"op" Op cQName cFixity (aInt "prec")
 cFixity	      = adapt	(rf,show) (aString "fixity")

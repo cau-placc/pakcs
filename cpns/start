@@ -3,9 +3,9 @@
 # Start the Curry Port Name Server demon, if it is not already
 # started on this machine:
 
-PIDFILE="/tmp/PAKCS_CPNSD_PID"
-LOGFILE="/tmp/PAKCS_CPNSD_LOG"
-LOCKFILE="/tmp/PAKCS_CPNSD.LOCK" # for startup control
+PIDFILE="/tmp/CurryPNSD.pid"
+LOGFILE="/tmp/CurryPNSD.log"
+LOCKFILE="/tmp/CurryPNSD.lock" # for startup control
 CPNSPROG="`dirname "$0"`/CPNS.state"
 
 STARTSERVER=no

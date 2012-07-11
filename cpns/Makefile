@@ -3,7 +3,7 @@
 # Required:
 # - installed curry2prolog system
 
-LOGFILE="/tmp/PAKCS_CPNSD_LOG"
+LOGFILE="/tmp/CurryPNSD.log"
 
 CPNS.state: ../lib/CPNS.curry
 	../bin/pakcs -s CPNS
