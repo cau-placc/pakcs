@@ -220,7 +220,7 @@ genbindist:
 cleandist:
 	rm -f ${MAKELOG}
 	${MAKE} cleantools
-	rm -rf .git .gitignore
+	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
 	rm -rf frontend/curry-base/.git frontend/curry-base/.gitignore
 	rm -rf frontend/curry-frontend/.git frontend/curry-frontend/.gitignore
 	rm -rf frontend/curry-base/dist frontend/curry-frontend/dist

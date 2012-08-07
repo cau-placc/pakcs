@@ -57,8 +57,6 @@ frontend
 www/submitform
 
 # documentation
-lib/CDOC
-lib/TEXDOC
 docs/src/manual.bbl
 docs/src/lib
 docs/src/markdown_syntax.tex
