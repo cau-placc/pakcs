@@ -53,8 +53,6 @@ all: config
 install: installscripts
 	# install cabal front end if sources are present:
 	@if [ -d frontend ] ; then ${MAKE} installfrontend ; fi
-	# install the front-end script:
-	cd bin && rm -f parsecurry && ln -s .pakcs_wrapper parsecurry
 	# pre-compile all libraries:
 	@cd lib && ${MAKE} fcy
 	# install the Curry2Prolog compiler as a saved system:
@@ -99,6 +97,8 @@ installfrontend:
 	cd frontend/curry-frontend && cabal install # --force-reinstalls
 	# copy cabal installation of front end into local directory
 	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
+	# install the front-end script:
+	cd bin && rm -f parsecurry && ln -s .pakcs_wrapper parsecurry
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
@@ -164,15 +164,23 @@ PAKCSDIST=/tmp/pakcs
 .PHONY: dist
 dist:
 	rm -rf pakcs*.tar.gz ${PAKCSDIST} # remove old distributions
-	cp -r -p . ${PAKCSDIST}           # create complete copy of this version
-	# install front end sources if they are not present:
+	git clone . ${PAKCSDIST}                   # create copy of git version
+	cd ${PAKCSDIST} && git submodule init && git submodule update
+	cp bin/.pakcs_variables ${PAKCSDIST}/bin/.pakcs_variables
+	cd ${PAKCSDIST} && ${MAKE} installscripts
+	cd ${PAKCSDIST} && ${MAKE} installfrontend
+	cd ${PAKCSDIST}/lib && ${MAKE} fcy
 	cd ${PAKCSDIST} && ${MAKE} cleandist  # delete unnessary files
+	# copy documentation:
+	@if [ -f docs/Manual.pdf ] ; \
+	 then cp docs/Manual.pdf ${PAKCSDIST}/docs ; fi
+	@if [ -f docs/markdown_syntax.html ] ; \
+	 then cp docs/markdown_syntax.html ${PAKCSDIST}/docs ; fi
+	cd docs && cp -p Manual.pdf markdown_syntax.html ${PAKCSDIST}/docs
 	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/bin/.pakcs_variables.init > ${PAKCSDIST}/bin/.pakcs_variables
 	rm ${PAKCSDIST}/bin/.pakcs_variables.init
-	# delete Prolog files of libraries
-	cd ${PAKCSDIST}/lib && ${MAKE} cleanpl
 	# generate binary distributions on remote hosts:
-	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
+	#${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
 	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
 	cp Makefile ${PAKCSDIST}/Makefile
@@ -217,8 +225,5 @@ cleandist:
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
 	rm -rf lib/CDOC lib/TEXDOC
-	rm -f CVS-description KNOWN_BUGS VERSIONS CHANGELOG.html
-	rm -rf CVS */CVS */*/CVS */*/*/CVS
-	rm -f *~ */*~ */*/*~ */*/*/*~ */*/*/*/*~
-	cd bin && rm -f sicstusprolog swiprolog .??*~ .??*.bak
-	cd examples && ../bin/cleancurry -r
+	rm -f KNOWN_BUGS CHANGELOG.html
+	cd bin && rm -f sicstusprolog swiprolog
