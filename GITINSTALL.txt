@@ -1,5 +1,5 @@
-PAKCS: The Portland Aachen Kiel Curry System
-============================================
+PAKCS Repository
+================
 
 Installation Instructions for the GIT Repository
 ------------------------------------------------
