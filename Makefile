@@ -97,8 +97,8 @@ installfrontend:
 	@if [ ! -d ${LOCALBIN} ] ; then mkdir ${LOCALBIN} ; fi
 	cabal update
 	cabal install mtl
-	cd frontend/curry-base && cabal install
-	cd frontend/curry-frontend && cabal install
+	cd frontend/curry-base     && cabal install # --force-reinstalls
+	cd frontend/curry-frontend && cabal install # --force-reinstalls
 	# copy cabal installation of front end into local directory
 	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
 
@@ -221,9 +221,8 @@ cleandist:
 	rm -f ${MAKELOG}
 	${MAKE} cleantools
 	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
-	rm -rf frontend/curry-base/.git frontend/curry-base/.gitignore
-	rm -rf frontend/curry-frontend/.git frontend/curry-frontend/.gitignore
-	rm -rf frontend/curry-base/dist frontend/curry-frontend/dist
+	cd frontend/curry-base     && rm -rf .git .gitignore dist
+	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
 	rm -rf lib/CDOC lib/TEXDOC
 	rm -f CVS-description KNOWN_BUGS VERSIONS CHANGELOG.html
