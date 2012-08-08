@@ -29,12 +29,11 @@ Then, each future update can be obtained by the executing
     git pull
     git submodule update
 
-Since the front end used by PAKCS is an independent development
-with its own repository, you should execute the command
+If you install PAKCS for the first time, you need to install
+some Haskell packages required by the front end via Cabal,
+i.e., run the command
 
-    make frontendsources
-
-to obtain the up-to-date sources of the front.
+    make installcabal
 
 Now you can install the complete system by the command
 

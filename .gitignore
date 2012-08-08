@@ -53,7 +53,6 @@ bin/dataToXml
 bin/erd2curry
 curry2prolog/prologbasics.pl
 curry2prolog/libswi
-frontend
 www/submitform
 
 # documentation

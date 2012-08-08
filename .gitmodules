@@ -1,3 +1,9 @@
 [submodule "lib"]
 	path = lib
 	url = git://git-ps.informatik.uni-kiel.de/curry/curry-libs.git
+[submodule "frontend/curry-frontend"]
+	path = frontend/curry-frontend
+	url = git://git-ps.informatik.uni-kiel.de/curry/curry-frontend.git
+[submodule "frontend/curry-base"]
+	path = frontend/curry-base
+	url = git://git-ps.informatik.uni-kiel.de/curry/curry-base.git

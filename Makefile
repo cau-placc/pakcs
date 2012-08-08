@@ -53,7 +53,7 @@ all: config
 install: installscripts
 	# install cabal front end if sources are present:
 	@if [ -d frontend ] ; then ${MAKE} installfrontend ; fi
-	# install the front-end if necessary:
+	# install the front-end script:
 	cd bin && rm -f parsecurry && ln -s .pakcs_wrapper parsecurry
 	# pre-compile all libraries:
 	@cd lib && ${MAKE} fcy
@@ -95,12 +95,17 @@ installscripts:
 .PHONY: installfrontend
 installfrontend:
 	@if [ ! -d ${LOCALBIN} ] ; then mkdir ${LOCALBIN} ; fi
-	cabal update
-	cabal install mtl
 	cd frontend/curry-base     && cabal install # --force-reinstalls
 	cd frontend/curry-frontend && cabal install # --force-reinstalls
 	# copy cabal installation of front end into local directory
 	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
+
+# install required cabal packages required by the front end
+# (only necessary if the front end is installed for the first time)
+.PHONY: installcabal
+installcabal:
+	cabal update
+	cabal install mtl
 
 # Create file with version information for Curry2Prolog:
 ${C2PVERSION}: Makefile
@@ -155,25 +160,12 @@ cleantools:
 
 # temporary directory to create distribution version
 PAKCSDIST=/tmp/pakcs
-# repository with new front-end:
-FRONTENDREPO=git://git-ps.informatik.uni-kiel.de/curry
-
-# install the sources of the front end from its repository
-.PHONY: frontendsources
-frontendsources:
-	if [ -d frontend ] ; then \
-	 cd frontend/curry-base && git pull && cd ../curry-frontend && git pull ; \
-	 else mkdir frontend && cd frontend && \
-	      git clone ${FRONTENDREPO}/curry-base.git && \
-	      git clone ${FRONTENDREPO}/curry-frontend.git ; fi
 
 .PHONY: dist
 dist:
 	rm -rf pakcs*.tar.gz ${PAKCSDIST} # remove old distributions
 	cp -r -p . ${PAKCSDIST}           # create complete copy of this version
 	# install front end sources if they are not present:
-	if [ ! -d frontend ] ; then \
-	  cd ${PAKCSDIST} && ${MAKE} frontendsources ; fi
 	cd ${PAKCSDIST} && ${MAKE} cleandist  # delete unnessary files
 	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/bin/.pakcs_variables.init > ${PAKCSDIST}/bin/.pakcs_variables
 	rm ${PAKCSDIST}/bin/.pakcs_variables.init
