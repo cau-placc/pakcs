@@ -219,10 +219,9 @@ genbindist:
 #
 .PHONY: cleandist
 cleandist:
-	rm -f ${MAKELOG}
+	rm -rf ${LOCALBIN}
 	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
-	rm -rf lib/CDOC lib/TEXDOC
 	rm -f KNOWN_BUGS CHANGELOG.html
