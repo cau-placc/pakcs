@@ -170,6 +170,7 @@ dist:
 	cd ${PAKCSDIST} && ${MAKE} installscripts
 	cd ${PAKCSDIST} && ${MAKE} installfrontend
 	cd ${PAKCSDIST}/lib && ${MAKE} fcy
+	cd ${PAKCSDIST}/lib && ${MAKE} acy
 	cd ${PAKCSDIST} && ${MAKE} cleandist  # delete unnessary files
 	# copy documentation:
 	@if [ -f docs/Manual.pdf ] ; \
@@ -180,7 +181,7 @@ dist:
 	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/bin/.pakcs_variables.init > ${PAKCSDIST}/bin/.pakcs_variables
 	rm ${PAKCSDIST}/bin/.pakcs_variables.init
 	# generate binary distributions on remote hosts:
-	#${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
+	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
 	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
 	cp Makefile ${PAKCSDIST}/Makefile
@@ -219,11 +220,9 @@ genbindist:
 .PHONY: cleandist
 cleandist:
 	rm -f ${MAKELOG}
-	${MAKE} cleantools
 	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
 	rm -rf lib/CDOC lib/TEXDOC
 	rm -f KNOWN_BUGS CHANGELOG.html
-	cd bin && rm -f sicstusprolog swiprolog
