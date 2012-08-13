@@ -184,6 +184,7 @@ dist:
 	cp Makefile ${PAKCSDIST}/Makefile
 	cd ${PAKCSDIST}/lib && ${MAKE} clean # delete precompiled libraries
 	sed -e "/distribution/,\$$d" < Makefile > ${PAKCSDIST}/Makefile
+	cd scripts && ${MAKE} clean # remove local scripts
 	cd /tmp && tar cf pakcs_src.tar pakcs && gzip pakcs_src.tar
 	mv /tmp/pakcs_src.tar.gz .
 	chmod 644 pakcs_src.tar.gz pakcs_`uname -s`.tar.gz
@@ -208,6 +209,7 @@ genbindist:
 	rm -f pakcs*.tar.gz
 	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make installfrontend
 	rm -rf frontend
+	cd scripts && ${MAKE} clean # remove local scripts
 	cd /tmp && tar cf pakcs_`uname -s`.tar pakcs && gzip pakcs_`uname -s`.tar
 
 
@@ -216,7 +218,6 @@ genbindist:
 #
 .PHONY: cleandist
 cleandist:
-	cd scripts && ${MAKE} clean
 	rm -rf ${LOCALBIN}
 	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
