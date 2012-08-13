@@ -9,6 +9,9 @@ PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
 # Distribution version of the pakcsinitrc file:
 PAKCSINITRC=$PAKCSHOME/bin/.pakcs_variables
 
+# Initial repository version of the pakcsinitrc file:
+REPOSINITRC=$PAKCSHOME/scripts/pakcs_variables.sh
+
 # check for HOME variable
 if [ "$HOME" = "" ] ; then
   echo "Cannot configure PAKCS since environment variable HOME not set!"
@@ -21,10 +24,10 @@ HOMEINITRC=$HOME/.pakcsinitrc
 if [ -f "$PAKCSINITRC" ] ; then
   # Save old installed version of pakcsinitrc:
   cp -p "$PAKCSINITRC" "$PAKCSINITRC.bak"
-elif [ -f "$PAKCSINITRC.init" ] ; then
-  # The following is only relevant for CVS checkouts:
-  cp "$PAKCSINITRC.init" "$PAKCSINITRC"
-  cp "$PAKCSINITRC.init" "$PAKCSINITRC.bak"
+elif [ -f "$REPOSINITRC" ] ; then
+  # The following is only relevant for repository checkouts:
+  cp "$REPOSINITRC" "$PAKCSINITRC"
+  cp "$REPOSINITRC" "$PAKCSINITRC.bak"
 elif [ ! -f "$PAKCSINITRC" ] ; then
   echo "ERROR: Incomplete distribution: $PAKCSINITRC is missing!"
   exit 1

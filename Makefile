@@ -20,7 +20,7 @@ REVISIONVERSION=1
 # The build version number:
 BUILDVERSION=1
 # The version date:
-COMPILERDATE=11/07/12
+COMPILERDATE=13/08/12
 
 # Logfile for make:
 MAKELOG=make.log
@@ -80,14 +80,14 @@ config:
 	@./update-pakcsrc
 	@./configure-pakcs
 
-# install some scripts of PAKCS in the bin directory:
+# install the scripts of PAKCS in the bin directory:
 .PHONY: installscripts
 installscripts:
 	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
 	${MAKE} ${BINDIR}/.pakcs_wrapper ${BINDIR}/makecurrycgi  ${BINDIR}/.makesavedstate
 	${MAKE} ${BINDIR}/.parsecurry ${BINDIR}/cleancurry
 
-# install some scripts of PAKCS in the bin directory:
+# install some script of PAKCS in the bin directory:
 ${BINDIR}/%: scripts/%.sh
 	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < $< > $@
 	chmod 755 $@
@@ -181,8 +181,8 @@ dist:
 	@if [ -f docs/markdown_syntax.html ] ; \
 	 then cp docs/markdown_syntax.html ${PAKCSDIST}/docs ; fi
 	cd docs && cp -p Manual.pdf markdown_syntax.html ${PAKCSDIST}/docs
-	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/bin/.pakcs_variables.init > ${PAKCSDIST}/bin/.pakcs_variables
-	rm ${PAKCSDIST}/bin/.pakcs_variables.init
+	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/scripts/pakcs_variables.sh > ${PAKCSDIST}/bin/.pakcs_variables
+	rm ${PAKCSDIST}/scripts/pakcs_variables.sh
 	# generate binary distributions on remote hosts:
 	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
 	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution

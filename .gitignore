@@ -31,14 +31,13 @@ make.log
 curry2prolog/pakcsversion.pl
 docs/src/version.tex
 
-# ignore front end since it is managed in another repository
-mccparser
-
 # binaries
 *.state
 bin/.makesavedstate
 bin/.pakcs_wrapper
 bin/makecurrycgi
+bin/.parsecurry
+bin/cleancurry
 bin/.local
 bin/sicstusprolog
 bin/swiprolog
