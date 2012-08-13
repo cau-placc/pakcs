@@ -1,7 +1,7 @@
 #!/bin/sh
 # Compile a Curry program (using the HTML library) into a cgi script
 
-# Compute the main directory where PAKCS is installed:
+# Define the main directory where PAKCS is installed:
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 

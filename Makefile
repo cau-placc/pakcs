@@ -84,10 +84,13 @@ config:
 .PHONY: installscripts
 installscripts:
 	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
-	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < scripts/pakcs_wrapper.sh > ${BINDIR}/.pakcs_wrapper
-	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < scripts/makecurrycgi.sh > ${BINDIR}/makecurrycgi
-	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < scripts/makesavedstate.sh > ${BINDIR}/.makesavedstate
-	cd ${BINDIR} && chmod 755 .pakcs_wrapper makecurrycgi .makesavedstate
+	${MAKE} ${BINDIR}/.pakcs_wrapper ${BINDIR}/makecurrycgi  ${BINDIR}/.makesavedstate
+	${MAKE} ${BINDIR}/.parsecurry ${BINDIR}/cleancurry
+
+# install some scripts of PAKCS in the bin directory:
+${BINDIR}/%: scripts/%.sh
+	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < $< > $@
+	chmod 755 $@
 
 # install new front end:
 .PHONY: installfrontend

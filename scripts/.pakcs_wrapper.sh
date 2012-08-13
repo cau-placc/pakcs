@@ -1,11 +1,6 @@
 #!/bin/sh
 #
 # Main script to run the components of PAKCS
-#########
-# IT WILL NOT WORK IF THE INDIVIDUALS PROGRAMS ARE NOT CALLED VIA
-# THEIR ORIGINAL NAMES!
-# (i.e., do not use links to the bin-dir with different program names)
-#
 
 # Define the main directory where PAKCS is installed:
 PAKCSHOME=`echo PAKCSHOME must be defined here!`

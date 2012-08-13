@@ -6,7 +6,7 @@
 # - add path information to the saved state
 # - add locale information (LANG, LC_ALL) to the saved state
 
-# Compute the main directory where PAKCS is installed:
+# Define the main directory where PAKCS is installed:
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
