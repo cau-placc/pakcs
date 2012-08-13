@@ -6,7 +6,7 @@
 	  [prim_getCPUTime/1,prim_getElapsedTime/1,prim_getArgs/1,
 	   prim_getEnviron/2,
 	   prim_getHostname/1,prim_getPID/1,prim_getProgName/1,
-	   prim_system/2,prim_exitWith/2,prim_sleep/2]).
+	   prim_system/2,prim_exitWith/2,prim_sleep/2,isWindows/1]).
 
 :- use_module('../prologbasics').
 :- use_module('../basics').
@@ -42,3 +42,8 @@ prim_exitWith(Code,_) :- halt(Code).
 
 prim_sleep(S,'Prelude.()') :- sleepSeconds(S).
 
+isWindows(Flag) :-
+	getEnv('COMSPEC', _) ->
+	  % Windows systems define this environment variable...
+	  Flag = 'Prelude.True'
+	; Flag = 'Prelude.False'.
