@@ -25,11 +25,11 @@ COMPILERDATE=13/08/12
 # Logfile for make:
 MAKELOG=make.log
 # the root directory
-ROOT=${CURDIR}
+export ROOT=${CURDIR}
 # binary directory and executables
-BINDIR=${ROOT}/bin
+export BINDIR=${ROOT}/bin
 # Directory where local executables are stored:
-LOCALBIN=${BINDIR}/.local
+export LOCALBIN=${BINDIR}/.local
 # The version information file for Curry2Prolog:
 C2PVERSION=curry2prolog/pakcsversion.pl
 # The version information file for the manual:
@@ -83,14 +83,7 @@ config:
 # install the scripts of PAKCS in the bin directory:
 .PHONY: installscripts
 installscripts:
-	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
-	${MAKE} ${BINDIR}/.pakcs_wrapper ${BINDIR}/makecurrycgi  ${BINDIR}/.makesavedstate
-	${MAKE} ${BINDIR}/.parsecurry ${BINDIR}/cleancurry
-
-# install some script of PAKCS in the bin directory:
-${BINDIR}/%: scripts/%.sh
-	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=${ROOT}|" < $< > $@
-	chmod 755 $@
+	cd scripts && ${MAKE} all
 
 # install new front end:
 .PHONY: installfrontend
@@ -147,6 +140,7 @@ clean:
 	cd examples && ../bin/cleancurry -r
 	if [ -d docs/src ] ; then cd docs/src && ${MAKE} clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
+	cd scripts && ${MAKE} clean
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
@@ -222,6 +216,7 @@ genbindist:
 #
 .PHONY: cleandist
 cleandist:
+	cd scripts && ${MAKE} clean
 	rm -rf ${LOCALBIN}
 	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
