@@ -169,8 +169,8 @@ dist:
 	rm -rf pakcs*.tar.gz ${PAKCSDIST} # remove old distributions
 	git clone . ${PAKCSDIST}                   # create copy of git version
 	cd ${PAKCSDIST} && git submodule init && git submodule update
-	cp bin/.pakcs_variables ${PAKCSDIST}/bin/.pakcs_variables
 	cd ${PAKCSDIST} && ${MAKE} installscripts
+	cp bin/.pakcs_variables ${PAKCSDIST}/bin/.pakcs_variables
 	cd ${PAKCSDIST} && ${MAKE} installfrontend
 	cd ${PAKCSDIST}/lib && ${MAKE} fcy
 	cd ${PAKCSDIST}/lib && ${MAKE} acy
