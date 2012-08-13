@@ -85,6 +85,11 @@ config:
 installscripts:
 	cd scripts && ${MAKE} all
 
+# remove the scripts of PAKCS in the bin directory:
+.PHONY: cleanscripts
+cleanscripts:
+	cd scripts && ${MAKE} clean
+
 # install new front end:
 .PHONY: installfrontend
 installfrontend:
@@ -184,7 +189,7 @@ dist:
 	cp Makefile ${PAKCSDIST}/Makefile
 	cd ${PAKCSDIST}/lib && ${MAKE} clean # delete precompiled libraries
 	sed -e "/distribution/,\$$d" < Makefile > ${PAKCSDIST}/Makefile
-	cd scripts && ${MAKE} clean # remove local scripts
+	cd ${PAKCSDIST} && ${MAKE} cleanscripts # remove local scripts
 	cd /tmp && tar cf pakcs_src.tar pakcs && gzip pakcs_src.tar
 	mv /tmp/pakcs_src.tar.gz .
 	chmod 644 pakcs_src.tar.gz pakcs_`uname -s`.tar.gz
@@ -209,7 +214,7 @@ genbindist:
 	rm -f pakcs*.tar.gz
 	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make installfrontend
 	rm -rf frontend
-	cd scripts && ${MAKE} clean # remove local scripts
+	${MAKE} cleanscripts # remove local scripts
 	cd /tmp && tar cf pakcs_`uname -s`.tar pakcs && gzip pakcs_`uname -s`.tar
 
 
