@@ -67,8 +67,8 @@ else
   cp "$PAKCSINITRC" "$HOMEINITRC"
 fi
 
-# Load the definition of GHC, SICSTUSDIR and other auxiliary tools:
-. "$HOMEINITRC" # to get possibly old definition of SICSTUS
+# Load the definition of SICSTUSDIR and SWIPROLOG:
+. "$HOMEINITRC" # to get possibly old definition of SICSTUSDIR etc
 . "$PAKCSINITRC"
 
 # try to define SICSTUSDIR if it is not defined:
@@ -203,5 +203,4 @@ echo '======================================================================'
 echo 'PAKCS installation configured with (saved in '$HOME'/.pakcsinitrc):'
 echo "SICSTUSDIR=$SICSTUSDIR"
 echo "SWIPROLOG=$SWIPROLOG"
-if [ -n "$GHC"    ] ; then echo "GHC=$GHC" ; fi
 echo '======================================================================'
