@@ -10,7 +10,7 @@
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
 	   writeClause/1,
 	   checkProgramHeader/1, deletePrologTarget/1,
-	   setFastCode/1, maxTupleArity/1, tryXml2Fcy/1]).
+	   maxTupleArity/1, tryXml2Fcy/1]).
 
 :- use_module(prologbasics).
 :- use_module(basics).
@@ -2617,11 +2617,6 @@ replaceDotsByUnderscores(DAS,UAS) :-
 	replaceDotsByUnderscores(S2,S3),
 	append(S1,[95|S3],UAS).
 replaceDotsByUnderscores(S,S).
-
-% set compilation mode (i.e., fastcode: yes or no)
-setFastCode(yes) :- prolog_flag(compiling,_,fastcode), !.
-setFastCode(no) :- prolog_flag(compiling,_,compactcode), !.
-setFastCode(_).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

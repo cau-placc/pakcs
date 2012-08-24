@@ -1,16 +1,16 @@
 #!/bin/sh
 #
-# Configure PAKCSHOME/bin/.pakcs_variables with correct environment variables
+# Configure PAKCSHOME/pakcsinitrc with correct environment variables
 #
 
 # Compute home of PAKCS installation:
 PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`/..
 
 # Distribution version of the pakcsinitrc file:
-PAKCSINITRC=$PAKCSHOME/bin/.pakcs_variables
+PAKCSINITRC=$PAKCSHOME/pakcsinitrc
 
 # Initial repository version of the pakcsinitrc file:
-REPOSINITRC=$PAKCSHOME/scripts/pakcs_variables.sh
+REPOSINITRC=$PAKCSHOME/scripts/pakcsinitrc.sh
 
 # check for HOME variable
 if [ "$HOME" = "" ] ; then
@@ -129,8 +129,12 @@ if [ -n "$SICSTUSDIR" ] ; then
     rm /tmp/sicstusout$$
     exit 1
   else
-    #ln -s .pakcs_wrapper sicstusprolog
     ln -s "$SICSTUSDIR/bin/sicstus" sicstusprolog
+    # store the value of SICSTUSDIR in script ../bin/.makesavedstate :
+    MAKESTATE=../bin/.makesavedstate
+    mv $MAKESTATE $MAKESTATE.bak
+    sed "s|^SICSTUSDIR=.*$|SICSTUSDIR=$SICSTUSDIR|" < $MAKESTATE.bak > $MAKESTATE
+    chmod 755 $MAKESTATE
     rm /tmp/sicstusout$$
   fi
 fi

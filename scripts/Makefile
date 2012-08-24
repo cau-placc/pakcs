@@ -3,8 +3,8 @@
 ##############################################################################
 
 # the scripts to be installed
-BINS = ${BINDIR}/.pakcs_wrapper ${BINDIR}/makecurrycgi \
-       ${BINDIR}/.makesavedstate ${BINDIR}/.parsecurry ${BINDIR}/cleancurry
+BINS = ${BINDIR}/pakcs ${BINDIR}/makecurrycgi \
+       ${BINDIR}/.makesavedstate ${BINDIR}/parsecurry ${BINDIR}/cleancurry
 
 .PHONY: all
 all:

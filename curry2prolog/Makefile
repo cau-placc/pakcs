@@ -14,17 +14,10 @@ SWI=`pwd`/../bin/swiprolog
 # Standard options for SWI-Prolog
 SWIOPTIONS=-q -L0 -G0 -T0 -A0
 
-# Flag for determinining the compilation mode of Sicstus-Prolog
-# no  = compile into standard byte code
-#       (i.e., fast compilation, slower execution of compiled programs)
-# yes = compile into native code (currently only available for Sun Sparc!)
-#       (i.e., slower compilation, faster execution of compiled programs)
-FASTCODE=no
-
 .PHONY: all
 all:
 	@if [ -x "${SICSTUS}" ] ; then ${MAKE} sicstus ; elif [ -x "${SWI}" ] ; then ${MAKE} swi ; else echo "No Prolog defined to generate Curry->Prolog compiler" ; exit 1 ; fi
-	cd ../bin ; rm -f pakcs        ; ln -s .pakcs_wrapper pakcs
+	../bin/.makesavedstate -error c2p.state
 
 # make everything if we have a SICStus-Prolog system:
 .PHONY: sicstus
@@ -46,9 +39,12 @@ swi:
 c2p.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
-	      readXml.pl ../lib/.curry/pakcs/Prelude.pl
-	echo "compile(c2p),setFastCode(${FASTCODE}),compile('../lib/.curry/pakcs/Prelude'),loadAndCompile('../lib/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)."\
-         | "${SICSTUS}"
+	      readXml.pl ../lib/.curry/Prelude.fcy
+	PAKCSHOME=${PAKCSHOME} && export PAKCSHOME && \
+	  PAKCSLIBPATH=${PAKCSHOME}/lib:${PAKCSHOME}/lib/meta && \
+	  export PAKCSLIBPATH && \
+	  echo "compile(c2p),c2p('../lib/Prelude'),compile('../lib/.curry/pakcs/Prelude'),loadAndCompile('../lib/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)." \
+           | "${SICSTUS}"
 
 #
 # generate a saved state of the Curry->Prolog Compiler System w.r.t. SWI-Prolog
@@ -57,17 +53,13 @@ swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
 	      readXml.pl ../lib/.curry/Prelude.fcy
-	echo "[c2p]. c2p('../lib/Prelude')." | "${SWI}" ${SWIOPTIONS}
-	echo "compile(c2p). saveprog_entry('swi.state',(compile('${PAKCSHOME}/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('${PAKCSHOME}/lib/.curry/pakcs/Prelude.pl',[],create),user:pakcsMain))." | "${SWI}" ${SWIOPTIONS}
+	PAKCSHOME=${PAKCSHOME} && export PAKCSHOME && \
+	  PAKCSLIBPATH=${PAKCSHOME}/lib:${PAKCSHOME}/lib/meta && \
+	  export PAKCSLIBPATH && \
+	  echo "compile(c2p). c2p('../lib/Prelude'). saveprog_entry('swi.state',(compile('${PAKCSHOME}/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('${PAKCSHOME}/lib/.curry/pakcs/Prelude.pl',[],create),user:pakcsMain))." | "${SWI}" ${SWIOPTIONS}
 
 ../lib/.curry/Prelude.fcy: ../lib/Prelude.curry
-	cd ../lib ; make .curry/Prelude.fcy
-
-../lib/.curry/pakcs/Prelude.pl: prologbasics.pl ../lib/.curry/Prelude.fcy compiler.pl
-	# compile prelude into Prolog:
-	echo "[c2p], c2p('../lib/Prelude')." | "${SICSTUS}"
-	@echo "Prelude compilation finished."
-
+	cd ../lib ; ${MAKE} .curry/Prelude.fcy
 
 #
 # generate correct versions of run-time libraries for SWI-Prolog

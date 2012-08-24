@@ -57,7 +57,7 @@ TARGET=           # no default case: target language must be specified!
 FORMATGENERAL=fcy # target format of imported modules
 FORMATMAIN=fcy    # target format of main module
 if [ -z "$PAKCSLIBPATH" ] ; then
-  PAKCSLIBPATH="\"$PAKCSHOME/lib\":\"$PAKCSHOME/lib/meta\""
+  PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"
 fi
 if [ -n "$RCLIBPATH" ] ; then
   PAKCSLIBPATH="$RCLIBPATH:$PAKCSLIBPATH"

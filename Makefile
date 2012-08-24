@@ -56,9 +56,9 @@ install: installscripts
 	# pre-compile all libraries:
 	@cd lib && ${MAKE} fcy
 	# install the Curry2Prolog compiler as a saved system:
-	rm -f bin/pakcs
 	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; \
-	 then ${MAKE} ${C2PVERSION} && cd curry2prolog && ${MAKE} ; fi
+	 then ${MAKE} ${C2PVERSION} && cd curry2prolog && ${MAKE} ; \
+	 else rm -f bin/pakcs ; fi
 	# compile all libraries:
 	@cd lib && ${MAKE} acy
 	# prepare for separate compilation by compiling all librariers to Prolog code:
@@ -74,9 +74,9 @@ install: installscripts
 	 then ${MAKE} ${MANUALVERSION} && cd docs/src && ${MAKE} install ; fi
 	chmod -R go+rX .
 
-# Configure installation w.r.t. variables in bin/.pakcs_variables:
+# Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
-config:
+config: installscripts
 	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
 	@scripts/update-pakcsrc
 	@scripts/configure-pakcs
@@ -99,8 +99,6 @@ installfrontend:
 	cd frontend/curry-frontend && cabal install # --force-reinstalls
 	# copy cabal installation of front end into local directory
 	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
-	# install the front-end script:
-	cd bin && rm -f parsecurry && ln -s .pakcs_wrapper parsecurry
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
@@ -170,7 +168,7 @@ dist:
 	git clone . ${PAKCSDIST}                   # create copy of git version
 	cd ${PAKCSDIST} && git submodule init && git submodule update
 	cd ${PAKCSDIST} && ${MAKE} installscripts
-	cp bin/.pakcs_variables ${PAKCSDIST}/bin/.pakcs_variables
+	cp pakcsinitrc ${PAKCSDIST}/pakcsinitrc
 	cd ${PAKCSDIST} && ${MAKE} installfrontend
 	cd ${PAKCSDIST}/lib && ${MAKE} fcy
 	cd ${PAKCSDIST}/lib && ${MAKE} acy
@@ -181,8 +179,8 @@ dist:
 	@if [ -f docs/markdown_syntax.html ] ; \
 	 then cp docs/markdown_syntax.html ${PAKCSDIST}/docs ; fi
 	cd docs && cp -p Manual.pdf markdown_syntax.html ${PAKCSDIST}/docs
-	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/scripts/pakcs_variables.sh > ${PAKCSDIST}/bin/.pakcs_variables
-	rm ${PAKCSDIST}/scripts/pakcs_variables.sh
+	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/scripts/pakcsinitrc.sh > ${PAKCSDIST}/pakcsinitrc
+	rm ${PAKCSDIST}/scripts/pakcsinitrc.sh
 	# generate binary distributions on remote hosts:
 	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
 	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution

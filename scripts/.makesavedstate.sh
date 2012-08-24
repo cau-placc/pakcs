@@ -10,6 +10,10 @@
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
+# Directory of the SICStus-Prolog installation, i.e.,
+# $SICSTUSDIR/bin/sicstus should be the name of the interpreter executable:
+SICSTUSDIR=
+
 STANDALONE=no
 if [ "$1" = "-standalone" ] ; then
   STANDALONE=yes
@@ -29,12 +33,18 @@ if [ $# != 1 ] ; then
   exit 1
 fi
 
-# Load definition of SPLD
-. "$PAKCSHOME/bin/.pakcs_variables"
-
+# Define load path for standard libraries provided by PAKCS:
+# (used by the various programming tools to search for modules if they
+# are not found elsewhere)
 if [ "$PAKCSLIBPATH" = "" ] ; then
   PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"
   export PAKCSLIBPATH
+fi
+
+# add $SICSTUSDIR/bin to path so that command "sicstus..." becomes executable:
+if [ -n "$SICSTUSDIR" ] ; then
+  PATH=$SICSTUSDIR/bin:$PATH
+  export PATH
 fi
 
 STATE=$1
