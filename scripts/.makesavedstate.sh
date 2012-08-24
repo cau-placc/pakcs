@@ -90,7 +90,7 @@ echo "PAKCSHOME=\"$PAKCSHOME\"" >> $TMPFILE
 echo "export PAKCSHOME" >> $TMPFILE
 echo "PAKCSLIBPATH=\"$PAKCSLIBPATH\"" >> $TMPFILE
 echo "export PAKCSLIBPATH" >> $TMPFILE
-echo "PATH=\"$PATH:$PAKCSHOME/bin:\$PATH\"" >> $TMPFILE
+echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE
 echo "export PATH" >> $TMPFILE
 if [ $ERROR = no ] ; then
   echo "exec 2> /dev/null" >> $TMPFILE

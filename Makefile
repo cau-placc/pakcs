@@ -18,9 +18,9 @@ MINORVERSION=10
 # The revision version number:
 REVISIONVERSION=1
 # The build version number:
-BUILDVERSION=1
+BUILDVERSION=2
 # The version date:
-COMPILERDATE=13/08/12
+COMPILERDATE=24/08/12
 
 # Logfile for make:
 MAKELOG=make.log
