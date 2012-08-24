@@ -30,7 +30,7 @@ letBindings([]). % list of top-level bindings
 readRcFile(ArgProps) :-
 	% first, try to install local .pakcsrc file:
 	getEnv('PAKCSHOME',PH),
-	appendAtoms(['"',PH,'/update-pakcsrc','"'],UpdateRc),
+	appendAtoms(['"',PH,'/scripts/update-pakcsrc','"'],UpdateRc),
 	(shellCmd(UpdateRc) -> true ; true),
         ((getEnv('HOME',Home),	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
 	  existsFile(HomeConfigFile))

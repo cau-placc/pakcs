@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# Configure various Makefiles with correct environment variables
+# Configure PAKCSHOME/bin/.pakcs_variables with correct environment variables
 #
 
 # Compute home of PAKCS installation:
-PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
+PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`/..
 
 # Distribution version of the pakcsinitrc file:
 PAKCSINITRC=$PAKCSHOME/bin/.pakcs_variables
@@ -129,7 +129,8 @@ if [ -n "$SICSTUSDIR" ] ; then
     rm /tmp/sicstusout$$
     exit 1
   else
-    ln -s .pakcs_wrapper sicstusprolog
+    #ln -s .pakcs_wrapper sicstusprolog
+    ln -s "$SICSTUSDIR/bin/sicstus" sicstusprolog
     rm /tmp/sicstusout$$
   fi
 fi
@@ -159,7 +160,7 @@ if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
         echo "Definition of SWIPROLOG changed in $PAKCSINITRC"
         cd "$PAKCSHOME"
         export SWIPROLOG
-        cd bin ; ln -s .pakcs_wrapper swiprolog
+        cd bin ; ln -s "$SWIPROLOG" swiprolog
       else
         SWIPROLOG=
         echo "Please put a correct definition for SICSTUSDIR or SWIPROLOG in $HOMEINITRC"
@@ -187,12 +188,17 @@ if [ -n "$SWIPROLOG" ] ; then
     rm /tmp/swiprologout$$
     exit 1
   else
-    ln -s .pakcs_wrapper swiprolog
+    ln -s "$SWIPROLOG" swiprolog
     rm /tmp/swiprologout$$
   fi
 fi
 cd "$PAKCSHOME"
 
+# check whether $PAKCSINITRC was changed and, if not, keep old version:
+cmp -s "$PAKCSINITRC" "$PAKCSINITRC.bak"
+if [ $? -eq 0 ]; then
+  mv -f "$PAKCSINITRC.bak" "$PAKCSINITRC"
+fi
 
 # Save current values for future installations:
 cp "$PAKCSINITRC" "$HOMEINITRC"

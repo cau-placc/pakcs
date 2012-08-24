@@ -247,13 +247,16 @@ stopServer "localhost"
 :q
 EOM
 ################ end of tests ####################
-# load definition of SICSTUSDIR, SWIPROLOG etc:
-. ../bin/.pakcs_variables
+# The SICStus Prolog interpreter:
+SICSTUS=`pwd`/../bin/sicstusprolog
+
+# The SWI-Prolog interpreter:
+SWI=`pwd`/../bin/swiprolog
 
 DIFF=diff$$
-if [ "$SICSTUSDIR" != "" ] ; then
+if [ -x "${SICSTUS}" ] ; then
   diff CPTEST.sicstusresult $LOGFILE > $DIFF
-elif [ "$SWIPROLOG" != "" ] ; then
+elif [ -x "${SWI}" ] ; then
   diff CPTEST.swiresult $LOGFILE > $DIFF
 fi
 if [ "`cat $DIFF`" = "" ] ; then

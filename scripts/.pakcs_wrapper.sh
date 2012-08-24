@@ -6,7 +6,7 @@
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
-# Load the definition of SICSTUS and others specifying auxiliary tools:
+# Load the definition of SICSTUSDIR:
 . "$PAKCSHOME/bin/.pakcs_variables"
 
 # Define load path for standard libraries provided by PAKCS:
@@ -50,24 +50,6 @@ if [ $progname = pakcs -o $progname = curry2prolog ] ; then
 elif [ $progname = parsecurry ] ; then
   # start the Curry front end:
   exec "$PAKCSHOME/bin/.parsecurry" ${1+"$@"}
-
-elif [ $progname = sicstusprolog -o $progname = sicstus ] ; then
-  # call current version of SICStus-Prolog
-  if [ -z "$SICSTUSDIR" ] ; then
-    echo "ERROR: Variable SICSTUSDIR undefined in PAKCS, can't execute 'sicstusprolog'!" >&2
-    exit 1
-  else
-    exec "$SICSTUSDIR/bin/sicstus" ${1+"$@"}
-  fi
-
-elif [ $progname = swiprolog ] ; then
-  # call current version of SWI-Prolog
-  if [ -z "$SWIPROLOG" ] ; then
-    echo "ERROR: Variable SWIPROLOG undefined in PAKCS, can't execute 'swiprolog'!" >&2
-    exit 1
-  else
-    exec "$SWIPROLOG" ${1+"$@"}
-  fi
 
 else
   echo "Error: unknown program '$progname'"

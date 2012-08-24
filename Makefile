@@ -78,8 +78,8 @@ install: installscripts
 .PHONY: config
 config:
 	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
-	@./update-pakcsrc
-	@./configure-pakcs
+	@scripts/update-pakcsrc
+	@scripts/configure-pakcs
 
 # install the scripts of PAKCS in the bin directory:
 .PHONY: installscripts

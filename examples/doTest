@@ -9,9 +9,6 @@ fi
 
 $PAKCSHOME/bin/cleancurry
 
-# load definition of SICSTUS, SWIPROLOG etc:
-. $PAKCSHOME/bin/.pakcs_variables
-
 BACKEND=`echo "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" | $PAKCSHOME/bin/pakcs -l Distribution -q 2> /dev/null`
 
 # test for basic language features

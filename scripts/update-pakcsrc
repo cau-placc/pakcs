@@ -3,7 +3,7 @@
 # Install or update the configuration file .pakcsrc in the home directory:
 
 # Compute home of PAKCS installation:
-PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
+PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`/..
 
 if [ "$HOME" = "" ] ; then
   exit 0  # exit since $HOME not set
