@@ -39,17 +39,18 @@ is the name of this directory.
 </li>
 <li>
 If you have the executables <tt>sicstus</tt> (for SICStus-Prolog)
-or <tt>pl</tt> (for SWI-Prolog)
+or <tt>swipl</tt> (for SWI-Prolog)
 in your path, execute "<tt>make</tt>" which installs PAKCS
-(after asking you to confirm the values for <tt>java</tt> and <tt>sicstus</tt>).
-The values for <tt>sicstus</tt> or <tt>pl</tt> are stored
+(after asking you to confirm the values for the
+environment variables <tt>SICSTUSDIR</tt> or <tt>SWIPROLOG</tt>).
+These values are stored
 in the home directory in file <tt>.pakcsinitrc</tt> so that they are
 available for future installations of new versions of PAKCS.
 </li>
 <li>
 Otherwise, modify in the shell script
-"<tt><em>pakcshome/</em>bin/.pakcs_variables</tt>"
-the definition of the variables <tt>SICSTUSDIR</tt> or <tt>SWI</tt>
+"<tt><em>pakcshome/</em>pakcsinitrc</tt>"
+the definition of the variables <tt>SICSTUSDIR</tt> or <tt>SWIPROLOG</tt>
 according to your local installation.
 If both variables are undefined,
 the PAKCS compiler system is not installed (i.e.,
