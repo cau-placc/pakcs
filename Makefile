@@ -77,7 +77,6 @@ install: installscripts
 # Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
 config: installscripts
-	@if [ ! -d ${BINDIR} ] ; then mkdir -p ${BINDIR} ; fi
 	@scripts/update-pakcsrc
 	@scripts/configure-pakcs
 
