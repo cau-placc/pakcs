@@ -24,6 +24,7 @@ CGIFILE=
 WUIJS=no
 WUIMODULES=
 SERVERTIMEOUT=
+STANDALONE=no
 LOADBALANCE="-loadbalance standard"
 ARGS=
 
@@ -38,6 +39,7 @@ while [ $# -gt 0 -a -z "$ERROR" ]; do
    -servertimeout   ) shift ; SERVERTIMEOUT="-servertimeout $1" ;;
    -multipleservers ) LOADBALANCE="-loadbalance multiple" ;; # backward compt.
    -loadbalance     ) shift ; LOADBALANCE="-loadbalance $1" ;;
+   -standalone      ) STANDALONE=yes ;;
    -ulimit          ) shift; ULIMIT=$1 ;;
    -wuijs           ) WUIJS=yes ;;
    -wui             ) shift; WUIMODULES="$WUIMODULES $1" ;;
@@ -89,6 +91,8 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "        standard: some standard load balancing (default)"
   echo "        multiple: new server process for each initial call to"
   echo "                  a cgi script (only reasonable with short timeout)"
+  echo "-standalone: generate standalone script (i.e., copy programs"
+  echo "             required from PAKCS system to local directory)"
   echo "-wuijs     : generate JavaScript support code for WUIs"
   echo "-wui <mod> : consider also imported module <mod> (that contains WUI"
   echo "             specifications) when generating JavaScript support code"
@@ -181,10 +185,16 @@ if [ -f $CGISERVERFILE ] ; then
   $PAKCSHOME/www/Registry.state stopscript "$CGISERVERFILE"
 fi
 
+SUBMITFORM="$PAKCSHOME/www/submitform"
+# copy executable from PAKCS system (if required):
+if [ $STANDALONE = yes ] ; then
+  cp -p "$SUBMITFORM" $CGIFILEPATHNAME/submitform
+  SUBMITFORM="./submitform"
+fi
 # generate cgi script:
 rm -f $CGIFILE
 echo "#!/bin/sh" >> $CGIFILE
-echo "$PAKCSHOME/www/submitform $SERVERTIMEOUT $LOADBALANCE \"$CGIPROG\" \"$CGIKEY\" \"$CGISERVERFILE\" 2> /dev/null" >> $CGIFILE
+echo "$SUBMITFORM $SERVERTIMEOUT $LOADBALANCE \"$CGIPROG\" \"$CGIKEY\" \"$CGISERVERFILE\" 2> /dev/null" >> $CGIFILE
 chmod 755 $CGIFILE
 
 # move compiled executable to final position:
