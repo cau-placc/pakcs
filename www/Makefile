@@ -1,14 +1,11 @@
 # Translate programs for managing cgi server processes:
 
-# Required:
-# - installed curry2prolog system
-
 .PHONY: all
 all: submitform Registry.state
 
 submitform: ../lib/HtmlCgi.curry ../lib/NamedSocket.curry ../lib/CPNS.curry
-	cd ../lib && ../bin/pakcs -s HtmlCgi
-	mv ../lib/HtmlCgi.state submitform
+	../bin/pakcs -s SubmitForm
+	mv SubmitForm.state submitform
 
 Registry.state: Registry.curry ../lib/HtmlCgi.curry
 	../bin/pakcs -s Registry
