@@ -134,12 +134,12 @@ graphical user interfaces, and web services
 (as described in more detail in \cite{Hanus99PPDP,Hanus00PADL,Hanus01PADL}).
 
 We assume familiarity with the ideas and features
-of Curry as described in the Curry language definition \cite{Hanus06Curry}.
+of Curry as described in the Curry language definition \cite{Hanus12Curry}.
 Therefore, this document only explains the use of the different
 components of PAKCS
 and the differences and restrictions of PAKCS
 (see Section~\ref{sec-restrictions})
-compared with the language Curry (Version 0.8.2).
+compared with the language Curry (Version 0.8.3).
 
 
 \bigskip
@@ -210,9 +210,16 @@ also deletes the auxiliary files in all subdirectories.
 There are a few minor restrictions on Curry programs
 when they are processed with PAKCS:
 \begin{itemize}
-\item \index{singleton variables}\index{variables!singleton}
-\emph{Singleton variables}, i.e., variables that occur only once
-in a rule, should be denoted as an anonymous variable \ccode{_},
+\item
+\code{fcase} expressions are not yet supported.
+\item
+The left-hand sides of program rules must be linear,
+i.e., multiple occurrences of a variable in a pattern
+are not allowed.
+\item
+\index{singleton variables}\index{variables!singleton}
+\emph{Singleton pattern variables}, i.e., variables that occur only once
+in a pattern of the rule, should be denoted as an anonymous variable \ccode{_},
 otherwise the parser will print a warning since this is a
 typical source of programming errors.
 \item
@@ -804,11 +811,11 @@ an infinite list of alternating \code{1}'s and \code{2}'s
 so that the expression \code{(onetwo 6)} evaluates to \code{[1,2,1,2,1,2]}.
 
 
-\subsection{Function Patterns}
+\subsection{Functional Patterns}
 
-Function patterns \cite{AntoyHanus05LOPSTR} are a useful extension
+Functional patterns \cite{AntoyHanus05LOPSTR} are a useful extension
 to code operations in a more readable way. Furthermore,
-defining operations with function patterns avoids problems
+defining operations with functional patterns avoids problems
 caused by strict equality (\ccode{=:=}) and leads to programs
 that are potentially more efficient.
 
@@ -816,23 +823,23 @@ Consider the definition of an operation to compute the last element
 of a list \code{xs} based on the prelude operation \ccode{++}
 for list concatenation:
 \startprog
-last xs | ys++[y] =:= xs  = y   where y,ys free
+last xs | _++[y] =:= xs  = y   where y free
 \stopprog
 Since the equality constraint \ccode{=:=} evaluates both sides
 to a constructor term, all elements of the list \code{xs} are
 fully evaluated in order to satisfy the constraint.
 
-Function patterns can help to improve this computational behavior.
-A \emph{function pattern}\index{function pattern}\index{pattern!function}
-is a function call at a pattern position. With function patterns,
+Functional patterns can help to improve this computational behavior.
+A \emph{functional pattern}\index{functional pattern}\index{pattern!functional}
+is a function call at a pattern position. With functional patterns,
 we can define the operation \code{last} as follows:
 \startprog
 last (_++[y]) = y
 \stopprog
 This definition is not only more compact but also avoids the complete
-evaluation of the list elements: since a function pattern is considered
+evaluation of the list elements: since a functional pattern is considered
 as an abbreviation for the set of constructor terms obtained by all
-evaluations of the function pattern to normal form (see
+evaluations of the functional pattern to normal form (see
 \cite{AntoyHanus05LOPSTR} for an exact definition), the previous
 definition is conceptually equivalent to the set of rules
 \startprog
@@ -842,22 +849,22 @@ last [_,_,y] = y
 \ldots
 \stopprog
 which shows that the evaluation of the list elements is not demanded
-by the function pattern.
+by the functional pattern.
 
 In general, a pattern of the form \code{($f$ $t_1$\ldots$t_n$)} ($n>0$)
-is interpreted as a function pattern if $f$ is not a visible constructor
+is interpreted as a functional pattern if $f$ is not a visible constructor
 but a defined function that is visible in the scope of the pattern.
 
-\paragraph{Optimization of programs containing function patterns.}
+\paragraph{Optimization of programs containing functional patterns.}
 Since functions patterns can evaluate to non-linear constructor terms,
 they are dynamically checked for multiple occurrences of
 variables which are, if present, replaced by equality constraints
 so that the constructor term is always linear
 (see \cite{AntoyHanus05LOPSTR} for details).
 Since these dynamic checks are costly and not necessary for
-function patterns that are guaranteed to evaluate to linear terms,
-there is an optimizer for function patterns that checks
-for occurrences of function patterns that evaluate always to
+functional patterns that are guaranteed to evaluate to linear terms,
+there is an optimizer for functional patterns that checks
+for occurrences of functional patterns that evaluate always to
 linear constructor terms and replace such occurrences
 with a more efficient implementation.
 This optimizer can be enabled by the following possibilities:
@@ -868,7 +875,7 @@ before starting PAKCS, e.g., by the shell command
 \startprog
 export FCYPP="--fpopt"
 \stopprog
-Then the function pattern optimization is applied if programs are compiled
+Then the functional pattern optimization is applied if programs are compiled
 and loaded in PAKCS.
 \item
 Put an option into the source code:
@@ -878,11 +885,11 @@ must start at the beginning of the line)
 \startprog
 \{-\# PAKCS_OPTION_FCYPP --fpopt \#-\}
 \stopprog
-then the function pattern optimization is applied
+then the functional pattern optimization is applied
 if this program is compiled and loaded in PAKCS.
 \end{itemize}
-The optimizer also report errors in case of wrong uses of function patterns
-(i.e., in case of a function $f$ defined with function patterns that
+The optimizer also report errors in case of wrong uses of functional patterns
+(i.e., in case of a function $f$ defined with functional patterns that
 recursively depend on $f$).
 
 
@@ -1467,7 +1474,7 @@ A transformation can be specified as follows:
 \item {\bf Options to \code{pakcs/bin/parsecurry}:}
 \begin{description}
 \item[\fbox{\code{--fpopt}}]\pindex{-fpopt}
-Apply function pattern optimization
+Apply functional pattern optimization
 (see \code{pakcs/tools/optimize/NonStrictOpt.curry} for details).
 
 \item[\fbox{\code{--compact}}]\pindex{--compact}
@@ -1496,7 +1503,7 @@ For instance, setting \code{FCYPP} by
 \startprog
 export FCYPP="--fpopt"
 \stopprog
-will apply the function pattern optimization if programs are compiled
+will apply the functional pattern optimization if programs are compiled
 and loaded in the PAKCS programming environment.
 
 
@@ -1508,7 +1515,7 @@ must start at the beginning of the line)
 \stopprog
 then the transformations specified by \code{<options>} are applied after
 translating the source code into FlatCurry code. For instance,
-the function pattern optimization can be set by the comment
+the functional pattern optimization can be set by the comment
 \startprog
 \{-\# PAKCS_OPTION_FCYPP --fpopt \#-\}
 \stopprog
