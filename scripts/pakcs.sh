@@ -23,7 +23,7 @@ for i in $* ; do
 done
 
 if [ $USERLWRAP = yes ] ; then
-  exec rlwrap -a -c -f "$PAKCSHOME/tools/rlwrap" "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
+  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
 else
   exec "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
 fi
