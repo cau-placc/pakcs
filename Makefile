@@ -97,7 +97,7 @@ installfrontend:
 	cd frontend/curry-base     && cabal install # --force-reinstalls
 	cd frontend/curry-frontend && cabal install # --force-reinstalls
 	# copy cabal installation of front end into local directory
-	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then cp -p ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
+	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then mv ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
