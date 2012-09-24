@@ -52,7 +52,7 @@ all: config
 .PHONY: install
 install: installscripts
 	# install cabal front end if sources are present:
-	@if [ -d frontend ] ; then ${MAKE} installfrontend ; fi
+	@if [ -d frontend ] ; then ${MAKE} frontend ; fi
 	# pre-compile all libraries:
 	@cd lib && ${MAKE} fcy
 	# install the Curry2Prolog compiler as a saved system:
@@ -90,14 +90,10 @@ installscripts:
 cleanscripts:
 	cd scripts && ${MAKE} clean
 
-# install new front end:
-.PHONY: installfrontend
-installfrontend:
-	@if [ ! -d ${LOCALBIN} ] ; then mkdir ${LOCALBIN} ; fi
-	cd frontend/curry-base     && cabal install # --force-reinstalls
-	cd frontend/curry-frontend && cabal install # --force-reinstalls
-	# copy cabal installation of front end into local directory
-	@if [ -f ${HOME}/.cabal/bin/cymake ] ; then mv ${HOME}/.cabal/bin/cymake ${LOCALBIN} ; fi
+# install front end:
+.PHONY: frontend
+frontend:
+	cd frontend && ${MAKE}
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
@@ -168,7 +164,7 @@ dist:
 	cd ${PAKCSDIST} && git submodule init && git submodule update
 	cd ${PAKCSDIST} && ${MAKE} installscripts
 	cp pakcsinitrc ${PAKCSDIST}/pakcsinitrc
-	cd ${PAKCSDIST} && ${MAKE} installfrontend
+	cd ${PAKCSDIST} && ${MAKE} frontend
 	cd ${PAKCSDIST}/lib && ${MAKE} fcy
 	cd ${PAKCSDIST}/lib && ${MAKE} acy
 	cd ${PAKCSDIST} && ${MAKE} cleandist  # delete unnessary files
@@ -210,7 +206,7 @@ dist_%:
 .PHONY: genbindist
 genbindist:
 	rm -f pakcs*.tar.gz
-	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make installfrontend
+	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make frontend
 	rm -rf frontend
 	${MAKE} cleanscripts # remove local scripts
 	cd /tmp && tar cf pakcs_`uname -s`.tar pakcs && gzip pakcs_`uname -s`.tar
