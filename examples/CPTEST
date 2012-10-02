@@ -2,7 +2,7 @@
 PAKCS="../bin/pakcs"
 LOGFILE=xxx$$
 ../bin/cleancurry -r
-cat << EOM | $PAKCS -Dmoresolutions=no > $LOGFILE
+cat << EOM | $PAKCS -Dmoresolutions=no | tee $LOGFILE
 :set +verbose
 :set printdepth 0
 :l rev
