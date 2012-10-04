@@ -12,7 +12,7 @@ SICSTUS=`pwd`/../bin/sicstusprolog
 SWI=`pwd`/../bin/swiprolog
 
 # Standard options for SWI-Prolog
-SWIOPTIONS=-q -L0 -G0 -T0 -A0
+SWIOPTIONS=-q -L0 -G0 -T0
 
 .PHONY: all
 all:
@@ -56,7 +56,7 @@ swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	PAKCSHOME=${PAKCSHOME} && export PAKCSHOME && \
 	  PAKCSLIBPATH=${PAKCSHOME}/lib:${PAKCSHOME}/lib/meta && \
 	  export PAKCSLIBPATH && \
-	  echo "compile(c2p). c2p('../lib/Prelude'). saveprog_entry('swi.state',(compile('${PAKCSHOME}/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('${PAKCSHOME}/lib/.curry/pakcs/Prelude.pl',[],create),user:pakcsMain))." | "${SWI}" ${SWIOPTIONS}
+	  echo "compile(c2p). c2p('../lib/Prelude'), compile('${PAKCSHOME}/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('${PAKCSHOME}/lib/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "${SWI}" ${SWIOPTIONS}
 
 ../lib/.curry/Prelude.fcy: ../lib/Prelude.curry
 	cd ../lib ; ${MAKE} .curry/Prelude.fcy
