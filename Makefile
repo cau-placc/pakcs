@@ -20,7 +20,7 @@ REVISIONVERSION=1
 # The build version number:
 BUILDVERSION=2
 # The version date:
-COMPILERDATE=04/10/12
+COMPILERDATE=05/10/12
 
 # Logfile for make:
 MAKELOG=make.log
