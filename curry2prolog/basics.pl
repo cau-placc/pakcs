@@ -55,6 +55,7 @@
 % hook predicates to influence message printing from Prolog:
 
 :- multifile user:portray_message/2.
+:- dynamic user:portray_message/2.
 
 % suppress loading/restore messages if not desired:
 user:portray_message(informational,loading(_,_,_)) :- !, noLoadMessage.

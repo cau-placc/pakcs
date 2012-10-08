@@ -60,7 +60,8 @@ loadAndCompile(PrologFile,AddImports,CreateMain) :-
 	curryModule(MainMod),
 	(CreateMain=create -> compiler:loadMain(PrologFile) ;
 	 CreateMain=load(MainPrologFile) -> compilePrologFile(MainPrologFile)
-	                    ; true).
+	                    ; true),
+	!.
 
 loadAndCompileImports :-
 	retract(importedModule(Mod)),
