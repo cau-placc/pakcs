@@ -13,7 +13,33 @@
 
 <h1>PAKCS: Release Notes</h1>
 
-<h3>Release notes for PAKCS Version 1.10.1 (July 11, 2012)</h3>
+<h3>Release notes for PAKCS Version 1.11.0 (October 8, 2012)</h3>
+
+Changes to version 1.11.0:
+<ul>
+<li>
+ New front end version included that implements new features of Curry,
+ e.g., <code>fcase</code> expressions and non-linear patterns in left-hand sides
+ of program rules.
+</li>
+<li>
+  Syntax of records slightly changed to avoid problems
+  with guarded case branches (their syntax conflicted with old syntax
+  for selection of record fields):
+<ul>
+<li>
+  Field selection operator is <code>:&gt;</code>
+  (instead of <code>-&gt;</code> in old syntax).
+</li>
+<li>
+  Record construction uses the operator <code>:=</code>
+  for setting field values similarly to record updates
+  (instead of <code>=</code> in old syntax).
+</li>
+</ul>
+</ul>
+
+<h3>Release notes for PAKCS Version 1.10.1 (October 5, 2012)</h3>
 
 Changes to version 1.10.0:
 <ul>
@@ -23,6 +49,10 @@ Changes to version 1.10.0:
 <li>
   Auxiliary files <code>/tmp/PAKCS...</code> renamed to
   <code>/tmp/Curry...</code> (since they are also used by KiCS2).
+</li>
+<li>
+  Compiler Makefile changed to make it compatible with
+  newer versions (6.x) of SWI-Prolog.
 </li>
 </ul>
 
