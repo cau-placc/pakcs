@@ -2,11 +2,12 @@
 module RandomTest where
 
 import Random
+import List(nub)
 import Assertion
 
---- generate a list of n random numbers
+--- generate a list of n random numbers (without duplicated elements)
 rndList :: Int -> IO [Int]
-rndList n =  getRandomSeed >>= return . take n . nextInt
+rndList n = getRandomSeed >>= return . nub . take n . nextInt
 
 --- test a given predicate on lists
 test :: String -> ([Int]->Bool) -> Assertion Bool
