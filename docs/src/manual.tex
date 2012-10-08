@@ -211,12 +211,6 @@ There are a few minor restrictions on Curry programs
 when they are processed with PAKCS:
 \begin{itemize}
 \item
-\code{fcase} expressions are not yet supported.
-\item
-The left-hand sides of program rules must be linear,
-i.e., multiple occurrences of a variable in a pattern
-are not allowed.
-\item
 \index{singleton variables}\index{variables!singleton}
 \emph{Singleton pattern variables}, i.e., variables that occur only once
 in a pattern of the rule, should be denoted as an anonymous variable \ccode{_},
@@ -970,7 +964,7 @@ section \ref{sec-restrinrecs}.
 The record construction generates a record with initial values for
 each data field. It has the following form:
 \startprog
-\{ $l_1$ = $v_1$, \ldots, $l_m$ = $v_m$ \}
+\{ $l_1$ := $v_1$, \ldots, $l_m$ := $v_m$ \}
 \stopprog
 It generates a record where each label $l_i$ refers to the
 value $v_i$. The type of the record results from the record type
@@ -979,22 +973,22 @@ A mix of labels from different
 record types is not allowed. All labels must be specified with 
 exactly one assignment. Examples for record constructions are
 \startprog
-\{name = "Johnson", age = 30\}     -- generates a record of type 'Person'
-\{left = True, right = 20\}        -- generates a record of type 'Branch'
+\{name := "Johnson", age := 30\}     -- generates a record of type 'Person'
+\{left := True, right := 20\}        -- generates a record of type 'Branch'
 \stopprog
 Assignments to labels can occur in an arbitrary order. For instance a
 record of type \code{Person} can also be generated as follows:
 \startprog
-\{age = 30, name = "Johnson"\}     -- generates a record of type 'Person'
+\{age := 30, name := "Johnson"\}     -- generates a record of type 'Person'
 \stopprog
 Unlike labeled fields in record type declarations, 
 record constructions can be used in expressions without any restrictions
 (as well as all kinds of record expressions). For instance the following
 expression is valid:
 \startprog
-\{person = \{name = "Smith", age = 20\},   -- generates a record of
- street = "Main Street",                -- type 'Address'
- city   = "Springfield"\}
+\{person := \{name := "Smith", age := 20\},   -- generates a record of
+ street := "Main Street",                  -- type 'Address'
+ city   := "Springfield"\}
 \stopprog
 
 
@@ -1004,20 +998,20 @@ expression is valid:
 The field selection is used to extract data from records. 
 It has the following form:
 \startprog
-$r$ -> $l$
+$r$ :> $l$
 \stopprog
 It returns the value to which the label $l$ refers to from the
 record expression $r$. The label must occur in the declaration of
 the record type of $r$.
 An example for a field selection is:
 \startprog
-pers -> name
+pers :> name
 \stopprog
 This returns the value of the label \code{name} from the record \code{pers}
 (which has the type \code{Person}).
 Sequential application of field selections are also possible:
 \startprog
-(addr -> person) -> age
+(addr :> person) :> age
 \stopprog
 The value of the label \code{age} is extracted from a record which itself
 is the value of the label \code{person} in the record \code{addr}

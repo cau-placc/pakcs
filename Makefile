@@ -14,11 +14,11 @@
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
-MINORVERSION=10
+MINORVERSION=11
 # The revision version number:
-REVISIONVERSION=1
+REVISIONVERSION=0
 # The build version number:
-BUILDVERSION=2
+BUILDVERSION=1
 # The version date:
 COMPILERDATE=11/09/12
 
