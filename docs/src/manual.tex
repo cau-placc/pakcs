@@ -38,16 +38,21 @@
 \renewcommand{\tt}{\usefont{OT1}{cmtt}{m}{n}\selectfont}
 \newcommand{\codefont}{\tt}
 
-% environment for typing program texts:
-\makeatletter
-\newenvironment{prog}{\par\vspace{0.7ex}
-\setlength{\parindent}{1.0cm}
-\setlength{\parskip}{-0.1ex}
-\obeylines\@vobeyspaces\tt}{\vspace{0.7ex}\noindent
-}
-\makeatother
-\newcommand{\startprog}{\begin{prog}}
-\newcommand{\stopprog}{\end{prog}\noindent}
+\usepackage{listings}
+\lstset{aboveskip=1.5ex,
+        belowskip=1.5ex,
+        showstringspaces=false, % no special string space
+        mathescape=true,
+        flexiblecolumns=false,
+        xleftmargin=2ex,
+        basewidth=0.52em,
+        basicstyle=\small\ttfamily}
+
+\lstset{literate={->}{{$\rightarrow{}\!\!\!$}}3
+       }
+
+\lstnewenvironment{curry}{}{}
+\newcommand{\listline}{\vrule width0pt depth1.75ex}
 
 % program text in normal text
 \newcommand{\code}[1]{\mbox{\codefont #1}}
@@ -191,15 +196,15 @@ you need write permission
 in the directory where you have stored your Curry programs.
 The auxiliary files for all Curry programs in the current
 directory can be deleted by the command\pindex{cleancurry}
-\startprog
+\begin{curry}
 cleancurry
-\stopprog
+\end{curry}
 (this is a shell script stored in the \code{bin} directory of the
 PAKCS installation, see above).
 The command
-\startprog
+\begin{curry}
 cleancurry -r
-\stopprog
+\end{curry}
 also deletes the auxiliary files in all subdirectories.
 
 
@@ -379,13 +384,13 @@ see option \ccode{+free} below), i.e.,
 either by a \ccode{let\ldots{}free in}
 or by a \ccode{where\ldots{}free} declaration.
 For instance, one can write
-\startprog
-let xs,ys free in xs++ys\,=:=\,[1,2]
-\stopprog
+\begin{curry}
+let xs,ys free in xs++ys =:= [1,2]
+\end{curry}
 or
-\startprog
-xs++ys\,=:=\,[1,2]  where xs,ys free
-\stopprog
+\begin{curry}
+xs++ys =:= [1,2]  where xs,ys free
+\end{curry}
 Without these declarations, an error is reported in order to
 avoid the unintended introduction of free variables in initial expressions
 by typos.
@@ -786,20 +791,20 @@ part of the definition of Curry. These extensions are described below.
 Local variable declarations (introduced by \code{let}\pindex{let}
 or \code{where}\pindex{where}) can be (mutually) recursive in PAKCS.
 For instance, the declaration
-\startprog
+\begin{curry}
 ones5 = let ones = 1 : ones
          in take 5 ones
-\stopprog
+\end{curry}
 introduces the local variable \code{ones} which is bound
 to a \emph{cyclic structure}\index{cyclic structure}
 representing an infinite list of \code{1}'s.
 Similarly, the definition
-\startprog
+\begin{curry}
 onetwo n = take n one2
  where
    one2 = 1 : two1
    two1 = 2 : one2
-\stopprog
+\end{curry}
 introduces a local variables \code{one2} that represents
 an infinite list of alternating \code{1}'s and \code{2}'s
 so that the expression \code{(onetwo 6)} evaluates to \code{[1,2,1,2,1,2]}.
@@ -816,9 +821,9 @@ that are potentially more efficient.
 Consider the definition of an operation to compute the last element
 of a list \code{xs} based on the prelude operation \ccode{++}
 for list concatenation:
-\startprog
+\begin{curry}
 last xs | _++[y] =:= xs  = y   where y free
-\stopprog
+\end{curry}
 Since the equality constraint \ccode{=:=} evaluates both sides
 to a constructor term, all elements of the list \code{xs} are
 fully evaluated in order to satisfy the constraint.
@@ -827,21 +832,21 @@ Functional patterns can help to improve this computational behavior.
 A \emph{functional pattern}\index{functional pattern}\index{pattern!functional}
 is a function call at a pattern position. With functional patterns,
 we can define the operation \code{last} as follows:
-\startprog
+\begin{curry}
 last (_++[y]) = y
-\stopprog
+\end{curry}
 This definition is not only more compact but also avoids the complete
 evaluation of the list elements: since a functional pattern is considered
 as an abbreviation for the set of constructor terms obtained by all
 evaluations of the functional pattern to normal form (see
 \cite{AntoyHanus05LOPSTR} for an exact definition), the previous
 definition is conceptually equivalent to the set of rules
-\startprog
+\begin{curry}
 last [y] = y
 last [_,y] = y
 last [_,_,y] = y
-\ldots
-\stopprog
+$\ldots$
+\end{curry}
 which shows that the evaluation of the list elements is not demanded
 by the functional pattern.
 
@@ -866,9 +871,9 @@ This optimizer can be enabled by the following possibilities:
 \item
 Set the environment variable \code{FCYPP} to \ccode{--fpopt}
 before starting PAKCS, e.g., by the shell command
-\startprog
+\begin{curry}
 export FCYPP="--fpopt"
-\stopprog
+\end{curry}
 Then the functional pattern optimization is applied if programs are compiled
 and loaded in PAKCS.
 \item
@@ -876,9 +881,9 @@ Put an option into the source code:
 If the source code of a program
 contains a line with a comment of the form (the comment
 must start at the beginning of the line)
-\startprog
-\{-\# PAKCS_OPTION_FCYPP --fpopt \#-\}
-\stopprog
+\begin{curry}
+{-# PAKCS_OPTION_FCYPP --fpopt #-}
+\end{curry}
 then the functional pattern optimization is applied
 if this program is compiled and loaded in PAKCS.
 \end{itemize}
@@ -910,39 +915,38 @@ The restrictions are explained in Section~\ref{sec-restrinrecs}.
 
 It is necessary to declare a record type before a record
 can be constructed or used. The declaration has the following form:
-\startprog
-type $R$ $\alpha_1$ \ldots $\alpha_n$ = \{ $l_1$ :: $\tau_1$, \ldots, $l_m$ :: $\tau_m$ \}
-\stopprog
+\begin{curry}
+type $R$ $\alpha_1$ $\ldots$ $\alpha_n$ = { $l_1$ :: $\tau_1$,$\ldots$, $l_m$ :: $\tau_m$ }
+\end{curry}
 It introduces a new $n$-ary record type $R$ which represents a
 record consisting of $m$ fields. Each field has a unique label $l_i$ 
 representing a value of the type $\tau_i$. Labels
 are identifiers which refer to the corresponding
 fields. The following examples define some record types:
-\startprog
-type Person = \{name :: String, age :: Int\}
-type Address = \{person :: Person, street :: String, city :: String\}
-type Branch a b = \{left :: a, right :: b\}
-\stopprog
+\begin{curry}
+type Person = {name :: String, age :: Int}
+type Address = {person :: Person, street :: String, city :: String}
+type Branch a b = {left :: a, right :: b}
+\end{curry}
 It is possible to summarize different labels which have the same
 type. For instance, the record \code{Address} can also be declared as follows:
-\startprog
-type Address = \{person :: Person, street,city :: String\}
-\stopprog
+\begin{curry}
+type Address = {person :: Person, street,city :: String}
+\end{curry}
 The fields can occur in an arbitrary order. The example above
 can also be written as
-\startprog
-type Address = \{street,city :: String, person :: Person\}
-\stopprog
+\begin{curry}
+type Address = {street,city :: String, person :: Person}
+\end{curry}
 The record type can be used in every type expression to represent
 the corresponding record, e.g.
-\startprog
+\begin{curry}
 data BiTree = Node (Branch BiTree BiTree) | Leaf Int
-\stopprog
-\startprog
+\end{curry}
+\begin{curry}
 getName :: Person -> String
-getName \ldots
-\stopprog
-
+getName $\ldots$
+\end{curry}
 
 Labels can only be used in the context of
 records. They do not share the name space with 
@@ -950,7 +954,6 @@ functions/constructors/variables or type constructors/type variables.
 For instance it is possible to use 
 the same identifier for a label and a function at the same time. Label
 identifiers cannot be shadowed by other identifiers.
-
 
 Like in type synonym declarations, recursive or mutually 
 dependent record declarations are not allowed. Records can only
@@ -963,33 +966,33 @@ section \ref{sec-restrinrecs}.
 
 The record construction generates a record with initial values for
 each data field. It has the following form:
-\startprog
-\{ $l_1$ := $v_1$, \ldots, $l_m$ := $v_m$ \}
-\stopprog
+\begin{curry}
+{ $l_1$ := $v_1$,$\ldots$, $l_m$ := $v_m$ }
+\end{curry}
 It generates a record where each label $l_i$ refers to the
 value $v_i$. The type of the record results from the record type
 declaration where the labels $l_i$ are defined.
 A mix of labels from different
 record types is not allowed. All labels must be specified with 
 exactly one assignment. Examples for record constructions are
-\startprog
-\{name := "Johnson", age := 30\}     -- generates a record of type 'Person'
-\{left := True, right := 20\}        -- generates a record of type 'Branch'
-\stopprog
+\begin{curry}
+{name := "Johnson", age := 30}     -- generates a record of type 'Person'
+{left := True, right := 20}        -- generates a record of type 'Branch'
+\end{curry}
 Assignments to labels can occur in an arbitrary order. For instance a
 record of type \code{Person} can also be generated as follows:
-\startprog
-\{age := 30, name := "Johnson"\}     -- generates a record of type 'Person'
-\stopprog
+\begin{curry}
+{age := 30, name := "Johnson"}     -- generates a record of type 'Person'
+\end{curry}
 Unlike labeled fields in record type declarations, 
 record constructions can be used in expressions without any restrictions
 (as well as all kinds of record expressions). For instance the following
 expression is valid:
-\startprog
-\{person := \{name := "Smith", age := 20\},   -- generates a record of
+\begin{curry}
+{person := {name := "Smith", age := 20},   -- generates a record of
  street := "Main Street",                  -- type 'Address'
- city   := "Springfield"\}
-\stopprog
+ city   := "Springfield"}
+\end{curry}
 
 
 \subsubsection{Field Selection}
@@ -997,22 +1000,22 @@ expression is valid:
 
 The field selection is used to extract data from records. 
 It has the following form:
-\startprog
+\begin{curry}
 $r$ :> $l$
-\stopprog
+\end{curry}
 It returns the value to which the label $l$ refers to from the
 record expression $r$. The label must occur in the declaration of
 the record type of $r$.
 An example for a field selection is:
-\startprog
+\begin{curry}
 pers :> name
-\stopprog
+\end{curry}
 This returns the value of the label \code{name} from the record \code{pers}
 (which has the type \code{Person}).
 Sequential application of field selections are also possible:
-\startprog
+\begin{curry}
 (addr :> person) :> age
-\stopprog
+\end{curry}
 The value of the label \code{age} is extracted from a record which itself
 is the value of the label \code{person} in the record \code{addr}
 (which has the type \code{Address}). When a field selection is used in
@@ -1023,9 +1026,9 @@ expressions, it has to be parenthesized.
 \label{sec-fieldupd}
 
 Records can be updated by reassigning a new value to a label:
-\startprog
-\{$l_1$ := $v_1$, \ldots, $l_k$ := $v_k$ | $r$\}
-\stopprog
+\begin{curry}
+{$l_1$ := $v_1$,$\ldots$, $l_k$ := $v_k$ | $r$}
+\end{curry}
 The label $l_i$ is associated with the new value $v_i$ which
 replaces the current value in the record $r$.
 The labels must occur in the declaration 
@@ -1034,10 +1037,10 @@ it is not necessary to specify all labels of a record.
 Assignments can occur in an arbitrary order. It is not allowed to 
 specify more than one assignment for a label in a record update.
 Examples for record updates are:
-\startprog
-\{name := "Scott", age := 25 | pers\}
-\{person := \{name := "Scott", age := 25 | pers\} | addr\}
-\stopprog
+\begin{curry}
+{name := "Scott", age := 25 | pers}
+{person := {name := "Scott", age := 25 | pers} | addr}
+\end{curry}
 In these examples \code{pers} is a record of type \code{Person} and \code{addr}
 is a record of type \code{Address}. 
 
@@ -1048,10 +1051,10 @@ is a record of type \code{Address}.
 It is possible to apply pattern matching to records (e.g., in functions,
 let expressions or case branches). Two kinds of record patterns
 are available:
-\startprog
-\{$l_1$ = $p_1$, \ldots, $l_n$ = $p_n$\}
-\{$l_1$ = $p_1$, \ldots, $l_k$ = $p_k$ | _\}
-\stopprog
+\begin{curry}
+{$l_1$ = $p_1$,$\ldots$, $l_n$ = $p_n$}
+{$l_1$ = $p_1$,$\ldots$, $l_k$ = $p_k$ | _}
+\end{curry}
 In both cases each label $l_i$ is specified with a pattern $p_i$. 
 All labels must occur only once in the record pattern.
 The first case is used to match the whole record. Thus, all labels
@@ -1071,18 +1074,18 @@ If none of the patterns matches, the computation fails.
 
 
 Here are some examples of pattern matching with records:
-\startprog
+\begin{curry}
 isSmith30 :: Person -> Bool
-isSmith30 \{name = "Smith", age = 30\} = True
-\stopprog
-\startprog
+isSmith30 {name = "Smith", age = 30} = True
+\end{curry}
+\begin{curry}
 startsWith :: Char -> Person -> Bool
-startsWith c \{name = (d:_) | _\} = c == d
-\stopprog
-\startprog
+startsWith c {name = (d:_) | _} = c == d
+\end{curry}
+\begin{curry}
 getPerson :: Address -> Person
-getPerson \{person = p | _\} = p
-\stopprog
+getPerson {person = p | _} = p
+\end{curry}
 As shown in the last example, a field selection can also be obtained
 by pattern matching.
 
@@ -1258,14 +1261,14 @@ For this purpose, there is a system library \code{Assertion}
 contains the necessary definitions for writing tests.
 In particular, it exports an abstract polymorphic type \ccode{Assertion a}
 together with the following operations:
-\startprog
+\begin{curry}
 assertTrue      :: String -> Bool -> Assertion ()
 assertEqual     :: String -> a -> a -> Assertion a
 assertValues    :: String -> a -> [a] -> Assertion a
 assertSolutions :: String -> (a->Success) -> [a] -> Assertion a
 assertIO        :: String -> IO a -> a -> Assertion a
 assertEqualIO   :: String -> IO a -> IO a -> Assertion a
-\stopprog
+\end{curry}
 The expression \ccode{assertTrue $s$ $b$}
 is an assertion (named $s$) that the expression $b$ has the value \code{True}.
 Similarly, the expression \ccode{assertEqual $s$ $e_1$ $e_2$}
@@ -1289,26 +1292,24 @@ top-level functions of type \code{Assertion} in this module
 (which must also be exported).
 As an example, consider the following program
 that can be used to test some list processing functions:
-\startprog
-\medskip
+\begin{curry}
 import List
 import Assertion
-\medskip
+
 test1 = assertEqual     "++"     ([1,2]++[3,4]) [1,2,3,4]
-\medskip
+
 test2 = assertTrue      "all"    (all (<5) [1,2,3,4])
-\medskip
+
 test3 = assertSolutions "prefix" (\labs{}x -> let y free in  x\,++\,y =:= [1,2])
                                  [[],[1],[1,2]]
-\medskip
-\stopprog
+\end{curry}
 For instance, \code{test1} asserts that the result of evaluating the
 expression \code{([1,2]++[3,4])} is equal to \code{[1,2,3,4]}.
 
 We can execute a test suite by the command\pindex{currytest}
-\startprog
+\begin{curry}
 currytest testList
-\stopprog
+\end{curry}
 (\code{currytest} is a program stored in \code{$pakcshome$/bin}
 where $pakcshome$ is the installation directory of PAKCS;
 see Section~\ref{sec-general}).
@@ -1321,7 +1322,7 @@ assertions are checked) and the results
 %If failures occur, the complete test results are also
 %written into a file named \ccode{testList.testlog}.''
 For our example above, we obtain the following successful protocol:
-\startprog
+\begin{curry}
 ============================================================
 Testing module "testList"...
 OK: ++
@@ -1329,19 +1330,19 @@ OK: all
 OK: prefix
 All tests successfully passed.
 ============================================================
-\stopprog
+\end{curry}
 There is also a graphical interface that summarizes the results
 more nicely.\footnote{Due to a bug in older versions of SICStus-Prolog,
 it works only with SICStus-Prolog version 3.8.5 (or newer).}
 In order to start this interface, one has to add the parameter
 \ccode{--window} (or \ccode{-w}), e.g., executing a test suite by
-\startprog
+\begin{curry}
 currytest --window testList
-\stopprog
+\end{curry}
 or
-\startprog
+\begin{curry}
 currytest -w testList
-\stopprog
+\end{curry}
 A snapshot of the interface is shown in Figure~\ref{fig-currytest}.
 
 \begin{figure}%[t]
@@ -1372,9 +1373,9 @@ XML description in XMI format (as offered by Umbrello)
 in a file, e.g., \ccode{myerd.xmi}.
 This description can be compiled into a Curry program by the
 command\pindex{erd2curry}
-\startprog
+\begin{curry}
 erd2curry myerd.xmi
-\stopprog
+\end{curry}
 (\code{erd2curry} is a program stored in \code{$pakcshome$/bin}
 where $pakcshome$ is the installation directory of PAKCS;
 see Section~\ref{sec-general}).
@@ -1390,9 +1391,9 @@ as a Curry term of type \code{ERD}
 and store it in some file, e.g., \ccode{myerd.term}.
 This description can be compiled into a Curry program by the
 command\pindex{erd2curry}
-\startprog
+\begin{curry}
 erd2curry -t myerd.term
-\stopprog
+\end{curry}
 %
 There is also the possibility to visualize an ERD term
 as a graph with the graph visualization program \code{dotty}
@@ -1401,9 +1402,9 @@ of the operation \code{dotCmd} in
 \code{$pakcshome$/tools/erd2curry/ERD2Graph.curry}
 according to your local environment).
 This can be done by the command
-\startprog
+\begin{curry}
 erd2curry -v myerd.term
-\stopprog
+\end{curry}
 
 \paragraph{Inclusion in the Curry application:}
 To compile the generated database code, either
@@ -1436,9 +1437,9 @@ This programming technique is described in detail in
 
 The libraries implementing these user interfaces are contained
 in the directory
-\startprog
+\begin{curry}
 $pakcshome$/tools/ui
-\stopprog
+\end{curry}
 Thus, in order to compile programs containing such user interface
 specifications, one has to
 include the directory \code{$pakcshome$/tools/ui}
@@ -1446,9 +1447,9 @@ into the Curry load path
 (e.g., by setting  the environment variable
 \ccode{CURRYPATH}\pindex{CURRYPATH}, see also Section~\ref{sec-modules}).
 The directory
-\startprog
+\begin{curry}
 $pakcshome$/tools/ui/examples
-\stopprog
+\end{curry}
 contains a few examples for such user interface specifications.
 
 
@@ -1494,9 +1495,9 @@ file by a new one.
 
 \item {\bf Setting the environment variable \code{FCYPP}:}\pindex{FCYPP}\\
 For instance, setting \code{FCYPP} by
-\startprog
+\begin{curry}
 export FCYPP="--fpopt"
-\stopprog
+\end{curry}
 will apply the functional pattern optimization if programs are compiled
 and loaded in the PAKCS programming environment.
 
@@ -1504,15 +1505,15 @@ and loaded in the PAKCS programming environment.
 \item {\bf Putting options into the source code:}\pindex{PAKCS_OPTION_FCYPP}\\
 If the source code contains a line with a comment of the form (the comment
 must start at the beginning of the line)
-\startprog
-\{-\# PAKCS_OPTION_FCYPP <options> \#-\}
-\stopprog
+\begin{curry}
+{-# PAKCS_OPTION_FCYPP <options> #-}
+\end{curry}
 then the transformations specified by \code{<options>} are applied after
 translating the source code into FlatCurry code. For instance,
 the functional pattern optimization can be set by the comment
-\startprog
-\{-\# PAKCS_OPTION_FCYPP --fpopt \#-\}
-\stopprog
+\begin{curry}
+{-# PAKCS_OPTION_FCYPP --fpopt #-}
+\end{curry}
 in the source code. Note that this comment must be in a single line 
 of the source program. If there are multiple lines containing such comments,
 only the first one will be considered.
@@ -1609,9 +1610,9 @@ The primitive entities for the use of arithmetic constraints
 are defined in the system module \code{CLPR}
 (cf.\ Section~\ref{sec-modules}), i.e., in order to use them,
 the program must contain the import declaration
-\startprog
+\begin{curry}
 import CLPR
-\stopprog
+\end{curry}
 Floating point arithmetic is supported in PAKCS
 via arithmetic constraints, i.e., the equational constraint
 \ccode{2.3 +.~x =:= 5.5} is solved by binding \code{x} to \code{3.2}
@@ -1651,22 +1652,20 @@ and the outstanding balance at the end of the lifetime \code{b}.
 The financial calculations
 can be defined by the following two rules in Curry (the second rule
 describes the repeated accumulation of the interest):
-\startprog
-~
+\begin{curry}
 import CLPR
-~
+
 mortgage p t ir r b | t >. 0.0 \& t <=. 1.0  --lifetime not more than 1 month?
-                    =  b =:= p *. (1.0 +. t *. ir) -. t*.r \vspace{1ex}
+                    =  b =:= p *. (1.0 +. t *. ir) -. t*.r $\listline$
 mortgage p t ir r b | t >. 1.0               --lifetime more than 1 month?
                     =  mortgage (p *. (1.0+.ir)-.r) (t-.1.0) ir r b
-~
-\stopprog
+\end{curry}
 Then we can calculate the monthly payment for paying back
 a loan of \$100,000 in 15 years with a monthly interest rate of 1\%
 by solving the goal
-\startprog
+\begin{curry}
 mortgage 100000.0 180.0 0.01 r 0.0
-\stopprog
+\end{curry}
 which yields the solution \code{r=1200.17}.
 
 Note that only linear arithmetic equalities or inequalities
@@ -1739,9 +1738,9 @@ for further details about these options).
 These entities are defined in the system module \code{CLPFD}
 (cf.\ Section~\ref{sec-modules}), i.e., in order to use it,
 the program must contain the import declaration
-\startprog
+\begin{curry}
 import CLPFD
-\stopprog
+\end{curry}
 As an example, consider the classical \ccode{send+more=money} problem
 where each letter must be replaced by a different digit such that this
 equation is valid and there are no leading zeros.
@@ -1750,23 +1749,21 @@ is to specify the domain of the involved variables followed
 by a specification of the constraints and the labeling
 of the constraint variables in order to start the search for solutions.
 Thus, the \ccode{send+more=money} problem can be solved as follows:
-\startprog
-~
+\begin{curry}
 import CLPFD
-~
+
 smm l =
-        l =:= [s,e,n,d,m,o,r,y] \&
-        domain l 0 9 \&
-        s >\# 0 \&
-        m >\# 0 \&
-        all_different l  \&
-                         1000 *\# s +\# 100 *\# e +\# 10 *\# n +\# d
-        +\#               1000 *\# m +\# 100 *\# o +\# 10 *\# r +\# e
-        =\# 10000 *\# m +\# 1000 *\# o +\# 100 *\# n +\# 10 *\# e +\# y \&
+        l =:= [s,e,n,d,m,o,r,y] &
+        domain l 0 9 &
+        s ># 0 &
+        m ># 0 &
+        all_different l  &
+                         1000 *# s +# 100 *# e +# 10 *# n +# d
+        +#               1000 *# m +# 100 *# o +# 10 *# r +# e
+        =# 10000 *# m +# 1000 *# o +# 100 *# n +# 10 *# e +# y &
         labeling [FirstFail] l
         where s,e,n,d,m,o,r,y free
-~
-\stopprog
+\end{curry}
 Then we can solve this problem by evaluating the goal
 \ccode{smm [s,e,n,d,m,o,r,y]} which yields the unique solution
 \code{\{s=9,e=5,n=6,d=7,m=1,o=0,r=8,y=2\}}.
@@ -1786,9 +1783,9 @@ The basic datatypes, functions, and constraints for ports
 are defined in the system module \code{Ports}
 (cf.\ Section~\ref{sec-modules}), i.e., in order to use ports,
 the program must contain the import declaration
-\startprog
+\begin{curry}
 import Ports
-\stopprog
+\end{curry}
 This declaration includes the following entities in the program:
 \begin{description}
 \item[\code{Port a}\pindex{Port}]~\\
@@ -1922,13 +1919,13 @@ of these modules.
 
 As an example, consider a program file \ccode{test.curry}
 containing the following two lines:
-\startprog
+\begin{curry}
 rev []     = []
 rev (x:xs) = (rev xs) ++ [x]
-\stopprog
+\end{curry}
 Then the I/O action \code{(FlatCurry.readFlatCurry "test")} returns the
 following term:
-\startprog
+\begin{curry}
  (Prog "test"
   ["Prelude"]
   []
@@ -1948,7 +1945,7 @@ following term:
               ]))]
   []
  )
-\stopprog
+\end{curry}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2123,9 +2120,9 @@ compilers for Curry and is the basis doing meta-programming in Curry.
 This file is implicitly
 generated when a program is read by PAKCS.
 It can be also explicitly generated by the command\pindex{parsecurry}
-\startprog
+\begin{curry}
 parsecurry --flat prog
-\stopprog
+\end{curry}
 The FlatCurry representation of a Curry program is usually
 generated by the front-end after parsing, type checking and eliminating
 local declarations.
@@ -2140,9 +2137,9 @@ entities and the bodies of all functions omitted (i.e., ``external'').
 This representation is useful for providing a fast access
 to module interfaces.
 This file is implicitly generated by the command\pindex{parsecurry}
-\startprog
+\begin{curry}
 parsecurry --flat prog
-\stopprog
+\end{curry}
 and stored in the same directory as \code{prog.fcy}.
 
 \item[\code{prog.pl}:] This file contains a Prolog program
@@ -2201,18 +2198,18 @@ or some system module).
 For external functions it is not allowed to define any
 rule since their semantics is determined by an external implementation.
 Instead of the defining rules, you have to write
-\startprog
+\begin{curry}
 f external
-\stopprog
+\end{curry}
 somewhere in the file containing the type declaration for 
 the external function \code{f}.
 \end{enumerate}
 For instance, the addition on integers can be declared as
 an external function as follows:
-\startprog
+\begin{curry}
 (+) :: Int -> Int -> Int
 (+) external
-\stopprog
+\end{curry}
 The further modifications to be done for an inclusion of
 an external function has to be done in the back end.
 A new external function is added to the back end of PAKCS
@@ -2228,21 +2225,21 @@ specification of these external functions. The contents of this file
 is in XML format and has the following general structure:\footnote{%
 \url{http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd} contains a DTD
 describing the exact structure of these files.}
-\startprog
+\begin{curry}
 <primitives>
-  \emph{specification of external function $f_1$}
-  \ldots
-  \emph{specification of external function $f_n$}
+  $\textit{specification of external function~}f_1$
+  $\ldots$
+  $\textit{specification of external function~}f_n$
 </primitives>
-\stopprog
+\end{curry}
 The specification of an external function $f$
 with arity $n$ has the form
-\startprog
+\begin{curry}
 <primitive name="$f$" arity="$n$">
   <library>lib</library>
   <entry>pred</entry>
 </primitive>
-\stopprog
+\end{curry}
 where \code{lib} is the Prolog library (stored in the directory of the
 Curry module or in the global directory
 \code{$pakcshome$/curry2prolog/lib_src}) containing the code implementing this
@@ -2254,9 +2251,9 @@ the Curry definition is not translated but calls to this function
 are redirected to the Prolog code specified above.
 
 Furthermore, the list of specifications can also contain entries of the form
-\startprog
+\begin{curry}
 <ignore name="$f$" arity="$n$" />
-\stopprog
+\end{curry}
 for functions $f$ with arity $n$ that are declared in module \code{Mod}
 but should be ignored for code generation, e.g., since they are
 never called w.r.t.\ to the current implementation of external functions.
@@ -2271,22 +2268,22 @@ For instance, the external function for adding two integers
 requires that both arguments must be evaluated to non-variable head normal form
 (which is identical to the ground constructor normal form). Therefore,
 the function \ccode{+} is specified in the prelude by
-\startprog
+\begin{curry}
 (+)   :: Int -> Int -> Int
-x + y = (prim_Int_plus \$\# y) \$\# x
-\medskip
+x + y = (prim_Int_plus $\$$# y) $\$$# x
+
 prim_Int_plus :: Int -> Int -> Int
 prim_Int_plus external
-\stopprog
+\end{curry}
 where \code{prim_Int_plus} is the actual external function implementing
 the addition on integers. Consequently, the specification file
 \code{Prelude.prim_c2p} has an entry of the form
-\startprog
+\begin{curry}
 <primitive name="prim_Int_plus" arity="2">
   <library>prim_standard</library>
   <entry>prim_Int_plus</entry>
 </primitive>
-\stopprog
+\end{curry}
 where the Prolog library \code{prim_standard.pl} contains the Prolog code
 implementing this function.
 
@@ -2305,9 +2302,9 @@ contained in the Prolog library \code{prim_standard.pl} is as
 follows (note that the arguments of \code{(+)} are passed in reverse
 order to \code{prim_Int_plus} in order to ensure a left-to-right
 evaluation of the original arguments by the calls to \code{(\$\#)}):
-\startprog
+\begin{curry}
 prim_Int_plus(Y,X,R) :- R is X+Y.
-\stopprog
+\end{curry}
 
 \item
 The \emph{standard interface for I/O actions}, i.e., external functions
@@ -2317,9 +2314,9 @@ that instantiates the last argument to the returned value of type \ccode{a}.
 For instance, the primitive predicate \code{prim_getChar}
 implementing prelude I/O action \code{getChar}
 can be implemented by the Prolog code
-\startprog
+\begin{curry}
 prim_getChar(C) :- get_code(N), char_int(C,N).
-\stopprog
+\end{curry}
 where \code{char_int} is a predicate relating the internal
 Curry representation of a character with its ASCII value.
 
@@ -2332,12 +2329,12 @@ must be suffixed by \ccode{[raw]} in the \code{prim_c2p} file.
 For instance, if we want to use the raw interface for the external function
 \code{prim_Int_plus},
 the specification file \code{Prelude.prim_c2p} must have an entry of the form
-\startprog
+\begin{curry}
 <primitive name="prim_Int_plus" arity="2">
   <library>prim_standard</library>
   <entry>prim_Int_plus[raw]</entry>
 </primitive>
-\stopprog
+\end{curry}
 In the raw interface, the actual implementation of an $n$-ary external function consists
 of the definition of an $(n+3)$-ary predicate $pred$.
 The first $n$ arguments are the corresponding actual arguments.
@@ -2350,9 +2347,9 @@ The code for the predicate $pred$
 should only be executed when the $(n+2)$-th argument
 is not free, i.e., this predicate has always the
 SICStus-Prolog block declaration
-\startprog
-?- block $pred$(?,\ldots,?,-,?).
-\stopprog
+\begin{curry}
+?- block $pred$(?,$\ldots$,?,-,?).
+\end{curry}
 In addition, typical external functions should suspend
 until the actual arguments are instantiated. This can be ensured
 by a call to \code{ensureNotFree} or \code{(\$\#)}
@@ -2364,11 +2361,11 @@ after the function call is successfully evaluated
 must be dereferenced before they are accessed.
 Thus, an implementation
 of the external function for adding integers is as follows in the raw interface:
-\startprog
+\begin{curry}
 ?- block prim_Int_plus(?,?,?,-,?).
 prim_Int_plus(RY,RX,Result,E0,E) :-
      deref(RX,X), deref(RY,Y), Result is X+Y, E0=E.
-\stopprog
+\end{curry}
 Here, \code{deref} is a predefined predicate for dereferencing the
 actual argument into a constant (and \code{derefAll} for dereferencing
 complex structures).

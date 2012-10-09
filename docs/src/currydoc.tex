@@ -125,9 +125,9 @@ data Tree a = Leaf a | Node [Tree a]
 }
 \noindent
 To generate the documentation, execute the command\pindex{currydoc}
-\startprog
+\begin{curry}
 currydoc Example
-\stopprog
+\end{curry}
 (\code{currydoc} is a command usually stored in \code{$pakcshome$/bin}
 where $pakcshome$ is the installation directory of PAKCS;
 see Section~\ref{sec-general}).
@@ -138,9 +138,9 @@ and all its imported modules in this directory together with
 a main index file \code{index.html}.
 If one prefers another directory for the documentation files,
 one can also execute the command
-\startprog
+\begin{curry}
 currydoc docdir Example
-\stopprog
+\end{curry}
 where \code{docdir} is the directory for the documentation files.
 
 In order to generate the common documentation for large collections
