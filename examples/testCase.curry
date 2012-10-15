@@ -39,11 +39,19 @@ testh1 = assertEqual "h1" (h [1,2]) True
 testh2 = assertEqual "h2" (h [1,3]) False
 testh3 = assertEqual "h3" (h [2,div 1 0]) False
 
--- case expressions with guards:
+
+firstOrSecond zs =
+  case zs of
+    (x:_)    -> x
+    (_:y:_)  -> y
+
+testFS = assertValues "firstOrSecond" (firstOrSecond [1,2,3]) [1]
+
+
 posFirstOrSecond zs =
   case zs of
     (x:_)   | x>0 -> x
     (_:y:_) | y>0 -> y
 
-testG1 = assertValues "posFirstOrSecond1" (posFirstOrSecond [1,2,3]) [1]
-testG2 = assertValues "posFirstOrSecond2" (posFirstOrSecond [0,2,3]) [2]
+testPFS = assertValues "posFirstOrSecond" (posFirstOrSecond [0,2,3]) [2]
+

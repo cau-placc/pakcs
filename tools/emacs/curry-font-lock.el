@@ -182,13 +182,13 @@ suitable for `font-lock-keywords'."
          ;; Reserved identifiers
          ;(reservedid
          ; '("as" "case" "class" "data" "default" "deriving" "do" "else"
-         ;   "hiding" "if" "import" "in" "infix" "infixl" "infixr"
+         ;   "fcase" "free" "hiding" "if" "import" "in" "infix" "infixl" "infixr"
          ;   "instance" "let" "module" "newtype" "of" "qualified" "then"
          ;   "type" "where"))
 	 ;; make-regexp applied to reservedid creates the following
 	 ;; regexp
 	 (reservedid
-	  "\\b\\(as\\|c\\(ase\\|hoice\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|e\\(lse\\|val\\)\\|f\\(lex\\|ree\\)\\|hiding\\|i\\([fn]\\|mport\\|n\\(fix\\(\\|[lr]\\)\\|stance\\)\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|rigid\\|t\\(hen\\|ype\\)\\|where\\)\\b")
+	  "\\b\\(as\\|c\\(ase\\|hoice\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|e\\(lse\\|val\\)\\|f\\(case\\|ree\\)\\|hiding\\|i\\([fn]\\|mport\\|n\\(fix\\(\\|[lr]\\)\\|stance\\)\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|rigid\\|t\\(hen\\|ype\\)\\|where\\)\\b")
 
          ;; This unreadable regexp matches strings and character
          ;; constants.  We need to do this with one regexp to handle

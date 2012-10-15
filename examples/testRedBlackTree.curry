@@ -4,17 +4,20 @@
 --- To run all tests automatically by the currytest tool, use the command:
 --- "currytest testRedBlackTree"
 --- 
---- @author Bernd Brassel
---- @version April 2005
+--- @author Bernd Brassel, Michael Hanus
+--- @version October 2012
 ------------------------------------------------------------------------------
 
 import Random
+import List(nub)
 import Assertion
 import RedBlackTree
 
 intList2Tree = foldr update (empty (\ _ _ -> False) (==) (<))
 
-rndTree n = getRandomSeed >>= return . take n . nextInt >>= \is -> return (intList2Tree is,is)
+rndTree n =
+  getRandomSeed >>= return . nub . take n . (flip nextIntRange 100000) >>=
+  \is -> return (intList2Tree is,is)
 
 sorted [] = True
 sorted [_] = True
@@ -31,9 +34,8 @@ testIO m n =
           let newt = deleteTest t is ds
            in return (sorted (tree2list newt))
 
-test  = assertIO 
-           ("Create tree with 1000 random entries, then randomly delete 100.\n" ++
-            "Test, if result is sorted.")
-           (testIO 1000 100)
-           True
-    
+test = assertIO 
+         ("Create tree with 1000 random entries, then randomly delete 100.\n" ++
+          "Test, if result is sorted.")
+         (testIO 1000 100)
+         True

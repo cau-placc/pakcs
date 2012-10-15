@@ -34,10 +34,10 @@ testFS = assertValues "firstOrSecond" (firstOrSecond [1,2,3]) [1,2]
 
 
 posFirstOrSecond zs =
-  case zs of
+  fcase zs of
     (x:_)   | x>0 -> x
     (_:y:_) | y>0 -> y
 
---testPFS = assertValues "posFirstOrSecond" (posFirstOrSecond [0,2,3]) [2]
+testPFS = assertValues "posFirstOrSecond" (posFirstOrSecond [0,2,3]) [2]
 
 
