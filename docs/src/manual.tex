@@ -1014,12 +1014,11 @@ This returns the value of the label \code{name} from the record \code{pers}
 (which has the type \code{Person}).
 Sequential application of field selections are also possible:
 \begin{curry}
-(addr :> person) :> age
+addr :> person :> age
 \end{curry}
 The value of the label \code{age} is extracted from a record which itself
 is the value of the label \code{person} in the record \code{addr}
-(which has the type \code{Address}). When a field selection is used in
-expressions, it has to be parenthesized.
+(which has the type \code{Address}).
 
 
 \subsubsection{Field Update}
