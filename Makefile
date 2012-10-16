@@ -19,6 +19,8 @@ MINORVERSION=11
 REVISIONVERSION=0
 # The build version number:
 BUILDVERSION=1
+# Complete version:
+VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
 COMPILERDATE=15/10/12
 
@@ -114,8 +116,8 @@ ${C2PVERSION}: Makefile
 
 # Create file with version information for the manual:
 ${MANUALVERSION}: Makefile
-	echo '\\newcommand{\\pakcsversion}{${MAJORVERSION}.${MINORVERSION}.${REVISIONVERSION}}' > $@
-	echo '\\newcommand{\\pakcsversiondate}{Version of ${COMPILERDATE}}' >> $@
+	echo '\\newcommand{\\pakcsversion}{$(VERSION)}' > $@
+	echo '\\newcommand{\\pakcsversiondate}{Version of $(COMPILERDATE)}' >> $@
 
 #
 # Create documentation for system libraries:
@@ -154,52 +156,56 @@ cleantools:
 #################################################################################
 # Create distribution versions of the complete system as tar files pakcs*.tar.gz:
 
+# directory name of distribution
+FULLNAME=pakcs-$(VERSION)
 # temporary directory to create distribution version
-PAKCSDIST=/tmp/pakcs
+PAKCSDIST=/tmp/$(FULLNAME)
+# architecture name
+ARCH=`uname -s`_`dpkg-architecture -qDEB_BUILD_ARCH`
 
 .PHONY: dist
 dist:
-	rm -rf pakcs*.tar.gz ${PAKCSDIST} # remove old distributions
-	git clone . ${PAKCSDIST}                   # create copy of git version
-	cd ${PAKCSDIST} && git submodule init && git submodule update
-	cd ${PAKCSDIST} && ${MAKE} installscripts
-	cp pakcsinitrc ${PAKCSDIST}/pakcsinitrc
-	cd ${PAKCSDIST} && ${MAKE} frontend
-	cd ${PAKCSDIST}/lib && ${MAKE} fcy
-	cd ${PAKCSDIST}/lib && ${MAKE} acy
-	cd ${PAKCSDIST} && ${MAKE} cleandist  # delete unnessary files
+	rm -rf pakcs*.tar.gz $(PAKCSDIST) # remove old distributions
+	git clone . $(PAKCSDIST)                   # create copy of git version
+	cd $(PAKCSDIST) && git submodule init && git submodule update
+	cd $(PAKCSDIST) && ${MAKE} installscripts
+	cp pakcsinitrc $(PAKCSDIST)/pakcsinitrc
+	cd $(PAKCSDIST) && ${MAKE} frontend
+	cd $(PAKCSDIST)/lib && ${MAKE} fcy
+	cd $(PAKCSDIST)/lib && ${MAKE} acy
+	cd $(PAKCSDIST) && ${MAKE} cleandist  # delete unnessary files
 	# copy documentation:
 	@if [ -f docs/Manual.pdf ] ; \
-	 then cp docs/Manual.pdf ${PAKCSDIST}/docs ; fi
+	 then cp docs/Manual.pdf $(PAKCSDIST)/docs ; fi
 	@if [ -f docs/markdown_syntax.html ] ; \
-	 then cp docs/markdown_syntax.html ${PAKCSDIST}/docs ; fi
-	cd docs && cp -p Manual.pdf markdown_syntax.html ${PAKCSDIST}/docs
-	sed -e "/PAKCS developers/,\$$d" < ${PAKCSDIST}/scripts/pakcsinitrc.sh > ${PAKCSDIST}/pakcsinitrc
-	rm ${PAKCSDIST}/scripts/pakcsinitrc.sh
+	 then cp docs/markdown_syntax.html $(PAKCSDIST)/docs ; fi
+	cd docs && cp -p Manual.pdf markdown_syntax.html $(PAKCSDIST)/docs
+	sed -e "/PAKCS developers/,\$$d" < $(PAKCSDIST)/scripts/pakcsinitrc.sh > $(PAKCSDIST)/pakcsinitrc
+	rm $(PAKCSDIST)/scripts/pakcsinitrc.sh
 	# generate binary distributions on remote hosts:
 	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
 	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
-	cp Makefile ${PAKCSDIST}/Makefile
-	cd ${PAKCSDIST}/lib && ${MAKE} clean # delete precompiled libraries
-	sed -e "/distribution/,\$$d" < Makefile > ${PAKCSDIST}/Makefile
-	cd ${PAKCSDIST} && ${MAKE} cleanscripts # remove local scripts
-	cd /tmp && tar cf pakcs_src.tar pakcs && gzip pakcs_src.tar
-	mv /tmp/pakcs_src.tar.gz .
-	chmod 644 pakcs_src.tar.gz pakcs_`uname -s`.tar.gz
-	rm -rf ${PAKCSDIST}
+	cp Makefile $(PAKCSDIST)/Makefile
+	cd $(PAKCSDIST)/lib && ${MAKE} clean # delete precompiled libraries
+	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
+	cd $(PAKCSDIST) && ${MAKE} cleanscripts # remove local scripts
+	cd /tmp && tar cf $(FULLNAME)_src.tar $(FULLNAME) && gzip $(FULLNAME)_src.tar
+	mv /tmp/$(FULLNAME)_src.tar.gz .
+	chmod 644 pakcs_*.tar.gz
+	rm -rf $(PAKCSDIST)
 	@echo "----------------------------------------------------------------"
 	@echo "Distribution files pakcs_*.tar.gz generated."
 
 # generate distribution on a remote host:
 dist_%:
-	cp Makefile ${PAKCSDIST}/Makefile
-	sed -e "/distribution/,\$$d" < Makefile > ${PAKCSDIST}/Makefile
-	scp -p -q -r ${PAKCSDIST} $*:${PAKCSDIST}
-	scp -q Makefile $*:${PAKCSDIST}/../Makefile
-	ssh $* "cd ${PAKCSDIST} && ${MAKE} -f ../Makefile genbindist"
+	cp Makefile $(PAKCSDIST)/Makefile
+	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
+	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSDIST)
+	scp -q Makefile $*:$(PAKCSDIST)/../Makefile
+	ssh $* "cd $(PAKCSDIST) && ${MAKE} -f ../Makefile genbindist"
 	scp -p $*:/tmp/pakcs_\*.tar.gz .
-	ssh $* rm -rf ${PAKCSDIST} /tmp/pakcs_\*.tar.gz /tmp/Makefile
+	ssh $* rm -rf $(PAKCSDIST) /tmp/pakcs_\*.tar.gz /tmp/Makefile
 
 # compile cabal parser from the sources, replace them by binaries
 # and put everything into a .tar.gz file:
@@ -209,7 +215,7 @@ genbindist:
 	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make frontend
 	rm -rf frontend
 	${MAKE} cleanscripts # remove local scripts
-	cd /tmp && tar cf pakcs_`uname -s`.tar pakcs && gzip pakcs_`uname -s`.tar
+	cd /tmp && tar cf $(FULLNAME)_$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)_$(ARCH).tar
 
 
 #
