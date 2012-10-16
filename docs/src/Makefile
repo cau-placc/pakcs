@@ -1,5 +1,7 @@
 # To format the PAKCS User Manual
 
+PAKCS=../../bin/pakcs
+
 .PHONY: pdf
 pdf : manual.pdf
 
@@ -17,10 +19,18 @@ manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex ../../lib/TE
 	cp manual.pdf ../Manual.pdf
 
 markdown_syntax.tex: markdown_syntax.txt
-	../../bin/pakcs -r Markdown -m 'readFile "markdown_syntax.txt" >>= writeFile "markdown_syntax.tex" . markdownText2LaTeX'
+	$(PAKCS) -r Markdown -m 'readFile "markdown_syntax.txt" >>= writeFile "markdown_syntax.tex" . markdownText2LaTeX'
 
 ../markdown_syntax.html: markdown_syntax.txt
-	../../bin/pakcs -r Markdown -m 'readFile "markdown_syntax.txt" >>= writeFile "../markdown_syntax.html" . markdownText2CompleteHTML'
+	$(PAKCS) -r Markdown -m 'readFile "markdown_syntax.txt" >>= writeFile "../markdown_syntax.html" . markdownText2CompleteHTML'
+
+# format installation description as HTML page
+../INSTALL.html: ../../INSTALL.txt
+	$(PAKCS) -r Markdown -m 'readFile "../../INSTALL.txt" >>= writeFile "../INSTALL.html" . markdownText2CompleteHTML'
+
+# format repository installation description as HTML page
+../GITINSTALL.html: ../../GITINSTALL.txt
+	$(PAKCS) -r Markdown -m 'readFile "../../GITINSTALL.txt" >>= writeFile "../GITINSTALL.html" . markdownText2CompleteHTML'
 
 ../../lib/TEXDOC/LAST:
 	${MAKE} libdoc
@@ -34,12 +44,15 @@ libdoc:
 .PHONY: install
 install:
 	${MAKE} ../markdown_syntax.html
+	${MAKE} ../INSTALL.html
+	${MAKE} ../GITINSTALL.html
 	${MAKE} libdoc
 	${MAKE} ../Manual.pdf
 
 .PHONY: clean
 clean:
-	/bin/rm -f markdown_syntax.tex ../markdown_syntax.html
+	/bin/rm -f markdown_syntax.tex ../markdown_syntax.html \
+	           ../GITINSTALL.html
 	/bin/mv manual.tex manual.texx
 	/bin/mv manual.bib manual.bibx
 	/bin/rm -f manual.?? manual.??? version-defs.sty

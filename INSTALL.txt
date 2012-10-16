@@ -1,0 +1,140 @@
+PAKCS: The Portland Aachen Kiel Curry System
+============================================
+
+Installation Instructions
+-------------------------
+
+The current version of PAKCS runs on Unix-based platforms
+and has been tested under SunOS, Linux, and Mac OS X.
+If you want to install and run the complete system
+on your computer, you need the following software:
+
+* [SICStus-Prolog](http://www.sics.se/sicstus.html)
+  (Version 3 #5 or higher) (recommended)
+* [SWI-Prolog](http://www.swi-prolog.org)
+  (if you do not have SICStus-Prolog, but then the execution is less
+  efficient and some functionality (e.g., constraint solvers) is
+  not available)
+
+How to generate and install the PAKCS kernel:
+---------------------------------------------
+
+1. Go into the main directory of PAKCS (which contains
+   this file). In the following, we assume that `pakcshome`
+   is the name of this directory.
+2. If you have the executables `sicstus` (for SICStus-Prolog)
+   or `swipl` (for SWI-Prolog) in your path,
+   execute "`make`" which installs PAKCS
+   (after asking you to confirm the values for the
+   environment variables `SICSTUSDIR` or `SWIPROLOG`).
+   These values are stored in the home directory in file
+   `.pakcsinitrc` so that they are available for future installations
+   of new versions of PAKCS.
+3. Otherwise, modify in the shell script "`pakcshome/pakcsinitrc`"
+   the definition of the variables `SICSTUSDIR` or `SWIPROLOG`
+   according to your local installation.
+   If both variables are undefined, the PAKCS compiler system
+   is not installed (i.e., only the front-end is installed).
+4. If you install PAKCS from the source code distribution, you need also the
+   [Glasgow Haskell Compiler](http://www.haskell.org/ghc/)
+   (i.e., the executable "`ghc`" must be in your path)
+   to compile the front end of PAKCS.
+   If you do this for the first time, you need to install
+   some Haskell packages via Cabal, i.e., run the command
+
+       make installhaskell
+
+5. Now, install PAKCS by "`make`" (if you have already an older
+   installation of PAKCS, do "`make clean`" before).
+6. Add the directory "`pakcshome/bin`" to your path, e.g., by the command
+
+       export PATH=$PATH:pakcshome/bin
+
+   in the `bash`.
+   If you do no want to have the specific version number of PAKCS
+   included in your path, you can set a symbolic link like
+
+       ln -s pakcs-<version> pakcs
+
+   and put the directory <code>pakcs/bin</code> into your path.
+   Now you can start the PAKCS compiler system via the command "`pakcs`".
+7. If you want, you can also execute "`make libdoc`"
+   to generate a local version of the documentation of all system libraries
+   by the CurryDoc tool into the directory "`pakcshome/lib/CDOC`".
+   However, this is only necessary if you want to work offline since
+   you can also access the documentation online at
+   <http://www.informatik.uni-kiel.de/~pakcs/lib/>.
+8. You can configure the behavior of PAKCS by various setting
+   in a "pakcsrc" file. For doing so, copy the file
+   `pakcshome/pakcsrc` as "`.pakcsrc`"
+   into you home directory and modify the settings.
+9. If you like to have support for _line editing or history functionality_
+   in the PAKCS interactive environment (as supported by the readline
+   library), you should have the Unix/Linux command "`rlwrap`" installed
+   on your local machine. PAKCS uses "`rlwrap`" if called on a terminal
+   without the parameter "`--noreadline`".
+
+How to install additional packages:
+-----------------------------------
+
+The distribution of PAKCS contains various additional packages
+and libraries. Some require additional software packages that are
+described below.
+
+1. If you want to use the **library for GUI programming in Curry**
+   (`pakcshome/lib/GUI.curry`), you need also a
+   Tcl/Tk implementation (including the windowing shell `wish`)
+   which can be downloaded
+   [here](http://www.scriptics.com/software/tcltk/)
+   In this case, the windowing shell `wish` must be
+   in your path (or you can also modify the definition of the
+   function `openWish` in the library `GUI.curry`).
+2. If you want to use the **DaVinci library for the visualization of graphs**
+   (`pakcshome/lib/DaVinci.curry`), you need also an
+   installed daVinci system which can be downloaded
+   [here](http://www.informatik.uni-bremen.de/~davinci/).
+   In this case, you have to modify the definition of the constant
+   `dvHome` in the library `pakcshome/lib/DaVinci.curry`
+   according to the installation path of daVinci.
+
+Changing system constants:
+--------------------------
+
+The distribution of PAKCS is configured with a
+**maximal tuple arity of 15**, i.e., Curry programs containing larger
+tuple sizes cannot be compiled. If you want to increase this size
+(usually, it is preferable to change your program), you have to change
+(in a source distribution of PAKCS)
+two system files and install your system as follows:
+
+1. Change the definition of the constant `maxTupleArity` in the files
+   `pakcshome/frontend/curry-frontend/src/Generators/GenFlatCurry.hs`
+   and `pakcshome/curry2prolog/compiler.pl`
+   according to your required maximal arity.
+2. Delete the file `pakcshome/lib/Prelude.fcy`.
+3. Re-install PAKCS by `make`.
+
+Hints for specific platforms
+----------------------------
+
+### Ubuntu 7.10
+
+If you install PAKCS from the binary Linux distribution,
+the pre-compiled executable of the front-end might not find
+the library `libgmp.so.3`. This problem can be fixed
+by the following commands (executed as root):
+
+    cd /usr/lib 
+    ln -s libgmp.so.3.4.1 libgmp.so.3 
+
+If you use SWI-Prolog, you should install the packages
+`swi-prolog` as well as `swi-prolog-clib`
+from the Ubuntu distribution.
+The latter package is necessary if sockets, ports, and
+other system-oriented features should be used in Curry.
+
+(Thanks to Sergio Antoy and Steffen Mazanek for these hints.)
+
+-------------------------------------------------------------
+
+Contact: [Michael Hanus](http://www.informatik.uni-kiel.de/~mh/)
