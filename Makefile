@@ -44,7 +44,7 @@ MANUALVERSION=docs/src/version.tex
 all: config
 	@rm -f ${MAKELOG}
 	@echo "Make started at `date`" > ${MAKELOG}
-	${MAKE} install 2>&1 | tee -a ${MAKELOG}
+	$(MAKE) install 2>&1 | tee -a ${MAKELOG}
 	@echo "Make finished at `date`" >> ${MAKELOG}
 	@echo "Make process logged in file ${MAKELOG}"
 
@@ -54,26 +54,26 @@ all: config
 .PHONY: install
 install: installscripts
 	# install cabal front end if sources are present:
-	@if [ -d frontend ] ; then ${MAKE} frontend ; fi
+	@if [ -d frontend ] ; then $(MAKE) frontend ; fi
 	# pre-compile all libraries:
-	@cd lib && ${MAKE} fcy
+	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
 	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; \
-	 then ${MAKE} ${C2PVERSION} && cd curry2prolog && ${MAKE} ; \
+	 then $(MAKE) ${C2PVERSION} && cd curry2prolog && $(MAKE) ; \
 	 else rm -f bin/pakcs ; fi
 	# compile all libraries:
-	@cd lib && ${MAKE} acy
+	@cd lib && $(MAKE) acy
 	# prepare for separate compilation by compiling all librariers to Prolog code:
-	@if [ -r bin/pakcs ] ; then cd lib && ${MAKE} pl ; fi
+	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
 	# compile the Curry Port Name Server demon:
-	@if [ -r bin/pakcs ] ; then cd cpns && ${MAKE} ; fi
+	@if [ -r bin/pakcs ] ; then cd cpns && $(MAKE) ; fi
 	# compile the event handler demon for dynamic web pages:
-	@if [ -r bin/pakcs ] ; then cd www && ${MAKE} ; fi
+	@if [ -r bin/pakcs ] ; then cd www && $(MAKE) ; fi
 	# compile the tools:
-	@if [ -r bin/pakcs ] ; then cd tools && ${MAKE} ; fi
+	@if [ -r bin/pakcs ] ; then cd tools && $(MAKE) ; fi
 	# compile documentation, if necessary:
 	@if [ -d docs/src ] ; \
-	 then ${MAKE} ${MANUALVERSION} && cd docs/src && ${MAKE} install ; fi
+	 then $(MAKE) ${MANUALVERSION} && cd docs/src && $(MAKE) install ; fi
 	chmod -R go+rX .
 
 # Configure installation w.r.t. variables in pakcsinitrc:
@@ -85,17 +85,17 @@ config: installscripts
 # install the scripts of PAKCS in the bin directory:
 .PHONY: installscripts
 installscripts:
-	cd scripts && ${MAKE} all
+	cd scripts && $(MAKE) all
 
 # remove the scripts of PAKCS in the bin directory:
 .PHONY: cleanscripts
 cleanscripts:
-	cd scripts && ${MAKE} clean
+	cd scripts && $(MAKE) clean
 
 # install front end:
 .PHONY: frontend
 frontend:
-	cd frontend && ${MAKE}
+	cd frontend && $(MAKE)
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
@@ -128,7 +128,7 @@ libdoc:
 	  echo "Cannot create library documentation: currydoc not available!" ; exit 1 ; fi
 	@rm -f ${MAKELOG}
 	@echo "Make libdoc started at `date`" > ${MAKELOG}
-	@cd lib && ${MAKE} doc 2>&1 | tee -a ../${MAKELOG}
+	@cd lib && $(MAKE) doc 2>&1 | tee -a ../${MAKELOG}
 	@echo "Make libdoc finished at `date`" >> ${MAKELOG}
 	@echo "Make libdoc process logged in file ${MAKELOG}"
 
@@ -136,20 +136,20 @@ libdoc:
 .PHONY: clean
 clean:
 	rm -f ${MAKELOG}
-	${MAKE} cleantools
-	cd lib && ${MAKE} clean
+	$(MAKE) cleantools
+	cd lib && $(MAKE) clean
 	cd examples && ../bin/cleancurry -r
-	if [ -d docs/src ] ; then cd docs/src && ${MAKE} clean ; fi
+	if [ -d docs/src ] ; then cd docs/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
-	cd scripts && ${MAKE} clean
+	cd scripts && $(MAKE) clean
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
 cleantools:
-	cd curry2prolog && ${MAKE} clean
-	cd tools && ${MAKE} clean
-	cd cpns && ${MAKE} clean
-	cd www && ${MAKE} clean
+	cd curry2prolog && $(MAKE) clean
+	cd tools && $(MAKE) clean
+	cd cpns && $(MAKE) clean
+	cd www && $(MAKE) clean
 	cd bin && rm -f pakcs
 	rm -rf ${LOCALBIN}
 
@@ -168,12 +168,12 @@ dist:
 	rm -rf pakcs*.tar.gz $(PAKCSDIST) # remove old distributions
 	git clone . $(PAKCSDIST)                   # create copy of git version
 	cd $(PAKCSDIST) && git submodule init && git submodule update
-	cd $(PAKCSDIST) && ${MAKE} installscripts
+	cd $(PAKCSDIST) && $(MAKE) installscripts
 	cp pakcsinitrc $(PAKCSDIST)/pakcsinitrc
-	cd $(PAKCSDIST) && ${MAKE} frontend
-	cd $(PAKCSDIST)/lib && ${MAKE} fcy
-	cd $(PAKCSDIST)/lib && ${MAKE} acy
-	cd $(PAKCSDIST) && ${MAKE} cleandist  # delete unnessary files
+	cd $(PAKCSDIST) && $(MAKE) frontend
+	cd $(PAKCSDIST)/lib && $(MAKE) fcy
+	cd $(PAKCSDIST)/lib && $(MAKE) acy
+	cd $(PAKCSDIST) && $(MAKE) cleandist  # delete unnessary files
 	# copy documentation:
 	@if [ -f docs/Manual.pdf ] ; \
 	 then cp docs/Manual.pdf $(PAKCSDIST)/docs ; fi
@@ -183,19 +183,20 @@ dist:
 	sed -e "/PAKCS developers/,\$$d" < $(PAKCSDIST)/scripts/pakcsinitrc.sh > $(PAKCSDIST)/pakcsinitrc
 	rm $(PAKCSDIST)/scripts/pakcsinitrc.sh
 	# generate binary distributions on remote hosts:
-	${MAKE} dist_mh@climens.informatik.uni-kiel.de # Linux distribution
-	#${MAKE} dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
+	$(MAKE) dist_mh@climens.informatik.uni-kiel.de # Linux 32bit dist
+	$(MAKE) dist_mh@mouton.informatik.uni-kiel.de  # Linux 64bit dist
+	#$(MAKE) dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
 	cp Makefile $(PAKCSDIST)/Makefile
-	cd $(PAKCSDIST)/lib && ${MAKE} clean # delete precompiled libraries
+	cd $(PAKCSDIST)/lib && $(MAKE) clean # delete precompiled libraries
 	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
-	cd $(PAKCSDIST) && ${MAKE} cleanscripts # remove local scripts
+	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
 	cd /tmp && tar cf $(FULLNAME)_src.tar $(FULLNAME) && gzip $(FULLNAME)_src.tar
 	mv /tmp/$(FULLNAME)_src.tar.gz .
-	chmod 644 pakcs_*.tar.gz
+	chmod 644 pakcs*.tar.gz
 	rm -rf $(PAKCSDIST)
 	@echo "----------------------------------------------------------------"
-	@echo "Distribution files pakcs_*.tar.gz generated."
+	@echo "Distribution files pakcs*.tar.gz generated."
 
 # generate distribution on a remote host:
 dist_%:
@@ -203,9 +204,9 @@ dist_%:
 	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
 	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSDIST)
 	scp -q Makefile $*:$(PAKCSDIST)/../Makefile
-	ssh $* "cd $(PAKCSDIST) && ${MAKE} -f ../Makefile genbindist"
-	scp -p $*:/tmp/pakcs_\*.tar.gz .
-	ssh $* rm -rf $(PAKCSDIST) /tmp/pakcs_\*.tar.gz /tmp/Makefile
+	ssh $* "cd $(PAKCSDIST) && $(MAKE) -f ../Makefile genbindist"
+	scp -p $*:/tmp/pakcs\*.tar.gz .
+	ssh $* rm -rf $(PAKCSDIST) /tmp/pakcs\*.tar.gz /tmp/Makefile
 
 # compile cabal parser from the sources, replace them by binaries
 # and put everything into a .tar.gz file:
@@ -214,7 +215,7 @@ genbindist:
 	rm -f pakcs*.tar.gz
 	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make frontend
 	rm -rf frontend
-	${MAKE} cleanscripts # remove local scripts
+	$(MAKE) cleanscripts # remove local scripts
 	cd /tmp && tar cf $(FULLNAME)_$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)_$(ARCH).tar
 
 
