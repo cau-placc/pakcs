@@ -22,7 +22,7 @@ BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
-COMPILERDATE=15/10/12
+COMPILERDATE=16/10/12
 
 # Logfile for make:
 MAKELOG=make.log
@@ -161,7 +161,7 @@ FULLNAME=pakcs-$(VERSION)
 # temporary directory to create distribution version
 PAKCSDIST=/tmp/$(FULLNAME)
 # architecture name
-ARCH=`uname -s`_`dpkg-architecture -qDEB_BUILD_ARCH`
+ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
 
 .PHONY: dist
 dist:
@@ -191,8 +191,8 @@ dist:
 	cd $(PAKCSDIST)/lib && $(MAKE) clean # delete precompiled libraries
 	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar cf $(FULLNAME)_src.tar $(FULLNAME) && gzip $(FULLNAME)_src.tar
-	mv /tmp/$(FULLNAME)_src.tar.gz .
+	cd /tmp && tar cf $(FULLNAME)-src.tar $(FULLNAME) && gzip $(FULLNAME)-src.tar
+	mv /tmp/$(FULLNAME)-src.tar.gz .
 	chmod 644 pakcs*.tar.gz
 	rm -rf $(PAKCSDIST)
 	@echo "----------------------------------------------------------------"
@@ -216,7 +216,7 @@ genbindist:
 	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make frontend
 	rm -rf frontend
 	$(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar cf $(FULLNAME)_$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)_$(ARCH).tar
+	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
 
 
 #
