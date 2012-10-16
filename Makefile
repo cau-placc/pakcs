@@ -99,8 +99,8 @@ frontend:
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
-.PHONY: installcabal
-installcabal:
+.PHONY: installhaskell
+installhaskell:
 	cabal update
 	cabal install mtl
 

@@ -59,8 +59,13 @@ only the front-end is installed).
 <li>
 If you install PAKCS from the source code distribution, you need also the
 <a href="http://www.haskell.org/ghc/">Glasgow Haskell Compiler</a>
-(executable <code>ghc</code>) to compile the front end of PAKCS.
-The make script will ask you for it.
+(i.e., the executable "<code>ghc</code>" must be in your path)
+to compile the front end of PAKCS.
+If you do this for the first time, you need to install
+some Haskell packages via Cabal, i.e., run the command
+<pre>
+  make installhaskell
+</pre>
 </li>
 <li>
 Now, install PAKCS by "<tt>make</tt>"
@@ -69,10 +74,16 @@ Now, install PAKCS by "<tt>make</tt>"
 <li>
 Add the directory "<tt><em>pakcshome/</em>bin</tt>"
 to your path, e.g., by the command
-<center>
-<tt>export PATH=$PATH:<em>pakcshome</em>/bin</tt>
-</center>
+<pre>
+  export PATH=$PATH:<em>pakcshome</em>/bin
+</pre>
 in the <tt>bash</tt>.
+If you do no want to have the specific version number of PAKCS
+included in your path, you can set a symbolic link like
+<pre>
+  ln -s pakcs-&lt;version&gt; pakcs
+</pre>
+and put the directory <code>pakcs/bin</code> into your path.
 </li>
 <li>
 Now you can start the PAKCS compiler system via the command
