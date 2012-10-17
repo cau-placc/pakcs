@@ -2,23 +2,20 @@
 # Installation of frontend
 ##############################################################################
 
-CYMAKE = ../bin/.local/cymake
-
-# copy cabal installation of front end into local directory
-$(CYMAKE): $(HOME)/.cabal/bin/cymake
-	mkdir -p $(@D)
-	mv $< $@ # move cabal executable to local bin
+CYMAKE_VERSION=0.3.3
+CYMAKE_BIN    =$(LOCALBIN)/cymake
 
 # install the sources of the front end from its repository
-$(HOME)/.cabal/bin/cymake: unregister
+$(CYMAKE_BIN): unregister
+	mkdir -p $(@D)
 	cd curry-base     && cabal install
-	cd curry-frontend && cabal install
+	cd curry-frontend && cabal install --bindir=$(@D)
 
 # unregister previous version to avoid cabal install failures
 .PHONY: unregister
 unregister:
-	-ghc-pkg unregister curry-frontend
-	-ghc-pkg unregister curry-base
+	-ghc-pkg unregister curry-frontend-$(CYMAKE_VERSION)
+	-ghc-pkg unregister curry-base-$(CYMAKE_VERSION)
 
 .PHONY: update
 update:

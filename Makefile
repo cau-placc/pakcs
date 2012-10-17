@@ -27,26 +27,26 @@ COMPILERDATE=16/10/12
 # Logfile for make:
 MAKELOG=make.log
 # the root directory
-export ROOT=${CURDIR}
+export ROOT=$(CURDIR)
 # binary directory and executables
-export BINDIR=${ROOT}/bin
+export BINDIR=$(ROOT)/bin
 # Directory where local executables are stored:
-export LOCALBIN=${BINDIR}/.local
+export LOCALBIN=$(BINDIR)/.local
 # The version information file for Curry2Prolog:
-C2PVERSION=curry2prolog/pakcsversion.pl
+C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
-MANUALVERSION=docs/src/version.tex
+MANUALVERSION=$(ROOT)/docs/src/version.tex
 
 #
 # Install all components of PAKCS
 #
 .PHONY: all
 all: config
-	@rm -f ${MAKELOG}
-	@echo "Make started at `date`" > ${MAKELOG}
-	$(MAKE) install 2>&1 | tee -a ${MAKELOG}
-	@echo "Make finished at `date`" >> ${MAKELOG}
-	@echo "Make process logged in file ${MAKELOG}"
+	@rm -f $(MAKELOG)
+	@echo "Make started at `date`" > $(MAKELOG)
+	$(MAKE) install 2>&1 | tee -a $(MAKELOG)
+	@echo "Make finished at `date`" >> $(MAKELOG)
+	@echo "Make process logged in file $(MAKELOG)"
 
 #
 # Install all components of PAKCS
@@ -59,7 +59,7 @@ install: installscripts
 	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
 	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; \
-	 then $(MAKE) ${C2PVERSION} && cd curry2prolog && $(MAKE) ; \
+	 then $(MAKE) $(C2PVERSION) && cd curry2prolog && $(MAKE) ; \
 	 else rm -f bin/pakcs ; fi
 	# compile all libraries:
 	@cd lib && $(MAKE) acy
@@ -73,7 +73,7 @@ install: installscripts
 	@if [ -r bin/pakcs ] ; then cd tools && $(MAKE) ; fi
 	# compile documentation, if necessary:
 	@if [ -d docs/src ] ; \
-	 then $(MAKE) ${MANUALVERSION} && cd docs/src && $(MAKE) install ; fi
+	 then $(MAKE) $(MANUALVERSION) && cd docs/src && $(MAKE) install ; fi
 	chmod -R go+rX .
 
 # Configure installation w.r.t. variables in pakcsinitrc:
@@ -105,17 +105,17 @@ installhaskell:
 	cabal install mtl
 
 # Create file with version information for Curry2Prolog:
-${C2PVERSION}: Makefile
+$(C2PVERSION): Makefile
 	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1]).' > $@
-	echo "compilerVersion('PAKCS${MAJORVERSION}.${MINORVERSION}')." >> $@
-	echo 'compilerMajorVersion(${MAJORVERSION}).' >> $@
-	echo 'compilerMinorVersion(${MINORVERSION}).' >> $@
-	echo 'compilerRevisionVersion(${REVISIONVERSION}).' >> $@
-	echo 'buildVersion(${BUILDVERSION}).' >> $@
-	echo "buildDate('${COMPILERDATE}')." >> $@
+	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
+	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
+	echo 'compilerMinorVersion($(MINORVERSION)).' >> $@
+	echo 'compilerRevisionVersion($(REVISIONVERSION)).' >> $@
+	echo 'buildVersion($(BUILDVERSION)).' >> $@
+	echo "buildDate('$(COMPILERDATE)')." >> $@
 
 # Create file with version information for the manual:
-${MANUALVERSION}: Makefile
+$(MANUALVERSION): Makefile
 	echo '\\newcommand{\\pakcsversion}{$(VERSION)}' > $@
 	echo '\\newcommand{\\pakcsversiondate}{Version of $(COMPILERDATE)}' >> $@
 
@@ -126,16 +126,16 @@ ${MANUALVERSION}: Makefile
 libdoc:
 	@if [ ! -r bin/currydoc ] ; then \
 	  echo "Cannot create library documentation: currydoc not available!" ; exit 1 ; fi
-	@rm -f ${MAKELOG}
-	@echo "Make libdoc started at `date`" > ${MAKELOG}
-	@cd lib && $(MAKE) doc 2>&1 | tee -a ../${MAKELOG}
-	@echo "Make libdoc finished at `date`" >> ${MAKELOG}
-	@echo "Make libdoc process logged in file ${MAKELOG}"
+	@rm -f $(MAKELOG)
+	@echo "Make libdoc started at `date`" > $(MAKELOG)
+	@cd lib && $(MAKE) doc 2>&1 | tee -a ../$(MAKELOG)
+	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
+	@echo "Make libdoc process logged in file $(MAKELOG)"
 
 # Clean the system files, i.e., remove the installed PAKCS components
 .PHONY: clean
 clean:
-	rm -f ${MAKELOG}
+	rm -f $(MAKELOG)
 	$(MAKE) cleantools
 	cd lib && $(MAKE) clean
 	cd examples && ../bin/cleancurry -r
@@ -151,7 +151,7 @@ cleantools:
 	cd cpns && $(MAKE) clean
 	cd www && $(MAKE) clean
 	cd bin && rm -f pakcs
-	rm -rf ${LOCALBIN}
+	rm -rf $(LOCALBIN)
 
 #################################################################################
 # Create distribution versions of the complete system as tar files pakcs*.tar.gz:
@@ -213,7 +213,7 @@ dist_%:
 .PHONY: genbindist
 genbindist:
 	rm -f pakcs*.tar.gz
-	PATH=/opt/ghc/bin:/home/haskell/bin:${PATH} && export PATH && make frontend
+	PATH=/opt/ghc/bin:/home/haskell/bin:$(PATH) && export PATH && make frontend
 	rm -rf frontend
 	$(MAKE) cleanscripts # remove local scripts
 	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
@@ -224,7 +224,7 @@ genbindist:
 #
 .PHONY: cleandist
 cleandist:
-	rm -rf ${LOCALBIN}
+	rm -rf $(LOCALBIN)
 	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
