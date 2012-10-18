@@ -6,7 +6,7 @@
 -- and Transformation (LOPSTR'05), appeared in Springer LNCS 3901, 2006
 -- http://www-ps.informatik.uni-kiel.de/~mh/papers/LOPSTR05.html
 --
--- Note: this requires the setting "pakcsextensions=yes" in ~/.pakcsrc
+-- Note: this requires the setting "curryextensions=yes" in ~/.pakcsrc
 --------------------------------------------------------------------------------
 
 import Assertion

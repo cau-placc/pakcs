@@ -16,9 +16,9 @@ libraries=
 # Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
 verboserc=no
 
-# Allow PAKCS extensions (currently: function patterns) in Curry programs
+# Allow Curry extensions (currently: function patterns and records)
 # (values: yes | no):
-pakcsextensions=yes
+curryextensions=yes
 
 # Show messages relating to parsing of modules (values: yes | no):
 parsermessages=yes

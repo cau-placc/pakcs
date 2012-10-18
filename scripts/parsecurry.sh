@@ -14,16 +14,11 @@ if [ ! -f "$PAKCSRC" ] ; then
   PAKCSRC=$PAKCSHOME/pakcsrc
 fi
 
-# executable of the MCC parser:
-MCCPARSER="$PAKCSHOME/mccparser/bin/cymake"
-CABALPARSER="$PAKCSHOME/bin/.local/cymake"
-if [ -f "$CABALPARSER" ] ; then
-  MCCPARSER="$CABALPARSER"
-else
-  if [ ! -f "$MCCPARSER" ] ; then # is the MCC parser locally installed?
-    echo "ERROR: Incomplete PAKCS installation: $CABALPARSER missing!" >&2
-    exit 1
-  fi
+# executable of the parser:
+MCCPARSER="$PAKCSHOME/bin/.local/cymake"
+if [ ! -f "$MCCPARSER" ] ; then # is the parser locally installed?
+  echo "ERROR: Incomplete PAKCS installation: $MCCPARSER missing!" >&2
+  exit 1
 fi
 
 # Prepare flags for MCC parser:
@@ -33,8 +28,8 @@ MCCOUTFILE=
 MCCVERB=
 MCCTARGET=
 MCCSUFFIX=
-# check flag "pakcsextensions" in pakcsrc:
-for i in `sed -n '/^pakcsextensions=/p' < "$PAKCSRC"`
+# check flag "curryextensions" in pakcsrc:
+for i in `sed -n '/^curryextensions=/p' < "$PAKCSRC"`
 do 
   if [ xx`expr $i : '.*=\(.*\)'` = xxyes ] ; then
     MCCEXTENDED="--extended"
@@ -54,8 +49,6 @@ do
 done
 
 TARGET=           # no default case: target language must be specified!
-FORMATGENERAL=fcy # target format of imported modules
-FORMATMAIN=fcy    # target format of main module
 if [ -z "$PAKCSLIBPATH" ] ; then
   PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"
 fi
@@ -64,13 +57,11 @@ if [ -n "$RCLIBPATH" ] ; then
 fi
 
 case $1 in
-  --fl   | -fl   ) TARGET=fl   ; FORMATGENERAL=fl ; FORMATMAIN=fl ; shift ;;
-  --flat | -fcy  ) TARGET=fcy  ; shift ;;
-  --acy  | -acy  ) TARGET=acy  ; FORMATMAIN=acy ; shift ;;
-  --uacy | -uacy ) TARGET=uacy ; FORMATMAIN=uacy ; shift ;;
-  --html | -html ) TARGET=html ; FORMATMAIN=html ; shift ;;
-  --parse-only | -parse-only ) TARGET=cy ; FORMATMAIN=cy ; shift ;;
-  --def  | -def  ) TARGET=def  ; FORMATGENERAL=fl ; FORMATMAIN=fl ; shift ;;
+  --flat ) TARGET=fcy  ; shift ;;
+  --acy  ) TARGET=acy  ; shift ;;
+  --uacy ) TARGET=uacy ; shift ;;
+  --html ) TARGET=html ; shift ;;
+  --parse-only ) TARGET=cy ; FORMATMAIN=cy ; shift ;;
 esac
 
 if [ -z "$TARGET" ] ; then
@@ -92,6 +83,8 @@ while [ $# -gt 1 ] ; do
     -o                     ) shift ; OUTFILE=$1 ;;
     --path | -path         ) shift ; CURRYPATH=$1 ; export CURRYPATH ;;
     --fullpath | -fullpath ) shift ; FULLPATH=$1 ;;
+    --extended             ) MCCEXTENDED="--extended" ;;
+    --no-overlap-warn      ) MCCOVERLAPWARN="--no-overlap-warn" ;;
     --fcypp | -fcypp       ) shift ; FCYPP="$FCYPP $1 " ;;
     --fpopt | --compact | --compactexport | --compactmain=* ) FCYPP="$FCYPP $1 " ;;
     -fpopt | -compact | -compactexport ) FCYPP="$FCYPP -$1 " ;;
@@ -112,21 +105,21 @@ if [ $# != 1 ] ; then
   echo "--uacy       : generate untyped AbstractCurry program in <progname>.uacy" >&2
   echo "--html       : generate HTML representation of source program" >&2
   echo "--parse-only : generate source representation of source program" >&2
-  echo "--fl         : generate internal TasteCurry syntax in <progname>.fl" >&2
-  echo "--def        : generate intermediate program for Curry2Java in <progname>.def" >&2
   echo >&2
   echo "<Options> is a sequence of:"  >&2
   echo "-q|--quiet       : work silently" >&2
   echo "-o <file>        : write output into <file> (for target type --html)" >&2
   echo "--path <p>       : specify additional search path <p> for loading modules" >&2
   echo " (default search path = .:$PAKCSLIBPATH)" >&2
-  echo "--fullpath <p>  : specify complete search path <p> for loading modules" >&2
+  echo "--fullpath <p>   : specify complete search path <p> for loading modules" >&2
   echo >&2
-  echo "--fpopt         : apply function pattern optimization after parsing" >&2
-  echo "--compact       : apply code compactification after parsing" >&2
-  echo "--compactexport : apply code compactification w.r.t. exports after parsing" >&2
-  echo "--compactmain=f : apply code compactification w.r.t. main function 'f' after parsing" >&2
-  echo "--fcypp <c>     : apply command <c> to <progname> after parsing" >&2
+  echo "--extended       : allow Curry extensions (e.g., functional patterns)">&2
+  echo "--no-overlap-warn: show warnings for non-trivial overlapping rules" >&2
+  echo "--fpopt          : apply function pattern optimization after parsing" >&2
+  echo "--compact        : apply code compactification after parsing" >&2
+  echo "--compactexport  : apply code compactification w.r.t. exports after parsing" >&2
+  echo "--compactmain=f  : apply code compactification w.r.t. main function 'f' after parsing" >&2
+  echo "--fcypp <c>      : apply command <c> to <progname> after parsing" >&2
   exit 1
 fi
 PROG=$1
@@ -208,9 +201,6 @@ case $TARGET in
 esac
 
 # delete old target file to avoid later problems...
-if [ $FORMATGENERAL = "fl" ] ; then
-  rm -f $PROG.fl
-fi
 case $TARGET in
   ast  ) rm -f $PROG.ast ;;
   cint ) rm -f $PROG.cint ;;
@@ -234,10 +224,7 @@ else
   MCCVERB="--no-verb"
 fi
 
-if [ $FORMATGENERAL = "fl" ] ; then
-  # try to use the curry2fl translator:
-  "$PAKCSHOME/bin/curry2fl" $PROG
-elif [ -n "$MCCTARGET" ] ; then
+if [ -n "$MCCTARGET" ] ; then
   # Use mcc front end:
   OLDIFS="$IFS"
   IFS=":" # set separator to ':' for correct passing of IMPORTDIRS as arguments
@@ -280,35 +267,3 @@ if [ $TARGET = fcy ] ; then
     fi
   done
 fi
-
-# compile into intermediate representation for Curry2Java:
-if [ $TARGET = def ] ; then
-  if [ ! -f "$PROG.fl" -o ! -f "$PAKCSHOME/bin/tastecurry" ] ; then
-    exit 1
-  fi
-  if [ -f "$PROG.def" ] ; then
-     if [ `ls -t "$PROG.fl" "$PROG.def" | head -1` = "$PROG.def" ] ; then
-       if [ -z "$QUIET" ] ; then
-         echo "Intermediate representation '$PROG.def' is up-to-date." >&2
-       fi
-       exit 0
-     else
-       rm -rf "$PROG.def" "$PROG.pizza" "$PROG.classes"
-     fi
-  fi
-  if [ -z "$QUIET" ]
-  then
-   echo "Compiling '$1.fl' into intermediate representation '$PROG.def'..." >&2
-  fi
-  echo "opt. read '$1'. trees('$1.def')." | \
-         "$PAKCSHOME/bin/tastecurry" > /tmp/ERROR$$ 2>&1
-  if [ `fgrep \* /tmp/ERROR$$ | wc -l` -gt 0 ]
-  then
-    # an error has occurred been detected by the TasteCurry interpreter:
-    cat /tmp/ERROR$$
-    rm /tmp/ERROR$$
-    exit 1
-  fi
-  rm /tmp/ERROR$$
-fi
-
