@@ -1,0 +1,21 @@
+PAKCS: Release Notes
+====================
+
+Release notes for PAKCS Version 1.11.0 (October 18, 2012)
+---------------------------------------------------------
+
+Changes to version 1.10.1:
+* New front end version included that implements new features of Curry,
+  e.g., `fcase` expressions and non-linear patterns in left-hand sides
+  of program rules.
+* Syntax of records slightly changed to avoid problems
+  with guarded case branches (their syntax conflicted with old syntax
+  for selection of record fields):
+  - Field selection operator is "`:>`" (instead of "`->`" in old syntax).
+  - Record construction uses the operator "`:=`" for setting field values
+    similarly to record updates (instead of "`=`" in the old syntax).
+* Library `Markdown`: title argument added to `markdownText2CompleteHTML`
+
+-------------------------------------------------------------------------
+
+[Release notes for older versions](http://www.informatik.uni-kiel.de/~pakcs/download/OLDRELNOTES.html)
