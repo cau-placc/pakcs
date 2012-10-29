@@ -3,7 +3,7 @@
 -- check whether functions are defined with overlapping left-hand sides
 -- (i.e., whether they are defined with OR expressions)
 --
--- Michael Hanus, September 1999
+-- Michael Hanus, February 2012
 ------------------------------------------------------------------------------
 
 module Overlapping(isOverlappingFunction,orInExpr) where
@@ -24,10 +24,7 @@ isOverlappingFunction (Func _ _ _ _ (External _)) = False
 orInExpr :: Expr -> Bool
 orInExpr (Var _) = False
 orInExpr (Lit _) = False
-orInExpr (Comb _ f es) =
-  if f==("Prelude","commit")
-  then False -- OR in committed choice have only local effects
-  else foldr (||) False (map orInExpr es)
+orInExpr (Comb _ f es) = f==("Prelude","?") || foldr (||) False (map orInExpr es)
 orInExpr (Free _ e) = orInExpr e
 orInExpr (Let bs e) = any orInExpr (map snd bs) || orInExpr e
 orInExpr (Or _ _) = True
