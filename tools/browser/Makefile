@@ -10,7 +10,7 @@ TOOLS=..
 # generate saved state for currytest program:
 BrowserGUI.state: BrowserGUI.curry ShowFlatCurry.curry Imports.curry \
 	          AnalysisTypes.curry BrowserAnalysis.curry ShowGraph.curry \
-	          FlatCurryGoodies.curry BrowserPropertyFile.curry \
+	          FlatCurryGoodies.curry \
 	          ${TOOLS}/AddTypes.curry ${TOOLS}/ImportCalls.curry \
 	          ${LIB}/GUI.curry ${LIB}/IOExts.curry  ${LIB}/System.curry \
 	          ${META}/FlatCurry.curry ${META}/FlatCurryShow.curry \

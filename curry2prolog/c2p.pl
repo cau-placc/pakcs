@@ -28,20 +28,23 @@ letBindings([]). % list of top-level bindings
 
 % Read the PAKCS rc file to define some constants
 readRcFile(ArgProps) :-
-	% first, try to install local .pakcsrc file:
 	getEnv('PAKCSHOME',PH),
-	appendAtoms(['"',PH,'/scripts/update-pakcsrc','"'],UpdateRc),
-	(shellCmd(UpdateRc) -> true ; true),
-        ((getEnv('HOME',Home),	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
-	  existsFile(HomeConfigFile))
+        appendAtom(PH,'/pakcsrc.default',ConfigFile),
+        getEnv('HOME',Home),
+	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
+	% first, try to install local .pakcsrc file:
+        (existsFile(HomeConfigFile)
 	 -> readConfigFile(HomeConfigFile,HomeProps)
-	  ; HomeProps=[]),
-        getEnv('PAKCSHOME',PH), appendAtom(PH,'/pakcsrc',ConfigFile),
+	  ; appendAtoms(['cp ',ConfigFile,' ',HomeConfigFile],CpCmd),
+	    shellCmd(CpCmd),
+	    writeNQ('>>> '),
+	    writeNQ(HomeConfigFile), writeNQ(' installed.'), nlNQ,
+	    HomeProps=[] ),
 	(existsFile(ConfigFile)
-	 -> readConfigFile(ConfigFile,GlobalProps)
+	 -> readConfigFile(ConfigFile,GlobalProps),
+	    updateConfigFile(ConfigFile,HomeProps,HomeConfigFile)
 	  ; GlobalProps=[]),
-	append(ArgProps,HomeProps,ArgHomeProps),
-	append(ArgHomeProps,GlobalProps,AllProps),
+	concat([ArgProps,HomeProps,GlobalProps],AllProps),
 	deletePropDups(AllProps,UniqueProps),
 	map1M(basics:assertPakcsrc,UniqueProps),
 	pakcsrc(verboserc,yes), !,
@@ -598,7 +601,7 @@ processCommand("edit",[]) :- !, % edit current main module
 	processCommand("edit",SourceFileName).
 
 processCommand("edit",FileS) :-
-	(getEnv('EDITOR',Editor) -> true ; Editor='vi'),
+	getEditor(Editor),
 	atom_codes(Editor,EditorS),
 	append(EditorS,[32|FileS],EditCmdS),
 	atom_codes(EditCmd,EditCmdS),
@@ -719,10 +722,16 @@ showIfCurryProgram(File) :-
          -> format('~s ',[ProgS])
           ; true).
 
+% get the editor command (for editing files):
+getEditor(Editor) :- pakcsrc(editcommand,Editor), \+ Editor='', !.
+getEditor(Editor) :- getEnv('EDITOR',Editor), \+ Editor='', !.
+getEditor('vi').
+
 % get the pager command (for showing files):
-getPager(Pager) :- getEnv('PAGER',Pager), !.
-getPager('more').
-	
+getPager(Pager) :- pakcsrc(showcommand,Pager), \+ Pager='', !.
+getPager(Pager) :- getEnv('PAGER',Pager), \+ Pager='', !.
+getPager('cat').
+
 % Wait for a file and delete it (used for synchronization with external tools).
 % Second argument is the number of waiting attempts before failing.
 waitForFile(FName,_) :-
@@ -1720,6 +1729,51 @@ readStreamLines(Str,[Line|Lines]) :-
 	readStreamLine(Str,Line),
 	readStreamLines(Str,Lines).
 
+
+% Update a configuration file with a list of given properties
+updateConfigFile(OrgFile,_,UpdFile) :-
+	fileModTime(OrgFile,OrgModTime),
+	fileModTime(UpdFile,UpdModTime),
+	OrgModTime < UpdModTime, !.  % new file is really newer, nothing to do
+updateConfigFile(OrgFile,Props,UpdFile) :-
+	appendAtom(UpdFile,'.bak',UpdFileBak),
+	renameFile(UpdFile,UpdFileBak),
+	open(OrgFile,read,IStream),
+	open(UpdFile,write,OStream),
+	updateStreamLines(IStream,Props,OStream),
+	close(IStream),
+	close(OStream),
+	writeNQ('>>> '), writeNQ(UpdFile),
+	writeNQ(' updated (old version saved in '), writeNQ(UpdFileBak),
+	writeNQ(').'), nlNQ.
+
+updateStreamLines(IStr,_,_) :-
+	atEndOfStream(IStr), !.
+updateStreamLines(IStr,Props,OStr) :-
+	readStreamLine(IStr,Line),
+	updatePropertyLine(Line,Props,NLine),
+	putChars(OStr,NLine),
+	put_code(OStr,10),
+	updateStreamLines(IStr,Props,OStr).
+
+updatePropertyLine([35|Cs],_,[35|Cs]) :- % ignore comment lines starting with #
+	!.
+updatePropertyLine(L,Props,NL) :-
+	append(Ns,[61|Vs],L), % 61 = '='
+	!,
+	atom_codes(N,Ns),
+	updateProperty(N,Ns,Vs,Props,NL).
+updatePropertyLine(L,_,L).
+
+updateProperty(_,Ns,Vs,[],NL) :- append(Ns,[61|Vs],NL).
+updateProperty(N,Ns,_,[prop(N,V)|_],NL) :-
+	!,
+	atom_codes(V,Vs),
+	append(Ns,[61|Vs],NL).
+updateProperty(N,Ns,Vs,[_|Ps],NL) :- updateProperty(N,Ns,Vs,Ps,NL).
+
+% updateConfigFile('../pakcsrc.default',[],'prc').
+% updateConfigFile('../pakcsrc.default',[prop(standalone,yes),prop(smallstate,yes)],'prc').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % show source code of a function call:

@@ -22,7 +22,7 @@ BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
-COMPILERDATE=18/10/12
+COMPILERDATE=29/10/12
 
 # Logfile for make:
 MAKELOG=make.log
@@ -79,7 +79,6 @@ install: installscripts
 # Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
 config: installscripts
-	@scripts/update-pakcsrc
 	@scripts/configure-pakcs
 
 # install the scripts of PAKCS in the bin directory:

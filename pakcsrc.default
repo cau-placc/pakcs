@@ -13,12 +13,30 @@
 # (this path is placed in front of the standard PAKCS library path)
 libraries=
 
-# Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
-verboserc=no
+# Default value when asking for more solutions (values: yes | no | all)
+moresolutions=yes
 
 # Allow Curry extensions (currently: function patterns and records)
 # (values: yes | no):
 curryextensions=yes
+
+# Show warnings for non-trivial overlapping rules (values: yes | no)
+warnoverlapping=yes
+
+# System command to edit the source file of a Curry program
+# (if not defined, the value of the environment variable EDITOR is used)
+editcommand=
+
+# System command to show the source file of a Curry program
+# (if not defined, the value of the environment variable PAGER is used)
+showcommand=
+
+# System command to view dot graph specifications that come from stdin
+# (e.g., used in the Curry browser and the erd2curry tools)
+dotviewcommand=dot -Tps > /tmp/dotxxx ; gv /tmp/dotxxx
+
+# Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
+verboserc=no
 
 # Show messages relating to parsing of modules (values: yes | no):
 parsermessages=yes
@@ -29,15 +47,9 @@ showfcyload=no
 # Show loading/compiling of Prolog files (values: yes | no):
 showplload=no
 
-# Show warnings for non-trivial overlapping rules (values: yes | no)
-warnoverlapping=yes
-
 # Show messages related to dynamic predicates (such as loading,
 # waiting for lock files, etc), compare lib/Dynamic. Values: yes | no
 dynamicmessages=yes
-
-# Default value when asking for more solutions (values: yes | no | all)
-moresolutions=yes
 
 # Show parse errors when parsing terms with ReadShowTerm.read(sQ)Term
 # (values: yes | no)

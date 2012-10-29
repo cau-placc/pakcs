@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.0 (October 18, 2012)
+Release notes for PAKCS Version 1.11.0 (October 29, 2012)
 ---------------------------------------------------------
 
 Changes to version 1.10.1:
@@ -15,6 +15,7 @@ Changes to version 1.10.1:
   - Record construction uses the operator "`:=`" for setting field values
     similarly to record updates (instead of "`=`" in the old syntax).
 * Library `Markdown`: title argument added to `markdownText2CompleteHTML`
+* Custimzation variables in `.pakcsrc` file extended.
 
 -------------------------------------------------------------------------
 

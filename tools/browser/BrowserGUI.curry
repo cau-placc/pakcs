@@ -25,7 +25,6 @@ import Sort
 import Dependency(callsDirectly,indirectlyDependent)
 import ShowGraph
 import ImportCalls
-import BrowserPropertyFile
 import Directory
 import Time(toCalendarTime,calendarTimeToString)
 import Distribution(installDir)
@@ -39,7 +38,7 @@ showExecTime = False
 -- Title and version
 title = "CurryBrowser"
 
-version = "Version of 22/03/2012"
+version = "Version of 29/10/2012"
 
 patchReadmeVersion = do
   readmetxt <- readCompleteFile "README"
@@ -384,10 +383,10 @@ browserGUI gstate rmod rtxt names =
 
   -- set viewer for DOT files:
   setViewDot _ = do
-     oldcmd <- getBrowserConfig "viewdot"
+     oldcmd <- getDotViewCmd
      getAnswer "Command to view dot files:" oldcmd
                (\cmd->if oldcmd==cmd then done
-                                     else setBrowserConfig "viewdot" cmd)
+                                     else setDotViewCmd cmd)
      return []
 
   -- show info texts:

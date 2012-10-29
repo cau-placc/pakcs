@@ -1,11 +1,12 @@
 -- Simple graph visualization
-module ShowGraph(viewDependencyGraph) where
+module ShowGraph(viewDependencyGraph,getDotViewCmd,setDotViewCmd) where
 
 import IO
 import IOExts
 import Char(isAlphaNum)
 import List(intersperse)
-import BrowserPropertyFile
+import Distribution(rcFileName,getRcVar)
+import PropertyFile(updatePropertyFile)
 
 -- Show a dependency graph with dot.
 -- A dependency graph consists of a list of triples of the form (n,as,ms),
@@ -36,8 +37,19 @@ showDotID s | all isAlphaNum s = s
 -- visualize a DOT string:
 viewDot :: String -> IO ()
 viewDot dottxt = do
-    --writeFile "/home/mh/tmp.dot" dottxt
-    dotview <- getBrowserConfig "viewdot"
+    dotview <- getDotViewCmd
     dotstr <- connectToCommand dotview
     hPutStr dotstr dottxt
     hClose dotstr
+
+-------------------------------------------------------------------------
+-- Read the command for viewing dot files from rc file:
+getDotViewCmd :: IO String
+getDotViewCmd = getRcVar "dotviewcommand" >>= return . maybe "" id
+
+-- Set the command for viewing dot files in the rc file:
+-- Set dot view command in kics2rc file:
+setDotViewCmd :: String -> IO ()
+setDotViewCmd dvcmd = do
+  rcfile <- rcFileName
+  updatePropertyFile rcfile "dotviewcommand" dvcmd

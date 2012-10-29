@@ -12,14 +12,15 @@ they have no effect.
 Developed by
 Michael Hanus (CAU Kiel, Germany, mh@informatik.uni-kiel.de)
 
-Version of 22/03/2012
+Version of 29/10/2012
 
 
 Software requirements:
 ----------------------
 
-* PAKCS (for compiling and running the browser)
-  http:/www.informatik.uni-kiel.de/~pakcs
+* A Curry implementation like PAKCS (http:/www.informatik.uni-kiel.de/~pakcs)
+  or KiCS2 (http://www-ps.informatik.uni-kiel.de/kics2/)
+  for compiling and running the browser
 
 * Tcl/Tk (for running the browser GUI)
   http://www.scriptics.com/software/tcltk/

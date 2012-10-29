@@ -444,9 +444,12 @@ module together with all its imported modules
 
 \item[\fbox{\code{:edit}}]\pindex{:edit}
 Load the source code of the current main module into a text editor.
-If the environment variable \ccode{EDITOR} is set,
-the value of this environment variable is used as the editor program,
-otherwise a default editor (e.g., \ccode{vi}) is used.
+If the variable \code{editcommand} is set in the
+configuration file \ccode{.pakcsrc}
+(see Section~\ref{sec-customization}),
+its value is used as an editor command, otherwise
+the environment variable \ccode{EDITOR}
+or a default editor (e.g., \ccode{vi}) is used.
 
 \item[\fbox{\code{:edit $file$}}]\pindex{:edit}
 Load file $file$ into a text editor which is defined
@@ -604,8 +607,12 @@ command together with the current values of all options.
 
 \item[\fbox{\code{:show}}]\pindex{:show}
 Show the source text of the currently loaded Curry program.
-If the environment variable \code{PAGER} is defined,
-use its value to show the program, other use the command \ccode{more}.
+If the variable \code{showcommand} is set in the
+configuration file \ccode{.pakcsrc}
+(see Section~\ref{sec-customization}),
+its value is used as a command to show the source text,
+otherwise the environment variable \code{PAGER} or the standard command
+\ccode{cat} is used.
 If the source text is not available
 (since the program has been directly compiled from a FlatCurry
 or XML file), the loaded program is decompiled and

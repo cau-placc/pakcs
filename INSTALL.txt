@@ -66,7 +66,8 @@ How to generate and install the PAKCS kernel:
    <http://www.informatik.uni-kiel.de/~pakcs/lib/>.
 8. You can configure the behavior of PAKCS by various setting
    in a "pakcsrc" file. For doing so, copy the file
-   `pakcshome/pakcsrc` as "`.pakcsrc`"
+   `pakcshome/pakcsrc.default` as "`.pakcsrc`"
+   (which will be automatically done when you start PAKCS for the first time)
    into you home directory and modify the settings.
 9. If you like to have support for _line editing or history functionality_
    in the PAKCS interactive environment (as supported by the readline

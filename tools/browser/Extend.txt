@@ -14,8 +14,7 @@ http://www.informatik.uni-kiel.de/~mh/publications/papers/WCFLP05.html
 
 In the current implementation of CurryBrowser, the following steps
 are necessary to integrate a new program analysis (here, BROWSERDIR
-denotes the implementation directory of CurryBrowser, e.g.,
-/usr/local/pakcs/tools/browser):
+denotes the implementation directory of CurryBrowser):
 
 1. Implement the new program analysis in a Curry module as a function
    of one of the types used in the module BROWSERDIR/AnalysesTypes.curry.
@@ -36,4 +35,4 @@ invocation of CurryBrowser.
 
 If your analysis is of general interest for Curry users, please sent it
 to Michael Hanus <mh@informatik.uni-kiel.de> so that it can be included
-in future distributions of PAKCS.
+in future distributions of the CurryBrowser.
