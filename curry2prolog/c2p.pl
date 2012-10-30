@@ -157,11 +157,6 @@ processArgs(['-l',Prog|Args]) :- !,
 	append(":load ",ProgL,Load),
 	storeFirstCmds([Load]),
 	processArgs(Args).
-processArgs([':l',Prog|Args]) :- !, % for compatibility with KiCS2
-	atom_codes(Prog,ProgL),
-	append(":load ",ProgL,Load),
-	storeFirstCmds([Load]),
-	processArgs(Args).
 processArgs(['-m',Main|Args]) :-
 	atom_codes(Main,MainS),
 	retract(mainFunction(_)),
@@ -189,11 +184,41 @@ processArgs(['-c',Prog|Args]) :- !,
 	(Args=[] -> true
 	  ; writeErr('ERROR: Illegal arguments after "-c": '),
 	    writeErr(Args), nlErr, fail).
+processArgs([Arg|Args]) :- % for compatibility with KiCS2
+	atom_codes(Arg,[58|CmdS]), !, % 58=':'
+	map2M(user:isLowerCaseOf,ShortCmd,CmdS),
+	expandCommand(ShortCmd,FullCmd),
+	extractReplCmdParameters(Args,Params,RArgs),
+	processReplCmd(FullCmd,Params,RArgs).
 processArgs([Arg|Args]) :-
 	retract(rtargs(RTA)),
 	append(RTA,[Arg],RTAs),
 	assertz(rtargs(RTAs)),
 	processArgs(Args).
+
+% extract REPL command parameters (i.e., everything until next REPL command):
+extractReplCmdParameters([],[],[]).
+extractReplCmdParameters([Arg|Args],[],[Arg|Args]) :-
+	atom_codes(Arg,[58|_]), !. % 58=':'
+extractReplCmdParameters([Arg|Args],[ArgS|Params],RArgs) :-
+	atom_codes(Arg,ArgS),
+	extractReplCmdParameters(Args,Params,RArgs).
+
+% process a REPL command parameter (i.e., store it for later processing)
+processReplCmd("save",[],Args) :- !,
+	addFirstCmds([":save $MAIN"]),
+	processArgs(Args).
+processReplCmd(Cmd,Params,Args) :- !,
+	combine2cmd([Cmd|Params],CmdS),
+	addFirstCmds([[58|CmdS]]),
+	processArgs(Args).
+
+combine2cmd([],[]).
+combine2cmd([X],X).
+combine2cmd([X1,X2|Xs],CmdS) :-
+	combine2cmd([X2|Xs],X2s),
+	append(X1,[32|X2s],CmdS).
+	      
 
 % Show the main options of calling pakcs:
 writeMainHelp :-
@@ -266,7 +291,7 @@ prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
 prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
-allCommands(["add","analyze","browse","cd","coosy","edit","fork","help",
+allCommands(["add","analyze","browse","cd","coosy","edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
 	     "save","set","show","type","xml"]).
 
@@ -341,8 +366,9 @@ processCommand("help",[]) :- !,
 	write(':load <prog>      - compile and load program "<prog>.curry" and all imports'),nl,
 	write(':add <prog>       - add module <prog> to currently loaded modules'),nl,
 	write(':reload           - recompile currently loaded modules'),nl,
-	write('<expression>      - evaluate <expression> to normal form'), nl,
-	write('let <var>=<exp>   - define variable binding for subsequent goals'), nl,
+	write(':eval <expr>      - evaluate expression <expr>'), nl,
+	write('<expr>            - evaluate expression <expr>'), nl,
+	write('let <var>=<expr>  - define variable binding for subsequent goals'), nl,
 	write(':type <expr>      - show the type of <expression>'),nl,
 	write(':analyze          - analyze program (see submenu)'),nl,
 	write(':browse           - browse program and its imported modules'),nl,
@@ -486,6 +512,10 @@ processCommand("reload",[]) :- !,
 	                   ; true),
 	!, fail.
 
+processCommand("eval",ExprInput) :- !,
+	processExpression(ExprInput,ExecGoal),
+	call(ExecGoal).
+
 processCommand("type",ExprInput) :- !,
 	(mainexpr(Exp,FreeVars,ExprInput,[]) -> true
                        ; write('*** Syntax error'), nl, !, failWithExitCode),
@@ -526,7 +556,7 @@ processCommand("interface",IFTail) :- !,
 	isValidModuleName(Prog),
         atom_codes(ProgA,Prog),
         getEnv('PAKCSHOME',PH),
-	appendAtoms(['"',PH,'/currytools/genint/GenInt.state" -int ',ProgA],
+	appendAtoms(['"',PH,'/currytools/genint/GenInt" -int ',ProgA],
 		    GenIntCmd),
         %write('Executing: '), write(GenIntCmd), nl,
         shellCmdWithCurryPath(GenIntCmd),
@@ -632,7 +662,7 @@ processCommand("show",[]) :- !, % show source code of current module
 	  ; write('No source program file available, generating source from FlatCurry...'),
 	    nl, nl,
 	    getEnv('PAKCSHOME',PH), atom_codes(ProgA,Prog),
-	    appendAtoms(['"',PH,'/currytools/genint/GenInt.state" -mod ',ProgA],
+	    appendAtoms(['"',PH,'/currytools/genint/GenInt" -mod ',ProgA],
 			ShowProgCmd),
             %write('Executing: '), write(ShowProgCmd), nl,
 	    shellCmdWithCurryPath(ShowProgCmd)),
@@ -700,6 +730,11 @@ processCommand("save",MainGoal) :- !,
 	appendAtom(CMD3,ProgStName,Cmd),
 	%write('Executing: '), write(Cmd), nl,
 	shellCmd(Cmd),
+	% put symbolic link from Prog to Prog.state
+	concat(["rm -f ",Prog],RmCmdS),
+	atom_codes(RmCmd,RmCmdS), shellCmd(RmCmd),
+	concat(["ln -s ",ProgSt," ",Prog],LnCmdS),
+	atom_codes(LnCmd,LnCmdS), shellCmd(LnCmd),
 	call(ProgInits),
 	!, fail.
 
@@ -824,7 +859,8 @@ processAnalyze("functions",Prog) :-
 processAnalyze("icalls",Prog) :-
         atom_codes(ProgA,Prog),
 	getEnv('PAKCSHOME',PH),
-	appendAtoms(['"',PH,'/tools/ImportCalls.state" ',ProgA],AnaCmd),
+	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
+		    AnaCmd),
         %write('Executing: '), write(AnaCmd), nl,
         shellCmdWithCurryPath(AnaCmd).
 processAnalyze("help",_) :-

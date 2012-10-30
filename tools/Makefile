@@ -5,8 +5,7 @@
 
 .PHONY: all
 all:    AddTypes.state check.state curry2xml.state \
-	  currytest ImportCalls.state \
-	  CreateMakefile.state SourceProgGUI.state
+	  currytest CreateMakefile.state SourceProgGUI.state
 	@cd browser   ; ${MAKE}
 	@cd optimize  ; ${MAKE}
 	@cd xmldata   ; ${MAKE}
@@ -56,11 +55,6 @@ curry2xml.state: curry2xml.curry ../lib/meta/FlatXML.curry \
 ImportGraph.state: ImportGraph.curry ../lib/meta/FlatCurry.curry \
 	      ../lib/System.curry ../lib/DaVinci.curry ../lib/List.curry
 	../bin/pakcs -s ImportGraph
-
-# generate saved state for interface generator:
-ImportCalls.state: ImportCalls.curry ../lib/meta/FlatCurry.curry \
-	      ../lib/System.curry ../lib/List.curry
-	../bin/pakcs -set -error -s ImportCalls
 
 SourceProgGUI.state: SourceProgGUI.curry ../lib/GUI.curry
 	../bin/pakcs -s SourceProgGUI
