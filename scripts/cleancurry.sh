@@ -48,6 +48,9 @@ do
     F=`expr $F : '\(.*\)\.lcurry' \| $F`
     F=`expr $F : '\(.*\)\.curry' \| $F`
     rm -f $F.ast $F.cint $F.fl $F.def $F.pizza $F.acy $F.uacy $F.flc $F.fint $F.fcy $F.pl $F.po $F.pl.main $F.state $F.profile "$F"_flat.xml $F.icurry
+    if [ -h "$F" ] ; then
+      rm "$F"
+    fi
     FDIR=`dirname $F`
     FBASE=`basename $F`
     PAKCSDIR=$FDIR/.curry/pakcs

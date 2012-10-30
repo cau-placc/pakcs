@@ -9,7 +9,7 @@
 	   printDepth/1, printAllFailures/0,
 	   profiling/1, suspendmode/1, timemode/1,
            profileCall/1, profileFail/1, profileExit/1, profileRedo/1,
-	   firstCmds/1, storeFirstCmds/1,
+	   firstCmds/1, storeFirstCmds/1, addFirstCmds/1,
 	   evaluateGoalAndExit/1, evaluateMainExpression/3,
 	   writeFailSource/1,
 	   writeCurry/1, writeVar/2, writeCurryTermWithFreeVarNames/2]).
@@ -48,10 +48,16 @@ timemode(no).	 % yes if execution times should be shown
 firstCmds([]). % first commands to be executed in main interaction loop
 
 
-% store a command for processing:
-storeFirstCmds(Cmd) :-
+% store a command for initialprocessing:
+storeFirstCmds(Cmds) :-
 	(retract(firstCmds(_)) -> true ; true), % just to be sure
-	asserta(firstCmds(Cmd)).
+	asserta(firstCmds(Cmds)).
+	
+% add a command for initial processing:
+addFirstCmds(Cmds) :-
+	(retract(firstCmds(OCmds)) -> true ; OCmds=[]),
+	append(OCmds,Cmds,NCmds),
+	asserta(firstCmds(NCmds)).
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
