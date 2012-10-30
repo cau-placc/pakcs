@@ -22,10 +22,12 @@ BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
-COMPILERDATE=29/10/12
+COMPILERDATE=30/10/12
 
 # Logfile for make:
 MAKELOG=make.log
+# The name of the Curry System
+export CURRYSYSTEM=PAKCS
 # the root directory
 export ROOT=$(CURDIR)
 # binary directory and executables
@@ -70,6 +72,7 @@ install: installscripts
 	# compile the event handler demon for dynamic web pages:
 	@if [ -r bin/pakcs ] ; then cd www && $(MAKE) ; fi
 	# compile the tools:
+	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools && $(MAKE) ; fi
 	# compile documentation, if necessary:
 	@if [ -d docs/src ] ; \
@@ -146,6 +149,7 @@ clean:
 .PHONY: cleantools
 cleantools:
 	cd curry2prolog && $(MAKE) clean
+	cd currytools && $(MAKE) clean
 	cd tools && $(MAKE) clean
 	cd cpns && $(MAKE) clean
 	cd www && $(MAKE) clean
@@ -224,7 +228,9 @@ genbindist:
 .PHONY: cleandist
 cleandist:
 	rm -rf $(LOCALBIN)
-	rm -rf .git .gitmodules lib/.git .gitignore lib/.gitignore
+	rm -rf .git .gitmodules .gitignore
+	rm -rf lib/.git lib/.gitignore
+	rm -rf currytools/.git currytools/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src

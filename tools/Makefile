@@ -8,7 +8,6 @@ all:    AddTypes.state check.state curry2xml.state \
 	  currytest \
 	  genint.state ImportCalls.state \
 	  CreateMakefile.state SourceProgGUI.state
-	@cd currydoc  ; ${MAKE}
 	@cd browser   ; ${MAKE}
 	@cd optimize  ; ${MAKE}
 	@cd xmldata   ; ${MAKE}
@@ -27,8 +26,9 @@ AddTypes.state: AddTypes.curry
 
 # generate saved state for check program:
 check.state: check.curry ../lib/meta/FlatCurry.curry \
-	     analysis/AnaOverlapping.curry analysis/AnaIndeterminism.curry
-	../bin/pakcs -set path analysis -set -error -s check
+	     ../currytools/analysis/AnaOverlapping.curry \
+	     ../currytools/analysis/AnaIndeterminism.curry
+	../bin/pakcs -set path ../currytools/analysis -set -error -s check
 
 # generate saved state for currycreatemake program:
 CreateMakefile.state: CreateMakefile.curry ../lib/meta/FlatCurryRead.curry
@@ -76,10 +76,8 @@ SourceProgGUI.state: SourceProgGUI.curry ../lib/GUI.curry
 clean: 
 	../bin/cleancurry
 	(cd ../bin ; rm -f addtypes currycreatemake currytest)
-	cd analysis  ; ../../bin/cleancurry
 	cd Peval     ; ${MAKE} clean
 	cd coosy     ; ${MAKE} clean
-	cd currydoc  ; ${MAKE} clean
 	cd browser   ; ${MAKE} clean
 	cd optimize  ; ${MAKE} clean
 	cd xmldata   ; ${MAKE} clean
