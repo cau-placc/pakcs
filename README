@@ -31,6 +31,10 @@ curry2prolog:
   is the basis of the main component of PAKCS: the interactive
   development environment.
 
+currytools:
+  This directory contains various tools for Curry
+  (see the README there for a more detailed description).
+
 docs:
   This directory contains some documentation (Curry Report, PAKCS User Manual,
   DTD for XML representation of FlatCurry).

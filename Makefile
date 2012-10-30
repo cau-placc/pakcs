@@ -27,7 +27,7 @@ COMPILERDATE=30/10/12
 # Logfile for make:
 MAKELOG=make.log
 # The name of the Curry System
-export CURRYSYSTEM=PAKCS
+export CURRYSYSTEM=pakcs
 # the root directory
 export ROOT=$(CURDIR)
 # binary directory and executables
