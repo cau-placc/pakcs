@@ -81,21 +81,20 @@ inside the current module whereas the text
 of the module \code{Prelude}.
 If one wants to write single quotes without this specific
 meaning, one can escape them with a backslash:
-\begin{verbatim}
+\begin{curry}
 --- This is a comment without a \'reference\'.
-\end{verbatim}
+\end{curry}
 To simplify the writing of documentation comments,
 such escaping is only necessary for single words,
 i.e., if the text inside quotes has not the syntax of
 an identifier, the escaping can be omitted, as in
-\begin{verbatim}
+\begin{curry}
 --- This isn't a reference.
-\end{verbatim}
+\end{curry}
 %
 The following example text shows a Curry program with some
 documentation comments:
-{\renewcommand{\baselinestretch}{1.0}
-\begin{verbatim}
+\begin{curry}
 --- This is an
 --- example module.
 --- @author Michael Hanus
@@ -121,8 +120,7 @@ last xs | conc ys [x] =:= xs  = x   where x,ys free
 --- @cons Leaf - a leaf of the tree
 --- @cons Node - an inner node of the tree
 data Tree a = Leaf a | Node [Tree a]
-\end{verbatim}
-}
+\end{curry}
 \noindent
 To generate the documentation, execute the command\pindex{currydoc}
 \begin{curry}
