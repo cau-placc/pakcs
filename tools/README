@@ -6,7 +6,7 @@ FlexRigid.curry:
    A module defining a function to compute the rigid/flex status
    of a FlatCurry expression.
 
-ModImports:
+ImportGraph:
    A tool to visualize the module dependencies of a program
    as a graph with DaVinci.
 
@@ -28,9 +28,6 @@ curry-mode.el:
 curry2xml.curry:
    A translator for Curry programs into their
    corresponding FlatCurry representation in XML.
-
-currytest.curry:
-   A test tool for Curry programs.
 
 optimize:
    Directory containing a simple optimizer for FlatCurry programs
