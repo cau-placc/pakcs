@@ -2,7 +2,7 @@
 --- A tool to create a simple makefile for a Curry application.
 ---
 --- @author Michael Hanus
---- @version February 2007
+--- @version October 2012
 -----------------------------------------------------------------
 
 module CreateMakefile where
@@ -37,15 +37,15 @@ createMake mainmod target = do
 
 showMake mainmod sourcefiles =
   "# Makefile for main module \""++mainmod++"\":\n\n"++
-  "PAKCSHOME="++installDir++"\n"++
-  "PAKCSLIB=${PAKCSHOME}/lib\n\n"++
+  "CURRYHOME="++installDir++"\n"++
+  "CURRYLIB=$(CURRYHOME)/lib\n\n"++
   ".PHONY: all\n"++
-  "all: "++mainmod++".state\n\n"++
-  mainmod++".state: " ++ concat (intersperse " \\\n\t  " sourcefiles) ++"\n"++
+  "all: "++mainmod++"\n\n"++
+  mainmod++": " ++ concat (intersperse " \\\n\t  " sourcefiles) ++"\n"++
   "\t# create saved state for top-level function \"main\":\n"++
-  "\t${PAKCSHOME}/bin/pakcs -m \"main\" -s "++mainmod++"\n\n"++
+  "\t$(CURRYHOME)/bin/"++curryCompiler++" :l "++mainmod++" :save :q\n\n"++
   ".PHONY: clean\n"++
-  "clean:\n\t${PAKCSHOME}/bin/cleancurry\n"
+  "clean:\n\t$(CURRYHOME)/bin/cleancurry\n"
 
 -- add a directory name for a Curry source file by looking up the
 -- current load path (CURRYPATH):
@@ -58,10 +58,10 @@ findSourceFileInLoadPath modname = do
  where
   dropLocal f = if take 2 f == "./" then drop 2 f else f
 
--- replace PAKCS lib directory prefix in a filename by ${PAKCSLIB}:
+-- replace CURRY lib directory prefix in a filename by $(CURRYLIB):
 replacePakcsLib filename =
   let pakcslib = installDir++"/lib"
       pllength = length pakcslib
    in if take pllength filename == pakcslib
-      then "${PAKCSLIB}" ++ drop pllength filename
+      then "$(CURRYLIB)" ++ drop pllength filename
       else filename

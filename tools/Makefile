@@ -4,7 +4,7 @@
 # - installed curry2prolog system
 
 .PHONY: all
-all:    AddTypes.state check.state curry2xml.state CreateMakefile.state
+all:    AddTypes.state check.state curry2xml.state
 	@cd optimize  ; ${MAKE}
 	@cd xmldata   ; ${MAKE}
 	@cd Peval     ; ${MAKE}
@@ -26,12 +26,6 @@ check.state: check.curry ../lib/meta/FlatCurry.curry \
 	     ../currytools/analysis/AnaIndeterminism.curry
 	../bin/pakcs -set path ../currytools/analysis -set -error -s check
 
-# generate saved state for currycreatemake program:
-CreateMakefile.state: CreateMakefile.curry ../lib/meta/FlatCurryRead.curry
-	../bin/pakcs -s CreateMakefile
-	(cd ../bin ; rm -f currycreatemake ; \
-	             ln -s ../tools/CreateMakefile.state currycreatemake)
-
 # generate saved state for curry2xml program:
 curry2xml.state: curry2xml.curry ../lib/meta/FlatXML.curry \
 	         ../lib/meta/Flat.curry \
@@ -46,7 +40,7 @@ ImportGraph.state: ImportGraph.curry ../lib/meta/FlatCurry.curry \
 .PHONY: clean
 clean: 
 	../bin/cleancurry
-	(cd ../bin ; rm -f addtypes currycreatemake)
+	(cd ../bin ; rm -f addtypes)
 	cd Peval     ; ${MAKE} clean
 	cd coosy     ; ${MAKE} clean
 	cd optimize  ; ${MAKE} clean
