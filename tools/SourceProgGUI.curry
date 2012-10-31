@@ -1,8 +1,16 @@
--- A simple GUI for showing functions in source programs.
---
--- IMPORTANT NOTE: Due to a bug in older versions of Sicstus-Prolog,
--- you need version 3.8.5 (or newer) to execute this program
--- (without "segmentation violation")
+------------------------------------------------------------------------
+--- A simple GUI for highlighting functions in the source text
+--- of a Curry module.
+---
+--- To start: SourceProgGUI <module name>
+--- Select highlighting by commands on stdin:
+--- +fun          -> highlight function "fun"
+--- -fun          -> remove highlighting for function "fun"
+--- <empty line>  -> terminate GUI
+--- q             -> terminate GUI
+---
+--- @version June 2011
+------------------------------------------------------------------------
 
 import IO
 import GUI
@@ -21,7 +29,7 @@ import Maybe(isJust)
 findSourceFileInLoadPath modname = do
   loadpath <- getLoadPathForFile modname
   mbfname <- lookupFileInPath (baseName modname) [".lcurry",".curry"] loadpath
-  maybe (error ("Curry file for module \""++modname++"\" not found!"))
+  maybe (error $ "Curry file for module \""++modname++"\" not found!")
         return
         mbfname
 
@@ -38,22 +46,23 @@ findFirstDeclLine f (l:ls) n =
 ---------------------------------------------------------------------
 -- The definition of the GUI together with a handler
 -- "extHandler" that is responsible to handle the external input:
+sourceProgGUI :: String -> [(String,(Int,Int))]
+             -> (Widget,[Handle -> GuiPort -> IO [ReconfigureItem]])
 sourceProgGUI cnt progdefs =
- (Col [] [
-   Row [] [Label [Text "Focus on function:"],
-           Entry [WRef rinp, Background "yellow", FillX]
-           --Button exitGUI [Text "Exit"]
-          ],
-   TextEditScroll [WRef ptxt, Text cnt, Background "white",
-                   Height 10, Width 70, Fill]],
+ (col [row [Label [Text "Focus on function:"],
+            Entry [WRef rinp, Background "yellow", FillX]
+           ],
+       TextEditScroll [WRef ptxt, Text cnt, Background "white",
+                       Height 10, Width 70, Fill]],
   [extHandler])
 
  where
    ptxt,rinp free
 
+   extHandler :: Handle -> GuiPort -> IO [ReconfigureItem]
    extHandler h gp = do
      inp <- hGetLine h
-     if inp==""
+     if inp=="" || head inp == 'q'
       then exitGUI gp
       else maybe done
                  (\ (start,end) ->
@@ -65,9 +74,10 @@ sourceProgGUI cnt progdefs =
                    else do
                      removeRegionStyle ptxt (start,0) (end+1,0) (Bg Yellow) gp
                      setValue rinp "" gp
-                     extHandler h gp
+                     extHandler h gp >> done
                  )
                 (lookup (tail inp) progdefs)
+     return []
 
 -- start the counter GUI:
 startGUI prog = do

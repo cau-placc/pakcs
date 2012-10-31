@@ -31,6 +31,7 @@ counterGUI =
      l <- hGetLine h
      if l=="stop" then exitGUI gp
                   else setValue val l gp
+     return []
 
 -- start the counter GUI:
 main = do

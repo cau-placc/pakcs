@@ -69,7 +69,8 @@ start mod = do
                         [],("",OtherText,""),False,Nothing)
   runInitGUI (title++" ("++version++")")
              (browserGUI stateref rmod rtxt (trees2strings trees))
-             (\gp -> setValue rtxt helptxt gp >> setValue rmod "0" gp)
+             (\gp -> setValue rtxt helptxt gp >> setValue rmod "0" gp >>
+                     return [])
  where rmod,rtxt free
 
 m1 = start "BrowserGUI"
@@ -708,7 +709,7 @@ getAnswer question initial processinput = do
                        Entry [Text initial, WRef entry, Cmd getinput, FillX,
                               Background "white", Width 50],
                        Button getinput [Text "Ok"]])
-                 (focusInput entry)
+                 (\gp -> focusInput entry gp >> return [])
   where
    entry free
 

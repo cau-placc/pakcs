@@ -209,6 +209,7 @@ protocolGUI portnum initmods stateref =
    ext_handler h gp = do
      msgstring <- hGetLine h
      processTestMsg (readUnqualifiedTerm ["Assertion","Prelude"] msgstring) gp
+     return []
 
    processTestMsg (TestModule m) gp =
       appendValue rprot

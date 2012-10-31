@@ -14,13 +14,12 @@ new analyzers can be easily connected to CurryBrowser
 Start CurryBrowser:
 ===================
 
-CurryBrowser is part of the PAKCS
-(http://www.informatik.uni-kiel.de/~pakcs/) distribution and can be
-started in two ways:
+CurryBrowser is part of the Curry systems PAKCS and KiCS2
+and can be started in two ways:
 
-- In the command shell via the command: [pakcs/bin/]currybrowse mod
+- In the command shell via the command: [[pakcs|kics2]/bin/]currybrowse mod
 
-- In the PAKCS environment after loading the module "mod" and typing
+- In the PAKCS/KiCS2 environment after loading the module "mod" and typing
   the command ":browse"
 
 Here, "mod" is the name of the main module of a Curry application.

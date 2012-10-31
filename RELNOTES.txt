@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.0 (October 29, 2012)
+Release notes for PAKCS Version 1.11.0 (October 31, 2012)
 ---------------------------------------------------------
 
 Changes to version 1.10.1:
@@ -14,6 +14,10 @@ Changes to version 1.10.1:
   - Field selection operator is "`:>`" (instead of "`->`" in old syntax).
   - Record construction uses the operator "`:=`" for setting field values
     similarly to record updates (instead of "`=`" in the old syntax).
+* Library `GUI`: types of various main operations (like `runInitGUI`,
+  `runInitGUIwithParams`) slightly changed (for compatibility with
+  KiCS2 version of the library). The old operations are still
+  available as `runInitGUI'` etc.
 * Library `Markdown`: title argument added to `markdownText2CompleteHTML`
 * Custimzation variables in `.pakcsrc` file extended.
 

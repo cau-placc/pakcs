@@ -131,9 +131,9 @@ pFile = "tmp.matrixdemodata"
 empty = Person "" "" "" "" "" "" "" ""
 
 someCurryHeroes = 
-  [Person "Hanus" "Michael" "Christian-Albrechts-University" "Kiel" "Ohlshausener Straﬂe" "40" "D-24098" "Germany",
+  [Person "Hanus" "Michael" "Christian-Albrechts-University" "Kiel" "Ohlshausener Stra√üe" "40" "D-24098" "Germany",
    Person "Antoy" "Sergio" "Portland State University" "Portland, Oregon" "SW 4th Avenue" "1900" "OR 97207-0751" "USA",
-   Person "Vidal Oriola" "Germ·n F. " "Universidad PolitÈcnica" "Valencia" "Camino de Vera" "s/n" "E-46022" "Spain",
-   Person "Huch" "Frank" "Christian-Albrechts-University" "Kiel" "Ohlshausener Straﬂe" "40" "D-24098" "Germany",
-   Person "Braﬂel" "Bernd" "Christian-Albrechts-University" "Kiel" "Ohlshausener Straﬂe" "40" "D-24098" "Germany"]
+   Person "Vidal Oriola" "Germ√°n F. " "Universidad Polit√©cnica" "Valencia" "Camino de Vera" "s/n" "E-46022" "Spain",
+   Person "Huch" "Frank" "Christian-Albrechts-University" "Kiel" "Ohlshausener Stra√üe" "40" "D-24098" "Germany",
+   Person "Bra√üel" "Bernd" "Christian-Albrechts-University" "Kiel" "Ohlshausener Stra√üe" "40" "D-24098" "Germany"]
 
