@@ -389,6 +389,7 @@ It is probably best to manipulate this data structure with the commands
 (defvar curry-doc-reserved-ids
  (list
   '("case" . "case exp of { alts [;] }")
+  '("fcase" . "fcase exp of { alts [;] }")
   '("class" . "class [context =>] simpleclass [where { cbody [;] }]")
   '("data" . "data [context =>] simpletype = constrs [deriving]")
   '("default" . "default (type1 , ... , typen)")
