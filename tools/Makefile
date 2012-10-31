@@ -4,21 +4,14 @@
 # - installed curry2prolog system
 
 .PHONY: all
-all:    AddTypes.state check.state curry2xml.state
+all:    check.state curry2xml.state
 	@cd optimize  ; ${MAKE}
 	@cd xmldata   ; ${MAKE}
 	@cd Peval     ; ${MAKE}
 	@cd coosy     ; ${MAKE}
-	@cd curry2js  ; ${MAKE}
 	@cd erd2curry ; ${MAKE}
 	@cd ui        ; ${MAKE}
 
-
-# generate saved state for addtypes program:
-AddTypes.state: AddTypes.curry
-	../bin/pakcs -s AddTypes
-	(cd ../bin ; rm -f addtypes ; \
-	             ln -s ../tools/AddTypes.state addtypes)
 
 # generate saved state for check program:
 check.state: check.curry ../lib/meta/FlatCurry.curry \
@@ -40,11 +33,9 @@ ImportGraph.state: ImportGraph.curry ../lib/meta/FlatCurry.curry \
 .PHONY: clean
 clean: 
 	../bin/cleancurry
-	(cd ../bin ; rm -f addtypes)
 	cd Peval     ; ${MAKE} clean
 	cd coosy     ; ${MAKE} clean
 	cd optimize  ; ${MAKE} clean
 	cd xmldata   ; ${MAKE} clean
-	cd curry2js  ; ${MAKE} clean
 	cd erd2curry ; ${MAKE} clean
 	cd ui        ; ${MAKE} clean

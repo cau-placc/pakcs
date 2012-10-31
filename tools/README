@@ -1,10 +1,9 @@
+PAKCS Tools
+===========
+
 This directory contains various tools for the PAKCS system.
 
 Currently it contains:
-
-FlexRigid.curry:
-   A module defining a function to compute the rigid/flex status
-   of a FlatCurry expression.
 
 ImportGraph:
    A tool to visualize the module dependencies of a program
@@ -15,14 +14,11 @@ Peval:
    Curry2Prolog compiler environment by the command ":peval").
    See the README there for more details.
 
-addtypes.curry:
-   A tool that adds type signaturs to a given Curry program.
-
 check.curry:
    This program implements the ":analyze"/"functions" command of the
    Curry2Prolog compiler environment.
 
-curry-mode.el:
+emacs:
    Emacs mode for editing Curry programs
 
 curry2xml.curry:

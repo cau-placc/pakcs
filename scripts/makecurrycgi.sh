@@ -100,7 +100,7 @@ if [ $# != 1 -a $# != 3 ] ; then
 fi
 
 # Definitions for WUI/JavaScript generation:
-WUIJS_PREPROCESSOR=$PAKCSHOME/tools/curry2js/Curry2JS.state
+WUIJS_PREPROCESSOR=$PAKCSHOME/currytools/curry2js/Curry2JS
 WUIJS_DEFAULT_JS=$PAKCSHOME/include/wui_prims.js
 
 # remove possible suffix:
