@@ -1842,7 +1842,7 @@ getModStream(ModS,Stream) :-
 getModStream(ModS,InStream) :-
 	getEnv('PAKCSHOME',PH),
 	atom_codes(ModA,ModS),
-	appendAtoms(['"',PH,'/tools/SourceProgGUI.state" ',ModA,
+	appendAtoms(['"',PH,'/currytools/browser/SourceProgGUI" ',ModA,
 		     ' 2>/dev/null'],Cmd),
    	execCommand(Cmd,InStream,_,std),
 	assertz(sourceCodeGUI(ModS,InStream)).

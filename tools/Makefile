@@ -4,9 +4,7 @@
 # - installed curry2prolog system
 
 .PHONY: all
-all:    AddTypes.state check.state curry2xml.state \
-	  currytest CreateMakefile.state SourceProgGUI.state
-	@cd browser   ; ${MAKE}
+all:    AddTypes.state check.state curry2xml.state CreateMakefile.state
 	@cd optimize  ; ${MAKE}
 	@cd xmldata   ; ${MAKE}
 	@cd Peval     ; ${MAKE}
@@ -34,17 +32,6 @@ CreateMakefile.state: CreateMakefile.curry ../lib/meta/FlatCurryRead.curry
 	(cd ../bin ; rm -f currycreatemake ; \
 	             ln -s ../tools/CreateMakefile.state currycreatemake)
 
-# generate saved state for currytest program:
-.PHONY: currytest
-currytest: currytest.state
-
-currytest.state: currytest.curry ../lib/meta/FlatCurry.curry \
-	         ../lib/System.curry ../lib/Assertion.curry \
-	         ../lib/Dynamic.curry ../lib/Distribution.curry ../lib/GUI.curry
-	../bin/pakcs -s currytest
-	(cd ../bin ; rm -f currytest ; \
-	             ln -s ../tools/currytest.state currytest)
-
 # generate saved state for curry2xml program:
 curry2xml.state: curry2xml.curry ../lib/meta/FlatXML.curry \
 	         ../lib/meta/Flat.curry \
@@ -56,16 +43,12 @@ ImportGraph.state: ImportGraph.curry ../lib/meta/FlatCurry.curry \
 	      ../lib/System.curry ../lib/DaVinci.curry ../lib/List.curry
 	../bin/pakcs -s ImportGraph
 
-SourceProgGUI.state: SourceProgGUI.curry ../lib/GUI.curry
-	../bin/pakcs -s SourceProgGUI
-
 .PHONY: clean
 clean: 
 	../bin/cleancurry
-	(cd ../bin ; rm -f addtypes currycreatemake currytest)
+	(cd ../bin ; rm -f addtypes currycreatemake)
 	cd Peval     ; ${MAKE} clean
 	cd coosy     ; ${MAKE} clean
-	cd browser   ; ${MAKE} clean
 	cd optimize  ; ${MAKE} clean
 	cd xmldata   ; ${MAKE} clean
 	cd curry2js  ; ${MAKE} clean
