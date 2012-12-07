@@ -2,10 +2,10 @@
  |  __  |    /  \     | |  / /  |  ____| |  _____|   Portland Aachen Kiel
  | |  | |   / /\ \    | |_/ /   | |      | |_____    Curry System
  | |__| |  / /__\ \   |  _  |   | |      |_____  |   
- |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.0 (1)
+ |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.0 (2)
  |_|     /_/      \_\ |_|  \_\  |______| |_______|   
 
-Curry2Prolog(sicstus 4.2) Compiler Environment (Version of 18/10/12)
+Curry2Prolog(sicstus 4.2) Compiler Environment (Version of 07/12/12)
 (RWTH Aachen, CAU Kiel, Portland State University)
 
 Bug reports: mh@informatik.uni-kiel.de
@@ -344,9 +344,9 @@ val=5
 More solutions? [y(es)/N(o)/a(ll)] expr_parser> generating palindrome.fcy ...
 palindrome> Goal: (pali "abaaba") =:= [] :: Success
 Result: success
-More solutions? [y(es)/N(o)/a(ll)] palindrome> Goal: pali5 :: [String]
-Result: ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
-More solutions? [y(es)/N(o)/a(ll)] palindrome> palindrome> palindrome> generating mortgage.fcy ...
+More solutions? [y(es)/N(o)/a(ll)] palindrome> Goal: pali5 :: IO [String]
+IO: ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
+palindrome> palindrome> palindrome> palindrome> generating mortgage.fcy ...
 mortgage> Goal: mortgage 1.0E+05 180.0 0.01 r 0.0 :: Success
 Free variables in goal: r
 Result: success
