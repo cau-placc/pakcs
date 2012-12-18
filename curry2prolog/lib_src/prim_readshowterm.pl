@@ -96,6 +96,7 @@ show_termstring([C|T],S,E) :-
 	show_termstring(T,ST,E).
 
 show_termchar(34,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,34]).
+show_termchar(39,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,39]).
 show_termchar(92,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,92]).
 show_termchar(10,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,110]).
 show_termchar(13,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,114]).

@@ -22,7 +22,7 @@ BUILDVERSION=2
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
-COMPILERDATE=07/12/12
+COMPILERDATE=18/12/12
 
 # Logfile for make:
 MAKELOG=make.log
