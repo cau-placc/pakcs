@@ -40,7 +40,7 @@ idRule = trRule rule External
  where
   rule args exp = Rule args (idExpr exp)
 
-idExpr = trExpr Var Lit Comb Let Free Or Case Branch
+idExpr = trExpr Var Lit Comb Let Free Or Case Branch Typed
 
 idOp = trOp Op
 

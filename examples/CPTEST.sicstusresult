@@ -2,10 +2,10 @@
  |  __  |    /  \     | |  / /  |  ____| |  _____|   Portland Aachen Kiel
  | |  | |   / /\ \    | |_/ /   | |      | |_____    Curry System
  | |__| |  / /__\ \   |  _  |   | |      |_____  |   
- |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.0 (2)
+ |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.1 (1)
  |_|     /_/      \_\ |_|  \_\  |______| |_______|   
 
-Curry2Prolog(sicstus 4.2) Compiler Environment (Version of 07/12/12)
+Curry2Prolog(sicstus 4.2) Compiler Environment (Version of 21/12/12)
 (RWTH Aachen, CAU Kiel, Portland State University)
 
 Bug reports: mh@informatik.uni-kiel.de

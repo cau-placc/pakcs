@@ -90,6 +90,8 @@ fcy2flcExpr('Or'(E1,E2),'Or'(FE1,FE2)) :-
 fcy2flcExpr('Case'(CT,Exp,Branches),'Case'(CT,FExp,FBranches)) :-
 	fcy2flcExpr(Exp,FExp),
 	map2M(readFlcFromFcy:fcy2flcBranch,Branches,FBranches).
+fcy2flcExpr('Typed'(E1,_),FE1) :- % ignore typed expressions
+	fcy2flcExpr(E1,FE1).
 
 fcy2flcCombType('FuncCall','FuncCall').
 fcy2flcCombType('ConsCall','ConsCall').

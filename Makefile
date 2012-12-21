@@ -16,13 +16,13 @@ MAJORVERSION=1
 # The minor version number:
 MINORVERSION=11
 # The revision version number:
-REVISIONVERSION=0
+REVISIONVERSION=1
 # The build version number:
-BUILDVERSION=2
+BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
-COMPILERDATE=18/12/12
+COMPILERDATE=21/12/12
 
 # Logfile for make:
 MAKELOG=make.log

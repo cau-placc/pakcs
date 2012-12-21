@@ -1,6 +1,17 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.11.1 (December 21, 2012)
+---------------------------------------------------------
+
+Changes to version 1.11.0:
+* The front end accepts typed expressions of the form "Expr :: TypeExpr".
+  However, such type annotations are currently ignored by the compiler
+  since the target language Prolog is untyped.
+* Library `FlatCurry` extended to represent typed expressions
+  by a new constructor `Typed`.
+
+
 Release notes for PAKCS Version 1.11.0 (December 18, 2012)
 ---------------------------------------------------------
 
