@@ -1810,8 +1810,6 @@ updateProperty(N,Ns,_,[prop(N,V)|_],NL) :-
 	append(Ns,[61|Vs],NL).
 updateProperty(N,Ns,Vs,[_|Ps],NL) :- updateProperty(N,Ns,Vs,Ps,NL).
 
-% updateConfigFile('../pakcsrc.default',[],'prc').
-% updateConfigFile('../pakcsrc.default',[prop(standalone,yes),prop(smallstate,yes)],'prc').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % show source code of a function call:

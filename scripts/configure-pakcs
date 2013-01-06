@@ -164,7 +164,6 @@ if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
         echo "Definition of SWIPROLOG changed in $PAKCSINITRC"
         cd "$PAKCSHOME"
         export SWIPROLOG
-        cd bin ; ln -s "$SWIPROLOG" swiprolog
       else
         SWIPROLOG=
         echo "Please put a correct definition for SICSTUSDIR or SWIPROLOG in $HOMEINITRC"

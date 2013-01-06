@@ -11,7 +11,7 @@ export PAKCSHOME
 # define PAKCSRC
 PAKCSRC=$HOME/.pakcsrc
 if [ ! -f "$PAKCSRC" ] ; then
-  PAKCSRC=$PAKCSHOME/pakcsrc
+  PAKCSRC=$PAKCSHOME/pakcsrc.default
 fi
 
 # executable of the parser:
