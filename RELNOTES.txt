@@ -8,6 +8,7 @@ Changes to version 1.11.0:
 * The front end accepts typed expressions of the form "Expr :: TypeExpr".
   However, such type annotations are currently ignored by the compiler
   since the target language Prolog is untyped.
+* Library `Directory`: Operation `copyFile` added.
 * Library `FlatCurry` extended to represent typed expressions
   by a new constructor `Typed`.
 * Bug fix in script `parsecurry`.
