@@ -22,7 +22,7 @@ BUILDVERSION=3
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
-COMPILERDATE=13/01/13
+COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
 
 # Logfile for make:
 MAKELOG=make.log
@@ -192,7 +192,9 @@ dist:
 	# generate source distribution:
 	cp Makefile $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST)/lib && $(MAKE) clean # delete precompiled libraries
-	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
+	cat Makefile | sed -e "/distribution/,\$$d" \
+	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
+	             > $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
 	cd /tmp && tar cf $(FULLNAME)-src.tar $(FULLNAME) && gzip $(FULLNAME)-src.tar
 	mv /tmp/$(FULLNAME)-src.tar.gz .
