@@ -1,12 +1,18 @@
 #!/bin/sh
 #
-# Main script to run the components of PAKCS
+# Start interactive read-eval-print loop of PAKCS
 
 # Define the main directory where PAKCS is installed:
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
-# start the Curry->Prolog compiler:
+REPL="$PAKCSHOME/curry2prolog/pakcs"
+if [ ! -x "$REPL" ] ; then
+  echo "ERROR: executable '$REPL' not found!" >&2
+  echo "Run: cd $PAKCSHOME && make" >&2
+  exit 1
+fi
+
 # use readline wrapper rlwrap if it is installed and we have tty as stdin:
 USERLWRAP=no
 if tty -s ; then
@@ -23,7 +29,7 @@ for i in $* ; do
 done
 
 if [ $USERLWRAP = yes ] ; then
-  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
+  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$REPL" ${1+"$@"}
 else
-  exec "$PAKCSHOME/curry2prolog/c2p.state" ${1+"$@"}
+  exec "$REPL" ${1+"$@"}
 fi

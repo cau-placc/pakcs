@@ -18,6 +18,8 @@ SWIOPTIONS=-q -L0 -G0 -T0
 all:
 	@if [ -x "${SICSTUS}" ] ; then ${MAKE} sicstus ; elif [ -x "${SWI}" ] ; then ${MAKE} swi ; else echo "No Prolog defined to generate Curry->Prolog compiler" ; exit 1 ; fi
 	../bin/.makesavedstate -error c2p.state
+	rm -f pakcs
+	ln -s c2p.state pakcs
 
 # make everything if we have a SICStus-Prolog system:
 .PHONY: sicstus
