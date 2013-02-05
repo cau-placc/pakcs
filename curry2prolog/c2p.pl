@@ -634,7 +634,7 @@ processCommand("edit",[]) :- !, % edit current main module
 processCommand("edit",FileS) :-
 	getEditor(Editor),
 	atom_codes(Editor,EditorS),
-	append(EditorS,[32|FileS],EditCmdS),
+	concat([EditorS," ",FileS," &"],EditCmdS),
 	atom_codes(EditCmd,EditCmdS),
 	shellCmd(EditCmd),
 	!, fail.

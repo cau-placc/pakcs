@@ -2,37 +2,35 @@
 --- Solving Su Doku puzzles in Curry with FD constraints
 ---
 --- @author Michael Hanus
---- @version December 2005
+--- @version February 2013
 -----------------------------------------------------------------------------
 
 import CLPFD
-import List
+import List(transpose)
+import Constraint(allC)
 
 -- Solving a Su Doku puzzle represented as a matrix of numbers (possibly free
 -- variables):
 sudoku :: [[Int]] -> Success
 sudoku m =
- domain (concat m) 1 9 &                         -- define domain of all digits
- foldr1 (&) (map allDifferent m)  &             -- all rows contain different digits
- foldr1 (&) (map allDifferent (transpose m))  & -- all columns have different digits
- foldr1 (&) (map allDifferent (squaresOfNine m)) & -- all 3x3 squares are different
- labeling [FirstFailConstrained] (concat m)
-
--- translate a matrix into a list of small 3x3 squares
-squaresOfNine :: [[a]] -> [[a]]
-squaresOfNine [] = []
-squaresOfNine (l1:l2:l3:ls) = group3Rows [l1,l2,l3] ++ squaresOfNine ls
-
-group3Rows l123 = if null (head l123) then [] else
- concatMap (take 3) l123 : group3Rows (map (drop 3) l123)
+ domain (concat m) 1 9 &             -- define domain of all digits
+ allC allDifferent m  &              -- all rows contain different digits
+ allC allDifferent (transpose m)  &  -- all columns have different digits
+ allC allDifferent (squares m) &     -- all 3x3 squares are different
+ labeling [FirstFail] (concat m)
+ where
+  -- translate a matrix into a list of small 3x3 squares
+  squares :: [[a]] -> [[a]]
+  squares [] = []
+  squares (l1:l2:l3:ls) = group3Rows [l1,l2,l3] ++ squares ls
+  
+  group3Rows l123 = if head l123 == [] then [] else
+   concatMap (take 3) l123 : group3Rows (map (drop 3) l123)
 
 -- read a Su Doku specification written as a list of strings containing digits
 -- and spaces
 readSudoku :: [String] -> [[Int]]
-readSudoku s = map (map transDigit) s
- where
-   transDigit c = if c==' ' then x else ord c - ord '0'
-      where x free
+readSudoku = map (map (\c -> if c==' ' then _ else ord c - ord '0'))
 
 -- show a solved Su Doku matrix
 showSudoku :: [[Int]] -> String
@@ -61,3 +59,13 @@ s2 = ["819  5   ",
       " 5 7 921 ",
       " 64   9  ",
       "   2  438"]
+
+s3 = ["    63 8 ",
+      "   1     ",
+      "327   1  ",
+      "9  2   3 ",
+      "  6   4  ",
+      " 3   4  9",
+      "  8   627",
+      "     6   ",
+      " 4 51    "]
