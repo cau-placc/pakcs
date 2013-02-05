@@ -30,8 +30,8 @@ pali :: [a] -> Success
 pali (xs ++ reverse xs) = success
 --pali l | xs ++ reverse xs =:<= l = success      where xs free
 
---test3 = assertEqual "palindrome1" (pali "otto") success
---test4 = assertValues "palindrome2" (pali "toto") []
+test3 = assertEqual "palindrome1" (pali "otto") success
+test4 = assertValues "palindrome2" (pali "toto") []
 
 --------------------------------------------------------------------------------
 -- define tree transformations and search by function patterns:
