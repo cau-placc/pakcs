@@ -865,6 +865,29 @@ In general, a pattern of the form \code{($f$ $t_1$\ldots$t_n$)} ($n>0$)
 is interpreted as a functional pattern if $f$ is not a visible constructor
 but a defined function that is visible in the scope of the pattern.
 
+It is also possible to combine functional patterns with
+as-patterns.\index{as-pattern}\pindex{"@}
+Similarly to the meaning of as-patterns
+in standard constructor patterns,
+as-patterns in functional patterns are interpreted
+as a sequence of pattern matching where the variable of the as-pattern
+is matched before the given pattern is matched.
+This process can be described by introducing an auxiliary operation
+for this two-level pattern matching process.
+For instance, the definition
+\begin{curry}
+f (_ ++ x@[(42,_)] ++ _) = x
+\end{curry}
+is considered as syntactic sugar for the expanded definition
+\begin{curry}
+f (_ ++ x ++ _) = f' x
+ where
+  f' [(42,_)] = x
+\end{curry}
+However, as-patterns are usually implemented
+in a more efficient way without introducing auxiliary operations.
+
+
 \paragraph{Optimization of programs containing functional patterns.}
 Since functions patterns can evaluate to non-linear constructor terms,
 they are dynamically checked for multiple occurrences of

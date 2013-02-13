@@ -187,7 +187,7 @@ dist:
 	rm $(PAKCSDIST)/scripts/pakcsinitrc.sh
 	# generate binary distributions on remote hosts:
 	$(MAKE) dist_mh@climens.informatik.uni-kiel.de # Linux 32bit dist
-	$(MAKE) dist_mh@mouton.informatik.uni-kiel.de  # Linux 64bit dist
+	$(MAKE) dist_mh@siran.informatik.uni-kiel.de  # Linux 64bit dist
 	#$(MAKE) dist_mh@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
 	cp Makefile $(PAKCSDIST)/Makefile

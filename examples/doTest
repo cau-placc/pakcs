@@ -12,7 +12,7 @@ $PAKCSHOME/bin/cleancurry
 BACKEND=`echo "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" | $PAKCSHOME/bin/pakcs -l Distribution -q 2> /dev/null`
 
 # test for basic language features
-TESTLANG="testFunctional testInfinite testHigher testNarr testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testNonStrictUnif testFuncPattern"
+TESTLANG="testFunctional testInfinite testHigher testNarr testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testNonStrictUnif testFuncPattern testAsPattern"
 
 # test for standard libraries
 TESTLIBS="testPrelude testCombinatorial testDatabase testDirectory testDynamic testFlatCurryGoodies testFlatCurryXML testGlobal testGlobalVariable testInteger testIOExts testList testSetFunctions testSort testSystem testTraversal testArray testDequeue testFiniteMap testRedBlackTree"
