@@ -1374,7 +1374,7 @@ test1 = assertEqual     "++"     ([1,2]++[3,4]) [1,2,3,4]
 
 test2 = assertTrue      "all"    (all (<5) [1,2,3,4])
 
-test3 = assertSolutions "prefix" (\labs{}x -> let y free in  x\,++\,y =:= [1,2])
+test3 = assertSolutions "prefix" (\x -> let y free in  x++y =:= [1,2])
                                  [[],[1],[1,2]]
 \end{curry}
 For instance, \code{test1} asserts that the result of evaluating the

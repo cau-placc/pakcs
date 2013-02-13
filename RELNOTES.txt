@@ -1,15 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.1 (December 21, 2012)
----------------------------------------------------------
+Release notes for PAKCS Version 1.11.1 (February 13, 2013)
+----------------------------------------------------------
 
 Changes to version 1.11.0:
 * The front end accepts typed expressions of the form "Expr :: TypeExpr".
   However, such type annotations are currently ignored by the compiler
   since the target language Prolog is untyped.
 * Parser strategy for combinations of functional and non-linear patterns
-  improved.
+  improved. Parser also accepts as-patterns inside functional patterns.
 * Library `Directory`: Operation `copyFile` added.
 * Library `FlatCurry` extended to represent typed expressions
   by a new constructor `Typed`.
