@@ -49,6 +49,7 @@ bin/erd2curry
 cpns/CPNS
 curry2prolog/prologbasics.pl
 curry2prolog/libswi
+curry2prolog/pakcs
 tools/Peval/peval
 tools/check
 tools/coosy/CoosyGUI

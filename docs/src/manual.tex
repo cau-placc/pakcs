@@ -36,7 +36,7 @@
 
 % font for program texts
 \renewcommand{\tt}{\usefont{OT1}{cmtt}{m}{n}\selectfont}
-\newcommand{\codefont}{\tt}
+\newcommand{\codefont}{\small\tt}
 
 \usepackage{listings}
 \lstset{aboveskip=1.5ex,
@@ -52,18 +52,20 @@
        }
 
 \lstnewenvironment{curry}{}{}
+\lstnewenvironment{currynomath}{\lstset{mathescape=false}}{} % Curry w/o math
 \newcommand{\listline}{\vrule width0pt depth1.75ex}
 
 % program text in normal text
 \newcommand{\code}[1]{\mbox{\codefont #1}}
 
 % program text in normal text with apostrophs
-\newcommand{\ccode}[1]{``\mbox{\codefont #1}''}
+\newcommand{\ccode}[1]{``\code{#1}''}
 
 \newcommand{\pindex}[1]{\index{#1@{\tt #1}}}  % program elements in index
 
-\newcommand{\labs}{\mbox{\tt\char92}}  % lambda abstraction in Curry
 \newcommand{\todo}[1]{\fbox{\sc To do: #1}}
+\newcommand{\CYS}{PAKCS\xspace} % name of Curry system described here
+\newcommand{\cyshome}{\mbox{\textit{pakcshome}}\xspace} % symbolic installation directory
 \newcommand{\cb}{CurryBrowser\xspace}
 
 % allow underscores in programs:
@@ -121,7 +123,7 @@ Frank Steiner$^9$ \\[4ex]
 \addcontentsline{toc}{section}{Preface}
 \section*{Preface}
 
-This document describes PAKCS (formerly called ``PACS''),
+This document describes \CYS (formerly called ``PACS''),
 an implementation of the multi-paradigm language Curry,
 jointly developed at the University of Kiel, the Technical University
 of Aachen and Portland State University.
@@ -133,7 +135,7 @@ Curry combines in a seamless way features from functional programming
 logic programming (logical variables, partial data structures,
 built-in search), and concurrent programming (concurrent evaluation
 of constraints with synchronization on logical variables).
-Moreover, the PAKCS implementation of Curry also supports
+Moreover, the \CYS implementation of Curry also supports
 the high-level implementation of distributed applications,
 graphical user interfaces, and web services
 (as described in more detail in \cite{Hanus99PPDP,Hanus00PADL,Hanus01PADL}).
@@ -141,8 +143,8 @@ graphical user interfaces, and web services
 We assume familiarity with the ideas and features
 of Curry as described in the Curry language definition \cite{Hanus12Curry}.
 Therefore, this document only explains the use of the different
-components of PAKCS
-and the differences and restrictions of PAKCS
+components of \CYS
+and the differences and restrictions of \CYS
 (see Section~\ref{sec-restrictions})
 compared with the language Curry (Version 0.8.3).
 
@@ -156,30 +158,30 @@ the NSF grants CCR-0110496 and CCR-0218224,
 the Acci\'on Integrada hispano-alemana HA1997-0073,
 and the DFG grants Ha 2457/1-2, Ha 2457/5-1, and Ha 2457/5-2.
 
-Many thanks to the users of PAKCS for bug reports, bug fixes, and improvements,
+Many thanks to the users of \CYS for bug reports, bug fixes, and improvements,
 in particular, to Marco Comini, Sebastian Fischer, Massimo Forni,
 Carsten Heine, Stefan Junge, Frank Huch, Parissa Sadeghi.
 
 
 \newpage
 
-\section{Overview of PAKCS}
+\section{Overview of \CYS}
 
 \subsection{General Use}
 \label{sec-general}
 
-This version of PAKCS has been tested on Sun Solaris, Linux, and Mac OS X
+This version of \CYS has been tested on Sun Solaris, Linux, and Mac OS X
 systems. In principle, it should be also executable on other
 platforms on which a Prolog system like SICStus-Prolog or SWI-Prolog exists
-(see the file \code{INSTALL.html} in the PAKCS directory
-for a description of the necessary software to install PAKCS).
+(see the file \code{INSTALL.html} in the \CYS directory
+for a description of the necessary software to install \CYS).
 
 All executable files required to use the different components
-of PAKCS are stored in the directory \code{$pakcshome$/bin}
-(where $pakcshome$ is the installation directory of the complete
-PAKCS installation). You should add this directory
+of \CYS are stored in the directory \code{\cyshome/bin}
+(where \cyshome is the installation directory of the complete
+\CYS installation). You should add this directory
 to your path (e.g., by the \code{bash} command
-\ccode{export PATH=$pakcshome$/bin:\$PATH}).
+\ccode{export PATH=\cyshome/bin:\$PATH}).
 
 The source code of the Curry program
 must be stored in a file with the suffix \ccode{.curry},
@@ -190,7 +192,7 @@ They are automatically converted into corresponding
 with \ccode{>} and removing the prefix \ccode{> } of the
 remaining lines.
 
-Since the translation of Curry programs with PAKCS creates
+Since the translation of Curry programs with \CYS creates
 some auxiliary files (see Section~\ref{sec-auxfiles} for details),
 you need write permission
 in the directory where you have stored your Curry programs.
@@ -200,7 +202,7 @@ directory can be deleted by the command\pindex{cleancurry}
 cleancurry
 \end{curry}
 (this is a shell script stored in the \code{bin} directory of the
-PAKCS installation, see above).
+\CYS installation, see above).
 The command
 \begin{curry}
 cleancurry -r
@@ -209,20 +211,20 @@ also deletes the auxiliary files in all subdirectories.
 
 
 
-\subsection{Restrictions on Curry Programs}
+\subsection{Restrictions}
 \label{sec-restrictions}
 
 There are a few minor restrictions on Curry programs
-when they are processed with PAKCS:
+when they are processed with \CYS:
 \begin{itemize}
 \item
 \index{singleton variables}\index{variables!singleton}
 \emph{Singleton pattern variables}, i.e., variables that occur only once
-in a pattern of the rule, should be denoted as an anonymous variable \ccode{_},
+in a rule, should be denoted as an anonymous variable \ccode{_},
 otherwise the parser will print a warning since this is a
 typical source of programming errors.
 \item
-PAKCS translates all \emph{local declarations} into global functions with
+\CYS translates all \emph{local declarations} into global functions with
 additional arguments (``lambda lifting'', see Appendix~D of the
 Curry language report).
 Thus, in the various run-time systems, the definition of
@@ -233,13 +235,14 @@ Section~\ref{sec-currybrowser}).
 \item \index{tabulator stops}
 Tabulator stops instead of blank spaces in source files are
 interpreted as stops at columns 9, 17, 25, 33, and so on.
+In general, tabulator stops should be avoided in source programs.
 \item Threads created by a concurrent conjunction are not executed
 in a fair manner (usually, threads corresponding to leftmost constraints
 are executed with higher priority).
 \item
 Encapsulated search\index{encapsulated search}: In order
 to allow the integration of non-deterministic computations
-in programs performing I/O at the top-level, PAKCS supports
+in programs performing I/O at the top-level, \CYS supports
 the search operators \code{findall}\pindex{findall}
 and \code{findfirst}\pindex{findfirst}.
 In contrast to the general definition of encapsulated search
@@ -253,7 +256,7 @@ It is recommended to use the system module \code{AllSolutions}
 for encapsulating search.
 \item
 There is currently no general connection to external constraint solvers.
-However, the PAKCS compiler provides constraint
+However, the \CYS compiler provides constraint
 solvers for arithmetic and finite domain constraints
 (see Appendix~\ref{sec:libraries}).
 \end{itemize}
@@ -276,19 +279,19 @@ solvers for arithmetic and finite domain constraints
 
 
 
-\subsection{Modules in PAKCS}
+\subsection{Modules in \CYS}
 \label{sec-modules}
 
-The current implementation of PAKCS supports only flat module names,
+The current implementation of \CYS supports only flat module names,
 i.e., the notation \code{Dir.Mod.f} is not supported.\index{modules}
 In order to allow the structuring of modules in different directories,
-PAKCS searches for imported modules in various directories.
+\CYS searches for imported modules in various directories.
 By default, imported modules are searched in the directory
 of the main program and the system module directories
-\ccode{$pakcshome$/lib} and \ccode{$pakcshome$/lib/meta}.
+\ccode{\cyshome/lib} and \ccode{\cyshome/lib/meta}.
 This search path can be extended
 by setting the environment variable \code{CURRYPATH}\pindex{CURRYPATH}
-(which can be also set in a PAKCS session by the command
+(which can be also set in a \CYS session by the command
 \ccode{:set path}\pindex{path}\pindex{:set path},
 see below)
 to a list of directory names separated by colons (\ccode{:}).
@@ -305,9 +308,9 @@ if one loads the Curry program \ccode{/home/joe/curryprogs/main}).
 \item The directories enumerated in the environment variable \code{CURRYPATH}.
 \item The directories enumerated in the \ccode{.pakcsrc} variable
       \ccode{libraries}.
-\item The directories \ccode{$pakcshome$/lib} and \ccode{$pakcshome$/lib/meta}.
+\item The directories \ccode{\cyshome/lib} and \ccode{\cyshome/lib/meta}.
 \end{enumerate}
-Note that the standard prelude (\code{$pakcshome$/lib/Prelude.curry})
+Note that the standard prelude (\code{\cyshome/lib/Prelude.curry})
 will be always implicitly imported to all modules if a module
 does not contain an explicit import declaration for the module
 \code{Prelude}.
@@ -315,12 +318,10 @@ does not contain an explicit import declaration for the module
 
 \newpage
 
-\section{PAKCS: An Interactive Curry Development System}
+\section{\CYS: An Interactive Curry Development System}
 \label{sec-curry2prolog}
 
-PAKCS\index{PAKCS},
-in the following just called ``PAKCS'',
-is an interactive system to develop applications
+\CYS\index{\CYS} is an interactive system to develop applications
 written in Curry.
 It is implemented in Prolog and compiles
 Curry programs into Prolog programs. It contains various tools,
@@ -331,15 +332,15 @@ execution of compiled programs is fairly efficient
 if a good Prolog implementation like SICStus-Prolog is used.
 
 
-\subsection{How to Use PAKCS}
+\subsection{How to Use \CYS}
 \label{sec-use-curry2prolog}
 
-To start PAKCS, execute the command
+To start \CYS, execute the command
 \ccode{pakcs}\pindex{pakcs}
 (this is a shell script stored in
-\code{$pakcshome$/bin} where $pakcshome$ is the installation directory
-of PAKCS).
-When the system is ready, the prelude (\code{$pakcshome$/lib/Prelude.curry})
+\code{\cyshome/bin} where \cyshome is the installation directory
+of \CYS).
+When the system is ready, the prelude (\code{\cyshome/lib/Prelude.curry})
 is already loaded, i.e., all definitions in the prelude are accessible.
 Now you can type in various commands.
 The {\bf most important commands} are
@@ -369,7 +370,7 @@ Add module $m$ to the set of currently loaded modules
 so that its exported entities are available in the top-level environment.
 
 \item[\fbox{$expr$}] Evaluate the expression $expr$ to normal form
-and show the computed results. Since the PAKCS
+and show the computed results. Since \CYS
 compiles Curry programs into Prolog programs,
 non-deterministic computations are implemented by backtracking.
 Therefore, computed results are shown one after the other.
@@ -391,13 +392,19 @@ or
 \begin{curry}
 xs++ys =:= [1,2]  where xs,ys free
 \end{curry}
+in order to obtain the following three possible bindings:
+\begin{curry}
+{xs = [], ys = [1,2]} Success
+{xs = [1], ys = [2]} Success
+{xs = [1,2], ys = []} Success
+\end{curry}
 Without these declarations, an error is reported in order to
 avoid the unintended introduction of free variables in initial expressions
 by typos.
 
 Note that lambda abstractions, \code{let}s and list comprehensions
 in top-level expressions are not yet supported in initial expressions
-typed in the top-level of PAKCS.
+typed in the top-level of \CYS.
 
 \item[\fbox{:eval $expr$}]\pindex{:eval}
 Same as $expr$. This command might be useful when putting
@@ -470,7 +477,7 @@ of all exported functions.
 Similar to \ccode{:interface}
 but shows the interface of the module \ccode{$prog$.curry}.
 If this module does not exist, this command looks in the
-system library directory of PAKCS for a module with this name,
+system library directory of \CYS for a module with this name,
 e.g., the command \ccode{:interface FlatCurry} shows the interface
 of the system module \code{FlatCurry} for meta-programming
 (see Appendix~\ref{sec-flatcurry}).
@@ -483,7 +490,7 @@ Show the list of all Curry programs that are available in the load path.
 
 \item[\fbox{\code{:set $option$}}]\pindex{:set}
 Set or turn on/off a specific option
-of the PAKCS environment. Options are turned on by the prefix
+of the \CYS environment. Options are turned on by the prefix
 \ccode{+} and off by the prefix \ccode{-}. Options that can only
 be set (e.g., \code{printdepth}) must not contain a prefix.
 The following options are currently supported:
@@ -498,7 +505,7 @@ for the debug mode described below).
 \item[\fbox{\code{+/-free}}]\pindex{free} Free variable mode.\index{free variable mode}
 If the free variable mode is off (default), then
 free variables occurring in initial expressions entered in the
-PAKCS environment must always be declared by a \ccode{let\ldots{}free in}
+\CYS environment must always be declared by a \ccode{let\ldots{}free in}
 or \ccode{where\ldots{}free} declaration (as in Curry programs).
 This avoids the introduction of free variables in initial expressions
 by typos (which might lead to the exploration of infinite search spaces).
@@ -592,9 +599,9 @@ these warnings are not printed during the reading of a Curry program.
 \item[\fbox{\code{path $path$}}]\pindex{path} Set the additional search path
 for loading modules to $path$.
 Note that this search path is only used for loading modules
-inside this invocation of PAKCS, i.e., the environment variable
+inside this invocation of \CYS, i.e., the environment variable
 \ccode{CURRYPATH}\pindex{CURRYPATH} (see also Section~\ref{sec-modules})
-is set to $path$ in this invocation of PAKCS.
+is set to $path$ in this invocation of \CYS.
 
 \item[\fbox{\code{printdepth $n$}}]\pindex{printdepth}
 Set the depth for printing terms to the value \code{n} (initially: 10).
@@ -653,7 +660,7 @@ the evaluation of the expression $expr$ terminates.
 \item[\fbox{\code{:fork $expr$}}]\pindex{:fork}
 The expression $expr$, which must be of type \ccode{IO ()},
 is evaluated in an independent process which runs in
-parallel to the current PAKCS process.
+parallel to the current \CYS process.
 All output and error messages from this new process are suppressed.
 This command is useful to test distributed Curry programs
 (see Appendix~\ref{sec-ports}) where one can start
@@ -709,14 +716,14 @@ AlbertHanusVidal01FLOPS,AlbertHanusVidal02JFLP}.
 %
 \bigskip
 %
-PAKCS can also execute programs in the {\bf debug mode}.
+\CYS can also execute programs in the {\bf debug mode}.
 \index{debug mode}\pindex{debug}
 The debug mode is switched on by setting the \code{debug} option
 with the command \ccode{:set +debug}. In order to switch
 back to normal evaluation of the program, one has to execute
 the command \ccode{:set -debug}.
 
-In the debug mode, PAKCS offers the following
+In the debug mode, \CYS offers the following
 {\bf additional options for the \ccode{:set} command:}
 %
 \begin{description}
@@ -745,26 +752,26 @@ when a spy point is reached.
 \subsection{Command Line Editing}
 
 In order to have support for line editing or history functionality
-in the command line of PAKCS (as often supported by the \code{readline}
+in the command line of \CYS (as often supported by the \code{readline}
 library), you should have the Unix command \code{rlwrap} installed
 on your local machine.
-If \code{rlwrap} is installed, it is used by PAKCS if called on a terminal.
+If \code{rlwrap} is installed, it is used by \CYS if called on a terminal.
 If it should not be used (e.g., because it is executed
 in an editor with \code{readline} functionality), one can
-call PAKCS with the parameter \ccode{--noreadline}.
+call \CYS with the parameter \ccode{--noreadline}.
 
 
 \subsection{Customization}
 \label{sec-customization}
 
-In order to customize the behavior of PAKCS to your own preferences,
-there is a configuration file which is read by PAKCS when it is invoked.
-When you start PAKCS for the first time, a standard version of
+In order to customize the behavior of \CYS to your own preferences,
+there is a configuration file which is read by \CYS when it is invoked.
+When you start \CYS for the first time, a standard version of
 this configuration file is copied with the name
 \ccode{.pakcsrc}\pindex{pakcsrc}\pindex{.pakcsrc}
 into your home directory. The file contains definitions
 of various settings, e.g., about showing warnings, progress messages etc.
-After you have started PAKCS for the first time, look into this file
+After you have started \CYS for the first time, look into this file
 and adapt it to your own preferences.
 
 
@@ -772,19 +779,19 @@ and adapt it to your own preferences.
 
 Emacs is a powerful programmable editor suitable for program development.
 It is freely available for many platforms
-(see \url{http://www.emacs.org} or \url{http://www.xemacs.org}).
-The distribution of PAKCS contains also a special
+(see \url{http://www.emacs.org}).
+The distribution of \CYS contains also a special
 \emph{Curry mode}\index{Curry mode}\index{Emacs}
 that supports the development of Curry programs in
-the (X)Emacs environment.
+the Emacs environment.
 This mode includes support for syntax highlighting,
 finding declarations in the current buffer, and
-loading Curry programs into the PAKCS compiler system
+loading Curry programs into \CYS
 in an Emacs shell.
 
 The Curry mode has been adapted from a similar mode for Haskell programs.
 Its installation is described in the file \code{README}
-in directory \ccode{$pakcshome$/tools/emacs} which also contains
+in directory \ccode{\cyshome/tools/emacs} which also contains
 the sources of the Curry mode and a short description about
 the use of this mode.
 
@@ -794,13 +801,13 @@ the use of this mode.
 \section{Extensions}
 \label{sec-extensions}
 
-PAKCS supports some extensions in Curry programs that are not (yet)
+\CYS supports some extensions in Curry programs that are not (yet)
 part of the definition of Curry. These extensions are described below.
 
 \subsection{Recursive Variable Bindings}
 
 Local variable declarations (introduced by \code{let}\pindex{let}
-or \code{where}\pindex{where}) can be (mutually) recursive in PAKCS.
+or \code{where}\pindex{where}) can be (mutually) recursive in \CYS.
 For instance, the declaration
 \begin{curry}
 ones5 = let ones = 1 : ones
@@ -904,12 +911,12 @@ This optimizer can be enabled by the following possibilities:
 \begin{itemize}
 \item
 Set the environment variable \code{FCYPP} to \ccode{--fpopt}
-before starting PAKCS, e.g., by the shell command
+before starting \CYS, e.g., by the shell command
 \begin{curry}
 export FCYPP="--fpopt"
 \end{curry}
 Then the functional pattern optimization is applied if programs are compiled
-and loaded in PAKCS.
+and loaded in \CYS.
 \item
 Put an option into the source code:
 If the source code of a program
@@ -919,7 +926,7 @@ must start at the beginning of the line)
 {-# PAKCS_OPTION_FCYPP --fpopt #-}
 \end{curry}
 then the functional pattern optimization is applied
-if this program is compiled and loaded in PAKCS.
+if this program is compiled and loaded in \CYS.
 \end{itemize}
 The optimizer also report errors in case of wrong uses of functional patterns
 (i.e., in case of a function $f$ defined with functional patterns that
@@ -1187,7 +1194,7 @@ from different modules.
 \subsubsection{Restrictions in the Usage of Records}
 \label{sec-restrinrecs}
 
-In contrast to the basic concept in \cite{Leijen05}, PAKCS/Curry provides a
+In contrast to the basic concept in \cite{Leijen05}, \CYS/Curry provides a
 simpler version of records. Some of the features described there are
 currently not supported or even restricted.
 
@@ -1233,13 +1240,13 @@ new analyzers can be easily connected to \cb.
 A detailed description of the ideas behind this tool can be
 found in \cite{Hanus05WCFLP,Hanus06WLPE}.
 
-\cb is part of the PAKCS distribution and can be
+\cb is part of the \CYS distribution and can be
 started in two ways:
 \begin{itemize}
 \item
-In the command shell via the command: \code{$pakcshome$/bin/currybrowser mod}
+In the command shell via the command: \code{\cyshome/bin/currybrowser mod}
 \item
-In the PAKCS environment after loading the module
+In the \CYS environment after loading the module
 \code{mod} and typing the command \ccode{:browse}.
 \end{itemize}
 Here, \ccode{mod} is the name of the main module of a Curry application.
@@ -1249,7 +1256,7 @@ for interactive browsing.
 
 \begin{figure}[t]
 \begin{center}
- \includegraphics[scale=0.7]{currybrowser.jpg}
+\includegraphics[scale=0.7]{currybrowser.jpg}
 \end{center}
 \caption{Snapshot of the main window of CurryBrowser\label{fig-currybrowser}}
 \end{figure}
@@ -1324,7 +1331,7 @@ are available through the ``Help'' menu of \cb.
 \label{sec-currytest}
 
 CurryTest\index{CurryTest}\index{testing programs}\index{program!testing}
-is a simple tool in the PAKCS distribution to write
+is a simple tool in the \CYS distribution to write
 and run repeatable tests. CurryTest simplifies the task
 of writing test cases for a module and executing them.
 The tool is easy to use. Assume one has implemented a module \code{MyMod}
@@ -1384,8 +1391,8 @@ We can execute a test suite by the command\pindex{currytest}
 \begin{curry}
 currytest testList
 \end{curry}
-(\code{currytest} is a program stored in \code{$pakcshome$/bin}
-where $pakcshome$ is the installation directory of PAKCS;
+(\code{currytest} is a program stored in \code{\cyshome/bin}
+where \cyshome is the installation directory of \CYS;
 see Section~\ref{sec-general}).
 In our example, \ccode{testList.curry} is the program containing the
 definition of all assertions. This has the effect
@@ -1450,8 +1457,8 @@ command\pindex{erd2curry}
 \begin{curry}
 erd2curry myerd.xmi
 \end{curry}
-(\code{erd2curry} is a program stored in \code{$pakcshome$/bin}
-where $pakcshome$ is the installation directory of PAKCS;
+(\code{erd2curry} is a program stored in \code{\cyshome/bin}
+where \cyshome is the installation directory of \CYS;
 see Section~\ref{sec-general}).
 If \code{MyData} is the name of the ERD, the Curry program file
 \ccode{MyData.curry} is generated containing all the necessary
@@ -1461,7 +1468,7 @@ If one does not want to use the Umbrello UML Modeller,
 one can also create a textual description of the ERD
 as a Curry term of type \code{ERD}
 (w.r.t.\ the type definition given in module
-\code{$pakcshome$/tools/erd2curry/ERD.curry})
+\code{\cyshome/tools/erd2curry/ERD.curry})
 and store it in some file, e.g., \ccode{myerd.term}.
 This description can be compiled into a Curry program by the
 command\pindex{erd2curry}
@@ -1473,7 +1480,7 @@ There is also the possibility to visualize an ERD term
 as a graph with the graph visualization program \code{dotty}
 (for this purpose, it might be necessary to adapt the definition
 of the operation \code{dotCmd} in
-\code{$pakcshome$/tools/erd2curry/ERD2Graph.curry}
+\code{\cyshome/tools/erd2curry/ERD2Graph.curry}
 according to your local environment).
 This can be done by the command
 \begin{curry}
@@ -1482,12 +1489,12 @@ erd2curry -v myerd.term
 
 \paragraph{Inclusion in the Curry application:}
 To compile the generated database code, either
-include the directory \code{$pakcshome$/tools/erd2curry}
+include the directory \code{\cyshome/tools/erd2curry}
 into your Curry load path
 (e.g., by setting  the environment variable
 \ccode{CURRYPATH}\pindex{CURRYPATH}, see also Section~\ref{sec-modules})
 or copy the file
-\code{$pakcshome$/tools/erd2curry/ERDGeneric.curry}
+\code{\cyshome/tools/erd2curry/ERDGeneric.curry}
 into the directory of the generated database code.
 
 
@@ -1496,7 +1503,7 @@ into the directory of the generated database code.
 \section{UI: Declarative Programming of User Interfaces}
 \label{sec-ui}
 
-The PAKCS distribution contains a collection of libraries
+The \CYS distribution contains a collection of libraries
 to implement graphical user interfaces\index{user interface}
 as well as web-based user interfaces
 from declarative descriptions.
@@ -1512,17 +1519,17 @@ This programming technique is described in detail in
 The libraries implementing these user interfaces are contained
 in the directory
 \begin{curry}
-$pakcshome$/tools/ui
+$\cyshome$/tools/ui
 \end{curry}
 Thus, in order to compile programs containing such user interface
 specifications, one has to
-include the directory \code{$pakcshome$/tools/ui}
+include the directory \code{\cyshome/tools/ui}
 into the Curry load path
 (e.g., by setting  the environment variable
 \ccode{CURRYPATH}\pindex{CURRYPATH}, see also Section~\ref{sec-modules}).
 The directory
 \begin{curry}
-$pakcshome$/tools/ui/examples
+$\cyshome$/tools/ui/examples
 \end{curry}
 contains a few examples for such user interface specifications.
 
@@ -1573,7 +1580,7 @@ For instance, setting \code{FCYPP} by
 export FCYPP="--fpopt"
 \end{curry}
 will apply the functional pattern optimization if programs are compiled
-and loaded in the PAKCS programming environment.
+and loaded in the \CYS programming environment.
 
 
 \item {\bf Putting options into the source code:}\pindex{PAKCS_OPTION_FCYPP}\\
@@ -1616,10 +1623,10 @@ distributed systems (see Appendix~\ref{sec-ports}),
 it might be possible that some technical problems
 arise due to the use of sockets for implementing these
 features. Therefore, this section gives some information
-about the technical requirements of PAKCS and how to solve
+about the technical requirements of \CYS and how to solve
 problems due to these requirements.
 
-There is one fixed port that is used by the implementation of PAKCS:
+There is one fixed port that is used by the implementation of \CYS:
 \begin{description}
 \item[Port 8766:] This port is used by the
 {\bf Curry Port Name Server} (CPNS) to implement symbolic names for
@@ -1638,9 +1645,9 @@ name for a Curry port or asking the physical port number
 of a Curry port. The demon will be automatically started for
 the first time on a machine when a user compiles a program
 using Curry ports. It can also be manually started and terminated by the
-scripts \code{$pakcshome$/cpns/start} and
-\code{$pakcshome$/cpns/stop}.
-If the demon is already running, the command \code{$pakcshome$/cpns/start}
+scripts \code{\cyshome/cpns/start} and
+\code{\cyshome/cpns/stop}.
+If the demon is already running, the command \code{\cyshome/cpns/start}
 does nothing (so it can be always executed
 before invoking a Curry program using ports).
 
@@ -1659,12 +1666,12 @@ please write to
 \newpage
 \appendix
 
-\section{Libraries of the PAKCS Distribution}
+\section{Libraries of the \CYS Distribution}
 \label{sec:libraries}
 
 {\setlength{\parindent}{0.0cm}
 
-The PAKCS compiler system provides an extensive collection
+The \CYS distribution comes with an extensive collection
 of libraries for application programming.
 The libraries for arithmetic constraints over real numbers,
 finite domain constraints,
@@ -1673,7 +1680,7 @@ meta-programming by representing Curry programs in Curry
 are described in the following subsection in more detail.
 The complete set of libraries with all exported types and functions
 are described in the further subsections.
-For a more detailed online documentation of all libraries of PAKCS,
+For a more detailed online documentation of all libraries of \CYS,
 see \url{http://www.informatik.uni-kiel.de/~pakcs/lib/index.html}.
 
 \subsection{Constraints, Ports, Meta-Programming}
@@ -1687,7 +1694,7 @@ the program must contain the import declaration
 \begin{curry}
 import CLPR
 \end{curry}
-Floating point arithmetic is supported in PAKCS
+Floating point arithmetic is supported in \CYS
 via arithmetic constraints, i.e., the equational constraint
 \ccode{2.3 +.~x =:= 5.5} is solved by binding \code{x} to \code{3.2}
 (rather than suspending the evaluation of the addition,
@@ -1695,7 +1702,7 @@ as in corresponding constraints on integers like
 \ccode{3+x=:=5}). All operations related to
 floating point numbers are suffixed by \ccode{.}.
 The following functions and constraints on floating point
-numbers are supported in PAKCS:
+numbers are supported in \CYS:
 \begin{description}
 \item[\code{(+.)   :: Float -> Float -> Float}]~\\
 Addition on floating point numbers.
@@ -1757,10 +1764,10 @@ identified with a subset of the integers, i.e., the type
 of a finite domain variable is \code{Int}. The arithmetic
 operations related to finite domain variables are suffixed by \ccode{\#}.
 The following functions and constraints for finite domain constraint solving
-are currently supported in PAKCS:\footnote{Note that
+are currently supported in \CYS:\footnote{Note that
 this library is based on the corresponding library of SICStus-Prolog
 but does not implement the complete functionality of the SICStus-Prolog library.
-However, using the PAKCS interface for external functions (see
+However, using the \CYS interface for external functions (see
 Appendix~\ref{sec-external-functions}), it is relatively
 easy to provide the complete functionality.}
 
@@ -1847,11 +1854,11 @@ Then we can solve this problem by evaluating the goal
 \label{sec-ports}
 
 To support the development of concurrent and distributed applications,
-PAKCS supports internal and external ports\index{ports} as
+\CYS supports internal and external ports\index{ports} as
 described in \cite{Hanus99PPDP}.
 Since \cite{Hanus99PPDP} contains a detailed description of this
 concept together with various programming examples, we only summarize here
-the functions and constraints supported for ports in PAKCS.
+the functions and constraints supported for ports in \CYS.
 
 The basic datatypes, functions, and constraints for ports
 are defined in the system module \code{Ports}
@@ -1924,7 +1931,7 @@ should be tested by using external ports only on the local host
 without a connection to the Internet,
 the environment variable \ccode{PAKCS_LOCALHOST}\pindex{PAKCS_LOCALHOST}
 must be set to \ccode{yes}
-\emph{before PAKCS system is started}.
+\emph{before \CYS is started}.
 In this case, the IP address \code{127.0.0.1} and the hostname
 \ccode{localhost} are used for identifying the local machine.
 
@@ -1934,14 +1941,14 @@ messages sent to external ports.
 Thus, if a Curry program uses the
 I/O action \code{openNamedPort}\pindex{openNamedPort}
 to establish an externally visible server,
-PAKCS selects a Unix socket for the port communication.
+\CYS selects a Unix socket for the port communication.
 Usually, a free socket is selected by the operating system.
 If the socket number should be fixed in an application (e.g.,
 because of the use of firewalls\index{firewall} that allow only
 communication over particular sockets), then one
 can set the environment variable \ccode{PAKCS_SOCKET}\pindex{PAKCS_SOCKET}
-to a distinguished socket number before the PAKCS system is started.
-This has the effect that PAKCS uses only this socket
+to a distinguished socket number before \CYS is started.
+This has the effect that \CYS uses only this socket
 number for communication (even for several external ports
 used in the same application program).
 
@@ -1951,7 +1958,7 @@ it is sometimes helpful to see all messages sent to external ports.
 This is supported by the environment variable
 \ccode{PAKCS_TRACEPORTS}.\pindex{PAKCS_TRACEPORTS}
 If this variable is set to \ccode{yes}
-\emph{before the PAKCS system is started}, then all
+\emph{before \CYS is started}, then all
 connections to external ports and all
 messages sent and received on external ports are
 printed on the standard error stream.
@@ -1964,7 +1971,7 @@ printed on the standard error stream.
 \index{FlatCurry}
 To support meta-programming, i.e., the manipulation of Curry programs
 in Curry, there are system modules \code{FlatCurry} and \code{AbstractCurry}
-(stored in the directory \ccode{$pakcshome$/lib/meta})
+(stored in the directory \ccode{\cyshome/lib/meta})
 which define datatypes for the representation
 of Curry programs.
 \code{AbstractCurry} is a more direct representation of a Curry program,
@@ -2007,14 +2014,14 @@ following term:
         (FuncType (TCons ("Prelude","[]") [(TVar 0)])
                   (TCons ("Prelude","[]") [(TVar 0)]))
         (Rule [0]
-           (Case Flex (Var 0)
+           (Case Flex (Var 1)
               [Branch (Pattern ("Prelude","[]") [])
                   (Comb ConsCall ("Prelude","[]") []),
-               Branch (Pattern ("Prelude",":") [1,2])
+               Branch (Pattern ("Prelude",":") [2,3])
                   (Comb FuncCall ("Prelude","++")
-                        [Comb FuncCall ("test","rev") [Var 2],
+                        [Comb FuncCall ("test","rev") [Var 3],
                          Comb ConsCall ("Prelude",":")
-                              [Var 1,Comb ConsCall ("Prelude","[]") []]
+                              [Var 2,Comb ConsCall ("Prelude","[]") []]
                         ])
               ]))]
   []
@@ -2124,7 +2131,6 @@ following term:
 \input{lib/FlatCurryGoodies}
 \input{lib/FlatCurryRead}
 \input{lib/FlatCurryShow}
-\input{lib/FlatCurryTools}
 \input{lib/FlatCurryXML}
 \input{lib/FlexRigid}
 \input{lib/PrettyAbstract}
@@ -2141,20 +2147,20 @@ following term:
 \begin{center}
  \includegraphics[scale=0.85]{pakcs_overview.jpg}
 \end{center}\vspace{-5ex}
-\caption{Overview of PAKCS\label{fig-pakcs}}
+\caption{Overview of \CYS\label{fig-pakcs}}
 \end{figure}
 
-\section{Overview of the PAKCS Distribution}
+\section{Overview of the \CYS Distribution}
 
 A schematic overview of the various components contained in
-the distribution of PAKCS and the
-translation process of programs inside PAKCS is shown in
+the distribution of \CYS and the
+translation process of programs inside \CYS is shown in
 Figure~\ref{fig-pakcs} on page~\pageref{fig-pakcs}.
-In this figure, boxes denote different components of PAKCS
+In this figure, boxes denote different components of \CYS
 and names in boldface denote files containing
 various intermediate representations during the translation
 process (see Section~\ref{sec-auxfiles} below).
-The PAKCS distribution contains a front end for reading (parsing and
+The \CYS distribution contains a front end for reading (parsing and
 type checking) Curry programs that can be also used by
 other Curry implementations.
 The back end (formerly known as ``Curry2Prolog''\index{Curry2Prolog})
@@ -2172,16 +2178,16 @@ and concurrent threads are not executed in a fair manner.
 \section{Auxiliary Files}
 \label{sec-auxfiles}
 
-During the translation and execution of a Curry program with PAKCS,
+During the translation and execution of a Curry program with \CYS,
 various intermediate representations of the source program are created
 and stored in different files which are shortly explained in this section.
-If you use the PAKCS, it is not necessary to know about
+If you use \CYS, it is not necessary to know about
 these auxiliary files because they are automatically generated
 and updated. You should only remember the command for deleting
 all auxiliary files (\ccode{cleancurry}, see Section~\ref{sec-general})
 to clean up your directories.
 
-The various components of PAKCS create
+The various components of \CYS create
 the following auxiliary files.
 \begin{description}
 \item[\code{prog.fcy}:] This file contains the Curry program
@@ -2192,7 +2198,7 @@ is translated into explicit case/or expressions
 This representation might be useful for other back ends and
 compilers for Curry and is the basis doing meta-programming in Curry.
 This file is implicitly
-generated when a program is read by PAKCS.
+generated when a program is read by \CYS.
 It can be also explicitly generated by the command\pindex{parsecurry}
 \begin{curry}
 parsecurry --flat prog
@@ -2217,7 +2223,7 @@ parsecurry --flat prog
 and stored in the same directory as \code{prog.fcy}.
 
 \item[\code{prog.pl}:] This file contains a Prolog program
-as the result of translating the Curry program with PAKCS.
+as the result of translating the Curry program with \CYS.
 If $dir$ is the directory where the Curry program is stored,
 the corresponding Prolog program is stored in the directory
 \ccode{$dir$/.curry/.pakcs}.
@@ -2227,7 +2233,7 @@ the corresponding Prolog program is stored in the directory
 This file is stored in the same directory as \code{prog.pl}.
 
 \item[\code{prog.state}:] This file contains the saved state
-after compiling and saving a program with PAKCS
+after compiling and saving a program with \CYS
 (see Section~\ref{sec-use-curry2prolog}).
 
 \end{description}
@@ -2242,11 +2248,11 @@ The standard prelude, which is automatically imported into each Curry program,
 and all system modules containing datatypes and functions
 useful for application programming
 (cf.\ Appendix~\ref{sec:libraries})
-are stored in the system module directory \ccode{$pakcshome$/lib}
+are stored in the system module directory \ccode{\cyshome/lib}
 (and its subdirectories).
 If you change any of these modules,
 you have to recompile the complete system by
-executing \code{make} in the directory $pakcshome$.
+executing \code{make} in the directory \cyshome.
 
 
 
@@ -2256,7 +2262,7 @@ executing \code{make} in the directory $pakcshome$.
 \label{sec-external-functions}
 
 \index{function!external}\index{external function}
-Currently, PAKCS has no general interface to external functions.
+Currently, \CYS has no general interface to external functions.
 Therefore, if a new external function should be added
 to the system, this function must be declared as \code{external}
 in the Curry source code
@@ -2286,11 +2292,11 @@ an external function as follows:
 \end{curry}
 The further modifications to be done for an inclusion of
 an external function has to be done in the back end.
-A new external function is added to the back end of PAKCS
+A new external function is added to the back end of \CYS
 by informing the compiler about the existence of an external function
 and adding an implementation of this function in the run-time
 system. Therefore, the following items must be added
-in the PAKCS compiler system:
+in the \CYS compiler system:
 \begin{enumerate}
 \item
 If the Curry module \code{Mod} contains external functions,
@@ -2316,7 +2322,7 @@ with arity $n$ has the form
 \end{curry}
 where \code{lib} is the Prolog library (stored in the directory of the
 Curry module or in the global directory
-\code{$pakcshome$/curry2prolog/lib_src}) containing the code implementing this
+\code{\cyshome/curry2prolog/lib_src}) containing the code implementing this
 function and \code{pred} is a predicate name in this library
 implementing this function. Note that the function $f$ must be
 declared in module \code{Mod}: either as an external function
@@ -2397,7 +2403,7 @@ Curry representation of a character with its ASCII value.
 \item
 If some arguments passed to the external functions are not fully evaluated
 or the external function might suspend, the implementation must follow
-the structure of the PAKCS run-time system by using
+the structure of the \CYS run-time system by using
 the \emph{raw interface}. In this case, the name of the external entry
 must be suffixed by \ccode{[raw]} in the \code{prim_c2p} file.
 For instance, if we want to use the raw interface for the external function
@@ -2446,14 +2452,14 @@ complex structures).
 \end{enumerate}
 %
 The Prolog code implementing the external functions must be accessible to the run-time
-system of PAKCS by putting it into the directory containing the corresponding
+system of \CYS by putting it into the directory containing the corresponding
 Curry module or into the system directory
-\code{$pakcshome$/curry2prolog/lib_src}.
+\code{\cyshome/curry2prolog/lib_src}.
 Then it will be automatically loaded into the run-time environment
 of each compiled Curry program.
 
 Note that arbitrary functions implemented in C or Java can be connected to
-PAKCS by using the corresponding interfaces of underlying Prolog system.
+\CYS by using the corresponding interfaces of underlying Prolog system.
 
 
 \newpage
