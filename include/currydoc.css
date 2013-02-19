@@ -1,56 +1,21 @@
-/* Use monospace fonts for typewriter styles */
-pre, tt, code { font-family: monospace }
+/* Changes to default bootstrap style: */
 
-/* Use always white background */
-body { background: white; color: black }
+body {
+  padding-top: 0px;
+  padding-bottom: 60px;
+}
 
-/* Show hyperlinks without underscore */
-a:visited, a:link, a:active { text-decoration: none }
+.hero-unit {
+  padding: 20px 30px;
+}
 
-/* Show underscore when over hyperlink */
-a:hover { text-decoration: underline }
-
-h1 {
-  margin: 10px 0 15px 0px;
-  padding: 5px;
-  font-size: 20pt;
-  background: #0000ff;
-  color: #cccccc;
+.hero-unit h1 {
   text-align: center;
 }
-
-h1 a { color: #ffffff }
-
-table h2 {
-  margin: 0px 0px 5px 0px;
-  padding: 4px;
-  background: #0000ff;
-  color: #ffffff;
-  font-size: 12pt;
-}
-
-table h3 {
-  margin: 0px 0px 5px 5px;
-}
-
-p {
-  margin: 5px 5px 10px 5px;
-  font-size: 12pt;
-}
-
-pre {
-  margin: 5px 5px 10px 20px;
-  font-size: 10pt;
-}
-
-code { font-size: 10pt; }
-
-dt { padding-left: 5px; }
 
 /* function name in the documentation of a exported functions */
 .opname {
   font-weight: bold;
-  font-size: 12pt;
 }
 
 /* style for explanation categories like "Constructors:" */
