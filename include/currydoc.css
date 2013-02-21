@@ -1,8 +1,8 @@
 /* Changes to default bootstrap style: */
 
 body {
-  padding-top: 0px;
-  padding-bottom: 60px;
+  padding-top: 60px;
+  padding-bottom: 40px;
 }
 
 .hero-unit {
@@ -13,9 +13,29 @@ body {
   text-align: center;
 }
 
+/* padding for in-page bookmarks and fixed navbar */
+section {
+  padding-top: 30px;
+}
+
+.anchored {
+  padding-top: 40px;
+}
+
+/* type name at header positions */
+.typeheader {
+  font-size: 24px;
+  font-weight: bold;
+}
+
 /* function name in the documentation of a exported functions */
 .opname {
   font-weight: bold;
+}
+
+/* style for constructor comments" */
+.conscomment {
+  padding: 5px 0px 0px 20px;
 }
 
 /* style for explanation categories like "Constructors:" */
@@ -24,10 +44,10 @@ body {
 }
 
 .keyword { color:blue }
-.constructorname_constrpattern { color : #FF00FF }
-.constructorname_constrcall { color : #FF00FF }
-.constructorname_constrdecla { color : #FF00FF }
-.constructorname_otherconstrkind { color : #FF00FF }
+.constructorname_constrpattern { color : #ff00ff }
+.constructorname_constrcall { color : #ff00ff }
+.constructorname_constrdecla { color : #ff00ff }
+.constructorname_otherconstrkind { color : #ff00ff }
 .typeconstructor_typedecla  { color : #ff7f50 }
 .typeconstructor_typeuse  { color : #ff7f50 }
 .typeconstructor_typeexport  { color : #ff7f50 }
