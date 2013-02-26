@@ -1363,7 +1363,7 @@ Furthermore, the expression \ccode{assertIO $s$ $a$ $v$}
 asserts that the I/O action $a$ yields the value $v$ whenever it is
 executed, and
 the expression \ccode{assertEqualIO $s$ $a_1$ $a_2$}
-asserts that the I/O actions $a_1$ and $a_2$ yields equal values.
+asserts that the I/O actions $a_1$ and $a_2$ yield equal values.
 The name $s$ provided as a first argument in each assertion
 is used in the protocol produced by the test tool.
 
@@ -1381,7 +1381,7 @@ test1 = assertEqual     "++"     ([1,2]++[3,4]) [1,2,3,4]
 
 test2 = assertTrue      "all"    (all (<5) [1,2,3,4])
 
-test3 = assertSolutions "prefix" (\x -> let y free in  x++y =:= [1,2])
+test3 = assertSolutions "prefix" (\x -> x++_ =:= [1,2])
                                  [[],[1],[1,2]]
 \end{curry}
 For instance, \code{test1} asserts that the result of evaluating the
@@ -1389,23 +1389,23 @@ expression \code{([1,2]++[3,4])} is equal to \code{[1,2,3,4]}.
 
 We can execute a test suite by the command\pindex{currytest}
 \begin{curry}
-currytest testList
+currytest TestList
 \end{curry}
 (\code{currytest} is a program stored in \code{\cyshome/bin}
 where \cyshome is the installation directory of \CYS;
 see Section~\ref{sec-general}).
-In our example, \ccode{testList.curry} is the program containing the
+In our example, \ccode{TestList.curry} is the program containing the
 definition of all assertions. This has the effect
 that all exported top-level functions
 of type \code{Assertion} are tested (i.e., the corresponding
 assertions are checked) and the results
 (\ccode{OK} or failure) are reported together with the name of each assertion.
 %If failures occur, the complete test results are also
-%written into a file named \ccode{testList.testlog}.''
+%written into a file named \ccode{TestList.testlog}.''
 For our example above, we obtain the following successful protocol:
 \begin{curry}
 ============================================================
-Testing module "testList"...
+Testing module "TestList"...
 OK: ++
 OK: all
 OK: prefix
@@ -1418,11 +1418,11 @@ it works only with SICStus-Prolog version 3.8.5 (or newer).}
 In order to start this interface, one has to add the parameter
 \ccode{--window} (or \ccode{-w}), e.g., executing a test suite by
 \begin{curry}
-currytest --window testList
+currytest --window TestList
 \end{curry}
 or
 \begin{curry}
-currytest -w testList
+currytest -w TestList
 \end{curry}
 A snapshot of the interface is shown in Figure~\ref{fig-currytest}.
 
