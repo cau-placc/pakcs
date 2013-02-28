@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.2 (February 28, 2013)
-----------------------------------------------------------
+Release notes for PAKCS Version 1.11.2 (February 28, 2013, under development)
+-----------------------------------------------------------------------------
 
 Changes to version 1.11.1:
 * Saved states, i.e., executables for a main program `prog`

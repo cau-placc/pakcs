@@ -55,8 +55,7 @@ all: config
 #
 .PHONY: install
 install: installscripts
-	# install cabal front end if sources are present:
-	@if [ -d frontend ] ; then $(MAKE) frontend ; fi
+	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
@@ -71,12 +70,8 @@ install: installscripts
 	@if [ -r bin/pakcs ] ; then cd cpns && $(MAKE) ; fi
 	# compile the event handler demon for dynamic web pages:
 	@if [ -r bin/pakcs ] ; then cd www && $(MAKE) ; fi
-	# compile the tools:
-	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
-	@if [ -r bin/pakcs ] ; then cd tools && $(MAKE) ; fi
-	# compile documentation, if necessary:
-	@if [ -d docs/src ] ; \
-	 then $(MAKE) $(MANUALVERSION) && cd docs/src && $(MAKE) install ; fi
+	$(MAKE) tools
+	$(MAKE) docs
 	chmod -R go+rX .
 
 # Configure installation w.r.t. variables in pakcsinitrc:
@@ -94,10 +89,23 @@ installscripts:
 cleanscripts:
 	cd scripts && $(MAKE) clean
 
+# install front end (if sources are present):
 # install front end:
 .PHONY: frontend
 frontend:
-	cd frontend && $(MAKE)
+	@if [ -d frontend ] ; then cd frontend && $(MAKE) ; fi
+
+# compile the tools:
+.PHONY: tools
+tools:
+	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
+	@if [ -r bin/pakcs ] ; then cd tools && $(MAKE) ; fi
+
+# compile documentation, if necessary:
+.PHONY: docs
+docs:
+	@if [ -d docs/src ] ; \
+	 then $(MAKE) $(MANUALVERSION) && cd docs/src && $(MAKE) install ; fi
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
