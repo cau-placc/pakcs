@@ -4,13 +4,13 @@
 
 PIDFILE="/tmp/CurryPNSD.pid"
 LOCKFILE="/tmp/CurryPNSD.lock" # for startup control
-CPNSPROG="`dirname $0`/CPNS.state"
+CPNSEXEC="`dirname $0`/CPNS"
 
 if test ! -f $PIDFILE ; then
   rm -f $LOCKFILE
   echo "CPNS demon does not seem to be started." >&2
   exit
-elif test ! -f $CPNSPROG ; then
+elif test ! -f "$CPNSEXEC" ; then
   rm -f $LOCKFILE
   echo "CPNS demon does not seem to be generated." >&2
   exit
@@ -25,5 +25,5 @@ else
   fi
 fi
 
-$CPNSPROG stop >&2
+"$CPNSEXEC" stop >&2
 rm -f $PIDFILE /tmp/TESTPID$$ $LOCKFILE

@@ -1,17 +1,17 @@
 # Translate CPNS demon for fast startup:
 
 # Required:
-# - installed curry2prolog system
+# - installed PAKCS
 
 LOGFILE="/tmp/CurryPNSD.log"
 
-CPNS.state: ../lib/CPNS.curry
+CPNS: ../lib/CPNS.curry
 	../bin/pakcs -s CPNS
 
 # Shows the currently registered ports:
 .PHONY: show
-show: CPNS.state
-	./CPNS.state show
+show: CPNS
+	./CPNS show
 
 # Shows the log file of the demon:
 .PHONY: showlog
@@ -22,4 +22,4 @@ showlog:
 clean: 
 	./stop
 	../bin/cleancurry
-	rm -f CPNS.state
+	rm -f CPNS

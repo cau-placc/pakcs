@@ -294,7 +294,7 @@ tryXml2Fcy(Prog) :-
 	existsFile(XmlFile),
 	% translate XML file into .fcy file:
 	getEnv('PAKCSHOME',PH),
-	appendAtoms([PH,'/tools/curry2xml.state -fcy ',Prog],Cmd),
+	appendAtoms([PH,'/tools/curry2xml -fcy ',Prog],Cmd),
 	%write('Executing: '), write(Cmd), nl,
 	shellCmdWithCurryPath(Cmd),
 	!.

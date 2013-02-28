@@ -4,9 +4,9 @@ LIB=../../lib
 PLDIR=.curry/pakcs
 
 .PHONY: all
-all: Main.state ${PLDIR}/ERDGeneric.pl
+all: Main ${PLDIR}/ERDGeneric.pl
 
-Main.state: Main.curry \
+Main: Main.curry \
 	  CodeGeneration.curry \
 	  Transformation.curry \
 	  XML2ERD.curry \
@@ -35,7 +35,7 @@ Main.state: Main.curry \
 	# create saved state for top-level function "main":
 	../../bin/pakcs -s Main
 	(cd ../../bin ; rm -f erd2curry \
-	              ; ln -s ../tools/erd2curry/Main.state erd2curry)
+	              ; ln -s ../tools/erd2curry/Main erd2curry)
 
 ${PLDIR}/ERDGeneric.pl: ERDGeneric.curry \
 	  ${LIB}/Database.curry \

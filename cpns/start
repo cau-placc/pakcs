@@ -6,7 +6,7 @@
 PIDFILE="/tmp/CurryPNSD.pid"
 LOGFILE="/tmp/CurryPNSD.log"
 LOCKFILE="/tmp/CurryPNSD.lock" # for startup control
-CPNSPROG="`dirname "$0"`/CPNS.state"
+CPNSEXEC="`dirname "$0"`/CPNS"
 
 STARTSERVER=no
 
@@ -38,7 +38,7 @@ if [ $STARTSERVER = yes ] ; then
   
     echo 1 > $PIDFILE # initialize pid file with existing process
     chmod -f 666 $PIDFILE  # make the pid file readable for everybody
-    nohup "$CPNSPROG" start >> $LOGFILE 2>&1  &
+    nohup "$CPNSEXEC" start >> $LOGFILE 2>&1  &
     echo $! > $PIDFILE # write real cpns process into pid file
     lockfile -1 $LOCKFILE # wait for lockfile deletion by CPNS demon startup
     rm -f $LOCKFILE

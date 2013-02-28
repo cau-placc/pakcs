@@ -58,6 +58,8 @@
 :- dynamic user:portray_message/2.
 
 % suppress loading/restore messages if not desired:
+%user:portray_message(I,M) :- writeErr(I/M), nlErr, fail.
+user:portray_message(informational,_) :- !, noLoadMessage.
 user:portray_message(informational,loading(_,_,_)) :- !, noLoadMessage.
 user:portray_message(informational,loaded(_,_,_,_,_,_)) :- !,noLoadMessage.
 user:portray_message(informational,created(File,_)) :- !,
@@ -70,7 +72,8 @@ user:portray_message(informational,foreign_resource(_,_,_,_)) :- !, noLoadMessag
 % do not show any restore messages:
 user:portray_message(informational,loading(_,restoring,_)) :- !.
 user:portray_message(informational,restored(_,_,_)) :- !.
-%user:portray_message(I,M) :- writeErr(I/M), nlErr, fail.
+% do not show saved state creation messages:
+user:portray_message(informational,created(_,_)) :- !.
 
 noLoadMessage :- \+ pakcsrc(_,_), !. % no messages for initial state creation
 noLoadMessage :- pakcsrc(showplload,no).

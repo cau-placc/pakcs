@@ -1,42 +1,42 @@
 # Translate programs for managing cgi server processes:
 
 .PHONY: all
-all: submitform Registry.state
+all: submitform Registry
 
 submitform: ../lib/HtmlCgi.curry ../lib/NamedSocket.curry ../lib/CPNS.curry
 	../bin/pakcs -s SubmitForm
-	mv SubmitForm.state submitform
+	mv SubmitForm submitform
 
-Registry.state: Registry.curry ../lib/HtmlCgi.curry
+Registry: Registry.curry ../lib/HtmlCgi.curry
 	../bin/pakcs -s Registry
 
 .PHONY: cleanServers
 cleanServers:
-	./Registry.state clean
+	./Registry clean
 
 .PHONY: show
 show:
-	./Registry.state show
+	./Registry show
 
 .PHONY: showload
 showload:
-	./Registry.state showload
+	./Registry showload
 
 .PHONY: sketch
 sketch:
-	./Registry.state sketch
+	./Registry sketch
 
 .PHONY: showall
 showall:
-	./Registry.state showall
+	./Registry showall
 
 .PHONY: stop
 stop:
-	./Registry.state stop
+	./Registry stop
 
 .PHONY: kill
 kill:
-	./Registry.state kill
+	./Registry kill
 
 .PHONY: clean
 clean: 

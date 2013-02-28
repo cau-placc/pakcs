@@ -171,7 +171,7 @@ if [ $COMPACT = yes ] ; then
 fi
 $PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL $ERRORMODE -m $MAINCALL -s $MAINMOD
 rm -f $MAINMOD.curry .curry/$MAINMOD.fcy .curry/$MAINMOD.fint .curry/pakcs/$MAINMOD.pl .curry/pakcs/$MAINMOD.po
-STATE=$MAINMOD.state
+STATE=$MAINMOD
 
 # now the file $STATE should contain the saved state computing the HTML form:
 if test ! -f $STATE ; then
@@ -182,7 +182,7 @@ fi
 # stop old server, if necessary:
 if [ -f $CGISERVERFILE ] ; then
   echo "Stop old version of the server '$CGISERVERFILE'..."
-  $PAKCSHOME/www/Registry.state stopscript "$CGISERVERFILE"
+  $PAKCSHOME/www/Registry stopscript "$CGISERVERFILE"
 fi
 
 SUBMITFORM="$PAKCSHOME/www/submitform"

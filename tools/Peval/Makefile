@@ -4,10 +4,10 @@
 # - installed curry2prolog system
 
 .PHONY: all
-all:    peval.state
+all:    peval
 
 # generate saved state for check program:
-peval.state: peval.curry Flat.curry Flat2Fcy.curry
+peval: peval.curry Flat.curry Flat2Fcy.curry
 	../../bin/pakcs -set -error -s peval
 
 clean: 

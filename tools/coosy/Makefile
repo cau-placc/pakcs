@@ -1,11 +1,11 @@
 # Makefile for generating Curry Observer:
 
 .PHONY: all
-all: CoosyGUI.state
+all: CoosyGUI
 
 # generate saved state for GUI:
-CoosyGUI.state: CoosyGUI.curry CoosyShowObserve.curry Observe.curry \
-	        CoosyTrace.curry CoosyDerive.curry
+CoosyGUI: CoosyGUI.curry CoosyShowObserve.curry Observe.curry \
+	  CoosyTrace.curry CoosyDerive.curry
 	../../bin/pakcs -s CoosyGUI
 
 # clean up all auxiliary files:

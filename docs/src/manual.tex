@@ -648,8 +648,8 @@ in the current working directory.
 
 \item[\fbox{\code{:save}}]\pindex{:save} Save the current state of the system
 (together with the compiled program \code{prog.curry}) in the file
-\code{prog.state}, i.e., you can later start the program again
-by typing \ccode{prog.state} as a Unix command.
+\code{prog}, i.e., you can later start the program again
+by typing \ccode{prog} as a Unix command.
 
 \item[\fbox{\code{:save $expr$}}]\pindex{:save} Similar as \ccode{:save}
 but the expression $expr$ (typically: a call to the main
@@ -2232,7 +2232,7 @@ the corresponding Prolog program is stored in the directory
 \code{prog.pl} in an intermediate format for faster loading.
 This file is stored in the same directory as \code{prog.pl}.
 
-\item[\code{prog.state}:] This file contains the saved state
+\item[\code{prog}:] This file contains the executable
 after compiling and saving a program with \CYS
 (see Section~\ref{sec-use-curry2prolog}).
 

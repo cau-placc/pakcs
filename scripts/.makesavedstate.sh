@@ -26,10 +26,18 @@ if [ "$1" = "-error" ] ; then
   shift
 fi
 
-if [ $# != 1 ] ; then
-  echo "Usage: $0 [-standalone|-error] <saved_state_file>"
+if [ $# = 1 ] ; then
+  STATE=$1
+  TARGET=$1
+elif [ $# = 2 ] ; then
+  STATE=$1
+  TARGET=$2
+else
+  echo "Usage: $0 [-standalone|-error] <saved_state_file> [<target_file>]"
   echo "-standalone: transform saved state into stand-alone executable"
   echo "-error     : do not suppress messages on standard error output"
+  echo "saved_state: existing file with the saved state"
+  echo "target_file: target file with transformed state (if different)"
   exit 1
 fi
 
@@ -47,8 +55,6 @@ if [ -n "$SICSTUSDIR" ] ; then
   export PATH
 fi
 
-STATE=$1
-TMPSTATE=$STATE$$
 if test ! -f "$STATE" ; then
   echo "ERROR: saved state '$STATE' does not exist!"
   exit 1
@@ -75,7 +81,13 @@ fi
 
 # Patch the Sicstus saved state to suppress startup infos like version# 
 # and add current local and PATH information:
-mv $STATE $TMPSTATE
+if [ "$STATE" = "$TARGET" ] ; then
+  TMPSTATE=$STATE$$
+  mv $STATE $TMPSTATE
+else
+  TMPSTATE=$STATE
+fi
+
 TMPFILE=TMPSAVEDSTATE$$
 echo "#!/bin/sh" > $TMPFILE
 if test -n "$LANG" ; then
@@ -95,6 +107,6 @@ echo "export PATH" >> $TMPFILE
 if [ $ERROR = no ] ; then
   echo "exec 2> /dev/null" >> $TMPFILE
 fi
-cat $TMPFILE $TMPSTATE > $STATE
-rm -f $TMPFILE $TMPSTATE
-chmod 755 $STATE
+cat $TMPFILE $TMPSTATE > $TARGET
+rm $TMPFILE $TMPSTATE
+chmod 755 $TARGET
