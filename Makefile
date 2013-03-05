@@ -213,8 +213,9 @@ dist:
 
 # generate distribution on a remote host:
 dist_%:
-	cp Makefile $(PAKCSDIST)/Makefile
-	sed -e "/distribution/,\$$d" < Makefile > $(PAKCSDIST)/Makefile
+	cat Makefile | sed -e "/distribution/,\$$d" \
+	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
+	             > $(PAKCSDIST)/Makefile
 	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSDIST)
 	scp -q Makefile $*:$(PAKCSDIST)/../Makefile
 	ssh $* "cd $(PAKCSDIST) && $(MAKE) -f ../Makefile genbindist"
