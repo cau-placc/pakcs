@@ -101,9 +101,9 @@ evaluateMainExpression(Exp,Type,Vs) :-
 	((hasPrintedFailure ; printAllFailures) -> true
 	 ; asserta(hasPrintedFailure)),
 	(timemode(yes)
-           -> write('Runtime: '), RTime is RTime2-RTime1, write(RTime),
-	      write(' msec.'), nl,
-	      write('Elapsed time: '), ETime is ETime2-ETime1, write(ETime),
+           -> write('Execution time: '), RTime is RTime2-RTime1, write(RTime),
+	      write(' msec. / '),
+	      write('elapsed: '), ETime is ETime2-ETime1, write(ETime),
 	      write(' msec.'), nl
            ; true),
 	numberOfCalls(NC), numberOfExits(NE),
