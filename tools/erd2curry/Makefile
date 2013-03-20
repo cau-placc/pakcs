@@ -52,4 +52,4 @@ ${PLDIR}/ERDGeneric.pl: ERDGeneric.curry \
 .PHONY: clean
 clean:
 	../../bin/cleancurry
-	rm -f ../../bin/erd2curry
+	rm -f Main ../../bin/erd2curry
