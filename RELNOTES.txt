@@ -1,13 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.2 (February 28, 2013, under development)
+Release notes for PAKCS Version 1.11.2 (March 20, 2013, under development)
 -----------------------------------------------------------------------------
 
 Changes to version 1.11.1:
 * Saved states, i.e., executables for a main program `prog`
   are now stored in the file `prog` (instead of `prog.state`
   as in previous releases).
+* CASS tool (Curry Analysis Server System) added and integrated
+  into currydoc.
 
 
 Release notes for PAKCS Version 1.11.1 (February 13, 2013)
