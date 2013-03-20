@@ -40,6 +40,7 @@ bin/swiprolog
 bin/parsecurry
 bin/pakcs
 bin/addtypes
+bin/cass
 bin/currytest
 bin/currycreatemake
 bin/currydoc
