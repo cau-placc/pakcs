@@ -15,8 +15,8 @@ all:    check curry2xml
 
 # generate saved state for check program:
 check: check.curry ../lib/meta/FlatCurry.curry \
-	     ../currytools/analysis/AnaOverlapping.curry \
-	     ../currytools/analysis/AnaIndeterminism.curry
+	     ../currytools/analysis/OLD/AnaOverlapping.curry \
+	     ../currytools/analysis/OLD/AnaIndeterminism.curry
 	../bin/pakcs -set path ../currytools/analysis -set -error -s check
 
 # generate saved state for curry2xml program:
@@ -33,6 +33,7 @@ ImportGraph: ImportGraph.curry ../lib/meta/FlatCurry.curry \
 .PHONY: clean
 clean: 
 	../bin/cleancurry
+	rm -f check curry2xml
 	cd Peval     ; ${MAKE} clean
 	cd coosy     ; ${MAKE} clean
 	cd optimize  ; ${MAKE} clean
