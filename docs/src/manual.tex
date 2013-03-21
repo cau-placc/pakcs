@@ -427,27 +427,6 @@ useful:
 \item[\fbox{\code{:type $expr$}}]\pindex{:type}
 Show the type of the expression $expr$.
 
-\item[\fbox{\code{:analyze}}]\pindex{:analyze}
-Analyze the currently loaded program for some properties.
-Currently, there are the following analysis options:
-\begin{description}
-\item[\fbox{\code{functions}}]
-Check properties of all functions defined
-in the currently loaded Curry program (i.e., without the functions defined
-in the prelude and imported modules).
-Currently, the following properties are checked:
-\begin{enumerate}
-\item Which functions are defined by overlapping left-hand sides?
-\item Which functions are indeterministic, i.e., contains an
-      indirect/implicit call to a \code{send} constraint on ports
-      (see Appendix~\ref{sec-ports}, which includes
-      an implicit committed choice)?
-\end{enumerate}
-\item[\fbox{\code{icalls}}]
-Show all calls to imported functions in the currently loaded module.
-This might be useful to see which import declarations are really necessary.
-\end{description}
-
 \item[\fbox{\code{:browse}}]\pindex{:browse}
 Start the CurryBrowser to analyze the currently loaded
 module together with all its imported modules
@@ -481,6 +460,10 @@ system library directory of \CYS for a module with this name,
 e.g., the command \ccode{:interface FlatCurry} shows the interface
 of the system module \code{FlatCurry} for meta-programming
 (see Appendix~\ref{sec-flatcurry}).
+
+\item[\fbox{\code{:usedimports}}]\pindex{:usedimports}
+Show all calls to imported functions in the currently loaded module.
+This might be useful to see which import declarations are really necessary.
 
 \item[\fbox{\code{:modules}}]\pindex{:modules}
 Show the list of all currently loaded modules.

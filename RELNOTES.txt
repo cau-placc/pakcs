@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.2 (March 20, 2013, under development)
+Release notes for PAKCS Version 1.11.2 (March 21, 2013, under development)
 -----------------------------------------------------------------------------
 
 Changes to version 1.11.1:
@@ -10,6 +10,9 @@ Changes to version 1.11.1:
   as in previous releases).
 * CASS tool (Curry Analysis Server System) added and integrated
   into currydoc.
+* Interactive command ":analyze" removed and ":usedimports" added.
+  The removed features to analyze a program are available via the
+  Curry Browser.
 
 
 Release notes for PAKCS Version 1.11.1 (February 13, 2013)

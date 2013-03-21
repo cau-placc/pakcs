@@ -291,9 +291,9 @@ prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
 prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
-allCommands(["add","analyze","browse","cd","coosy","edit","eval","fork","help",
+allCommands(["add","browse","cd","coosy","edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
-	     "save","set","show","type","xml"]).
+	     "save","set","show","type","usedimports","xml"]).
 
 isLowerCaseOf(L,C) :- 65=<C, C=<90, !, L is C+32.
 isLowerCaseOf(C,C).
@@ -370,10 +370,10 @@ processCommand("help",[]) :- !,
 	write('<expr>            - evaluate expression <expr>'), nl,
 	write('let <var>=<expr>  - define variable binding for subsequent goals'), nl,
 	write(':type <expr>      - show the type of <expression>'),nl,
-	write(':analyze          - analyze program (see submenu)'),nl,
 	write(':browse           - browse program and its imported modules'),nl,
 	write(':interface        - show interface of current program'),nl,
 	write(':interface <prog> - show interface of program "<prog>.curry"'),nl,
+	write(':usedimports      - show all used imported functions/constructors'),nl,
 	write(':edit             - edit current program'), nl,
 	write(':edit <file>      - edit file "<file>"'), nl,
 	write(':modules          - show list of currently loaded modules'), nl,
@@ -527,24 +527,16 @@ processCommand("type",ExprInput) :- !,
 	numbersmallvars(97,_,Type), writeType(Type), nl,
 	!, fail.
 
-processCommand("analyze",[]) :- !,
+processCommand("usedimports",[]) :- !,
 	lastload(Prog),
 	(Prog="" -> write('ERROR: no program loaded for analysis'), nl, !, fail
                   ; true),
-	write('Select analysis (functions|icalls|help) > '),
-	readLine(Line),
-	\+ Line = -1,
-	removeBlanks(Line,Input),
-	\+ Input = [],
-	AllAnas = ["functions","icalls","help"],
-	findall(FullCmd,prefixOf(Input,AllAnas,FullCmd),FullCmds),
-	(FullCmds=[Ana] -> true ;
-	 (FullCmds=[]
-	  -> writeErr('ERROR: unknown analysis'),
-	     nlErr, fail
-	   ; writeErr('ERROR: analysis prefix not unique.'),
-	     nlErr, fail)),
-	processAnalyze(Ana,Prog),
+        atom_codes(ProgA,Prog),
+	getEnv('PAKCSHOME',PH),
+	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
+		    AnaCmd),
+        %write('Executing: '), write(AnaCmd), nl,
+        shellCmdWithCurryPath(AnaCmd),
 	!, fail.
 
 processCommand("interface",[]) :- !,
@@ -843,26 +835,6 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 	shellCmd(Cmd),
 	deleteMainPrologFile(MainPrologFile),
 	deleteFile(TmpSavePl).
-
-% perform analyze command:
-processAnalyze("functions",Prog) :-
-        atom_codes(ProgA,Prog),
-	getEnv('PAKCSHOME',PH),
-	appendAtoms(['"',PH,'/tools/check" ',ProgA],AnaCmd),
-        %write('Executing: '), write(AnaCmd), nl,
-        shellCmdWithCurryPath(AnaCmd).
-processAnalyze("icalls",Prog) :-
-        atom_codes(ProgA,Prog),
-	getEnv('PAKCSHOME',PH),
-	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
-		    AnaCmd),
-        %write('Executing: '), write(AnaCmd), nl,
-        shellCmdWithCurryPath(AnaCmd).
-processAnalyze("help",_) :-
-	write('Analysis names (can be abbreviated to a prefix if unique):'), nl,
-	nl,
-	write('functions - check properties of defined functions'),nl,
-	write('icalls    - show all calls to imported functions/constructors'),nl.
 
 % process the various options of the ":set" command:
 processSetOption("+error") :- !,
