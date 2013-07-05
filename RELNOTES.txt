@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.2 (April 15, 2013, under development)
+Release notes for PAKCS Version 1.11.2 (July 5, 2013, under development)
 -----------------------------------------------------------------------------
 
 Changes to version 1.11.1:
@@ -13,8 +13,12 @@ Changes to version 1.11.1:
 * Interactive command ":analyze" removed and ":usedimports" added.
   The removed features to analyze a program are available via the
   Curry Browser.
+* Library `Function` added.
 * Library `HTML`: default (white) background for body of generated
   web pages removed (since this is usually defined in css files).
+* Type inference tool (see `currytools/typeinference`) added.
+  This tool can be used to annotate expressions in FlatCurry programs 
+  with their type.
 
 
 Release notes for PAKCS Version 1.11.1 (February 13, 2013)
