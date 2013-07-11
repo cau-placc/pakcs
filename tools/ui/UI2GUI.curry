@@ -2,10 +2,11 @@
 --- Library for creating tcl/tk applications from ui descriptions
 --- based an the GUI library
 --- @author Christof Kluss
---- @version September 2008
+--- @version July 2013
 ------------------------------------------------------------------------------
 
 module UI2GUI (
+  UIWidget, UIRef,
   Command(..),Ref,Handler(..),
   Widget(Widget),
   Event(..),WidgetKind(..),

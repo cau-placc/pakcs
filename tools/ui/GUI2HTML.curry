@@ -1,8 +1,9 @@
 ------------------------------------------------------------------------------
 --- Library for creating web applications from gui descriptions
 --- Same interface and documentation as the GUI library from PAKCS
+---
 --- @author Christof Kluss
---- @version September 2008
+--- @version July 2013
 ------------------------------------------------------------------------------
 
 module GUI2HTML (
@@ -130,7 +131,7 @@ data CanvasItem =
 
 
 Button :: (UIEnv -> IO _) -> [ConfItem] -> Widget
-Button cmd confs = PlainButton (Cmd cmd : confs)
+Button cmnd confs = PlainButton (Cmd cmnd : confs)
 
 
 
@@ -142,15 +143,15 @@ CanvasScroll :: [ConfItem] -> Widget
 CanvasScroll = Canvas 
 
 ConfigButton :: (UIEnv -> IO ([ReconfigureItem])) -> [ConfItem] -> Widget
-ConfigButton cmd = Button cmd2  
-  where cmd2 x = do wconfs <- cmd x
+ConfigButton cmnd = Button cmd2  
+  where cmd2 x = do wconfs <- cmnd x
                     widgetconf2cmd wconfs x
 
 
 Cmd :: (UIEnv -> IO _) -> ConfItem
-Cmd cmd = Handler DefaultEvent (\env -> cmd env >> return [])  -- (UI2HTML.Cmd cmd) 
+Cmd cmnd = Handler DefaultEvent (\env -> cmnd env >> return [])  -- (UI2HTML.Cmd cmnd) 
 Command :: (UIEnv -> IO ([ReconfigureItem])) -> ConfItem
-Command cmd = Handler DefaultEvent cmd  
+Command cmnd = Handler DefaultEvent cmnd  
 
 button = Button
 command = Cmd
@@ -217,9 +218,9 @@ gui2ui widget = case widget of
                  (map menu2ui (fromJust $ getMenu confitems)))]
     where      
       menu2ui menuitem = case menuitem of   
-        MButton (cmd) label       -> UI.menuItem cmd2 label
+        MButton (cmnd) label       -> UI.menuItem cmd2 label
 	  where 
-	    cmd2 x = do wconfs <- cmd x
+	    cmd2 x = do wconfs <- cmnd x
 	                widgetconf2cmd wconfs x
 
         MMenuButton label items   -> UI.menu label (map menu2ui items) 
@@ -247,24 +248,24 @@ gui2ui widget = case widget of
       let h = collectionconf2styleclass confs in
       if null h then [] else [UI.Class h]
 
-    confitems2lrh confitems = c2lrh (Nothing,Nothing,[]) confitems 
+    confitems2lrh confitems = c2lrh' (Nothing,Nothing,[]) confitems 
       where        
        foo ref | ref =:= UI.Ref cref = ref 
          where cref free
 
-       c2lrh lrh []     = lrh
-       c2lrh (mblabel,mbref,handlers) (conf:confs) = case conf of
-         Text label -> c2lrh ((Just label),mbref,handlers) confs 
-         WRef ref   -> c2lrh (mblabel,(Just (foo ref)),handlers) confs
+       c2lrh' lrh []     = lrh
+       c2lrh' (mblabel,mbref,handlers) (conf:confs) = case conf of
+         Text label -> c2lrh' ((Just label),mbref,handlers) confs 
+         WRef ref   -> c2lrh' (mblabel,(Just (foo ref)),handlers) confs
 
-	 Handler event cmd -> c2lrh 
+	 Handler event cmnd -> c2lrh' 
             (mblabel,mbref,
 	     ((UI.Handler
 	         (gui2uievent event) (UI.Cmd cmd2)):handlers)) 
 	    confs   
-	   where cmd2 x = do wconfs <- cmd x
+	   where cmd2 x = do wconfs <- cmnd x
 	                     widgetconf2cmd wconfs x  
-         _          -> c2lrh (mblabel,mbref,handlers) confs
+         _          -> c2lrh' (mblabel,mbref,handlers) confs
 
     confitems2styleclass confitems = c2s' confitems 
       where 
@@ -361,11 +362,11 @@ widgetconf2cmd ((WidgetConf ref confItem):items) x = do
     --Anchor String
     Background str -> changeStyles ref [UI.Class [UI.Bg (string2Color str)]] x
     Foreground str -> changeStyles ref [UI.Class [UI.Fg (string2Color str)]] x
-    --Handler event cmd ->
-    Handler event cmd -> setHandler ref (gui2uievent event) cmd2 x 
+    --Handler event cmnd ->
+    Handler event cmnd -> setHandler ref (gui2uievent event) cmd2 x 
       where 
         cmd2 env' = do
-	  wconfs <- cmd env'
+	  wconfs <- cmnd env'
 	  widgetconf2cmd wconfs env'  
 	  done
 

@@ -17,7 +17,7 @@
 --- is a shell script stored in <i>pakcshome</i>/bin).
 --- 
 --- @author Michael Hanus (with extensions by Bernd Brassel and Marco Comini)
---- @version November 2007
+--- @version July 2013
 ------------------------------------------------------------------------------
 
 module HTML(HtmlExp(..),HtmlPage(..),PageParam(..), 
@@ -1279,7 +1279,7 @@ showAnswerFormInEnv withlength url key hform@(HtmlForm _ _ _) crefnr = do
 showAnswerFormInEnv _ _ _ (HtmlAnswer ctype cont) _ = do
   return ("Content-Type: "++ctype++"\n\n"++cont, [])
 
-showAnswerFormInEnv withlength url key (AjaxAnswer cont nvsAndhexps) crefnr = do
+showAnswerFormInEnv _ _ _ (AjaxAnswer cont nvsAndhexps) crefnr = do
   (pairs,evhs) <- converttohtml ([],[]) nvsAndhexps crefnr
  
   let jsonpairs = map (\ (nvs,html) -> 
@@ -1302,7 +1302,7 @@ htmlForm2html_ (html) crefnr = do
   -- enforce instantiation before handlers are stored:
   seq newrefnr done
   --seq (normalForm htmlwithoutcrefs) done
-  let (transhtml, evhs, fh) = translateHandlers htmlwithoutcrefs
+  let (transhtml, evhs, _) = translateHandlers htmlwithoutcrefs
   --storeEventHandlers cgikey oldcenv evhs
     
   return (transhtml, evhs, newrefnr)
@@ -1468,20 +1468,19 @@ translateHandlers (AjaxEvent2 hexp handler str1 str2 : hexps) =
       (nhexps2,evhs2,_) = translateHandlers hexps      
       fh = string2urlencoded key
       
-      changeAttr (HtmlStruct tag attrs hexps) = 
-        if (null str2) 
-          then
-            HtmlStruct tag (changeAssoc attrs str1 ("EVENT_" ++ fh)) hexps        
-          else 
-            HtmlStruct tag (changeAssoc attrs str1 
-              (str2 ++ "(event,window,'EVENT_" ++ fh ++ "');")) hexps    
+      changeAttr (HtmlStruct tag attrs hes) = 
+        if null str2
+          then HtmlStruct tag (changeAssoc attrs str1 ("EVENT_" ++ fh)) hes
+          else HtmlStruct tag
+                 (changeAssoc attrs str1 
+                      (str2 ++ "(event,window,'EVENT_" ++ fh ++ "');")) hes
       
       
-      changeAttr (AjaxEvent2 hexp handler str1 str2) =
-        AjaxEvent2 (changeAttr hexp) handler str1 str2 
-      changeAttr (HtmlEvent hexp handler) = HtmlEvent (changeAttr hexp) handler   
+      changeAttr (AjaxEvent2 he hdlr s1 s2) =
+        AjaxEvent2 (changeAttr he) hdlr s1 s2 
+      changeAttr (HtmlEvent he hdlr) = HtmlEvent (changeAttr he) hdlr   
       
-      --changeAttr (HtmlCRef hexp ref)      = HtmlCRef  (changeAttr hexp) ref
+      --changeAttr (HtmlCRef he ref)      = HtmlCRef  (changeAttr he) ref
       --changeAttr (HtmlText str)           = HtmlText str        
       
    in (changeAttr (head nhexps1) : nhexps2,(handler,key):evhs1++evhs2, fh)

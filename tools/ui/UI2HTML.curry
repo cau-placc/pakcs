@@ -15,15 +15,16 @@
 --- (makecurrycgi is a shell script stored in <i>pakcshome</i>/bin).
 ---
 --- @author Christof Kluss
---- @version September 2008
+--- @version July 2013
 ------------------------------------------------------------------------------
 
 module UI2HTML (
+  UIWidget, UIRef,
   Command(..),Ref,Handler(..),
   Widget(Widget),
   Event(..),WidgetKind(..),
   CanvasItem(..),
-  -- for stils
+  -- for styles
   StyleClass(..),Position(..),Direction(..),
   Style(..),BorderStyle(..),FontStyle(..),Color(..),
   --
@@ -466,12 +467,12 @@ styles2css (style:styles) = case style of
     Width n -> "width: " ++ show n ++ "em" --"px"   
     Align pos -> 
       case pos of
-        Center -> "text-align: " ++ showPos pos 
-        Left   -> "text-align: " ++ showPos pos 
-        Right  -> "text-align: " ++ showPos pos 
-        Top    -> "vertical-align: " ++ showPos pos 
-        Bottom -> "vertical-align: " ++ showPos pos 
-        _      -> ""
+        Center   -> "text-align: " ++ showPos pos 
+        UI.Left  -> "text-align: " ++ showPos pos 
+        UI.Right -> "text-align: " ++ showPos pos 
+        Top      -> "vertical-align: " ++ showPos pos 
+        Bottom   -> "vertical-align: " ++ showPos pos 
+        _        -> ""
  
     Fill dir -> 
       case dir of 

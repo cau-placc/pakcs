@@ -8,7 +8,7 @@
 --- The latter might not be supported in the future.
 ---
 --- @authors Michael Hanus, Bernd Brassel
---- @version November 2006
+--- @version July 2013
 ------------------------------------------------------------------------------
 
 module GUI(GuiPort,Widget(..),Button,ConfigButton,
@@ -1466,7 +1466,7 @@ popup_message s = runGUI "" (col [Label [Text s],
 --- The event handler takes a GUI port as parameter in order to
 --- read or write values from/into the GUI.
 Cmd :: (GuiPort -> IO ()) -> ConfItem
-Cmd cmd = Command (\gport -> cmd gport >> return [])
+Cmd cmmd = Command (\gport -> cmmd gport >> return [])
 
 --- An event handler that can be associated to a widget.
 --- The event handler takes a GUI port as parameter (in order to
@@ -1474,12 +1474,12 @@ Cmd cmd = Command (\gport -> cmd gport >> return [])
 --- of widget reference/configuration pairs
 --- which is applied after the handler in order to configure some GUI widgets.
 Command :: (GuiPort -> IO [ReconfigureItem]) -> ConfItem
-Command cmd = Handler DefaultEvent cmd
+Command cmmd = Handler DefaultEvent cmmd
 
 --- A button with an associated event handler which is activated
 --- if the button is pressed.
 Button :: (GuiPort -> IO ()) -> [ConfItem] -> Widget
-Button cmd confs = PlainButton (Cmd cmd : confs)
+Button cmmd confs = PlainButton (Cmd cmmd : confs)
 
 
 cmd = Cmd
@@ -1490,7 +1490,7 @@ button = Button
 --- if the button is pressed. The event handler is a configuration handler
 --- (see Command) that allows the configuration of some widgets.
 ConfigButton :: (GuiPort -> IO [ReconfigureItem]) -> [ConfItem] -> Widget
-ConfigButton cmd confs = PlainButton (Command cmd : confs)
+ConfigButton cmmd confs = PlainButton (Command cmmd : confs)
 
 
 --- A text edit widget with vertical and horizontal scrollbars.
