@@ -143,6 +143,7 @@ libdoc:
 	@echo "Make libdoc process logged in file $(MAKELOG)"
 
 # Clean the system files, i.e., remove the installed PAKCS components
+# except for the front end
 .PHONY: clean
 clean:
 	rm -f $(MAKELOG)
@@ -162,7 +163,13 @@ cleantools:
 	cd cpns && $(MAKE) clean
 	cd www && $(MAKE) clean
 	cd bin && rm -f pakcs
+
+# Clean everything (including the front end)
+.PHONY: cleanall
+cleanall:
+	$(MAKE) clean
 	rm -rf $(LOCALBIN)
+
 
 #################################################################################
 # Create distribution versions of the complete system as tar files pakcs*.tar.gz:
