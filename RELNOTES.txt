@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.2 (July 5, 2013, under development)
------------------------------------------------------------------------------
+Release notes for PAKCS Version 1.11.2 (July 19, 2013, under development)
+-------------------------------------------------------------------------
 
 Changes to version 1.11.1:
 * Saved states, i.e., executables for a main program `prog`
@@ -16,6 +16,8 @@ Changes to version 1.11.1:
 * Library `Function` added.
 * Library `HTML`: default (white) background for body of generated
   web pages removed (since this is usually defined in css files).
+* Library `IO`: Fixed a bug in `hGetLine` which caused an end-of-file error
+  when reading a non-empty line without a newline termination.
 * Type inference tool (see `currytools/typeinference`) added.
   This tool can be used to annotate expressions in FlatCurry programs 
   with their type.
