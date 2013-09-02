@@ -106,6 +106,9 @@ echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE
 echo "export PATH" >> $TMPFILE
 if [ $ERROR = no ] ; then
   echo "exec 2> /dev/null" >> $TMPFILE
+elif [ -n "$SICSTUSDIR" ] ; then
+  # suppress "restoring" message of SICStus-Prolog:
+  echo "exec $SICSTUSDIR/bin/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
 fi
 cat $TMPFILE $TMPSTATE > $TARGET
 rm $TMPFILE $TMPSTATE
