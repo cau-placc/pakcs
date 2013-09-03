@@ -17,7 +17,7 @@ all:    curry2xml
 curry2xml: curry2xml.curry ../lib/meta/FlatXML.curry \
 	         ../lib/meta/Flat.curry \
 	         ../lib/meta/Flat2Fcy.curry ../lib/XML.curry
-	../bin/pakcs -set -error -s curry2xml
+	../bin/pakcs -s curry2xml
 
 .PHONY: clean
 clean: 

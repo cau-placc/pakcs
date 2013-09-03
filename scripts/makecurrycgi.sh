@@ -14,7 +14,6 @@ MAINCALL="main_cgi_9999_$$"
 ERROR=
 HELP=no
 PAKCSOPTIONS=
-WRITEERRORS=yes
 COMPACT=no
 DEBUG=no
 DEBUGFILE=
@@ -32,7 +31,7 @@ while [ $# -gt 0 -a -z "$ERROR" ]; do
   case $1 in
    -help | -h | -\? ) HELP=yes ;;
    -D*              ) PAKCSOPTIONS="$PAKCSOPTIONS $1" ;;
-   -noerror         ) WRITEERRORS=no ;;
+   -noerror         ) echo "WARNING: option -noerror no longer supported!" ;;
    -compact         ) COMPACT=yes ;;
    -debug           ) DEBUG=yes ;;
    -debugfile       ) shift ; DEBUGFILE=$1 ;;
@@ -75,7 +74,6 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo
   echo "FURTHER OPTIONS:"
   echo '-Dname=val : define pakcsrc property "name" as "val"'
-  echo "-noerror   : do not write errors in error log file of the web server"
   echo "-compact   : reduce size of generated cgi program by deleting unused functions"
   echo "-debug     : include code for showing failures"
   echo "             (= PAKCS options '+printfail/+allfails')"
@@ -161,15 +159,10 @@ elif [ -n "$DEBUGFILE" ] ; then
 else
   PRINTFAIL=
 fi
-if [ $WRITEERRORS = yes ] ; then
-  ERRORMODE="-set +error"
-else
-  ERRORMODE="-set -error"
-fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-$PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL $ERRORMODE -m $MAINCALL -s $MAINMOD
+$PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL -m $MAINCALL -s $MAINMOD
 rm -f $MAINMOD.curry .curry/$MAINMOD.fcy .curry/$MAINMOD.fint .curry/pakcs/$MAINMOD.pl .curry/pakcs/$MAINMOD.po
 STATE=$MAINMOD
 

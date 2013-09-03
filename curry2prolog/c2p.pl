@@ -14,11 +14,10 @@
 
 :- dynamic mainFunction/1, compileWithCompact/1,
 	   parser_warnings/1, freeVarsUndeclared/1, letBindings/1,
-	   addImports/1, errormode/1, verbosemode/1, noIoAtTopLevel/0.
+	   addImports/1, verbosemode/1, noIoAtTopLevel/0.
 
 mainFunction("main"). % the main function for options -r and -s
 compileWithCompact([]).  % parsecurry options for compactification
-errormode(yes). % yes if messages on stderr should be shown in saved states
 verbosemode(no). % yes if program should be executed in verbose mode
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
@@ -434,8 +433,6 @@ processCommand("set",[]) :- !,
 	  ; write('('), write(PrintConsFail), write(') ')),
 	(compileWithDebug -> write('+') ; write('-')),
 	write(debug),	write('  '),
-	errormode(EM), (EM=yes -> write('+') ; write('-')),
-	write(error),	write('   '),
 	freeVarsUndeclared(FV), (FV=yes -> write('+') ; write('-')),
 	write(free),	write('  '),
 	(compileWithFailPrint -> write('+') ; write('-')),
@@ -718,8 +715,7 @@ processCommand("save",MainGoal) :- !,
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
 	 -> appendAtom(CMD1,'-standalone ',CMD2)
 	  ; CMD2=CMD1),
-	(errormode(yes) -> appendAtom(CMD2,'-error ',CMD3) ; CMD3=CMD2),
-	appendAtoms([CMD3,ProgStName,' ',ProgName],Cmd),
+	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
 	%write('Executing: '), write(Cmd), nl,
 	shellCmd(Cmd),
 	write('Executable saved in: '), write(ProgName), nl,
@@ -838,11 +834,9 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 
 % process the various options of the ":set" command:
 processSetOption("+error") :- !,
-	retract(errormode(_)),
-	asserta(errormode(yes)).
+	writeErr('WARNING: option "error" no longer supported!'), nlErr.
 processSetOption("-error") :- !,
-	retract(errormode(_)),
-	asserta(errormode(no)).
+	writeErr('WARNING: option "error" no longer supported!'), nlErr.
 processSetOption("+free") :- !,
 	retract(freeVarsUndeclared(_)),
 	asserta(freeVarsUndeclared(yes)).

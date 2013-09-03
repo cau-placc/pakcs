@@ -20,9 +20,8 @@ if [ "$1" = "-standalone" ] ; then
   shift
 fi
 
-ERROR=no
 if [ "$1" = "-error" ] ; then
-  ERROR=yes
+  echo "WARNING: option -noerror no longer supported!"
   shift
 fi
 
@@ -33,9 +32,8 @@ elif [ $# = 2 ] ; then
   STATE=$1
   TARGET=$2
 else
-  echo "Usage: $0 [-standalone|-error] <saved_state_file> [<target_file>]"
+  echo "Usage: $0 [-standalone] <saved_state_file> [<target_file>]"
   echo "-standalone: transform saved state into stand-alone executable"
-  echo "-error     : do not suppress messages on standard error output"
   echo "saved_state: existing file with the saved state"
   echo "target_file: target file with transformed state (if different)"
   exit 1
@@ -104,9 +102,7 @@ echo "PAKCSLIBPATH=\"$PAKCSLIBPATH\"" >> $TMPFILE
 echo "export PAKCSLIBPATH" >> $TMPFILE
 echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE
 echo "export PATH" >> $TMPFILE
-if [ $ERROR = no ] ; then
-  echo "exec 2> /dev/null" >> $TMPFILE
-elif [ -n "$SICSTUSDIR" ] ; then
+if [ -n "$SICSTUSDIR" ] ; then
   # suppress "restoring" message of SICStus-Prolog:
   echo "exec $SICSTUSDIR/bin/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
 fi
