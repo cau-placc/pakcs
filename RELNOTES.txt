@@ -5,6 +5,8 @@ Release notes for PAKCS Version 1.11.2 (July 19, 2013, under development)
 -------------------------------------------------------------------------
 
 Changes to version 1.11.1:
+* Fixed a bug in `IO.hGetLine` which caused an end-of-file error when
+  reading a non-empty line without a newline termination.
 * Saved states, i.e., executables for a main program `prog`
   are now stored in the file `prog` (instead of `prog.state`
   as in previous releases).
@@ -19,7 +21,7 @@ Changes to version 1.11.1:
 * Library `IO`: Fixed a bug in `hGetLine` which caused an end-of-file error
   when reading a non-empty line without a newline termination.
 * Type inference tool (see `currytools/typeinference`) added.
-  This tool can be used to annotate expressions in FlatCurry programs 
+  This tool can be used to annotate expressions in FlatCurry programs
   with their type.
 
 
