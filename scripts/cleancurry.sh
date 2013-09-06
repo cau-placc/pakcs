@@ -72,7 +72,7 @@ do
     fi
     CURRYDIR=$FDIR/.curry
     if [ -d $CURRYDIR ] ; then
-      rm -f $CURRYDIR/$FBASE.fcy $CURRYDIR/$FBASE.fint $CURRYDIR/$FBASE.acy $CURRYDIR/$FBASE.uacy
+      rm -f $CURRYDIR/$FBASE.fcy $CURRYDIR/$FBASE.fint $CURRYDIR/$FBASE.icurry $CURRYDIR/$FBASE.acy $CURRYDIR/$FBASE.uacy
       FDIRFILES=`ls -A $CURRYDIR`
       if [ -z "$FDIRFILES" ] ; then # .curry directory is empty
         rmdir $CURRYDIR
