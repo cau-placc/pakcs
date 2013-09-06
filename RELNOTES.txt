@@ -6,7 +6,7 @@ Release notes for PAKCS Version 1.11.2 (September 6, 2013, under development)
 
 Changes to version 1.11.1:
 * Front-end updated (it writes and reads new kinds of interface files
-  with the suffix `.curry`).
+  with the suffix `.icurry`).
 * Saved states, i.e., executables for a main program `prog`
   are now stored in the file `prog` (instead of `prog.state`
   as in previous releases).
