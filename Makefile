@@ -11,6 +11,9 @@
 # (contact: mh@informatik.uni-kiel.de)
 #****************************************************************************
 
+# Some information about this installation
+# ----------------------------------------
+
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
@@ -18,26 +21,34 @@ MINORVERSION=11
 # The revision version number:
 REVISIONVERSION=2
 # The build version number:
-BUILDVERSION=1
+BUILDVERSION=2
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
 COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
-
-# Logfile for make:
-MAKELOG=make.log
-# The name of the Curry System
+# The name of the Curry system, needed for installation of currytools
 export CURRYSYSTEM=pakcs
-# the root directory
+
+# Paths used in this installation
+# -------------------------------
+
+# the root directory of the installation
 export ROOT=$(CURDIR)
 # binary directory and executables
 export BINDIR=$(ROOT)/bin
+# Directory where the libraries are located
+export LIBDIR        = $(ROOT)/lib
+# Directory where the documentation files are located
+export DOCDIR        = $(ROOT)/docs
 # Directory where local executables are stored:
 export LOCALBIN=$(BINDIR)/.local
 # The version information file for Curry2Prolog:
 C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
-MANUALVERSION=$(ROOT)/docs/src/version.tex
+MANUALVERSION=$(DOCDIR)/src/version.tex
+
+# Logfile for make:
+MAKELOG=make.log
 
 #
 # Install all components of PAKCS
@@ -66,10 +77,6 @@ install: installscripts
 	@cd lib && $(MAKE) acy
 	# prepare for separate compilation by compiling all librariers to Prolog code:
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
-	# compile the Curry Port Name Server demon:
-	@if [ -r bin/pakcs ] ; then cd cpns && $(MAKE) ; fi
-	# compile the event handler demon for dynamic web pages:
-	@if [ -r bin/pakcs ] ; then cd www && $(MAKE) ; fi
 	$(MAKE) tools
 	$(MAKE) docs
 	chmod -R go+rX .
@@ -98,14 +105,18 @@ frontend:
 # compile the tools:
 .PHONY: tools
 tools:
+	# compile the Curry Port Name Server demon:
+	@if [ -r bin/pakcs ] ; then cd cpns       && $(MAKE) ; fi
+	# compile the event handler demon for dynamic web pages:
+	@if [ -r bin/pakcs ] ; then cd www        && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
-	@if [ -r bin/pakcs ] ; then cd tools && $(MAKE) ; fi
+	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
 # compile documentation, if necessary:
 .PHONY: docs
 docs:
-	@if [ -d docs/src ] ; \
-	 then $(MAKE) $(MANUALVERSION) && cd docs/src && $(MAKE) install ; fi
+	@if [ -d $(DOCDIR)/src ] ; \
+	 then $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # install required cabal packages required by the front end
 # (only necessary if the front end is installed for the first time)
@@ -142,6 +153,11 @@ libdoc:
 	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
 	@echo "Make libdoc process logged in file $(MAKELOG)"
 
+# run the test suite to check the installation
+.PHONY: runtest
+runtest: examples/doTest
+	cd examples && ./doTest --nogui
+
 # Clean the system files, i.e., remove the installed PAKCS components
 # except for the front end
 .PHONY: clean
@@ -150,7 +166,7 @@ clean:
 	$(MAKE) cleantools
 	cd lib && $(MAKE) clean
 	cd examples && ../bin/cleancurry -r
-	if [ -d docs/src ] ; then cd docs/src && $(MAKE) clean ; fi
+	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
 	cd scripts && $(MAKE) clean
 
