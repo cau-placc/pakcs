@@ -236,11 +236,13 @@ dist:
 
 # generate distribution on a remote host:
 dist_%:
-	cat Makefile | sed -e "/distribution/,\$$d" \
-	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
-	             > $(PAKCSDIST)/Makefile
+	cat Makefile | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
+	             > Makefile.dated
+	cat Makefile.dated | sed -e "/distribution/,\$$d" \
+	                   > $(PAKCSDIST)/Makefile
 	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSDIST)
-	scp -q Makefile $*:$(PAKCSDIST)/../Makefile
+	scp -q Makefile.dated $*:$(PAKCSDIST)/../Makefile
+	rm Makefile.dated
 	ssh $* "cd $(PAKCSDIST) && $(MAKE) -f ../Makefile genbindist"
 	scp -p $*:/tmp/pakcs\*.tar.gz .
 	ssh $* rm -rf $(PAKCSDIST) /tmp/pakcs\*.tar.gz /tmp/Makefile
