@@ -1,8 +1,17 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.2 (September 6, 2013, under development)
--------------------------------------------------------------------------
+Release notes for PAKCS Version 1.11.3 (September 27, 2013, under development)
+------------------------------------------------------------------------------
+
+Changes to version 1.11.2:
+* Library `Distribution` and `FlatCurry`: after calling the front end,
+  an exception is raised if the front end returns with an error
+  (due to an illegal source program).
+
+
+Release notes for PAKCS Version 1.11.2 (September 6, 2013)
+----------------------------------------------------------
 
 Changes to version 1.11.1:
 * Front-end updated (it writes and reads new kinds of interface files
