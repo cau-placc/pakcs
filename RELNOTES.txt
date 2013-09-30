@@ -5,9 +5,11 @@ Release notes for PAKCS Version 1.11.3 (September 27, 2013, under development)
 ------------------------------------------------------------------------------
 
 Changes to version 1.11.2:
-* Library `Distribution` and `FlatCurry`: after calling the front end,
-  an exception is raised if the front end returns with an error
-  (due to an illegal source program).
+  * Library `Distribution`: front-end parameters extended by supporting
+    "special" (i.e., aribrary) arguments.
+  * Library `Distribution` and `FlatCurry`: after calling the front end,
+    an exception is raised if the front end returns with an error
+    (due to an illegal source program).
 
 
 Release notes for PAKCS Version 1.11.2 (September 6, 2013)
