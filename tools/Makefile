@@ -9,7 +9,6 @@ all:    curry2xml
 	@cd xmldata   ; ${MAKE}
 	@cd Peval     ; ${MAKE}
 	@cd coosy     ; ${MAKE}
-	@cd erd2curry ; ${MAKE}
 	@cd ui        ; ${MAKE}
 
 
@@ -27,5 +26,4 @@ clean:
 	cd coosy     ; ${MAKE} clean
 	cd optimize  ; ${MAKE} clean
 	cd xmldata   ; ${MAKE} clean
-	cd erd2curry ; ${MAKE} clean
 	cd ui        ; ${MAKE} clean
