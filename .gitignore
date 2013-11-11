@@ -47,6 +47,7 @@ bin/currydoc
 bin/currybrowse
 bin/dataToXml
 bin/erd2curry
+bin/spiceup
 cpns/CPNS
 curry2prolog/prologbasics.pl
 curry2prolog/libswi

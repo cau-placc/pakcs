@@ -1,0 +1,155 @@
+\section{Overview of \CYS}
+
+\subsection{General Use}
+\label{sec-general}
+
+This version of \CYS has been tested on Sun Solaris, Linux, and Mac OS X
+systems. In principle, it should be also executable on other
+platforms on which a Prolog system like SICStus-Prolog or SWI-Prolog exists
+(see the file \code{INSTALL.html} in the \CYS directory
+for a description of the necessary software to install \CYS).
+
+All executable files required to use the different components
+of \CYS are stored in the directory \code{\cyshome/bin}
+(where \cyshome is the installation directory of the complete
+\CYS installation). You should add this directory
+to your path (e.g., by the \code{bash} command
+\ccode{export PATH=\cyshome/bin:\$PATH}).
+
+The source code of the Curry program
+must be stored in a file with the suffix \ccode{.curry},
+e.g., \code{prog.curry}. 
+Literate programs must be stored in files with the extension \ccode{.lcurry}.
+They are automatically converted into corresponding
+\ccode{.curry} files by deleting all lines not starting 
+with \ccode{>} and removing the prefix \ccode{> } of the
+remaining lines.
+
+Since the translation of Curry programs with \CYS creates
+some auxiliary files (see Section~\ref{sec-auxfiles} for details),
+you need write permission
+in the directory where you have stored your Curry programs.
+The auxiliary files for all Curry programs in the current
+directory can be deleted by the command\pindex{cleancurry}
+\begin{curry}
+cleancurry
+\end{curry}
+(this is a shell script stored in the \code{bin} directory of the
+\CYS installation, see above).
+The command
+\begin{curry}
+cleancurry -r
+\end{curry}
+also deletes the auxiliary files in all subdirectories.
+
+
+
+\subsection{Restrictions}
+\label{sec-restrictions}
+
+There are a few minor restrictions on Curry programs
+when they are processed with \CYS:
+\begin{itemize}
+\item
+\index{singleton variables}\index{variables!singleton}
+\emph{Singleton pattern variables}, i.e., variables that occur only once
+in a rule, should be denoted as an anonymous variable \ccode{_},
+otherwise the parser will print a warning since this is a
+typical source of programming errors.
+\item
+\CYS translates all \emph{local declarations} into global functions with
+additional arguments (``lambda lifting'', see Appendix~D of the
+Curry language report).
+Thus, in the various run-time systems, the definition of
+functions with local declarations look different from
+their original definition (in order to see the result
+of this transformation, you can use the \cb, see
+Section~\ref{sec-currybrowser}).
+\item \index{tabulator stops}
+Tabulator stops instead of blank spaces in source files are
+interpreted as stops at columns 9, 17, 25, 33, and so on.
+In general, tabulator stops should be avoided in source programs.
+\item Threads created by a concurrent conjunction are not executed
+in a fair manner (usually, threads corresponding to leftmost constraints
+are executed with higher priority).
+\item
+Encapsulated search\index{encapsulated search}: In order
+to allow the integration of non-deterministic computations
+in programs performing I/O at the top-level, \CYS supports
+the search operators \code{findall}\pindex{findall}
+and \code{findfirst}\pindex{findfirst}.
+In contrast to the general definition of encapsulated search
+\cite{HanusSteiner98PLILP}, the current implementation suspends
+the evaluation of \code{findall} and \code{findfirst}
+until the argument does not contain unbound global variables.
+Moreover, the evaluation of \code{findall} is strict,
+i.e., it computes all solutions before returning the
+complete list of solutions.
+It is recommended to use the system module \code{AllSolutions}
+for encapsulating search.
+\item
+There is currently no general connection to external constraint solvers.
+However, the \CYS compiler provides constraint
+solvers for arithmetic and finite domain constraints
+(see Appendix~\ref{sec:libraries}).
+\end{itemize}
+
+% Layout rule:
+% (from Sergio's email of June 2, 1998)
+%This is the general rule.  There are two kinds of syntactic
+%constructs that rely on the offside rule.  One kind has a keyword
+%indicating the end of the construct.  "let ... in" is the only
+%representative of this kind.  Upon recognition of the keyword
+%"in", all the constructs relying on the offide rule nested within
+%the "let...in" are closed.  The other kind has no closing keyword.
+%"where" and "choice" are the only constructs of this kind.
+%Constructs of this kind can be closed only by indentation.  Any
+%line, including a comment, indented less that the construct
+%terminates it.  The indentation of "where", "choice" and "let" is
+%the indentation of the first token following the keyword of the
+%construct.
+%
+
+
+
+\subsection{Modules in \CYS}
+\label{sec-modules}
+
+The current implementation of \CYS supports only flat module names,
+i.e., the notation \code{Dir.Mod.f} is not supported.\index{modules}
+In order to allow the structuring of modules in different directories,
+\CYS searches for imported modules in various directories.
+By default, imported modules are searched in the directory
+of the main program and the system module directories
+\ccode{\cyshome/lib} and \ccode{\cyshome/lib/meta}.
+This search path can be extended
+by setting the environment variable \code{CURRYPATH}\pindex{CURRYPATH}
+(which can be also set in a \CYS session by the command
+\ccode{:set path}\pindex{path}\pindex{:set path},
+see below)
+to a list of directory names separated by colons (\ccode{:}).
+In addition, a local standard search path
+can be defined in the \ccode{.pakcsrc} file
+(see Section~\ref{sec-customization}).
+Thus, modules to be loaded are searched in the following
+directories (in this order, i.e., the first occurrence of a module file
+in this search path is imported):
+\begin{enumerate}
+\item Current working directory (\ccode{.}) or directory prefix
+of the main module (e.g., directory \ccode{/home/joe/curryprogs}
+if one loads the Curry program \ccode{/home/joe/curryprogs/main}).
+\item The directories enumerated in the environment variable \code{CURRYPATH}.
+\item The directories enumerated in the \ccode{.pakcsrc} variable
+      \ccode{libraries}.
+\item The directories \ccode{\cyshome/lib} and \ccode{\cyshome/lib/meta}.
+\end{enumerate}
+Note that the standard prelude (\code{\cyshome/lib/Prelude.curry})
+will be always implicitly imported to all modules if a module
+does not contain an explicit import declaration for the module
+\code{Prelude}.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

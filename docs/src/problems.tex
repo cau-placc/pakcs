@@ -1,0 +1,45 @@
+\section{Technical Problems}
+
+Due to the fact that Curry is intended to implement
+distributed systems (see Appendix~\ref{sec-ports}),
+it might be possible that some technical problems
+arise due to the use of sockets for implementing these
+features. Therefore, this section gives some information
+about the technical requirements of \CYS and how to solve
+problems due to these requirements.
+
+There is one fixed port that is used by the implementation of \CYS:
+\begin{description}
+\item[Port 8766:] This port is used by the
+{\bf Curry Port Name Server} (CPNS) to implement symbolic names for
+ports in Curry (see Appendix~\ref{sec-ports}).
+If some other process uses this port on the machine,
+the distribution facilities defined in the module \code{Ports}
+(see Appendix~\ref{sec-ports}) cannot be used.
+\end{description}
+If these features do not work, you can try to find out
+whether this port is in use by the shell command
+\ccode{netstat -a | fgrep 8766} (or similar).
+
+The CPNS is implemented as a demon listening on its port 8766
+in order to serve requests about registering a new symbolic
+name for a Curry port or asking the physical port number
+of a Curry port. The demon will be automatically started for
+the first time on a machine when a user compiles a program
+using Curry ports. It can also be manually started and terminated by the
+scripts \code{\cyshome/cpns/start} and
+\code{\cyshome/cpns/stop}.
+If the demon is already running, the command \code{\cyshome/cpns/start}
+does nothing (so it can be always executed
+before invoking a Curry program using ports).
+
+If you detect any further technical problem,
+please write to
+\begin{center}
+\code{mh@informatik.uni-kiel.de}
+\end{center}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

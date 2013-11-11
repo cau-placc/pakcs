@@ -1,0 +1,82 @@
+\section{Preprocessing FlatCurry Files}
+\label{sec-pakcspp}
+
+The current parser allows to apply transformations on the intermediate
+FlatCurry files after they are generated from the
+corresponding Curry source file.
+Currently, only the FlatCurry file corresponding to the main module
+can be transformed.
+
+A transformation can be specified as follows:
+\begin{enumerate}
+\item {\bf Options to \code{pakcs/bin/parsecurry}:}
+\begin{description}
+\item[\fbox{\code{--fpopt}}]\pindex{-fpopt}
+Apply functional pattern optimization
+(see \code{pakcs/tools/optimize/NonStrictOpt.curry} for details).
+
+\item[\fbox{\code{--compact}}]\pindex{--compact}
+Apply code compactification after parsing, i.e., transform the main
+module and all its imported into one module and delete all
+non-accessible functions.
+
+\item[\fbox{\code{--compactexport}}]
+Similar to \code{--compact} but delete all functions that are not accessible
+from the exported functions of the main module.
+
+\item[\fbox{\code{--compactmain:f}}]
+Similar to \code{--compact} but delete all functions that are not accessible
+from the function \ccode{f} of the main module.
+
+\item[\fbox{\code{--fcypp cmd}}]\pindex{--fcypp}
+Apply command \code{cmd} to the main module after parsing. This is useful to
+integrate your own transformation into the compilation process.
+Note that the command \ccode{cmd prog} should perform a transformation
+on the FlatCurry file \code{prog.fcy}, i.e., it replaces the FlatCurry
+file by a new one.
+\end{description}
+
+\item {\bf Setting the environment variable \code{FCYPP}:}\pindex{FCYPP}\\
+For instance, setting \code{FCYPP} by
+\begin{curry}
+export FCYPP="--fpopt"
+\end{curry}
+will apply the functional pattern optimization if programs are compiled
+and loaded in the \CYS programming environment.
+
+
+\item {\bf Putting options into the source code:}\pindex{PAKCS_OPTION_FCYPP}\\
+If the source code contains a line with a comment of the form (the comment
+must start at the beginning of the line)
+\begin{curry}
+{-# PAKCS_OPTION_FCYPP <options> #-}
+\end{curry}
+then the transformations specified by \code{<options>} are applied after
+translating the source code into FlatCurry code. For instance,
+the functional pattern optimization can be set by the comment
+\begin{curry}
+{-# PAKCS_OPTION_FCYPP --fpopt #-}
+\end{curry}
+in the source code. Note that this comment must be in a single line 
+of the source program. If there are multiple lines containing such comments,
+only the first one will be considered.
+\end{enumerate}
+\paragraph{Multiple options:}
+Note that an arbitrary number of transformations can be specified
+by the methods described above.
+If several specifications for preprocessing FlatCurry files are used,
+they are executed in the following order:
+\begin{enumerate}
+\item all transformations specified by the environemnt variable
+\code{FCYPP} (from left to right)
+\item all transformations specified as command line options of parsecurry
+   (from left to right)
+\item all transformations specified by a comment line in the source code
+   (from left to right)
+\end{enumerate}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

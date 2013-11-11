@@ -1,0 +1,465 @@
+\section{\CYS: An Interactive Curry Development System}
+\label{sec-curry2prolog}
+
+\CYS\index{\CYS} is an interactive system to develop applications
+written in Curry.
+It is implemented in Prolog and compiles
+Curry programs into Prolog programs. It contains various tools,
+a source-level debugger,
+solvers for arithmetic constraints over real numbers
+and finite domain constraints, etc. The compilation process and the
+execution of compiled programs is fairly efficient
+if a good Prolog implementation like SICStus-Prolog is used.
+
+
+\subsection{How to Use \CYS}
+\label{sec-use-curry2prolog}
+
+To start \CYS, execute the command
+\ccode{pakcs}\pindex{pakcs}
+(this is a shell script stored in
+\code{\cyshome/bin} where \cyshome is the installation directory
+of \CYS).
+When the system is ready, the prelude (\code{\cyshome/lib/Prelude.curry})
+is already loaded, i.e., all definitions in the prelude are accessible.
+Now you can type in various commands.
+The {\bf most important commands} are
+(it is sufficient to type a unique prefix of a command if it is unique,
+e.g., one can type \ccode{:r} instead of \ccode{:reload}):
+
+\begin{description}
+\item[\fbox{\code{:help}}]\pindex{:help}
+Show a list of all available commands.
+
+\item[\fbox{\code{:load $prog$}}]\pindex{:load}
+Compile and load the program stored in \code{$prog$.curry}
+together with all its imported modules.
+If this file does not exist, the system looks for a FlatCurry
+file \code{$prog$.fcy} and compiles from this intermediate representation.
+If the file \code{$prog$.fcy} does not exists, too, the system looks
+for a file \code{$prog$_flat.xml} containing a FlatCurry program in
+XML representation (compare command \ccode{:xml}\pindex{:xml}),
+translates this into a FlatCurry file \code{$prog$.fcy}
+and compiles from this intermediate representation.
+
+\item[\fbox{\code{:reload}}]\pindex{:reload}
+Recompile all currently loaded modules.
+
+\item[\fbox{\code{:add} $m$}]\pindex{:add}
+Add module $m$ to the set of currently loaded modules
+so that its exported entities are available in the top-level environment.
+
+\item[\fbox{$expr$}] Evaluate the expression $expr$ to normal form
+and show the computed results. Since \CYS
+compiles Curry programs into Prolog programs,
+non-deterministic computations are implemented by backtracking.
+Therefore, computed results are shown one after the other.
+After each computed result, you will be asked whether
+you want to see the next alternative result or all alternative results.
+The default answer value for this question can be defined
+in the \ccode{.pakcsrc} file (see Section~\ref{sec-customization}).
+
+\textbf{Free variables in initial expressions} must be declared as in Curry programs
+(if the free variable mode\index{free variable mode} is not turned on,
+see option \ccode{+free} below), i.e.,
+either by a \ccode{let\ldots{}free in}
+or by a \ccode{where\ldots{}free} declaration.
+For instance, one can write
+\begin{curry}
+let xs,ys free in xs++ys =:= [1,2]
+\end{curry}
+or
+\begin{curry}
+xs++ys =:= [1,2]  where xs,ys free
+\end{curry}
+in order to obtain the following three possible bindings:
+\begin{curry}
+{xs = [], ys = [1,2]} Success
+{xs = [1], ys = [2]} Success
+{xs = [1,2], ys = []} Success
+\end{curry}
+Without these declarations, an error is reported in order to
+avoid the unintended introduction of free variables in initial expressions
+by typos.
+
+Note that lambda abstractions, \code{let}s and list comprehensions
+in top-level expressions are not yet supported in initial expressions
+typed in the top-level of \CYS.
+
+\item[\fbox{:eval $expr$}]\pindex{:eval}
+Same as $expr$. This command might be useful when putting
+commands as arguments when invoking \code{pakcs}.
+
+\item[\fbox{\code{let} $x$ \code{=} $expr$}]
+Define the identifier $x$ as an abbreviation for the expression $expr$
+which can be used in subsequent expressions. The identifier $x$
+is visible until the next \code{load} or \code{reload} command.
+
+\item[\fbox{\code{:quit}}]\pindex{:quit} Exit the system.
+\end{description}
+%
+\bigskip
+%
+There are also a number of {\bf further commands} that are often
+useful:
+%
+\begin{description}
+\item[\fbox{\code{:type $expr$}}]\pindex{:type}
+Show the type of the expression $expr$.
+
+\item[\fbox{\code{:browse}}]\pindex{:browse}
+Start the CurryBrowser to analyze the currently loaded
+module together with all its imported modules
+(see Section~\ref{sec-currybrowser} for more details).
+
+\item[\fbox{\code{:edit}}]\pindex{:edit}
+Load the source code of the current main module into a text editor.
+If the variable \code{editcommand} is set in the
+configuration file \ccode{.pakcsrc}
+(see Section~\ref{sec-customization}),
+its value is used as an editor command, otherwise
+the environment variable \ccode{EDITOR}
+or a default editor (e.g., \ccode{vi}) is used.
+
+\item[\fbox{\code{:edit $file$}}]\pindex{:edit}
+Load file $file$ into a text editor which is defined
+as in the command \ccode{:edit}.
+
+\item[\fbox{\code{:interface}}]\pindex{:interface}
+Show the interface of the currently loaded
+module, i.e., show the names of all imported modules,
+the fixity declarations of all exported operators,
+the exported datatypes declarations and the types
+of all exported functions.
+
+\item[\fbox{\code{:interface $prog$}}]\pindex{:interface}
+Similar to \ccode{:interface}
+but shows the interface of the module \ccode{$prog$.curry}.
+If this module does not exist, this command looks in the
+system library directory of \CYS for a module with this name,
+e.g., the command \ccode{:interface FlatCurry} shows the interface
+of the system module \code{FlatCurry} for meta-programming
+(see Appendix~\ref{sec-flatcurry}).
+
+\item[\fbox{\code{:usedimports}}]\pindex{:usedimports}
+Show all calls to imported functions in the currently loaded module.
+This might be useful to see which import declarations are really necessary.
+
+\item[\fbox{\code{:modules}}]\pindex{:modules}
+Show the list of all currently loaded modules.
+
+\item[\fbox{\code{:programs}}]\pindex{:programs}
+Show the list of all Curry programs that are available in the load path.
+
+\item[\fbox{\code{:set $option$}}]\pindex{:set}
+Set or turn on/off a specific option
+of the \CYS environment. Options are turned on by the prefix
+\ccode{+} and off by the prefix \ccode{-}. Options that can only
+be set (e.g., \code{printdepth}) must not contain a prefix.
+The following options are currently supported:
+
+\begin{description}
+\item[\fbox{\code{+/-debug}}]\pindex{debug} Debug mode.
+\index{debug mode}
+In the debug mode, one can trace the evaluation of an expression,
+setting spy points (break points) etc.\ (see the commands
+for the debug mode described below).
+
+\item[\fbox{\code{+/-free}}]\pindex{free} Free variable mode.\index{free variable mode}
+If the free variable mode is off (default), then
+free variables occurring in initial expressions entered in the
+\CYS environment must always be declared by a \ccode{let\ldots{}free in}
+or \ccode{where\ldots{}free} declaration (as in Curry programs).
+This avoids the introduction of free variables in initial expressions
+by typos (which might lead to the exploration of infinite search spaces).
+If the free variable mode is on, each undefined symbol
+in an initial expression is considered as a free variable.
+
+\item[\fbox{\code{+/-printfail}}]\pindex{printfail} Print failures.
+If this option is set, failures occurring during evaluation
+(i.e., non-reducible demanded subexpressions) are printed.
+This is useful to see failed reductions due to partially
+defined functions or failed unifications.
+Inside encapsulated search (e.g., inside evaluations of
+\code{findall} and \code{findfirst}), failures are not printed
+(since they are a typical programming technique there).
+Note that this option causes some overhead in execution time
+and memory so that it could not be used in larger applications.
+
+\item[\fbox{\code{+/-allfails}}]\pindex{allfails}
+If this option is set, \emph{all} failures
+(i.e., also failures on backtracking and failures
+of enclosing functions that fail due to the failure of an argument
+evaluation) are printed if the option \code{printfail} is set.
+Otherwise, only the first failure (i.e., the first non-reducible
+subexpression) is printed.
+
+\item[\fbox{\code{+/-consfail}}]\pindex{consfail} Print constructor failures.
+If this option is set, failures due to application of
+functions with non-exhaustive pattern matching or failures
+during unification (application of \ccode{=:=}) are shown.
+Inside encapsulated search (e.g., inside evaluations of
+\code{findall} and \code{findfirst}), failures are not printed
+(since they are a typical programming technique there).
+In contrast to the option \code{printfail},
+this option creates only a small overhead in execution time
+and memory use.
+
+\item[\fbox{\code{+consfail all}}]\pindex{consfail}
+Similarly to \ccode{+consfail}, but the complete trace
+of all active (and just failed) function calls from the main function
+to the failed function are shown.
+
+\item[\fbox{\code{+consfail file:$f$}}]\pindex{consfail}
+Similarly to \ccode{+consfail all}, but the complete fail trace
+is stored in the file $f$. This option is useful in non-interactive
+program executions like web scripts.
+
+\item[\fbox{\code{+consfail int}}]\pindex{consfail}
+Similarly to \ccode{+consfail all}, but after each failure occurrence,
+an interactive mode for exploring the fail trace is started
+(see help information in this interactive mode).
+When the interactive mode is finished, the program execution
+proceeds with a failure.
+
+\item[\fbox{\code{+/-compact}}]\pindex{compact}
+Reduce the size of target programs by using the
+parser option \ccode{--compact}
+(see Section~\ref{sec-pakcspp} for details about this option).
+
+\item[\fbox{\code{+/-profile}}]\pindex{profile} Profile mode.
+If the profile mode is on, then information about
+the number of calls, failures, exits etc.\ are collected for
+each function during the debug mode (see above) and shown
+after the complete execution (additionaly, the result is stored
+in the file \code{$prog$.profile} where $prog$ is the current main program).
+The profile mode has no effect outside the debug mode.
+
+
+\item[\fbox{\code{+/-suspend}}] Suspend mode (initially, it is off).
+If the suspend mode is on, all suspended expressions
+(if there are any) are shown (in their internal representation) at the end
+of a computation.
+
+\item[\fbox{\code{+/-time}}]\pindex{time} Time mode. If the time mode is on,
+the cpu time and the elapsed time
+of the computation is always printed together with the result
+of an evaluation.
+
+\item[\fbox{\code{+/-verbose}}] Verbose mode (initially, it is off).
+If the verbose mode is on,
+the initial expression of a computation (together with its type)
+is printed before this expression is evaluated.
+
+\item[\fbox{\code{+/-warn}}]\pindex{warn} Parser warnings. If the parser
+warnings are turned on (default), the parser will print
+warnings about variables that occur only once in a program rule
+(see Section~\ref{sec-restrictions})
+or locally declared names that shadow the definition of
+globally declared names. If the parser warnings are switched off,
+these warnings are not printed during the reading of a Curry program.
+
+\item[\fbox{\code{path $path$}}]\pindex{path} Set the additional search path
+for loading modules to $path$.
+Note that this search path is only used for loading modules
+inside this invocation of \CYS, i.e., the environment variable
+\ccode{CURRYPATH}\pindex{CURRYPATH} (see also Section~\ref{sec-modules})
+is set to $path$ in this invocation of \CYS.
+
+\item[\fbox{\code{printdepth $n$}}]\pindex{printdepth}
+Set the depth for printing terms to the value \code{n} (initially: 10).
+In this case subterms with a depth greater than \code{n} are abbreviated
+by dots when they are printed as a result of a computation
+or during debugging. A value of \code{0} means infinite depth
+so that the complete terms are printed.
+
+\end{description}
+
+\item[\fbox{\code{:set}}]\pindex{:set}
+Show a help text on the \ccode{:set $option$}
+command together with the current values of all options.
+
+\item[\fbox{\code{:show}}]\pindex{:show}
+Show the source text of the currently loaded Curry program.
+If the variable \code{showcommand} is set in the
+configuration file \ccode{.pakcsrc}
+(see Section~\ref{sec-customization}),
+its value is used as a command to show the source text,
+otherwise the environment variable \code{PAGER} or the standard command
+\ccode{cat} is used.
+If the source text is not available
+(since the program has been directly compiled from a FlatCurry
+or XML file), the loaded program is decompiled and
+the decompiled Curry program text is shown.
+
+\item[\fbox{\code{:show $m$}}]\pindex{:show}
+Show the source text of module $m$ which must be accessible
+via the current load path.
+
+\item[\fbox{\code{:show $f$}}]\pindex{:show}
+Show the source code of function $f$ (provided that the name $f$
+is different from a module accessilbe via the current load path)
+in a separate window.
+
+\item[\fbox{\code{:cd $dir$}}]\pindex{:cd}
+Change the current working directory to $dir$.
+
+\item[\fbox{\code{:dir}}]\pindex{:dir} Show the names of all Curry programs
+in the current working directory.
+
+\item[\fbox{\code{:!$cmd$}}]\pindex{:"!} Shell escape: execute $cmd$ in a Unix shell.
+
+\item[\fbox{\code{:save}}]\pindex{:save} Save the current state of the system
+(together with the compiled program \code{prog.curry}) in the file
+\code{prog}, i.e., you can later start the program again
+by typing \ccode{prog} as a Unix command.
+
+\item[\fbox{\code{:save $expr$}}]\pindex{:save} Similar as \ccode{:save}
+but the expression $expr$ (typically: a call to the main
+function) will be executed after restoring the state
+and the execution of the restored state terminates when
+the evaluation of the expression $expr$ terminates.
+
+\item[\fbox{\code{:fork $expr$}}]\pindex{:fork}
+The expression $expr$, which must be of type \ccode{IO ()},
+is evaluated in an independent process which runs in
+parallel to the current \CYS process.
+All output and error messages from this new process are suppressed.
+This command is useful to test distributed Curry programs
+(see Appendix~\ref{sec-ports}) where one can start
+a new server process by this command. The new process
+will be terminated when the evaluation of the expression $expr$
+is finished.
+
+\item[\fbox{\code{:coosy}}]\pindex{:coosy}
+Start the Curry Object Observation System COOSy,
+a tool to observe the execution of Curry programs.
+This commands starts a graphical user interface to show
+the observation results and adds to the load path the directory
+containing the modules that must be imported in order to annotate
+a program with observation points.
+Details about the use of COOSy can be found in the
+COOSy interface (under the ``Info'' button), and details
+about the general idea of observation debugging and the implementation
+of COOSy can be found in \cite{BrasselChitilHanusHuch04PADL}.
+
+\item[\fbox{\code{:xml}}]\pindex{:xml}
+Translate the currently loaded program module into an XML representation
+according to the format described in
+\url{http://www.informatik.uni-kiel.de/~curry/flat/}.
+Actually, this yields an implementation-independent
+representation of the corresponding FlatCurry program
+(see Appendix~\ref{sec-flatcurry} for a description of FlatCurry).
+If $prog$ is the name of the currently loaded program,
+the XML representation will be written into the file \ccode{$prog$_flat.xml}.
+
+\item[\fbox{\code{:peval}}]\pindex{:peval}
+Translate the currently loaded program module into an equivalent
+program where some subexpressions are partially evaluated
+so that these subexpressions are (hopefully) more efficiently executed.
+An expression $e$ to be partially evaluated
+must be marked in the source program by \code{(PEVAL e)}
+(where \code{PEVAL} is defined as the identity function in the prelude
+so that it has no semantical meaning).
+
+The partial evaluator
+translates a source program \code{$prog$.curry} into the
+partially evaluated program in intermediate representation
+stored in \code{$prog$_pe.fcy}. The latter program is implicitly loaded
+by the \code{peval} command so that the partially evaluated program
+is directly available. The corresponding source program
+can be shown by the \code{show} command (see above).
+
+The current partial evaluator is an experimental prototype
+(so it might not work on all programs) based on the ideas
+described in \cite{AlbertAlpuenteHanusVidal99LPAR,AlbertHanusVidal00LPAR,%
+AlbertHanusVidal01FLOPS,AlbertHanusVidal02JFLP}.
+
+\end{description}
+%
+\bigskip
+%
+\CYS can also execute programs in the {\bf debug mode}.
+\index{debug mode}\pindex{debug}
+The debug mode is switched on by setting the \code{debug} option
+with the command \ccode{:set +debug}. In order to switch
+back to normal evaluation of the program, one has to execute
+the command \ccode{:set -debug}.
+
+In the debug mode, \CYS offers the following
+{\bf additional options for the \ccode{:set} command:}
+%
+\begin{description}
+\item[\fbox{\code{+/-single}}]\pindex{single}
+Turn on/off single mode for debugging.
+If the single mode is on, the evaluation of an expression
+is stopped after each step and the user is asked how to proceed
+(see the options there).
+
+\item[\fbox{\code{+/-trace}}]\pindex{trace}
+Turn on/off trace mode for debugging.
+If the trace mode is on, all intermediate expressions occurring
+during the evaluation of an expressions are shown.
+
+\item[\fbox{\code{spy $f$}}]\pindex{spy}
+Set a spy point (break point) on the
+function $f$. In the single mode, you can ``leap'' from spy point
+to spy point (see the options shown in the single mode).
+
+\item[\fbox{\code{+/-spy}}]\pindex{spy} Turn on/off spy mode for debugging.
+If the spy mode is on, the single mode is automatically activated
+when a spy point is reached.
+\end{description}
+
+
+\subsection{Command Line Editing}
+
+In order to have support for line editing or history functionality
+in the command line of \CYS (as often supported by the \code{readline}
+library), you should have the Unix command \code{rlwrap} installed
+on your local machine.
+If \code{rlwrap} is installed, it is used by \CYS if called on a terminal.
+If it should not be used (e.g., because it is executed
+in an editor with \code{readline} functionality), one can
+call \CYS with the parameter \ccode{--noreadline}.
+
+
+\subsection{Customization}
+\label{sec-customization}
+
+In order to customize the behavior of \CYS to your own preferences,
+there is a configuration file which is read by \CYS when it is invoked.
+When you start \CYS for the first time, a standard version of
+this configuration file is copied with the name
+\ccode{.pakcsrc}\pindex{pakcsrc}\pindex{.pakcsrc}
+into your home directory. The file contains definitions
+of various settings, e.g., about showing warnings, progress messages etc.
+After you have started \CYS for the first time, look into this file
+and adapt it to your own preferences.
+
+
+\subsection{Emacs Interface}
+
+Emacs is a powerful programmable editor suitable for program development.
+It is freely available for many platforms
+(see \url{http://www.emacs.org}).
+The distribution of \CYS contains also a special
+\emph{Curry mode}\index{Curry mode}\index{Emacs}
+that supports the development of Curry programs in
+the Emacs environment.
+This mode includes support for syntax highlighting,
+finding declarations in the current buffer, and
+loading Curry programs into \CYS
+in an Emacs shell.
+
+The Curry mode has been adapted from a similar mode for Haskell programs.
+Its installation is described in the file \code{README}
+in directory \ccode{\cyshome/tools/emacs} which also contains
+the sources of the Curry mode and a short description about
+the use of this mode.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

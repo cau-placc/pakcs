@@ -1,0 +1,37 @@
+\section{UI: Declarative Programming of User Interfaces}
+\label{sec-ui}
+
+The \CYS distribution contains a collection of libraries
+to implement graphical user interfaces\index{user interface}
+as well as web-based user interfaces
+from declarative descriptions.
+Exploiting these libraries, it is possible
+to define the structure and functionality of a user interface
+independent from the concrete technology.
+Thus, a graphical user interface or a web-based user interface
+can be generated from the same description by simply changing
+the imported libraries.
+This programming technique is described in detail in
+\cite{HanusKluss09PADL}.
+
+The libraries implementing these user interfaces are contained
+in the directory
+\begin{curry}
+$\cyshome$/tools/ui
+\end{curry}
+Thus, in order to compile programs containing such user interface
+specifications, one has to
+include the directory \code{\cyshome/tools/ui}
+into the Curry load path
+(e.g., by setting  the environment variable
+\ccode{CURRYPATH}\pindex{CURRYPATH}, see also Section~\ref{sec-modules}).
+The directory
+\begin{curry}
+$\cyshome$/tools/ui/examples
+\end{curry}
+contains a few examples for such user interface specifications.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 
