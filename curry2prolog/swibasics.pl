@@ -145,8 +145,19 @@ map2partialFstM([X|Xs],M:P,[Y|Ys]) :-
 
 % get program arguments:
 getProgramArgs(Args) :-
-	current_prolog_flag(argv,[_|AllArgs]),
-	(AllArgs=['-x',_,'--'|Args] -> true ; Args=AllArgs).
+	current_prolog_flag(argv,AllArgs),
+	(append(_,['--'|Args],AllArgs)
+          -> true  % for backward compatibility
+           ; dropSWIPL(AllArgs,Args)).
+
+dropSWIPL([],[]).
+dropSWIPL([Exec|Args],Args) :-  % for backward compatibility
+	atom_codes(Exec,ExecS),
+	atom_codes(swipl,SWIPL),
+	append(_,SWIPL,ExecS), % first argument ends with 'swipl'?
+	!.
+dropSWIPL(Args,Args).
+
 
 % get value of environment variable (fails if it is not set):
 getEnv(Var,Val) :- getenv(Var,Val), !.
