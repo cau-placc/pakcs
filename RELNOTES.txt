@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (December 17, 2013, under development)
+Release notes for PAKCS Version 1.11.3 (December 19, 2013, under development)
 ------------------------------------------------------------------------------
 
 Changes to version 1.11.2:
@@ -13,7 +13,8 @@ Changes to version 1.11.2:
     (due to an illegal source program).
   * Tool `erd2curry` updated to new version with support for SQLite database.
     Bug fix in code generation w.r.t. checking of cardinality constraints.
-  * Tool `spicey` (web framework) added.
+  * Tool `spicey` (web framework) added and updated with a RESTful interface
+    for entities.
 
 
 Release notes for PAKCS Version 1.11.2 (September 6, 2013)
