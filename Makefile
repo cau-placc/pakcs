@@ -194,6 +194,9 @@ cleanall:
 FULLNAME=pakcs-$(VERSION)
 # temporary directory to create distribution version
 PAKCSDIST=/tmp/$(FULLNAME)
+# temporary directory to create binary distribution version
+BINDISTDIR=/tmp/pakcsbin
+PAKCSBINDIST=$(BINDISTDIR)/$(FULLNAME)
 # architecture name
 ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
 
@@ -217,8 +220,8 @@ dist:
 	sed -e "/PAKCS developers/,\$$d" < $(PAKCSDIST)/scripts/pakcsinitrc.sh > $(PAKCSDIST)/pakcsinitrc
 	rm $(PAKCSDIST)/scripts/pakcsinitrc.sh
 	# generate binary distributions on remote hosts:
-	$(MAKE) dist_$(USER)@climens.informatik.uni-kiel.de # Linux 32bit dist
-	$(MAKE) dist_$(USER)@siran.informatik.uni-kiel.de  # Linux 64bit dist
+	$(MAKE) dist_$(USER)@lussac.informatik.uni-kiel.de # Linux 32bit dist
+	#$(MAKE) dist_$(USER)@siran.informatik.uni-kiel.de  # Linux 64bit dist
 	#$(MAKE) dist_$(USER)@mickey.informatik.uni-kiel.de # SunOS distribution
 	# generate source distribution:
 	cp Makefile $(PAKCSDIST)/Makefile
@@ -240,12 +243,14 @@ dist_%:
 	             > Makefile.dated
 	cat Makefile.dated | sed -e "/distribution/,\$$d" \
 	                   > $(PAKCSDIST)/Makefile
-	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSDIST)
-	scp -q Makefile.dated $*:$(PAKCSDIST)/../Makefile
+	ssh $* rm -rf $(PAKCSBINDIST)
+	ssh $* mkdir -p $(BINDISTDIR)
+	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSBINDIST)
+	scp -q Makefile.dated $*:$(PAKCSBINDIST)/../Makefile
 	rm Makefile.dated
-	ssh $* "cd $(PAKCSDIST) && $(MAKE) -f ../Makefile genbindist"
-	scp -p $*:/tmp/pakcs\*.tar.gz .
-	ssh $* rm -rf $(PAKCSDIST) /tmp/pakcs\*.tar.gz /tmp/Makefile
+	ssh $* "cd $(PAKCSBINDIST) && $(MAKE) -f ../Makefile genbindist"
+	scp -p $*:$(BINDISTDIR)/pakcs\*.tar.gz .
+	ssh $* rm -rf $(BINDISTDIR)
 
 # compile cabal parser from the sources, replace them by binaries
 # and put everything into a .tar.gz file:
@@ -255,7 +260,7 @@ genbindist:
 	PATH=/opt/ghc/bin:/home/haskell/bin:$(PATH) && export PATH && make frontend
 	rm -rf frontend
 	$(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
+	cd $(BINDISTDIR) && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
 
 
 #
