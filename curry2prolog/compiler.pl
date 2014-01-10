@@ -8,7 +8,7 @@
 :- module(compiler,
 	  [c2p/1, c2p/2,
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
-	   writeClause/1,
+	   forbiddenModules/1, writeClause/1,
 	   checkProgramHeader/1, deletePrologTarget/1,
 	   maxTupleArity/1, tryXml2Fcy/1]).
 
@@ -26,7 +26,7 @@
 	   allFunctions/1, allConstructors/1,
 	   externalFuncs/1, currentFunction/1,
 	   newFunctionCounter/2, newAuxFunctions/1,
-	   dynamicPredNames/1.
+	   dynamicPredNames/1, forbiddenModules/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Parameters for the transformation:
@@ -58,6 +58,7 @@ dynamicPredNames([]). % list of pred names/file names for dynamic predicates
 keepMainPrologFile(no). % define argument as 'yes' if the main Prolog
                         % file generated for hnf and generic clauses
                         % should not be deleted after loading
+forbiddenModules(['Unsafe']). % module names that are not allowed (e.g., Unsafe)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % for profiling:
@@ -135,6 +136,12 @@ c2p(Prog,PrologFile) :-
 
 % read all imported entities (types/functions/operators) of a set of modules:
 readImportedEntities(_,[],_,ImpTypes,ImpFuncs,ImpOps,ImpTypes,ImpFuncs,ImpOps) :- !.
+readImportedEntities(_,[Imp|_],_,_,_,_,_,_,_) :-
+	forbiddenModules(ForbiddenModules),
+	member(Imp,ForbiddenModules),
+	writeErr('Module "'), writeErr(Imp),
+	writeErr('" not allowed as import!'), nlErr,
+	!, fail.
 readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
 		     ImpTypes,ImpFuncs,ImpOps,AllImpTypes,AllImpFuncs,AllImpOps) :-
 	member(Imp,ProcessedImps),

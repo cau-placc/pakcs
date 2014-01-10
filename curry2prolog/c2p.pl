@@ -55,7 +55,21 @@ readRcFile(ArgProps) :-
 	nlNQ,
 	writeNQ('Current configurations: '), nlNQ,
 	writeRCvalues.
-readRcFile(_).
+readRcFile(_) :-
+	getEnv('HOME',_), !.
+readRcFile(ArgProps) :-
+	% maybe the environment variable HOME is not set since the system is
+	% executed from a regular user:
+	getEnv('PAKCSHOME',PH),
+        appendAtom(PH,'/pakcsrc.default',ConfigFile),
+	(existsFile(ConfigFile)
+	 -> readConfigFile(ConfigFile,GlobalProps)
+	  ; GlobalProps=[]),
+	concat([ArgProps,GlobalProps],AllProps),
+	deletePropDups(AllProps,UniqueProps),
+	map1M(basics:assertPakcsrc,UniqueProps),
+	writeErrNQ('Warning: environment variable HOME is undefined'), nlErrNQ.
+
 
 deletePropDups([],[]).
 deletePropDups([prop(Name,Value)|Props],[prop(Name,Value)|DProps]) :-
@@ -127,6 +141,11 @@ processArgs([Arg|Args]) :-
 	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'),
 	retract(quietmode(_)),
 	asserta(quietmode(yes)), !,
+	processArgs(Args).
+processArgs(['--safe'|Args]) :- !, % safe execution mode
+	retract(forbiddenModules(_)),
+	asserta(forbiddenModules(['Unsafe'])),
+	asserta(noIoAtTopLevel), !,
 	processArgs(Args).
 processArgs(['-set'|Args]) :- !, processArgs(['--set'|Args]). % backward compat.
 processArgs(['--set',path,Path|Args]) :- !,
@@ -229,6 +248,7 @@ writeMainHelp :-
 	writeErr('-q|--quiet   : work silently'), nlErr,
 	writeErr('--noreadline : do not use input line editing via command "rlwrap"'), nlErr,
 	writeErr('-Dname=val   : define pakcsrc property "name" as "val"'), nlErr,
+	writeErr('--safe       : safe execution mode without I/O actions'), nlErr,
 	writeErr('--set OPT    : set option OPT (equivalent to command ":set OPT")'), nlErr,
 	writeErr('-m F         : define F as the main function (default: main) for -i|-r|-s'), nlErr,
 	writeErr('-l PROG      : load PROG.curry as the initial program'), nlErr,

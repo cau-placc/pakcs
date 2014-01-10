@@ -1,10 +1,12 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (January 7, 2014, under development)
+Release notes for PAKCS Version 1.11.3 (January 10, 2014, under development)
 ------------------------------------------------------------------------------
 
 Changes to version 1.11.2:
+  * PAKCS parameter `--safe` added to support safe execution without
+    I/O actions.
   * Bug fix to ensure compatibility with SWI-Prolog Vers. 6.6
   * Library `Distribution`: front-end parameters extended by supporting
     "special" (i.e., aribrary) arguments.
