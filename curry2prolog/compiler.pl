@@ -58,7 +58,7 @@ dynamicPredNames([]). % list of pred names/file names for dynamic predicates
 keepMainPrologFile(no). % define argument as 'yes' if the main Prolog
                         % file generated for hnf and generic clauses
                         % should not be deleted after loading
-forbiddenModules(['Unsafe']). % module names that are not allowed (e.g., Unsafe)
+forbiddenModules([]). % module names that are not allowed (e.g., Unsafe)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % for profiling:
