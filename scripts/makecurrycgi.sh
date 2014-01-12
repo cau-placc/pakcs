@@ -163,12 +163,13 @@ if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
 $PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL -m $MAINCALL -s $MAINMOD
-rm -f $MAINMOD.curry .curry/$MAINMOD.fcy .curry/$MAINMOD.fint .curry/pakcs/$MAINMOD.pl .curry/pakcs/$MAINMOD.po
 STATE=$MAINMOD
 
 # now the file $STATE should contain the saved state computing the HTML form:
 if test ! -f $STATE ; then
   echo "Error: saved state '$STATE' does not exist!"
+  $PAKCSHOME/bin/cleancurry $MAINMOD
+  rm -f $MAINMOD.curry
   exit 1
 fi
 
@@ -201,6 +202,9 @@ else
   mv $STATE $CGISERVERFILE
 fi
 chmod 755 $CGISERVERFILE
+
+$PAKCSHOME/bin/cleancurry $MAINMOD
+rm -f $MAINMOD.curry
 
 echo "`date`: cgi script compiled" > $CGIFILE.log
 
