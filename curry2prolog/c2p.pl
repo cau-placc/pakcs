@@ -14,11 +14,10 @@
 
 :- dynamic mainFunction/1, compileWithCompact/1,
 	   parser_warnings/1, freeVarsUndeclared/1, letBindings/1,
-	   addImports/1, verbosemode/1, noIoAtTopLevel/0.
+	   addImports/1, noIoAtTopLevel/0.
 
 mainFunction("main"). % the main function for options -r and -s
 compileWithCompact([]).  % parsecurry options for compactification
-verbosemode(no). % yes if program should be executed in verbose mode
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
@@ -356,25 +355,27 @@ process(Input) :-
 % check whether arbitrary top-level IO actions are allowed:
 ioAdmissible :- noIoAtTopLevel, !,
 	write('Only initial expressions of non I/O type are allowed!'), nl,
+	setExitCode(3),
 	fail.
 ioAdmissible.
 
 processExpression(Input,ExecGoal) :-
-	(mainexpr(Exp,FreeVars,Input,[]) -> true
-                                 ; write('*** Syntax error'), nl, !, fail),
+	(mainexpr(Exp,FreeVars,Input,[])
+          -> true
+           ; write('*** Syntax error'), nl, setExitCode(1), !, fail),
 	%write('Type expression: '), writeq(Exp), nl,
 	typecheck(Exp,Type),
 	(isIoType(Type) -> ioAdmissible ; true),
 	exp2Term(Exp,[],Term,Vs),
 	%write('Translated expression: '), writeq(Term), nl,
 	checkFreeVars(FreeVars,Vs),
-	(verbosemode(yes) -> write('Goal: '),
+	(verbosemode(yes) -> write('Evaluating expression: '),
 	                     writeCurryTermWithFreeVarNames(Vs,Term),
 			     write(' :: '),
-	                     numbersmallvars(97,_,Type), writeType(Type), nl
+	                     numbersmallvars(97,_,Type), writeType(Type), nl,
+			     % print free goal variables if present:
+			     writeFreeVars(Vs)
 		           ; true),
-	% print free goal variables if present:
-	writeFreeVars(Vs),
 	!,
 	ExecGoal = evaluateMainExpression(Term,Type,Vs).
 
@@ -720,7 +721,7 @@ processCommand("save",MainGoal) :- !,
 	(MainGoal=[]
 	 -> saveprog_entry(ProgStName,(ProgInits,user:main))
 	 ; % start saved program in non-verbose mode if initial goal provided:
-	   retract(verbosemode(QM)), asserta(verbosemode(no)),
+	   verbosemode(QM), setVerboseMode(no),
 	   processExpression(MainGoal,ExecGoal),
 	   %write('Goal to execute:'), nl, writeq(ExecGoal), nl,
 	   (pakcsrc(smallstate,yes)
@@ -729,7 +730,7 @@ processCommand("save",MainGoal) :- !,
 			(ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))
 	     ; saveprog_entry(ProgStName,
  		        (ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))),
-	   retract(verbosemode(no)), asserta(verbosemode(QM))),
+	   setVerboseMode(QM)),
 	getEnv('PAKCSHOME',PH),
 	appendAtoms(['"',PH,'/bin/.makesavedstate" '],CMD1),
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
@@ -899,12 +900,8 @@ processSetOption("+time") :- !,
 processSetOption("-time") :- !,
 	retract(timemode(_)),
 	asserta(timemode(no)).
-processSetOption("+verbose") :- !,
-	retract(verbosemode(_)),
-	asserta(verbosemode(yes)).
-processSetOption("-verbose") :- !,
-	retract(verbosemode(_)),
-	asserta(verbosemode(no)).
+processSetOption("+verbose") :- !, setVerboseMode(yes).
+processSetOption("-verbose") :- !, setVerboseMode(no).
 processSetOption("+warn") :- !,
 	retract(parser_warnings(_)),
 	asserta(parser_warnings(yes)).
@@ -1005,10 +1002,10 @@ processFork(ExprString) :-
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
 	% start saved program in non-verbose mode:
-	retract(verbosemode(QM)), asserta(verbosemode(no)),
+	verbosemode(QM), setVerboseMode(no),
 	processExpression(ExprString,ExecGoal),
 	forkProcessForGoal(evaluator:evaluateGoalAndExit(ExecGoal)),
-	retract(verbosemode(no)), asserta(verbosemode(QM)),
+	setVerboseMode(QM),
 	sleepSeconds(2). % wait a little bit for starting up the new process
 
 % check whether all free vars start with uppercase latter, if required:

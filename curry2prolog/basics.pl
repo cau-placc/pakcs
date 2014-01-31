@@ -3,7 +3,7 @@
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
 		  noLoadMessage/0, lastload/1, plprofiling/1,
-		  quietmode/1, rtargs/1,
+		  verbosemode/1, setVerboseMode/1, quietmode/1, rtargs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
 		  hasPrintedFailure/0, printConsFailure/1,
@@ -45,7 +45,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic lastload/1, plprofiling/1, quietmode/1, rtargs/1,
+:- dynamic lastload/1, plprofiling/1, quietmode/1, verbosemode/1, rtargs/1,
 	   compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
@@ -104,6 +104,11 @@ setExitCode(C) :-
 % set exit code to 1 and fail:
 failWithExitCode :- setExitCode(1), !, fail.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+verbosemode(no). % yes if program should be executed in verbose mode
+
+setVerboseMode(V) :-
+	retract(verbosemode(_)), asserta(verbosemode(V)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % writing outputs:

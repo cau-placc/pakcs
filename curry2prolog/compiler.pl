@@ -141,6 +141,7 @@ readImportedEntities(_,[Imp|_],_,_,_,_,_,_,_) :-
 	member(Imp,ForbiddenModules),
 	writeErr('Module "'), writeErr(Imp),
 	writeErr('" not allowed as import!'), nlErr,
+	setExitCode(3),
 	!, fail.
 readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
 		     ImpTypes,ImpFuncs,ImpOps,AllImpTypes,AllImpFuncs,AllImpOps) :-

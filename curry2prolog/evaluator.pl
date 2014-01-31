@@ -111,8 +111,8 @@ evaluateMainExpression(Exp,Type,Vs) :-
 	         write('Number of function exits: '), write(NE), nl
                ; true),
 	bindingsForNewVariables(Vs,V,NewVs),
-	writeMainResult(Done,Suspended,NewVs,V),
 	(Vs=[] -> true ; writeBindingsWithFreeVarNames(Suspended,Vs,NewVs)),
+	writeMainResult(Done,Suspended,NewVs,V),
 	(Suspended=[] -> true ; writeSuspendedGoals(Suspended)),
 	flush_output,
 	(var(Done)
@@ -156,20 +156,20 @@ evaluateMainExpression(_,_,_) :-
 writeMainResult(Done,_,_,_) :- var(Done), !, % goal suspended
 	writeErr('*** Goal suspended!'), nlErr.
 writeMainResult(_,Suspended,Vs,Value) :- var(Value), !,
-	write('Result: '),
+	(verbosemode(yes) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
 writeMainResult(_,Suspended,Vs,'$io'(Value)) :- !,
 	((nonvar(Value), Value='Prelude.()')
 	 -> true
-	  ; write('IO: '),
+	  ; (verbosemode(yes) -> write('IO: ') ; true),
 	    writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl).
 writeMainResult(_,Suspended,Vs,Value) :- !,
-	write('Result: '),
+	(verbosemode(yes) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
 	
 writeMoreSolutions :-
 	pakcsrc(moresolutions,MS),
-	write('More solutions? ['),
+	write('More values? ['),
 	(MS=yes -> write('Y') ; write('y')),
 	write('(es)/'),
 	(MS=no  -> write('N') ; write('n')),
@@ -533,14 +533,6 @@ writeVar(Str,V) :-
 	atom_codes(V,[_|Cs]), atom_codes(V1,Cs),
 	write(Str,V1).
 
-% show an output substitution in a readable way:
-writeBindings([]).
-writeBindings([(V=B)|Bs]) :-
-	nl, writeVar(user_output,V), write('='),
-	% output not very helpful, should be improved
-	writeCurry(B),
-	writeBindings(Bs).
-
 % instantiate unbound goal variables by the name of their variable
 % in order to print the results in a nicer way:
 bindFreeVars(_,[]).
@@ -566,9 +558,28 @@ writeCurryTermWithFreeVarNames(Suspensions,Bindings,Term) :-
 % their name given in the list of bindings (if they do not occur in any
 % of the suspensions):
 writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
+	verbosemode(yes), !,
 	write('Bindings: '),
 	\+ \+ (bindFreeVars(Suspensions,AllBindings), writeBindings(Bindings)),
 	nl, !.
+writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
+	\+ \+ (bindFreeVars(Suspensions,AllBindings), writeSubstitution(Bindings)),
+	write(' '), !.
+
+% show an output substitution in a readable way:
+writeBindings([]).
+writeBindings([(V=B)|Bs]) :-
+	nl, writeVar(user_output,V), write('='),
+	writeCurry(B),
+	writeBindings(Bs).
+
+% show bindings in substitution notation:
+writeSubstitution(Bs) :- write('{'), writeSubst(Bs).
+writeSubst([]) :- write('}').
+writeSubst([(V=B)|Bs]) :-
+	writeVar(user_output,V), write('='), writeCurry(B),
+	(Bs = [] -> true ; write(', ')),
+	writeSubst(Bs).
 
 
 % Extend a list of bindings with bindings (of the form "__a")
