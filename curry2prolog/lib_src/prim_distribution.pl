@@ -22,6 +22,6 @@ prim_curryRuntimeMajorVersion(V) :- prologMajorVersion(V).
 prim_curryRuntimeMinorVersion(V) :- prologMinorVersion(V).
 
 prim_installDir(PHS) :-
-	getEnv('PAKCSHOME',PH)
+	installDir(PH)
 	 -> atom2String(PH,PHS)
 	  ; raise_exception('Distribution.installDir: cannot determine installation directory!').

@@ -12,6 +12,7 @@
 	   initializationsInProg/1, currentCostCenters/1.
 
 :- use_module(prologbasics).
+:- use_module(pakcsversion).
 :- use_module(basics).
 %:- use_module(compiler). % for generateMainPlFile in interactive mode
 
@@ -95,7 +96,7 @@ startCPNSD :-
 	% the CPNS demon itself (to avoid infinite recursion)
 	!.
 startCPNSD :-
-	getEnv('PAKCSHOME',TCP),
+	installDir(TCP),
         appendAtom(TCP,'/cpns/start',CPNSD),
 	shellCmd(CPNSD).
 

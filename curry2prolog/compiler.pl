@@ -3,8 +3,6 @@
 %
 % main predicate: (initializeCompilerState,) c2p(<progname>)
 
-% required: environment variable PAKCSHOME
-
 :- module(compiler,
 	  [c2p/1, c2p/2,
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
@@ -13,6 +11,7 @@
 	   maxTupleArity/1, tryXml2Fcy/1]).
 
 :- use_module(prologbasics).
+:- use_module(pakcsversion).
 :- use_module(basics).
 :- use_module(version).
 :- use_module(pakcsversion).
@@ -301,7 +300,7 @@ tryXml2Fcy(Prog) :-
 	\+ existsFile(FlatFile),
 	existsFile(XmlFile),
 	% translate XML file into .fcy file:
-	getEnv('PAKCSHOME',PH),
+	installDir(PH),
 	appendAtoms([PH,'/tools/curry2xml -fcy ',Prog],Cmd),
 	%write('Executing: '), write(Cmd), nl,
 	shellCmdWithCurryPath(Cmd),

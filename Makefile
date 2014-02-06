@@ -127,13 +127,14 @@ installhaskell:
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
-	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1]).' > $@
+	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, installDir/1]).' > $@
 	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
 	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
 	echo 'compilerMinorVersion($(MINORVERSION)).' >> $@
 	echo 'compilerRevisionVersion($(REVISIONVERSION)).' >> $@
 	echo 'buildVersion($(BUILDVERSION)).' >> $@
 	echo "buildDate('$(COMPILERDATE)')." >> $@
+	echo "installDir('$(ROOT)')." >> $@
 
 # Create file with version information for the manual:
 $(MANUALVERSION): Makefile

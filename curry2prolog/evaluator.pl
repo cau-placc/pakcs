@@ -1,7 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Curry2Prolog evaluator of main expressions.
-%
-% required: environment variable PAKCSHOME
 
 :- module(evaluator,
 	  [currentprogram/1, numberOfCalls/1, numberOfExits/1,

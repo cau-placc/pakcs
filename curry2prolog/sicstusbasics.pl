@@ -41,6 +41,8 @@
 	   callAndReturnSuspensions/2, writeqWithVars/1,
 	   genBlockDecl/4]).
 
+:- use_module(pakcsversion).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Principle kind of Prolog system and version used for this implementation.
 prolog(sicstus).
@@ -721,7 +723,7 @@ consultPrologorPOFile(PrologFileName,POFileName) :-
 
 % directory containing the system run-time modules:
 moduleDir(MD) :-
-        getEnv('PAKCSHOME',TCP),
+        installDir(TCP),
         appendAtom(TCP,'/curry2prolog/lib_src/',MD).
 
 % ensure that run-time library is loaded:

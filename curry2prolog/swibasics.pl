@@ -41,7 +41,7 @@
 	   prolog_flag/2, prolog_flag/3,
 	   create_mutable/2, get_mutable/2, update_mutable/2]).
 
-
+:- use_module(pakcsversion).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Principle kind of Prolog system and version used for this implementation.
@@ -529,7 +529,7 @@ consultPrologorPOFile(PrologFileName,_POFileName) :-
 
 % directory containing the system run-time modules:
 moduleDir(MD) :-
-        getEnv('PAKCSHOME',TCP),
+        installDir(TCP),
         appendAtom(TCP,'/curry2prolog/libswi/',MD).
 
 % ensure that run-time library is loaded:

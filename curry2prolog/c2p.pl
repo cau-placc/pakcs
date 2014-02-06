@@ -1,9 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Curry2Prolog interactive system.
 %
-% required: environment variable PAKCSHOME
 
 :- use_module(prologbasics).
+:- use_module(pakcsversion).
 :- use_module(basics).
 :- use_module(version).
 :- use_module(loader).
@@ -26,7 +26,7 @@ letBindings([]). % list of top-level bindings
 
 % Read the PAKCS rc file to define some constants
 readRcFile(ArgProps) :-
-	getEnv('PAKCSHOME',PH),
+	installDir(PH),
         appendAtom(PH,'/pakcsrc.default',ConfigFile),
         getEnv('HOME',Home),
 	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
@@ -57,17 +57,16 @@ readRcFile(ArgProps) :-
 readRcFile(_) :-
 	getEnv('HOME',_), !.
 readRcFile(ArgProps) :-
-	% maybe the environment variable HOME is not set since the system is
-	% executed from a regular user:
-	getEnv('PAKCSHOME',PH),
+	% maybe the environment variable HOME is not set since the system
+	% is not started by a regular user:
+	installDir(PH),
         appendAtom(PH,'/pakcsrc.default',ConfigFile),
 	(existsFile(ConfigFile)
 	 -> readConfigFile(ConfigFile,GlobalProps)
 	  ; GlobalProps=[]),
 	concat([ArgProps,GlobalProps],AllProps),
 	deletePropDups(AllProps,UniqueProps),
-	map1M(basics:assertPakcsrc,UniqueProps),
-	writeErrNQ('Warning: environment variable HOME is undefined'), nlErrNQ.
+	map1M(basics:assertPakcsrc,UniqueProps).
 
 
 deletePropDups([],[]).
@@ -85,10 +84,6 @@ deleteEqualProps(Name,[Prop|Props],[Prop|DProps]) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Start main interactive environment:
 pakcsMain :-
-	% just to be sure:
-	(getEnv('PAKCSHOME',_) -> true ;
-	 writeErr('ERROR: environment variable PAKCSHOME is unknown!'),
-	 nlErr, fail),
 	getProgramArgs(Args),
 	processDArgs(Args,Props),
 	readRcFile(Props),
@@ -550,7 +545,7 @@ processCommand("usedimports",[]) :- !,
 	(Prog="" -> write('ERROR: no program loaded for analysis'), nl, !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-	getEnv('PAKCSHOME',PH),
+	installDir(PH),
 	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
 		    AnaCmd),
         %write('Executing: '), write(AnaCmd), nl,
@@ -565,7 +560,7 @@ processCommand("interface",IFTail) :- !,
 	extractProgName(IFTail,Prog),
 	isValidModuleName(Prog),
         atom_codes(ProgA,Prog),
-        getEnv('PAKCSHOME',PH),
+        installDir(PH),
 	appendAtoms(['"',PH,'/currytools/genint/GenInt" -int ',ProgA],
 		    GenIntCmd),
         %write('Executing: '), write(GenIntCmd), nl,
@@ -584,14 +579,14 @@ processCommand("browse",[]) :- !,
 	      ; write('ERROR: program "'),
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
-        getEnv('PAKCSHOME',PH),
+        installDir(PH),
 	appendAtoms(['"',PH,'/bin/currybrowse" ',RealProg,' & '],BrowseCmd),
         %write('Executing: '), write(BrowseCmd), nl,
         shellCmdWithCurryPath(BrowseCmd),
 	!, fail.
 
 processCommand("coosy",[]) :- !,
-        getEnv('PAKCSHOME',PH),
+        installDir(PH),
 	appendAtom(PH,'/tools/coosy',CoosyHome),
 	getCurryPath(SLP),
 	(SLP=[] -> setCurryPath(CoosyHome)
@@ -611,7 +606,7 @@ processCommand("xml",[]) :- !,
 	            !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-        getEnv('PAKCSHOME',PH),
+        installDir(PH),
 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
         %write('Executing: '), write(XmlCmd), nl,
         shellCmdWithCurryPath(XmlCmd),
@@ -624,7 +619,7 @@ processCommand("peval",[]) :- !,
 	            !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-        getEnv('PAKCSHOME',PH),
+        installDir(PH),
 	appendAtoms(['"',PH,'/tools/Peval/peval" ',ProgA],PevalCmd),
         %write('Executing: '), write(PevalCmd), nl,
         shellCmdWithCurryPath(PevalCmd),
@@ -671,7 +666,7 @@ processCommand("show",[]) :- !, % show source code of current module
 	    shellCmd(Cmd)
 	  ; write('No source program file available, generating source from FlatCurry...'),
 	    nl, nl,
-	    getEnv('PAKCSHOME',PH), atom_codes(ProgA,Prog),
+	    installDir(PH), atom_codes(ProgA,Prog),
 	    appendAtoms(['"',PH,'/currytools/genint/GenInt" -mod ',ProgA],
 			ShowProgCmd),
             %write('Executing: '), write(ShowProgCmd), nl,
@@ -731,7 +726,7 @@ processCommand("save",MainGoal) :- !,
 	     ; saveprog_entry(ProgStName,
  		        (ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))),
 	   setVerboseMode(QM)),
-	getEnv('PAKCSHOME',PH),
+	installDir(PH),
 	appendAtoms(['"',PH,'/bin/.makesavedstate" '],CMD1),
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
 	 -> appendAtom(CMD1,'-standalone ',CMD2)
@@ -834,7 +829,7 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 	generateMainPlFile(ProgPl,MainPrologFile),
 	appendAtom(ProgPl,'.save',TmpSavePl),
 	tell(TmpSavePl),
-	getEnv('PAKCSHOME',PH),
+	installDir(PH),
 	appendAtom(PH,'/curry2prolog/',PHCP),
 	appendAtom(PHCP,'prologbasics.pl',PrologBasicsPl),
 	appendAtom(PHCP,'basics.pl',BasicsPl),
@@ -1090,7 +1085,7 @@ failprint(Exp,E,E) :-
 
 parseProgram(Prog) :-
 	findSourceProg(Prog,_), !,
-  	getEnv('PAKCSHOME',TCP),
+  	installDir(TCP),
         appendAtoms(['"',TCP,'/bin/parsecurry" --flat'],PC),
 	atom_codes(PC,CL1),
 	(parser_warnings(no) -> append(CL1," --nowarns",CL2)
@@ -1816,7 +1811,7 @@ showSourceCodeOfFunction(QF) :-
 getModStream(ModS,Stream) :-
 	sourceCodeGUI(ModS,Stream), !.
 getModStream(ModS,InStream) :-
-	getEnv('PAKCSHOME',PH),
+	installDir(PH),
 	atom_codes(ModA,ModS),
 	appendAtoms(['"',PH,'/currytools/browser/SourceProgGUI" ',ModA,
 		     ' 2>/dev/null'],Cmd),
