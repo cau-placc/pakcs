@@ -1,7 +1,7 @@
 # Generate a saved state with the FlatCurry optimizer:
 
 # Required:
-# - installed curry2prolog system
+# - installed PAKCS
 
 .PHONY: all
 all:    CompactFlat NonStrictOpt
@@ -15,5 +15,6 @@ NonStrictOpt: NonStrictOpt.curry
 	../../bin/pakcs -set path ../../currytools/browser/analysis -s NonStrictOpt
 
 clean: 
+	rm -r CompactFlat NonStrictOpt
 	../../bin/cleancurry
 	(cd ../../bin ; rm -f nonstrictopt)

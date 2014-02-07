@@ -42,6 +42,7 @@
 		  printError/1,prologError2Atom/2]).
 
 :- use_module(prologbasics).
+:- use_module(pakcsversion).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -250,7 +251,7 @@ path2String([D1,D2|Ds],DS) :-
 loadPath(MainDir,LoadPath) :-
 	getCurryPath(LCP),
 	getLocalLibPath(LocalLibPath),
-	getLibPath(LibPath),
+	getSysLibPath(LibPath),
 	append(LCP,LocalLibPath,LocalP),
 	append(LocalP,LibPath,LP),
 	lastload(ProgS),
@@ -290,13 +291,12 @@ getLocalLibPath(LocalPath) :-
 	pathString2loadPath(LibS,LocalPath), !.
 getLocalLibPath([]).
 
-getLibPath(LP) :-
-	getEnv('PAKCSLIBPATH',PLP),
-	atom_codes(PLP,SPLP),
-	pathString2loadPath(SPLP,LP), !.
-getLibPath([]) :-
-	writeErrNQ('WARNING: cannot determine load path (PAKCSLIBPATH undefined)!'),
-	nlErrNQ.
+% define the system libaries directories
+getSysLibPath(LP) :-
+	installDir(Root),
+	appendAtom(Root,'/lib',Lib),
+	appendAtom(Root,'/lib/meta',LibMeta),
+	LP = [Lib,LibMeta].
 
 % findFilePropertyInPath(Path,Pred,F,PF): find a file name w.r.t. to path
 %                                         satisfying a given predicate

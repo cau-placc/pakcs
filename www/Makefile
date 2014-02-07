@@ -40,7 +40,7 @@ kill:
 
 .PHONY: clean
 clean: 
-	rm -f submitform
+	rm -f submitform Registry
 	../bin/cleancurry
 
 

@@ -11,5 +11,6 @@ peval: peval.curry Flat.curry Flat2Fcy.curry
 	../../bin/pakcs -set -error -s peval
 
 clean: 
+	rm -f peval
 	../../bin/cleancurry
 	rm -f *_pe.flc *_pe.pl	# delete generated peval files

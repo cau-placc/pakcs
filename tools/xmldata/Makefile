@@ -13,6 +13,7 @@ dataToXml: dataToXml.curry AbstractGoodies.curry
 	             ln -s ../tools/xmldata/dataToXml dataToXml)
 
 clean: 
+	rm -f dataToXml
 	../../bin/cleancurry
 	(cd ../../bin ; rm -f dataToXml)
 
