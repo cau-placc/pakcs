@@ -42,10 +42,7 @@ c2p.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
 	      readXml.pl ../lib/.curry/Prelude.fcy
-	PAKCSHOME=${PAKCSHOME} && export PAKCSHOME && \
-	  PAKCSLIBPATH=${PAKCSHOME}/lib:${PAKCSHOME}/lib/meta && \
-	  export PAKCSLIBPATH && \
-	  echo "compile(c2p),c2p('../lib/Prelude'),compile('../lib/.curry/pakcs/Prelude'),loadAndCompile('../lib/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)." \
+	echo "compile(c2p),c2p('../lib/Prelude'),compile('../lib/.curry/pakcs/Prelude'),loadAndCompile('../lib/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)." \
            | "${SICSTUS}"
 
 #
@@ -55,10 +52,7 @@ swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
 	      readXml.pl ../lib/.curry/Prelude.fcy
-	PAKCSHOME=${PAKCSHOME} && export PAKCSHOME && \
-	  PAKCSLIBPATH=${PAKCSHOME}/lib:${PAKCSHOME}/lib/meta && \
-	  export PAKCSLIBPATH && \
-	  echo "compile(c2p). c2p('../lib/Prelude'), compile('${PAKCSHOME}/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('${PAKCSHOME}/lib/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "${SWI}" ${SWIOPTIONS}
+	echo "compile(c2p). c2p('../lib/Prelude'), compile('${PAKCSHOME}/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('${PAKCSHOME}/lib/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "${SWI}" ${SWIOPTIONS}
 
 ../lib/.curry/Prelude.fcy: ../lib/Prelude.curry
 	cd ../lib ; ${MAKE} .curry/Prelude.fcy

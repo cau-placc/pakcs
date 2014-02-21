@@ -8,6 +8,9 @@
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
+# define standard system library directories:
+PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"
+
 # define PAKCSRC
 PAKCSRC=$HOME/.pakcsrc
 if [ ! -f "$PAKCSRC" ] ; then
@@ -47,15 +50,11 @@ for i in `sed -n '/^libraries=/p' < "$PAKCSRC"`
 do 
   RCLIBPATH=`expr $i : '.*=\(.*\)'`
 done
-
-TARGET=           # no default case: target language must be specified!
-if [ -z "$PAKCSLIBPATH" ] ; then
-  PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"
-fi
 if [ -n "$RCLIBPATH" ] ; then
   PAKCSLIBPATH="$RCLIBPATH:$PAKCSLIBPATH"
 fi
 
+TARGET=           # no default case: target language must be specified!
 case $1 in
   --flat ) TARGET=fcy  ; shift ;;
   --acy  ) TARGET=acy  ; shift ;;

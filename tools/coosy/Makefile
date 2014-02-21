@@ -12,4 +12,4 @@ CoosyGUI: CoosyGUI.curry CoosyShowObserve.curry Observe.curry \
 .PHONY: clean
 clean:
 	../../bin/cleancurry
-	rm -f ../../bin/coosy
+	rm -f CoosyGUI

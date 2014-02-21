@@ -6,10 +6,6 @@
 # - add path information to the saved state
 # - add locale information (LANG, LC_ALL) to the saved state
 
-# Define the main directory where PAKCS is installed:
-PAKCSHOME=`echo PAKCSHOME must be defined here!`
-export PAKCSHOME
-
 # Directory of the SICStus-Prolog installation, i.e.,
 # $SICSTUSDIR/bin/sicstus should be the name of the interpreter executable:
 SICSTUSDIR=
@@ -37,14 +33,6 @@ else
   echo "saved_state: existing file with the saved state"
   echo "target_file: target file with transformed state (if different)"
   exit 1
-fi
-
-# Define load path for standard libraries provided by PAKCS:
-# (used by the various programming tools to search for modules if they
-# are not found elsewhere)
-if [ "$PAKCSLIBPATH" = "" ] ; then
-  PAKCSLIBPATH="$PAKCSHOME/lib:$PAKCSHOME/lib/meta"
-  export PAKCSLIBPATH
 fi
 
 # add $SICSTUSDIR/bin to path so that command "sicstus..." becomes executable:
@@ -96,10 +84,6 @@ if test -n "$LC_ALL" ; then
   echo "LC_ALL=$LC_ALL" >> $TMPFILE
   echo "export LC_ALL" >> $TMPFILE
 fi
-echo "PAKCSHOME=\"$PAKCSHOME\"" >> $TMPFILE
-echo "export PAKCSHOME" >> $TMPFILE
-echo "PAKCSLIBPATH=\"$PAKCSLIBPATH\"" >> $TMPFILE
-echo "export PAKCSLIBPATH" >> $TMPFILE
 echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE
 echo "export PATH" >> $TMPFILE
 if [ -n "$SICSTUSDIR" ] ; then
