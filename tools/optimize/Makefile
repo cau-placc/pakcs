@@ -15,6 +15,6 @@ NonStrictOpt: NonStrictOpt.curry
 	../../bin/pakcs -set path ../../currytools/browser/analysis -s NonStrictOpt
 
 clean: 
-	rm -r CompactFlat NonStrictOpt
+	rm -f CompactFlat NonStrictOpt
 	../../bin/cleancurry
 	(cd ../../bin ; rm -f nonstrictopt)
