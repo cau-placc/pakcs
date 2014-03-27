@@ -165,7 +165,7 @@ The indentation is removed in the output:
     f x y = let z = (x,y)
              in (z,z)
 
-The visually structure a document, one can also put a line
+To visualize the structure of a document, one can also put a line
 containing only blanks and at least three dashes (stars would also work)
 in the source text:
 

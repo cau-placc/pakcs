@@ -20,10 +20,10 @@ The source code of the Curry program
 must be stored in a file with the suffix \ccode{.curry},
 e.g., \code{prog.curry}. 
 Literate programs must be stored in files with the extension \ccode{.lcurry}.
-They are automatically converted into corresponding
-\ccode{.curry} files by deleting all lines not starting 
-with \ccode{>} and removing the prefix \ccode{> } of the
-remaining lines.
+%They are automatically converted into corresponding
+%\ccode{.curry} files by deleting all lines not starting 
+%with \ccode{>} and removing the prefix \ccode{> } of the
+%remaining lines.
 
 Since the translation of Curry programs with \CYS creates
 some auxiliary files (see Section~\ref{sec-auxfiles} for details),
@@ -60,7 +60,7 @@ typical source of programming errors.
 \CYS translates all \emph{local declarations} into global functions with
 additional arguments (``lambda lifting'', see Appendix~D of the
 Curry language report).
-Thus, in the various run-time systems, the definition of
+Thus, in the compiled target code, the definition of
 functions with local declarations look different from
 their original definition (in order to see the result
 of this transformation, you can use the \cb, see
@@ -69,7 +69,14 @@ Section~\ref{sec-currybrowser}).
 Tabulator stops instead of blank spaces in source files are
 interpreted as stops at columns 9, 17, 25, 33, and so on.
 In general, tabulator stops should be avoided in source programs.
-\item Threads created by a concurrent conjunction are not executed
+\item
+Since PAKCS compiles Curry programs into Prolog programs,
+non-deterministic computations are treated as in Prolog
+by a backtracking strategy, which is known to be incomplete.
+Thus, the order of rules could influence the ability
+to find solutions for a given goal.
+\item
+Threads created by a concurrent conjunction are not executed
 in a fair manner (usually, threads corresponding to leftmost constraints
 are executed with higher priority).
 \item
