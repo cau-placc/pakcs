@@ -87,8 +87,12 @@ fi
 echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE
 echo "export PATH" >> $TMPFILE
 if [ -n "$SICSTUSDIR" ] ; then
-  # suppress "restoring" message of SICStus-Prolog:
-  echo "exec $SICSTUSDIR/bin/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
+  # check whether --noinfo parameter is accepted (e.g., not for SICStus 3.7):
+  $SICSTUSDIR/bin/sicstus --noinfo --help > /dev/null 2>&1
+  if [ $? -eq 0 ] ; then
+    # suppress "restoring" message of SICStus-Prolog:
+    echo "exec $SICSTUSDIR/bin/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
+  fi
 fi
 cat $TMPFILE $TMPSTATE > $TARGET
 rm $TMPFILE $TMPSTATE
