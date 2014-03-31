@@ -240,7 +240,7 @@ ensurePakcsVersion(Dir) :-
 	readPAKCSVersion(Dir,DBVersion),
 	DBVersion = pakcsVersion(_,PrologVersion),
 	prologMajor(PrologV),
-	PrologV \= PrologVersion,
+	\+ PrologV=PrologVersion,
 	dir2pofile(Dir,POFile),
 	(existsFile(POFile) -> deleteFile(POFile) ; true),
 	writePAKCSVersion(Dir), !.
