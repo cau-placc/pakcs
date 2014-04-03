@@ -99,9 +99,20 @@ waitConcurrentConjunction(S1,S2,R,E1,E2,E) :-
 	when((nonvar(E1) ; nonvar(E2)),
 	     waitConcurrentConjunctionBlocked(S1,S2,R,E1,E2,E)).
 waitConcurrentConjunctionBlocked(S1,S2,R,E1,E2,E) :- nonvar(E1), !,
-	(S1='FAIL'(_) -> R=S1, E=E1 ; waitForEval(S2,R,E2,E)).
+	reduceConcurrentConjunction(S1,S2,R,E1,E2,E).
 waitConcurrentConjunctionBlocked(S1,S2,R,E1,E2,E) :- % E2 must be nonvar
-	(S2='FAIL'(_) -> R=S2, E=E2 ; waitForEval(S1,R,E1,E)).
+	reduceConcurrentConjunction(S2,S1,R,E2,E1,E).
+
+% reduce a concurrent conjunction where the first argument is already evaluated
+reduceConcurrentConjunction('Prelude.success',S2,R,_,E2,E) :-
+	!, % first constraint is successful
+	waitForEval(S2,R,E2,E).
+reduceConcurrentConjunction('FAIL'(X),_,R,E1,_,E) :-
+	!, % first constraint is a failure
+	R='FAIL'(X), E=E1.
+reduceConcurrentConjunction(_,_,_,_,_,_) :-
+	write(user_error,'Internal error in waitConcurrentConjunction'),
+	nl(user_error).
 
 waitForEval(R0,R,E0,E) :- freeze(E0,(R0=R, E0=E)).
 
