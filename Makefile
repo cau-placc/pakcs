@@ -47,6 +47,16 @@ C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
 MANUALVERSION=$(DOCDIR)/src/version.tex
 
+# Various executables used in the installation
+# --------------------------------------------
+
+# The REPL binary, used for building various tools
+export REPL         = $(BINDIR)/$(CURRYSYSTEM)
+# The default options for the REPL
+export REPL_OPTS    = 
+# The cleancurry binary
+export CLEANCURRY   = $(BINDIR)/cleancurry
+
 # Logfile for make:
 MAKELOG=make.log
 
@@ -166,7 +176,7 @@ clean:
 	rm -f $(MAKELOG)
 	$(MAKE) cleantools
 	cd lib && $(MAKE) clean
-	cd examples && ../bin/cleancurry -r
+	cd examples && $(CLEANCURRY) -r
 	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
 	cd scripts && $(MAKE) clean

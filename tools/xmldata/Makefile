@@ -1,12 +1,9 @@
 # Install tool to generate Curry programs for representing data in XML format
 #
 # Required:
-# - installed Curry System (PAKCS or KiCS2) specified by variable CURRYSYSTEM
-# - root location of the Curry System specified by variable ROOT
+# - installed Curry System (REPL)
 
 # binaries
-REPL       = $(ROOT)/bin/$(CURRYSYSTEM)
-CLEANCURRY = $(ROOT)/bin/cleancurry
 INSTALLBIN = $(ROOT)/bin/dataToXml
 
 # Some modules required by the erd2curry implementation:

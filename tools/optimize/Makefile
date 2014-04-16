@@ -8,13 +8,14 @@ all:    CompactFlat NonStrictOpt
 
 # generate saved state for the FlatCurry optimizer:
 CompactFlat: CompactFlat.curry
-	../../bin/pakcs -s CompactFlat
+	$(REPL) $(REPL_OPTS) :load CompactFlat :save :quit
 
 # generate saved state for the FlatCurry optimizer:
 NonStrictOpt: NonStrictOpt.curry
-	../../bin/pakcs -set path ../../currytools/browser/analysis -s NonStrictOpt
+	$(REPL) $(REPL_OPTS) :set path $(ROOT)/currytools/browser/analysis \
+	                     :load NonStrictOpt :save :quit
 
 clean: 
 	rm -f CompactFlat NonStrictOpt
-	../../bin/cleancurry
+	$(CLEANCURRY)
 	(cd ../../bin ; rm -f nonstrictopt)

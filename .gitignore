@@ -48,7 +48,7 @@ bin/currybrowse
 bin/dataToXml
 bin/erd2curry
 bin/spiceup
-cpns/CPNS
+cpns/CPNSD
 curry2prolog/prologbasics.pl
 curry2prolog/libswi
 curry2prolog/pakcs

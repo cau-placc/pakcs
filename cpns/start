@@ -6,7 +6,7 @@
 PIDFILE="/tmp/CurryPNSD.pid"
 LOGFILE="/tmp/CurryPNSD.log"
 LOCKFILE="/tmp/CurryPNSD.lock" # for startup control
-CPNSEXEC="`dirname "$0"`/CPNS"
+CPNSEXEC="`dirname "$0"`/CPNSD"
 
 STARTSERVER=no
 

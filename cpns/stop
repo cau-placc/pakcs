@@ -4,7 +4,7 @@
 
 PIDFILE="/tmp/CurryPNSD.pid"
 LOCKFILE="/tmp/CurryPNSD.lock" # for startup control
-CPNSEXEC="`dirname $0`/CPNS"
+CPNSEXEC="`dirname $0`/CPNSD"
 
 if test ! -f $PIDFILE ; then
   rm -f $LOCKFILE

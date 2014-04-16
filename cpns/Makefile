@@ -1,25 +1,25 @@
 # Translate CPNS demon for fast startup:
 
 # Required:
-# - installed PAKCS
+# - installed Curry system (REPL)
 
 LOGFILE="/tmp/CurryPNSD.log"
 
-CPNS: ../lib/CPNS.curry
-	../bin/pakcs -s CPNS
+CPNSD: ../lib/CPNS.curry CPNSD.curry
+	$(REPL) $(REPL_OPTS) :load CPNSD :save :q
 
 # Shows the currently registered ports:
 .PHONY: show
-show: CPNS
-	./CPNS show
+show: CPNSD
+	./CPNSD show
 
 # Shows the log file of the demon:
 .PHONY: showlog
 showlog: 
-	cat ${LOGFILE}
+	cat $(LOGFILE)
 
 .PHONY: clean
 clean: 
 	./stop
-	../bin/cleancurry
-	rm -f CPNS
+	$(CLEANCURRY)
+	rm -f CPNSD

@@ -3,13 +3,13 @@
 .PHONY: all
 all: CoosyGUI
 
-# generate saved state for GUI:
+# generate executable for CoosyGUI:
 CoosyGUI: CoosyGUI.curry CoosyShowObserve.curry Observe.curry \
 	  CoosyTrace.curry CoosyDerive.curry
-	../../bin/pakcs -s CoosyGUI
+	$(REPL) $(REPL_OPTS) :load CoosyGUI :save :quit
 
 # clean up all auxiliary files:
 .PHONY: clean
 clean:
-	../../bin/cleancurry
+	$(CLEANCURRY)
 	rm -f CoosyGUI
