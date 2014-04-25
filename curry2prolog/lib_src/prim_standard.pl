@@ -9,7 +9,8 @@
 %	   prim_concurrent_and/5, prim_success/1,
 %	   prim_cond/5, prim_letrec/5, prim_compare/5,
 %	   prim_Int_plus/3, prim_Int_minus/3, prim_Int_times/3,
-%	   prim_Int_div/3, prim_Int_mod/3, prim_negateFloat/2,
+%	   prim_Int_div/3, prim_Int_mod/3, prim_Int_quot/3, prim_Int_rem/3,
+%          prim_negateFloat/2,
 %	   prim_ord/2, prim_chr/2,
 %	   prim_Monad_bind/5, prim_Monad_seq/5, prim_putChar/2, prim_getChar/1,
 %	   prim_return/4, prim_readFile/2, prim_readFileContents/4,
@@ -103,9 +104,13 @@ prim_Int_minus(Y,X,R) :- R is X-Y.
 
 prim_Int_times(Y,X,R) :- R is X*Y.
 
-prim_Int_div(Y,X,R) :- R is X//Y.
+prim_Int_div(Y,X,R) :- R is floor(X/Y).
 
 prim_Int_mod(Y,X,R) :- R is X mod Y.
+
+prim_Int_quot(Y,X,R) :- R is X//Y.
+
+prim_Int_rem(Y,X,R) :- R is X rem Y.
 
 prim_negateFloat(X,R) :- R is -X.
 
