@@ -44,6 +44,18 @@
 :- use_module(pakcsversion).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% set ISO language, if possible
+
+setISO :-
+	prolog_flag(language,Old,iso),
+	(Old=iso -> true ; write('>>>>> Prolog language set to ISO.'), nl).
+
+% Try to set ISO mode. Ignore errors since newer versions of SICStus Prolog
+% don't support this flag.
+:- on_exception(_ErrorMsg,setISO,true).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Principle kind of Prolog system and version used for this implementation.
 prolog(sicstus).
 
