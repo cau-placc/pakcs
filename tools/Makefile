@@ -3,6 +3,9 @@
 # Required:
 # - installed Curry system
 
+# directory with deprecated libraries:
+OLDLIBDIR=$(ROOT)/tools/lib_deprecated
+
 .PHONY: all
 all:    curry2xml
 	@cd optimize  ; $(MAKE)
@@ -13,10 +16,10 @@ all:    curry2xml
 
 
 # generate saved state for curry2xml program:
-curry2xml: curry2xml.curry $(LIBDIR)/meta/FlatXML.curry \
-	         $(LIBDIR)/meta/Flat.curry \
-	         $(LIBDIR)/meta/Flat2Fcy.curry $(LIBDIR)/XML.curry
-	$(REPL) $(REPL_OPTS) :load curry2xml :save :quit
+curry2xml: curry2xml.curry $(OLDLIBDIR)/FlatXML.curry \
+	         $(OLDLIBDIR)/Flat.curry \
+	         $(OLDLIBDIR)/Flat2Fcy.curry $(LIBDIR)/XML.curry
+	$(REPL) $(REPL_OPTS) :set path $(OLDLIBDIR) :load curry2xml :save :quit
 
 .PHONY: clean
 clean: 

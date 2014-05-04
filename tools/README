@@ -1,7 +1,8 @@
 PAKCS Tools
 ===========
 
-This directory contains various tools for the PAKCS system.
+This directory contains various tools and libraries which are currently
+only available for the PAKCS system.
 
 Currently it contains:
 
@@ -20,9 +21,9 @@ curry2xml.curry:
    A translator for Curry programs into their
    corresponding FlatCurry representation in XML.
 
-erd2curry:
-  This directory contains a compiler to translate database (ER) models
-  into Curry programs.
+lib_deprecated:
+   This directory contains some deprecated and, thus, unsupported libraries
+   for PAKCS.
 
 optimize:
    Directory containing a simple optimizer for FlatCurry programs

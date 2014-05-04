@@ -75,7 +75,7 @@ all: config
 # Install all components of PAKCS
 #
 .PHONY: install
-install: installscripts
+install: installscripts installlibs
 	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
@@ -105,6 +105,11 @@ installscripts:
 .PHONY: cleanscripts
 cleanscripts:
 	cd scripts && $(MAKE) clean
+
+# install the library sources from the trunk directory:
+.PHONY: installlibs
+installlibs:
+	cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM) install
 
 # install front end (if sources are present):
 # install front end:
@@ -175,7 +180,7 @@ runtest: examples/doTest
 clean:
 	rm -f $(MAKELOG)
 	$(MAKE) cleantools
-	cd lib && $(MAKE) clean
+	if [ -d lib ] ; then cd lib && $(MAKE) clean ; fi
 	cd examples && $(CLEANCURRY) -r
 	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
@@ -195,7 +200,7 @@ cleantools:
 .PHONY: cleanall
 cleanall:
 	$(MAKE) clean
-	rm -rf $(LOCALBIN)
+	rm -rf $(LOCALBIN) $(LIBDIR)
 
 
 #################################################################################
