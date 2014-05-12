@@ -9,6 +9,7 @@
 %SICS37	   put_code/1, put_code/2, put_byte/2,
 %SICS37	   get_code/1, get_code/2, get_byte/2,
 	   atomCodes/2, atEndOfStream/1,
+	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
 	   waitConcurrentConjunction/6,
 	   appendAtom/3,
@@ -42,6 +43,8 @@
 	   genBlockDecl/4]).
 
 :- use_module(pakcsversion).
+
+%SICS37 :- op(400, yfx, [rem]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set ISO language, if possible
@@ -121,6 +124,12 @@ atomCodes(A,L) :- atom_codes(A,L).
 % check the end of a stream:
 atEndOfStream(Stream) :- at_end_of_stream(Stream), !.
 atEndOfStream(Stream) :- peek_code(Stream,C), C = -1.
+
+%SICS37 isMod(X,Y,Z) :- !, X is Y-Z*integer(floor(Y/Z)).
+isMod(X,Y,Z) :- X is Y mod Z.
+
+%SICS37 isRem(X,Y,Z) :- !, X is Y mod Z.
+isRem(X,Y,Z) :- X is rem(Y,Z).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get Sicstus version (e.g., '3.9'):

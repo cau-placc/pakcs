@@ -5,6 +5,7 @@
 	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
 	   sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
+	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
 	   waitConcurrentConjunction/6,
 	   append/3, member/2,
@@ -83,6 +84,10 @@ atomCodes(A,L) :- atom_codes(A,L).
 
 % check the end of a stream:
 atEndOfStream(Stream) :- at_end_of_stream(Stream), !.
+
+isMod(X,Y,Z) :- X is Y mod Z.
+
+isRem(X,Y,Z) :- X is Y rem Z.
 
 sicstus310orHigher :- fail.
 

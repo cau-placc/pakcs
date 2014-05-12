@@ -104,13 +104,13 @@ prim_Int_minus(Y,X,R) :- R is X-Y.
 
 prim_Int_times(Y,X,R) :- R is X*Y.
 
-prim_Int_div(Y,X,R) :- R is floor(X/Y).
+prim_Int_div(Y,X,R) :- R is integer(floor(X/Y)).
 
-prim_Int_mod(Y,X,R) :- R is X mod Y.
+prim_Int_mod(Y,X,R) :- isMod(R,X,Y).
 
-prim_Int_quot(Y,X,R) :- R is X//Y.
+prim_Int_quot(Y,X,R) :- R is X // Y.
 
-prim_Int_rem(Y,X,R) :- R is X rem Y.
+prim_Int_rem(Y,X,R) :- isRem(R,X,Y).
 
 prim_negateFloat(X,R) :- R is -X.
 
