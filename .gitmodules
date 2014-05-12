@@ -9,4 +9,4 @@
 	url = git://git-ps.informatik.uni-kiel.de/curry/curry-tools.git
 [submodule "lib-trunk"]
 	path = lib-trunk
-	url = git://git-ps.informatik.uni-kiel.de:curry/curry-libs.git
+	url = git://git-ps.informatik.uni-kiel.de/curry/curry-libs.git
