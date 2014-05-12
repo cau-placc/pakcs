@@ -165,12 +165,13 @@ readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
 	prog2PrologFile(DirProg,PrologFile),
 	(doesPrologTranslationExists(DirProg,PrologFile) -> true
 	 ; readProg(LoadPath,Imp,ImpProg,AbsFlatProgFile),
-	   (pakcsrc(showplload,no) -> true
-             ; appendAtoms(['Compiling \'',AbsFlatProgFile,'\' into \'',
-	                    PrologFile,'\'...'],CompileMsg),
-               writeErr(CompileMsg)),
+	   (verbosityIntermediate
+             -> appendAtoms(['Compiling \'',AbsFlatProgFile,'\' into \'',
+	                     PrologFile,'\'...'],CompileMsg),
+                writeErr(CompileMsg)
+              ; true),
 	   generateProg(ImpProg,AllImpTypes,AllImpFuncs,AllImpOps,PrologFile),
-	   (pakcsrc(showplload,no) -> true ; writeErr('done'), nlErr)
+	   (verbosityIntermediate -> writeErr('done'), nlErr ; true)
         ).
 
 doesPrologTranslationExists(DirProg,PrologFile) :-
@@ -322,7 +323,7 @@ readInterface([Dir|Dirs],Prog,FlatInt,DirProgName) :-
 	(existsFile(DirProgFile)
 	 -> readFlcFromFcy(DirProgFile,FlatInt),
 	    DirProgName = DirProg,
-	    (pakcsrc(showfcyload,yes)
+	    (verbosityIntermediate
 	     -> checkForFurtherFcyProgs(Dir,Dirs,Prog)
 	      ; true)
 	  ; readInterface(Dirs,Prog,FlatInt,DirProgName)).
@@ -343,7 +344,7 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	 -> readFlcFromFcy(DirProgFile,PlainFlatProg),
 	    AbsFlatProgFile = DirProgFile,
 	    mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg),
-	    (pakcsrc(showfcyload,yes)
+	    (verbosityIntermediate
 	     -> checkForFurtherFcyProgs(Dir,Dirs,Prog) ; true)
 	  ; readProgInLoadPath(Dirs,Prog,FlatProg,AbsFlatProgFile)).
 
@@ -378,12 +379,12 @@ mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg) :-
 	appendAtom(DirProg,'.prim_c2p',PrimXmlFile),
 	existsFile(PrimXmlFile),
 	!,
-	(pakcsrc(showfcyload,yes)
+	(verbosityIntermediate
 	 -> writeErr('>>> Reading '),
 	    writeErr(PrimXmlFile), writeErr(' ... '),
 	    getRunTime(RT1) ; true),
 	readPrimitiveXmlSpecs(PrimXmlFile,PrimSpecs),
-	(pakcsrc(showfcyload,yes)
+	(verbosityIntermediate
 	 -> getRunTime(RT2),
 	    RT is RT2-RT1,
 	    writeErr(RT), writeErr(' ms.'), nlErr

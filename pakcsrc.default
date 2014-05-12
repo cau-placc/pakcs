@@ -38,15 +38,6 @@ dotviewcommand=dot -Tps > /tmp/dotxxx ; gv /tmp/dotxxx
 # Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
 verboserc=no
 
-# Show messages relating to parsing of modules (values: yes | no):
-parsermessages=yes
-
-# Show loading of fcy files (values: yes | no):
-showfcyload=no
-
-# Show loading/compiling of Prolog files (values: yes | no):
-showplload=no
-
 # Show messages related to dynamic predicates (such as loading,
 # waiting for lock files, etc), compare lib/Dynamic. Values: yes | no
 dynamicmessages=yes

@@ -1,3 +1,5 @@
+import Findall
+
 -- Place n queens on a chessboard so that no queen can capture another queen:
 -- (this solution is due to Sergio Antoy)
 

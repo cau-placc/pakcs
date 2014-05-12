@@ -10,7 +10,7 @@
                     ; use_module('libswi/prim_readshowterm').
 
 readFlcFromFcy(FileName,FlatProg) :-
-	(pakcsrc(showfcyload,yes)
+	(verbosityIntermediate
 	 -> write(user_error,'>>> Reading '),
 	    write(user_error,FileName), write(user_error,' ... '),
 	    getRunTime(RT1) ; true),
@@ -18,7 +18,7 @@ readFlcFromFcy(FileName,FlatProg) :-
 	readStreamContents(Stream,FcyPrologString),
 	readTerm(FcyPrologString,unchecked,Tail,Term),
 	skipWhiteSpace(Tail,[]),
-	(pakcsrc(showfcyload,yes)
+	(verbosityIntermediate
 	 -> getRunTime(RT2),
 	    RT is RT2-RT1,
 	    write(user_error,RT), write(user_error,' ms.'), nl(user_error)

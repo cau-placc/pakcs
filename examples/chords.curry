@@ -21,6 +21,8 @@
 
 -- The current program can only deal with bars of type 4/4.
 
+import Findall
+
 ------------------------ Data type declarations ----------------------------
 
 -- The notes (C major scale, R denotes a rest)

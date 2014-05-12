@@ -1,3 +1,4 @@
+import Findall
 
 -- natural numbers defined by s-terms (Z=zero, S=successor):
 data Nat = Z | S Nat

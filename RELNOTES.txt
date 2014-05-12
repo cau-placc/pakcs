@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (April 25, 2014, under development)
---------------------------------------------------------------------------
+Release notes for PAKCS Version 1.11.3 (May 12, 2014, under development)
+------------------------------------------------------------------------
 
 Changes to version 1.11.2:
   * PAKCS parameter `--safe` added to support safe execution without
@@ -13,6 +13,8 @@ Changes to version 1.11.2:
     `tools/lib_reprecated`.
   * Prelude: definition of `div` changed (to be compatible with Haskell)
     and `quot`, `rem`, `divMod`, `quotRem` added.
+  * Prelude: encapsulated search operations (findall and more) moved
+    into new library `Findall`.
   * Library `Distribution`: front-end parameters extended by supporting
     "special" (i.e., aribrary) arguments.
   * Library `Distribution` and `FlatCurry`: after calling the front end,

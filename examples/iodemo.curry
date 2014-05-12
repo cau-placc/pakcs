@@ -1,5 +1,7 @@
 -- Some demos of monadic I/O:
 
+import Findall
+
 -- a simple echo:
 
 echo = getChar >>= \c -> if ord c == (-1) then done else putChar c >> echo

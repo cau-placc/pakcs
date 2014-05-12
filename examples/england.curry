@@ -1,3 +1,5 @@
+import Findall
+
 -- Geographical database (from John Lloyd's Escher report):
 
 data County = Avon | Bedfordshire | Berkshire | Buckinghamshire |
@@ -124,7 +126,7 @@ isin Sherbourne  Dorset           = success
 
 
 -- list membership:
-member e l = let xs,ys free in xs ++ (e:ys) =:= l
+member e xs = _ ++ (e:_) =:= xs
 
 
 -- Some queries and their expected results:

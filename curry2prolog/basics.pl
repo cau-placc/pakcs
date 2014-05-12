@@ -3,6 +3,7 @@
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
 		  noLoadMessage/0, lastload/1, plprofiling/1,
+		  verbosity/1, setVerbosity/1, verbosityIntermediate/0,
 		  verbosemode/1, setVerboseMode/1, quietmode/1, rtargs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
@@ -46,7 +47,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic lastload/1, plprofiling/1, quietmode/1, verbosemode/1, rtargs/1,
+:- dynamic lastload/1, plprofiling/1,
+	   verbosity/1, quietmode/1, verbosemode/1, rtargs/1,
 	   compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
@@ -77,7 +79,7 @@ user:portray_message(informational,restored(_,_,_)) :- !.
 user:portray_message(informational,created(_,_)) :- !.
 
 noLoadMessage :- \+ pakcsrc(_,_), !. % no messages for initial state creation
-noLoadMessage :- pakcsrc(showplload,no).
+noLoadMessage :- \+ verbosityIntermediate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -110,6 +112,14 @@ verbosemode(no). % yes if program should be executed in verbose mode
 
 setVerboseMode(V) :-
 	retract(verbosemode(_)), asserta(verbosemode(V)).
+
+verbosity(1). % verbosity level
+
+setVerbosity(N) :-
+	retract(verbosity(_)), asserta(verbosity(N)).
+
+% verbosity level >= 2 (intermdiate messages)?
+verbosityIntermediate :- verbosity(N), N>1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % writing outputs:

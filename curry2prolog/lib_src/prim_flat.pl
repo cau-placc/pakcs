@@ -15,7 +15,7 @@ prim_readFlatCurryFile(FileString,FlatProg) :-
 
 readFlatProg(ProgFile,FlatProg) :-
 	existsFile(ProgFile), !,
-	(pakcsrc(showfcyload,yes)
+	(verbosityIntermediate
 	 -> write(user_error,'>>> Reading '),
 	    write(user_error,ProgFile), write(user_error,' ... '),
 	    getRunTime(RT1) ; true),
@@ -23,7 +23,7 @@ readFlatProg(ProgFile,FlatProg) :-
 	readStreamContents(Stream,FcyPrologString), !,
 	readTerm(FcyPrologString,unchecked,Tail,Term),
 	skipWhiteSpace(Tail,[]),
-	(pakcsrc(showfcyload,yes)
+	(verbosityIntermediate
 	 -> getRunTime(RT2),
 	    RT is RT2-RT1,
 	    write(user_error,RT), write(user_error,' ms.'), nl(user_error)

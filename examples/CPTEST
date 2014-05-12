@@ -4,6 +4,7 @@ LOGFILE=xxx$$
 ../bin/cleancurry -r
 cat << EOM | $PAKCS -Dmoresolutions=no | tee $LOGFILE
 :set +verbose
+:set v0
 :set printdepth 0
 :l rev
 append [1,2] [3,4]
@@ -260,9 +261,11 @@ elif [ -x "${SWI}" ] ; then
   diff CPTEST.swiresult $LOGFILE > $DIFF
 fi
 if [ "`cat $DIFF`" = "" ] ; then
+  echo
   echo "Regression test successfully executed!"
   /bin/rm -f $LOGFILE $DIFF
 else
+  echo
   echo "Differences in regression test occurred:"
   cat $DIFF
   /bin/rm -f $DIFF

@@ -5,22 +5,18 @@
  |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.3 (4)
  |_|     /_/      \_\ |_|  \_\  |______| |_______|   
 
-Curry2Prolog(sicstus 4.2) Compiler Environment (Version of 2014-04-03)
+Curry2Prolog(sicstus 4.2) Compiler Environment (Version of 2014-05-12)
 (RWTH Aachen, CAU Kiel, Portland State University)
 
 Bug reports: mh@informatik.uni-kiel.de
 
 Type ":h" for help
 
-Prelude> Prelude> Prelude> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling rev              ( rev.curry, .curry/rev.fcy )
-rev> Evaluating expression: append [1,2] [3,4] :: [Int]
+Prelude> Prelude> Prelude> Prelude> rev> Evaluating expression: append [1,2] [3,4] :: [Int]
 Result: [1,2,3,4]
 More values? [y(es)/N(o)/a(ll)] rev> Evaluating expression: rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 Result: [10,9,8,7,6,5,4,3,2,1]
-More values? [y(es)/N(o)/a(ll)] rev> rev> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling higher           ( higher.curry, .curry/higher.fcy )
-higher> Evaluating expression: g1 :: [Int]
+More values? [y(es)/N(o)/a(ll)] rev> rev> higher> Evaluating expression: g1 :: [Int]
 Result: [1,3,2]
 More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g2 :: [Int]
 Result: [1,3,2]
@@ -30,23 +26,15 @@ More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g4 :: Int
 Result: 120
 More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g5 :: Int
 Result: 120
-More values? [y(es)/N(o)/a(ll)] higher> higher> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling quicksort        ( quicksort.curry, .curry/quicksort.fcy )
-quicksort> Evaluating expression: qsort [2,3,1,0] :: [Int]
+More values? [y(es)/N(o)/a(ll)] higher> higher> quicksort> Evaluating expression: qsort [2,3,1,0] :: [Int]
 Result: [0,1,2,3]
-More values? [y(es)/N(o)/a(ll)] quicksort> quicksort> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling qsortlet         ( qsortlet.curry, .curry/qsortlet.fcy )
-qsortlet> Evaluating expression: qsort [2,3,1,0] :: [Int]
+More values? [y(es)/N(o)/a(ll)] quicksort> quicksort> qsortlet> Evaluating expression: qsort [2,3,1,0] :: [Int]
 Result: [0,1,2,3]
-More values? [y(es)/N(o)/a(ll)] qsortlet> qsortlet> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling inflists         ( inflists.curry, .curry/inflists.fcy )
-inflists> Evaluating expression: goal1 :: [Int]
+More values? [y(es)/N(o)/a(ll)] qsortlet> qsortlet> inflists> Evaluating expression: goal1 :: [Int]
 Result: [1,1,2,3,5,8,13,21,34,55]
 More values? [y(es)/N(o)/a(ll)] inflists> Evaluating expression: goal2 :: [Int]
 Result: [2,3,5,7,11]
-More values? [y(es)/N(o)/a(ll)] inflists> inflists> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling family_rel       ( family_rel.curry, .curry/family_rel.fcy )
-family_rel> Evaluating expression: goal1 child :: Bool
+More values? [y(es)/N(o)/a(ll)] inflists> inflists> family_rel> Evaluating expression: goal1 child :: Bool
 Free variables in goal: child
 Bindings: 
 child=Susan
@@ -74,9 +62,7 @@ g=Antony
 c=Andrew
 Result: True
 More values? [y(es)/N(o)/a(ll)] No more solutions.
-family_rel> family_rel> family_rel> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling family_fun       ( family_fun.curry, .curry/family_fun.fcy )
-family_fun> Evaluating expression: (father child) =:= John :: Success
+family_rel> family_rel> family_rel> family_fun> Evaluating expression: (father child) =:= John :: Success
 Free variables in goal: child
 Bindings: 
 child=Susan
@@ -104,9 +90,7 @@ g=Antony
 c=Andrew
 Result: success
 More values? [y(es)/N(o)/a(ll)] No more solutions.
-family_fun> family_fun> family_fun> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling horseman         ( horseman.curry, .curry/horseman.fcy )
-horseman> Evaluating expression: horseman m h (int2nat 8) (int2nat 20) :: Success
+family_fun> family_fun> family_fun> horseman> Evaluating expression: horseman m h (int2nat 8) (int2nat 20) :: Success
 Free variables in goal: m, h
 Bindings: 
 m=S (S (S (S (S (S O)))))
@@ -125,9 +109,7 @@ m=S O
 h=S O
 f=S (S (S (S (S (S O)))))
 Result: success
-More values? [y(es)/N(o)/a(ll)] horseman> horseman> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling first            ( first.curry, .curry/first.fcy )
-first> Evaluating expression: goal1 :: [Nat]
+More values? [y(es)/N(o)/a(ll)] horseman> horseman> first> Evaluating expression: goal1 :: [Nat]
 Result: [O,S O]
 More values? [y(es)/N(o)/a(ll)] first> Evaluating expression: goal2 x y :: Success
 Free variables in goal: x, y
@@ -135,9 +117,7 @@ Bindings:
 x=S O
 y=O
 Result: success
-More values? [y(es)/N(o)/a(ll)] first> first> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling member           ( member.curry, .curry/member.fcy )
-member> Evaluating expression: goal2 x :: Bool
+More values? [y(es)/N(o)/a(ll)] first> first> member> Evaluating expression: goal2 x :: Bool
 Free variables in goal: x
 Bindings: 
 x=2
@@ -145,9 +125,7 @@ Result: True
 More values? [y(es)/N(o)/a(ll)] Bindings: 
 x=3
 Result: True
-More values? [y(es)/N(o)/a(ll)] member> member> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling colormap         ( colormap.curry, .curry/colormap.fcy )
-colormap> Evaluating expression: goal1 l1 l2 l3 l4 :: Success
+More values? [y(es)/N(o)/a(ll)] member> member> colormap> Evaluating expression: goal1 l1 l2 l3 l4 :: Success
 Free variables in goal: l1, l2, l3, l4
 Bindings: 
 l1=Red
@@ -175,9 +153,7 @@ l2=Yellow
 l3=Green
 l4=Blue
 Result: success
-More values? [y(es)/N(o)/a(ll)] colormap> colormap> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling account          ( account.curry, .curry/account.fcy )
-account> Evaluating expression: goal1 b :: Success
+More values? [y(es)/N(o)/a(ll)] colormap> colormap> account> Evaluating expression: goal1 b :: Success
 Free variables in goal: b
 Bindings: 
 b=250
@@ -195,36 +171,22 @@ Bindings:
 s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]
 Result: success
 More values? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> account> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling maxtree          ( maxtree.curry, .curry/maxtree.fcy )
-maxtree> Evaluating expression: goal2 :: Btree Int
+account> account> account> maxtree> Evaluating expression: goal2 :: Btree Int
 Result: Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
-More values? [y(es)/N(o)/a(ll)] maxtree> maxtree> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling assembler        ( assembler.curry, .curry/assembler.fcy )
-assembler> Evaluating expression: goal :: [Int]
+More values? [y(es)/N(o)/a(ll)] maxtree> maxtree> assembler> Evaluating expression: goal :: [Int]
 Result: [9,4,9,0]
-More values? [y(es)/N(o)/a(ll)] assembler> assembler> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling ralign           ( ralign.curry, .curry/ralign.fcy )
-ralign> Evaluating expression: goal1 :: [[Letter]]
+More values? [y(es)/N(o)/a(ll)] assembler> assembler> ralign> Evaluating expression: goal1 :: [[Letter]]
 Result: [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
 More values? [y(es)/N(o)/a(ll)] ralign> Evaluating expression: goal2 :: [[Letter]]
 Result: [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-More values? [y(es)/N(o)/a(ll)] ralign> ralign> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling tctest           ( tctest.curry, .curry/tctest.fcy )
-tctest> f :: Int -> Int
+More values? [y(es)/N(o)/a(ll)] ralign> ralign> tctest> f :: Int -> Int
 tctest> i :: a -> a
 tctest> k :: a -> Int
-tctest> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling rectype          ( rectype.curry, .curry/rectype.fcy )
-rectype> h :: ([Int],[Bool])
-rectype> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling iodemo           ( iodemo.curry, .curry/iodemo.fcy )
-iodemo> Evaluating expression: dialog :: IO ()
+tctest> rectype> h :: ([Int],[Bool])
+rectype> iodemo> Evaluating expression: dialog :: IO ()
 Ihr Name?
 Hallo michael, rueckwaerts lautet Ihr Name: leahcim
-iodemo> iodemo> iodemo> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling england          ( england.curry, .curry/england.fcy )
-england> Evaluating expression: q1 x :: Success
+iodemo> iodemo> iodemo> england> Evaluating expression: q1 x :: Success
 Free variables in goal: x
 Bindings: 
 x=Gloucester
@@ -246,13 +208,9 @@ x=Somerset
 Result: success
 More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q10 :: Int
 Result: 6
-More values? [y(es)/N(o)/a(ll)] england> england> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling queens           ( queens.curry, .curry/queens.fcy )
-queens> Evaluating expression: queens [1,2,3,4] :: [Int]
+More values? [y(es)/N(o)/a(ll)] england> england> queens> Evaluating expression: queens [1,2,3,4] :: [Int]
 Result: [2,4,1,3]
-More values? [y(es)/N(o)/a(ll)] queens> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling diamond          ( diamond.curry, .curry/diamond.fcy )
-diamond> Evaluating expression: diamond 10 :: IO ()
+More values? [y(es)/N(o)/a(ll)] queens> diamond> Evaluating expression: diamond 10 :: IO ()
                                        1    
                                   11       2    
                               21      12       3    
@@ -272,9 +230,7 @@ diamond> Evaluating expression: diamond 10 :: IO ()
                               98      89      80    
                                   99      90    
                                      100    
-diamond> diamond> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling chords           ( chords.curry, .curry/chords.fcy )
-chords> Evaluating expression: run sounds :: IO ()
+diamond> diamond> chords> Evaluating expression: run sounds :: IO ()
 Proposed chords:
 Amin/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
@@ -308,9 +264,7 @@ Cmaj/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
 Fmaj/4 Gmaj/4 (0) || Fmaj/4 Emin/4 (0) || Amin/4 Gmaj/4 (0) || Amin/4 Emin/4 (0)
 Fmaj/8 (0) || Amin/8 (0)
-chords> chords> chords> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling arithseq         ( arithseq.curry, .curry/arithseq.fcy )
-arithseq> Evaluating expression: l1 :: [Int]
+chords> chords> chords> arithseq> Evaluating expression: l1 :: [Int]
 Result: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l2 :: [Int]
 Result: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
@@ -318,21 +272,15 @@ More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l3 :: [Int]
 Result: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97]
 More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l4 :: [Int]
 Result: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77]
-More values? [y(es)/N(o)/a(ll)] arithseq> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling multgen          ( multgen.curry, .curry/multgen.fcy )
-multgen> Evaluating expression: goal1 :: [(Int,Int)]
+More values? [y(es)/N(o)/a(ll)] arithseq> multgen> Evaluating expression: goal1 :: [(Int,Int)]
 Result: [(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
 More values? [y(es)/N(o)/a(ll)] multgen> Evaluating expression: goal2 :: [(Int,Int)]
 Result: [(1,1),(2,1),(2,2),(3,1),(3,2),(3,3)]
 More values? [y(es)/N(o)/a(ll)] multgen> Evaluating expression: goal3 :: [(Int,Int,Int)]
 Result: [(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(9,40,41),(10,24,26),(12,16,20),(12,35,37),(14,48,50),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40),(27,36,45),(30,40,50)]
-More values? [y(es)/N(o)/a(ll)] multgen> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling psort            ( psort.curry, .curry/psort.fcy )
-psort> Evaluating expression: goal 6 :: [Int]
+More values? [y(es)/N(o)/a(ll)] multgen> psort> Evaluating expression: goal 6 :: [Int]
 Result: [1,2,3,4,5,6]
-More values? [y(es)/N(o)/a(ll)] psort> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling default          ( default.lcurry, .curry/default.fcy )
-default> Evaluating expression: abs 0 :: Int
+More values? [y(es)/N(o)/a(ll)] psort> default> Evaluating expression: abs 0 :: Int
 Result: 0
 More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: abs 3 :: Int
 Result: 1
@@ -342,9 +290,7 @@ More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3,4] :: [I
 Result: [4,3]
 More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3,4,5] :: [Int]
 Result: [3,4,5]
-More values? [y(es)/N(o)/a(ll)] default> default> [1 of 2] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 2] Compiling casetest         ( casetest.curry, .curry/casetest.fcy )
-casetest> Evaluating expression: swap [1] :: [Int]
+More values? [y(es)/N(o)/a(ll)] default> default> casetest> Evaluating expression: swap [1] :: [Int]
 Result: [1]
 More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: swap [1,2] :: [Int]
 Result: [2,1]
@@ -362,61 +308,26 @@ More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [1,3] :: Bool
 Result: False
 More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [2,div 1 0] :: Bool
 Result: False
-More values? [y(es)/N(o)/a(ll)] casetest> casetest> [1 of 4] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 4] Skipping  Char             ( /net/medoc/home/mh/pakcs/lib/Char.curry, /net/medoc/home/mh/pakcs/lib/.curry/Char.fcy )
-[3 of 4] Skipping  Parser           ( /net/medoc/home/mh/pakcs/lib/Parser.curry, /net/medoc/home/mh/pakcs/lib/.curry/Parser.fcy )
-[4 of 4] Compiling expr_parser      ( expr_parser.curry, .curry/expr_parser.fcy )
-expr_parser> Evaluating expression: ((expression val) "(10+5*2)/4") =:= [] :: Success
+More values? [y(es)/N(o)/a(ll)] casetest> casetest> expr_parser> Evaluating expression: ((expression val) "(10+5*2)/4") =:= [] :: Success
 Free variables in goal: val
 Bindings: 
 val=5
 Result: success
-More values? [y(es)/N(o)/a(ll)] expr_parser> [1 of 4] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 4] Skipping  AllSolutions     ( /net/medoc/home/mh/pakcs/lib/AllSolutions.curry, /net/medoc/home/mh/pakcs/lib/.curry/AllSolutions.fcy )
-[3 of 4] Skipping  Parser           ( /net/medoc/home/mh/pakcs/lib/Parser.curry, /net/medoc/home/mh/pakcs/lib/.curry/Parser.fcy )
-[4 of 4] Compiling palindrome       ( palindrome.curry, .curry/palindrome.fcy )
-palindrome> Evaluating expression: (pali "abaaba") =:= [] :: Success
+More values? [y(es)/N(o)/a(ll)] expr_parser> palindrome> Evaluating expression: (pali "abaaba") =:= [] :: Success
 Result: success
 More values? [y(es)/N(o)/a(ll)] palindrome> Evaluating expression: pali5 :: IO [String]
 IO: ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
-palindrome> palindrome> palindrome> palindrome> [1 of 3] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 3] Skipping  CLPR             ( /net/medoc/home/mh/pakcs/lib/CLPR.curry, /net/medoc/home/mh/pakcs/lib/.curry/CLPR.fcy )
-[3 of 3] Compiling mortgage         ( mortgage.curry, .curry/mortgage.fcy )
-mortgage> Evaluating expression: mortgage 1.0E+05 180.0 0.01 r 0.0 :: Success
+palindrome> palindrome> palindrome> palindrome> mortgage> Evaluating expression: mortgage 1.0E+05 180.0 0.01 r 0.0 :: Success
 Free variables in goal: r
 Bindings: 
 r=1200.1680620915145
 Result: success
-More values? [y(es)/N(o)/a(ll)] mortgage> [1 of 3] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 3] Skipping  CLPFD            ( /net/medoc/home/mh/pakcs/lib/CLPFD.curry, /net/medoc/home/mh/pakcs/lib/.curry/CLPFD.fcy )
-[3 of 3] Compiling smm              ( smm.curry, .curry/smm.fcy )
-smm> Evaluating expression: smm l :: Success
+More values? [y(es)/N(o)/a(ll)] mortgage> smm> Evaluating expression: smm l :: Success
 Free variables in goal: l
 Bindings: 
 l=[9,5,6,7,1,0,8,2]
 Result: success
-More values? [y(es)/N(o)/a(ll)] smm> smm> smm> smm> [ 1 of 21] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[ 2 of 21] Skipping  Char             ( /net/medoc/home/mh/pakcs/lib/Char.curry, /net/medoc/home/mh/pakcs/lib/.curry/Char.fcy )
-[ 3 of 21] Skipping  Maybe            ( /net/medoc/home/mh/pakcs/lib/Maybe.curry, /net/medoc/home/mh/pakcs/lib/.curry/Maybe.fcy )
-[ 4 of 21] Skipping  List             ( /net/medoc/home/mh/pakcs/lib/List.curry, /net/medoc/home/mh/pakcs/lib/.curry/List.fcy )
-[ 5 of 21] Skipping  Global           ( /net/medoc/home/mh/pakcs/lib/Global.curry, /net/medoc/home/mh/pakcs/lib/.curry/Global.fcy )
-[ 6 of 21] Skipping  System           ( /net/medoc/home/mh/pakcs/lib/System.curry, /net/medoc/home/mh/pakcs/lib/.curry/System.fcy )
-[ 7 of 21] Skipping  FilePath         ( /net/medoc/home/mh/pakcs/lib/FilePath.curry, /net/medoc/home/mh/pakcs/lib/.curry/FilePath.fcy )
-[ 8 of 21] Skipping  Time             ( /net/medoc/home/mh/pakcs/lib/Time.curry, /net/medoc/home/mh/pakcs/lib/.curry/Time.fcy )
-[ 9 of 21] Skipping  Directory        ( /net/medoc/home/mh/pakcs/lib/Directory.curry, /net/medoc/home/mh/pakcs/lib/.curry/Directory.fcy )
-[10 of 21] Skipping  FileGoodies      ( /net/medoc/home/mh/pakcs/lib/FileGoodies.curry, /net/medoc/home/mh/pakcs/lib/.curry/FileGoodies.fcy )
-[11 of 21] Skipping  IO               ( /net/medoc/home/mh/pakcs/lib/IO.curry, /net/medoc/home/mh/pakcs/lib/.curry/IO.fcy )
-[12 of 21] Skipping  Read             ( /net/medoc/home/mh/pakcs/lib/Read.curry, /net/medoc/home/mh/pakcs/lib/.curry/Read.fcy )
-[13 of 21] Skipping  IOExts           ( /net/medoc/home/mh/pakcs/lib/IOExts.curry, /net/medoc/home/mh/pakcs/lib/.curry/IOExts.fcy )
-[14 of 21] Skipping  PropertyFile     ( /net/medoc/home/mh/pakcs/lib/PropertyFile.curry, /net/medoc/home/mh/pakcs/lib/.curry/PropertyFile.fcy )
-[15 of 21] Skipping  Distribution     ( /net/medoc/home/mh/pakcs/lib/Distribution.curry, /net/medoc/home/mh/pakcs/lib/.curry/Distribution.fcy )
-[16 of 21] Skipping  Profile          ( /net/medoc/home/mh/pakcs/lib/Profile.curry, /net/medoc/home/mh/pakcs/lib/.curry/Profile.fcy )
-[17 of 21] Skipping  ReadShowTerm     ( /net/medoc/home/mh/pakcs/lib/ReadShowTerm.curry, /net/medoc/home/mh/pakcs/lib/.curry/ReadShowTerm.fcy )
-[18 of 21] Skipping  Socket           ( /net/medoc/home/mh/pakcs/lib/Socket.curry, /net/medoc/home/mh/pakcs/lib/.curry/Socket.fcy )
-[19 of 21] Skipping  CPNS             ( /net/medoc/home/mh/pakcs/lib/CPNS.curry, /net/medoc/home/mh/pakcs/lib/.curry/CPNS.fcy )
-[20 of 21] Skipping  Ports            ( /net/medoc/home/mh/pakcs/lib/Ports.curry, /net/medoc/home/mh/pakcs/lib/.curry/Ports.fcy )
-[21 of 21] Compiling accountport      ( accountport.curry, .curry/accountport.fcy )
-accountport> Evaluating expression: goal1 b :: Success
+More values? [y(es)/N(o)/a(ll)] smm> smm> smm> smm> accountport> Evaluating expression: goal1 b :: Success
 Free variables in goal: b
 Bindings: 
 b=250
@@ -428,28 +339,7 @@ Bindings:
 b=[Deposit 100,Withdraw 30,Withdraw 30,Deposit 70,Withdraw 30,Withdraw 30]
 Result: success
 More values? [y(es)/N(o)/a(ll)] No more solutions.
-accountport> accountport> accountport> [ 1 of 21] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[ 2 of 21] Skipping  Char             ( /net/medoc/home/mh/pakcs/lib/Char.curry, /net/medoc/home/mh/pakcs/lib/.curry/Char.fcy )
-[ 3 of 21] Skipping  Maybe            ( /net/medoc/home/mh/pakcs/lib/Maybe.curry, /net/medoc/home/mh/pakcs/lib/.curry/Maybe.fcy )
-[ 4 of 21] Skipping  List             ( /net/medoc/home/mh/pakcs/lib/List.curry, /net/medoc/home/mh/pakcs/lib/.curry/List.fcy )
-[ 5 of 21] Skipping  Global           ( /net/medoc/home/mh/pakcs/lib/Global.curry, /net/medoc/home/mh/pakcs/lib/.curry/Global.fcy )
-[ 6 of 21] Skipping  System           ( /net/medoc/home/mh/pakcs/lib/System.curry, /net/medoc/home/mh/pakcs/lib/.curry/System.fcy )
-[ 7 of 21] Skipping  FilePath         ( /net/medoc/home/mh/pakcs/lib/FilePath.curry, /net/medoc/home/mh/pakcs/lib/.curry/FilePath.fcy )
-[ 8 of 21] Skipping  Time             ( /net/medoc/home/mh/pakcs/lib/Time.curry, /net/medoc/home/mh/pakcs/lib/.curry/Time.fcy )
-[ 9 of 21] Skipping  Directory        ( /net/medoc/home/mh/pakcs/lib/Directory.curry, /net/medoc/home/mh/pakcs/lib/.curry/Directory.fcy )
-[10 of 21] Skipping  FileGoodies      ( /net/medoc/home/mh/pakcs/lib/FileGoodies.curry, /net/medoc/home/mh/pakcs/lib/.curry/FileGoodies.fcy )
-[11 of 21] Skipping  IO               ( /net/medoc/home/mh/pakcs/lib/IO.curry, /net/medoc/home/mh/pakcs/lib/.curry/IO.fcy )
-[12 of 21] Skipping  Read             ( /net/medoc/home/mh/pakcs/lib/Read.curry, /net/medoc/home/mh/pakcs/lib/.curry/Read.fcy )
-[13 of 21] Skipping  IOExts           ( /net/medoc/home/mh/pakcs/lib/IOExts.curry, /net/medoc/home/mh/pakcs/lib/.curry/IOExts.fcy )
-[14 of 21] Skipping  PropertyFile     ( /net/medoc/home/mh/pakcs/lib/PropertyFile.curry, /net/medoc/home/mh/pakcs/lib/.curry/PropertyFile.fcy )
-[15 of 21] Skipping  Distribution     ( /net/medoc/home/mh/pakcs/lib/Distribution.curry, /net/medoc/home/mh/pakcs/lib/.curry/Distribution.fcy )
-[16 of 21] Skipping  Profile          ( /net/medoc/home/mh/pakcs/lib/Profile.curry, /net/medoc/home/mh/pakcs/lib/.curry/Profile.fcy )
-[17 of 21] Skipping  ReadShowTerm     ( /net/medoc/home/mh/pakcs/lib/ReadShowTerm.curry, /net/medoc/home/mh/pakcs/lib/.curry/ReadShowTerm.fcy )
-[18 of 21] Skipping  Socket           ( /net/medoc/home/mh/pakcs/lib/Socket.curry, /net/medoc/home/mh/pakcs/lib/.curry/Socket.fcy )
-[19 of 21] Skipping  CPNS             ( /net/medoc/home/mh/pakcs/lib/CPNS.curry, /net/medoc/home/mh/pakcs/lib/.curry/CPNS.fcy )
-[20 of 21] Skipping  Ports            ( /net/medoc/home/mh/pakcs/lib/Ports.curry, /net/medoc/home/mh/pakcs/lib/.curry/Ports.fcy )
-[21 of 21] Compiling nameserver       ( nameserver.curry, .curry/nameserver.fcy )
-nameserver> nameserver> Evaluating expression: gn1 :: IO ()
+accountport> accountport> accountport> nameserver> nameserver> Evaluating expression: gn1 :: IO ()
 Answer: 0
 nameserver> Evaluating expression: gn2 :: IO ()
 Answer: 0
@@ -460,15 +350,7 @@ Answer: 42
 nameserver> Evaluating expression: gn2 :: IO ()
 Answer: 43
 nameserver> Evaluating expression: closeServer :: IO ()
-nameserver> nameserver> [1 of 8] Skipping  Prelude          ( /net/medoc/home/mh/pakcs/lib/Prelude.curry, /net/medoc/home/mh/pakcs/lib/.curry/Prelude.fcy )
-[2 of 8] Skipping  Char             ( /net/medoc/home/mh/pakcs/lib/Char.curry, /net/medoc/home/mh/pakcs/lib/.curry/Char.fcy )
-[3 of 8] Skipping  Global           ( /net/medoc/home/mh/pakcs/lib/Global.curry, /net/medoc/home/mh/pakcs/lib/.curry/Global.fcy )
-[4 of 8] Skipping  IO               ( /net/medoc/home/mh/pakcs/lib/IO.curry, /net/medoc/home/mh/pakcs/lib/.curry/IO.fcy )
-[5 of 8] Skipping  Read             ( /net/medoc/home/mh/pakcs/lib/Read.curry, /net/medoc/home/mh/pakcs/lib/.curry/Read.fcy )
-[6 of 8] Skipping  System           ( /net/medoc/home/mh/pakcs/lib/System.curry, /net/medoc/home/mh/pakcs/lib/.curry/System.fcy )
-[7 of 8] Skipping  Socket           ( /net/medoc/home/mh/pakcs/lib/Socket.curry, /net/medoc/home/mh/pakcs/lib/.curry/Socket.fcy )
-[8 of 8] Compiling addserver        ( addserver.curry, .curry/addserver.fcy )
-addserver> addserver> Evaluating expression: addClient "localhost" 3 4 :: IO ()
+nameserver> nameserver> addserver> addserver> Evaluating expression: addClient "localhost" 3 4 :: IO ()
 Answer: 7
 addserver> Evaluating expression: stopServer "localhost" :: IO ()
 addserver> addserver> addserver> 

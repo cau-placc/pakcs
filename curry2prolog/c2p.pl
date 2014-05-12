@@ -135,6 +135,7 @@ processArgs([Arg|Args]) :-
 	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'),
 	retract(quietmode(_)),
 	asserta(quietmode(yes)), !,
+	setVerbosity(0),
 	processArgs(Args).
 processArgs(['--safe'|Args]) :- !, % safe execution mode
 	retract(forbiddenModules(_)),
@@ -430,6 +431,11 @@ processCommand("set",[]) :- !,
 	write('+/-warn           - show parser warnings'), nl,
 	write('path <path>       - set additional search path for loading modules'), nl,
 	write('printdepth <n>    - set print depth to <n> (0 = unlimited)'), nl,
+	write('v<n>              - verbosity level'), nl,
+	write('                     0: quiet (errors and warnings only)'), nl,
+	write('                     1: status messages (default)'), nl,
+	write('                     2: intermediate messages and commands'), nl,
+	write('                     3: all intermediate results'), nl,
 	nl,
 	write('Options in debug mode:'), nl,
 	write('+/-single         - single step mode'), nl,
@@ -471,6 +477,7 @@ processCommand("set",[]) :- !,
 	atom_codes(AP,SP), write('loadpath   = '), write(AP), nl,
 	printDepth(PD), write('printdepth = '),
 	(PD=0 -> write(PD) ; PD1 is PD-1, write(PD1)), nl,
+	verbosity(VL),  write('verbosity  = '), write(VL), nl,
 	(compileWithDebug ->
 	  (singlestep -> write('+') ; write('-')), write(single), write('  '),
 	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
@@ -953,6 +960,10 @@ processSetOption("+printfail") :-
 processSetOption("+printfail") :-
 	asserta(compileWithFailPrint), !,
 	(lastload("") -> true ; process(":r")).
+processSetOption("v0") :- !, setVerbosity(0).
+processSetOption("v1") :- !, setVerbosity(1).
+processSetOption("v2") :- !, setVerbosity(2).
+processSetOption("v3") :- !, setVerbosity(3).
 
 processSetOption("path") :- !,
 	setCurryPath(''),
@@ -1090,8 +1101,8 @@ parseProgram(Prog) :-
 	atom_codes(PC,CL1),
 	(parser_warnings(no) -> append(CL1," --nowarns",CL2)
 	                      ; CL2 = CL1 ),
-	(quietmode(yes) -> append(CL2," --quiet",CL3)
-	                 ; CL3 = CL2 ),
+	(verbosity(0) -> append(CL2," --quiet",CL3)
+	               ; CL3 = CL2 ),
 	getCurryPath(LP),
 	(LP=[] -> CL4 = CL3
 	        ; path2String(LP,LPS), append(LPS,[34],LPSQ),

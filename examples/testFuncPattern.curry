@@ -12,6 +12,7 @@
 
 import Assertion
 import AllSolutions
+import Findall(findfirst)
 
 someValue e = findfirst (=:=e)
 
