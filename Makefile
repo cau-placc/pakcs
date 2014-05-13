@@ -109,7 +109,7 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: installlibs
 installlibs:
-	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) --quiet -f Makefile.$(CURRYSYSTEM).install ; fi
+	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
 # install front end (if sources are present):
 # install front end:
