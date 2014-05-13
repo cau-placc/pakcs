@@ -286,7 +286,7 @@ genbindist:
 cleandist:
 	rm -rf $(LOCALBIN)
 	rm -rf .git .gitmodules .gitignore
-	rm -rf lib/.git lib/.gitignore
+	rm -rf lib-trunk
 	rm -rf currytools/.git currytools/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist

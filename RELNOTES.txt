@@ -9,8 +9,8 @@ Changes to version 1.11.2:
     I/O actions.
   * Bug fix to ensure compatibility with SWI-Prolog Vers. 6.6
   * Old deprecated libraries (`AbsCurry`, `AbsCurryIO`, `DaVinci`,
-    `Flat`, `FlatTools`, `FlatXML`, `Flat2FCY`, `Tk`) moved to
-    `tools/lib_reprecated`.
+    `Flat`, `FlatCurryTools`, `FlatTools`, `FlatXML`, `Flat2FCY`, `Tk`)
+    moved to `tools/lib_reprecated`.
   * Prelude: definition of `div` changed (to be compatible with Haskell)
     and `quot`, `rem`, `divMod`, `quotRem` added.
   * Prelude: encapsulated search operations (findall and more) moved
