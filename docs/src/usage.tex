@@ -273,6 +273,20 @@ by dots when they are printed as a result of a computation
 or during debugging. A value of \code{0} means infinite depth
 so that the complete terms are printed.
 
+\item[\fbox{\code{v$n$}}]\pindex{v}\index{verbosity}
+Set the verbosity level to $n$. The following values are allowed
+for $n$:
+\begin{description}
+\item[$n=0$:] Do not show any messages (except for errors).
+\item[$n=1$:] Show only messages of the front-end, like loading
+of modules.
+\item[$n=2$:]
+Show also messages of the back end, like loading intermediate files
+or generating Prolog target files.
+\item[$n=3$:]
+Show all intermediate messages and results.
+\end{description}
+
 \end{description}
 
 \item[\fbox{\code{:set}}]\pindex{:set}
