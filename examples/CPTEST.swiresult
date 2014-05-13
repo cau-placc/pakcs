@@ -2,236 +2,215 @@
  |  __  |    /  \     | |  / /  |  ____| |  _____|   Portland Aachen Kiel
  | |  | |   / /\ \    | |_/ /   | |      | |_____    Curry System
  | |__| |  / /__\ \   |  _  |   | |      |_____  |   
- |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.10.0 (2)
+ |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.3 (4)
  |_|     /_/      \_\ |_|  \_\  |______| |_______|   
 
-Curry2Prolog(swi 5.10) Compiler Environment (Version of 22/06/12)
+Curry2Prolog(swi 6.6) Compiler Environment (Version of 2014-05-12)
 (RWTH Aachen, CAU Kiel, Portland State University)
 
 Bug reports: mh@informatik.uni-kiel.de
 
 Type ":h" for help
 
-Prelude> Prelude> Prelude> generating rev.fcy ...
-rev> Goal: append [1,2] [3,4] :: [Int]
+Prelude> Prelude> Prelude> Prelude> rev> Evaluating expression: append [1,2] [3,4] :: [Int]
 Result: [1,2,3,4]
-More solutions? [y(es)/N(o)/a(ll)] rev> Goal: rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
+More values? [y(es)/N(o)/a(ll)] rev> Evaluating expression: rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 Result: [10,9,8,7,6,5,4,3,2,1]
-More solutions? [y(es)/N(o)/a(ll)] rev> rev> generating higher.fcy ...
-higher> Goal: g1 :: [Int]
+More values? [y(es)/N(o)/a(ll)] rev> rev> higher> Evaluating expression: g1 :: [Int]
 Result: [1,3,2]
-More solutions? [y(es)/N(o)/a(ll)] higher> Goal: g2 :: [Int]
+More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g2 :: [Int]
 Result: [1,3,2]
-More solutions? [y(es)/N(o)/a(ll)] higher> Goal: g3 :: Int
+More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g3 :: Int
 Result: 3
-More solutions? [y(es)/N(o)/a(ll)] higher> Goal: g4 :: Int
+More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g4 :: Int
 Result: 120
-More solutions? [y(es)/N(o)/a(ll)] higher> Goal: g5 :: Int
+More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g5 :: Int
 Result: 120
-More solutions? [y(es)/N(o)/a(ll)] higher> higher> generating quicksort.fcy ...
-quicksort> Goal: qsort [2,3,1,0] :: [Int]
+More values? [y(es)/N(o)/a(ll)] higher> higher> quicksort> Evaluating expression: qsort [2,3,1,0] :: [Int]
 Result: [0,1,2,3]
-More solutions? [y(es)/N(o)/a(ll)] quicksort> quicksort> generating qsortlet.fcy ...
-qsortlet> Goal: qsort [2,3,1,0] :: [Int]
+More values? [y(es)/N(o)/a(ll)] quicksort> quicksort> qsortlet> Evaluating expression: qsort [2,3,1,0] :: [Int]
 Result: [0,1,2,3]
-More solutions? [y(es)/N(o)/a(ll)] qsortlet> qsortlet> generating inflists.fcy ...
-inflists> Goal: goal1 :: [Int]
+More values? [y(es)/N(o)/a(ll)] qsortlet> qsortlet> inflists> Evaluating expression: goal1 :: [Int]
 Result: [1,1,2,3,5,8,13,21,34,55]
-More solutions? [y(es)/N(o)/a(ll)] inflists> Goal: goal2 :: [Int]
+More values? [y(es)/N(o)/a(ll)] inflists> Evaluating expression: goal2 :: [Int]
 Result: [2,3,5,7,11]
-More solutions? [y(es)/N(o)/a(ll)] inflists> inflists> generating family_rel.fcy ...
-family_rel> Goal: goal1 child :: Bool
+More values? [y(es)/N(o)/a(ll)] inflists> inflists> family_rel> Evaluating expression: goal1 child :: Bool
 Free variables in goal: child
-Result: True
 Bindings: 
 child=Susan
-More solutions? [y(es)/N(o)/a(ll)] Result: True
-Bindings: 
-child=Peter
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-family_rel> family_rel> Goal: grandfather g c :: Bool
-Free variables in goal: g, c
 Result: True
+More values? [y(es)/N(o)/a(ll)] Bindings: 
+child=Peter
+Result: True
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+family_rel> family_rel> Evaluating expression: grandfather g c :: Bool
+Free variables in goal: g, c
 Bindings: 
 g=Antony
 c=Susan
-More solutions? [y(es)/N(o)/a(ll)] Result: True
-Bindings: 
+Result: True
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 g=Antony
 c=Peter
-More solutions? [y(es)/N(o)/a(ll)] Result: True
-Bindings: 
+Result: True
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 g=Bill
 c=Andrew
-More solutions? [y(es)/N(o)/a(ll)] Result: True
-Bindings: 
+Result: True
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 g=Antony
 c=Andrew
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-family_rel> family_rel> family_rel> generating family_fun.fcy ...
-family_fun> Goal: (father child) =:= John :: Success
+Result: True
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+family_rel> family_rel> family_rel> family_fun> Evaluating expression: (father child) =:= John :: Success
 Free variables in goal: child
-Result: success
 Bindings: 
 child=Susan
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
-child=Peter
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-family_fun> family_fun> Goal: grandfather g c :: Success
-Free variables in goal: g, c
 Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
+child=Peter
+Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+family_fun> family_fun> Evaluating expression: grandfather g c :: Success
+Free variables in goal: g, c
 Bindings: 
 g=Antony
 c=Susan
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
+Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 g=Antony
 c=Peter
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
+Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 g=Bill
 c=Andrew
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
+Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 g=Antony
 c=Andrew
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-family_fun> family_fun> family_fun> generating horseman.fcy ...
-horseman> Goal: horseman m h (int2nat 8) (int2nat 20) :: Success
+Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+family_fun> family_fun> family_fun> horseman> Evaluating expression: horseman m h (int2nat 8) (int2nat 20) :: Success
 Free variables in goal: m, h
-Result: success
 Bindings: 
 m=S (S (S (S (S (S O)))))
 h=S (S O)
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-horseman> horseman> Goal: horseman m h (S (S O)) f :: Success
-Free variables in goal: m, h, f
 Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+horseman> horseman> Evaluating expression: horseman m h (S (S O)) f :: Success
+Free variables in goal: m, h, f
 Bindings: 
 m=O
 h=S (S O)
 f=S (S (S (S (S (S (S (S O)))))))
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
+Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 m=S O
 h=S O
 f=S (S (S (S (S (S O)))))
-More solutions? [y(es)/N(o)/a(ll)] horseman> horseman> generating first.fcy ...
-first> Goal: goal1 :: [Nat]
-Result: [O,S O]
-More solutions? [y(es)/N(o)/a(ll)] first> Goal: goal2 x y :: Success
-Free variables in goal: x, y
 Result: success
+More values? [y(es)/N(o)/a(ll)] horseman> horseman> first> Evaluating expression: goal1 :: [Nat]
+Result: [O,S O]
+More values? [y(es)/N(o)/a(ll)] first> Evaluating expression: goal2 x y :: Success
+Free variables in goal: x, y
 Bindings: 
 x=S O
 y=O
-More solutions? [y(es)/N(o)/a(ll)] first> first> generating member.fcy ...
-member> Goal: goal2 x :: Bool
+Result: success
+More values? [y(es)/N(o)/a(ll)] first> first> member> Evaluating expression: goal2 x :: Bool
 Free variables in goal: x
-Result: True
 Bindings: 
 x=2
-More solutions? [y(es)/N(o)/a(ll)] Result: True
-Bindings: 
+Result: True
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 x=3
-More solutions? [y(es)/N(o)/a(ll)] member> member> generating colormap.fcy ...
-colormap> Goal: goal1 l1 l2 l3 l4 :: Success
+Result: True
+More values? [y(es)/N(o)/a(ll)] member> member> colormap> Evaluating expression: goal1 l1 l2 l3 l4 :: Success
 Free variables in goal: l1, l2, l3, l4
-Result: success
 Bindings: 
 l1=Red
 l2=Yellow
 l3=Green
 l4=Red
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
+Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 l1=Red
 l2=Yellow
 l3=Green
 l4=Blue
-More solutions? [y(es)/N(o)/a(ll)] colormap> Goal: goal2 l1 l2 l3 l4 :: Success
-Free variables in goal: l1, l2, l3, l4
 Result: success
+More values? [y(es)/N(o)/a(ll)] colormap> Evaluating expression: goal2 l1 l2 l3 l4 :: Success
+Free variables in goal: l1, l2, l3, l4
 Bindings: 
 l1=Red
 l2=Yellow
 l3=Green
 l4=Red
-More solutions? [y(es)/N(o)/a(ll)] Result: success
-Bindings: 
+Result: success
+More values? [y(es)/N(o)/a(ll)] Bindings: 
 l1=Red
 l2=Yellow
 l3=Green
 l4=Blue
-More solutions? [y(es)/N(o)/a(ll)] colormap> colormap> generating account.fcy ...
-account> Goal: goal1 b :: Success
+Result: success
+More values? [y(es)/N(o)/a(ll)] colormap> colormap> account> Evaluating expression: goal1 b :: Success
 Free variables in goal: b
-Result: success
 Bindings: 
 b=250
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> Goal: goal2 b :: Success
-Free variables in goal: b
 Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+account> account> Evaluating expression: goal2 b :: Success
+Free variables in goal: b
 Bindings: 
 b=150
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> Goal: goal3 s :: Success
-Free variables in goal: s
 Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+account> account> Evaluating expression: goal3 s :: Success
+Free variables in goal: s
 Bindings: 
 s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> account> generating maxtree.fcy ...
-maxtree> Goal: goal2 :: Btree Int
+Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+account> account> account> maxtree> Evaluating expression: goal2 :: Btree Int
 Result: Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
-More solutions? [y(es)/N(o)/a(ll)] maxtree> maxtree> generating assembler.fcy ...
-assembler> Goal: goal :: [Int]
+More values? [y(es)/N(o)/a(ll)] maxtree> maxtree> assembler> Evaluating expression: goal :: [Int]
 Result: [9,4,9,0]
-More solutions? [y(es)/N(o)/a(ll)] assembler> assembler> generating ralign.fcy ...
-ralign> Goal: goal1 :: [[Letter]]
+More values? [y(es)/N(o)/a(ll)] assembler> assembler> ralign> Evaluating expression: goal1 :: [[Letter]]
 Result: [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-More solutions? [y(es)/N(o)/a(ll)] ralign> Goal: goal2 :: [[Letter]]
+More values? [y(es)/N(o)/a(ll)] ralign> Evaluating expression: goal2 :: [[Letter]]
 Result: [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-More solutions? [y(es)/N(o)/a(ll)] ralign> ralign> generating tctest.fcy ...
-tctest> f :: Int -> Int
+More values? [y(es)/N(o)/a(ll)] ralign> ralign> tctest> f :: Int -> Int
 tctest> i :: a -> a
 tctest> k :: a -> Int
-tctest> generating rectype.fcy ...
-rectype> h :: ([Int],[Bool])
-rectype> generating iodemo.fcy ...
-iodemo> Goal: dialog :: IO ()
+tctest> rectype> h :: ([Int],[Bool])
+rectype> iodemo> Evaluating expression: dialog :: IO ()
 Ihr Name?
 Hallo michael, rueckwaerts lautet Ihr Name: leahcim
-iodemo> iodemo> iodemo> generating england.fcy ...
-england> Goal: q1 x :: Success
+iodemo> iodemo> iodemo> england> Evaluating expression: q1 x :: Success
 Free variables in goal: x
-Result: success
 Bindings: 
 x=Gloucester
-More solutions? [y(es)/N(o)/a(ll)] england> Goal: q2 x y :: Success
-Free variables in goal: x, y
 Result: success
+More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q2 x y :: Success
+Free variables in goal: x, y
 Bindings: 
 x=Bristol
 y=Bath
-More solutions? [y(es)/N(o)/a(ll)] england> Goal: q4l :: [City]
-Result: [Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
-More solutions? [y(es)/N(o)/a(ll)] england> Goal: q5l :: [City]
-Result: [Salisbury,Gloucester,Cirencester,Cheltenham]
-More solutions? [y(es)/N(o)/a(ll)] england> Goal: q7 x :: Success
-Free variables in goal: x
 Result: success
+More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q4l :: [City]
+Result: [Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
+More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q5l :: [City]
+Result: [Salisbury,Gloucester,Cirencester,Cheltenham]
+More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q7 x :: Success
+Free variables in goal: x
 Bindings: 
 x=Somerset
-More solutions? [y(es)/N(o)/a(ll)] england> Goal: q10 :: Int
+Result: success
+More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q10 :: Int
 Result: 6
-More solutions? [y(es)/N(o)/a(ll)] england> england> generating queens.fcy ...
-queens> Goal: queens [1,2,3,4] :: [Int]
+More values? [y(es)/N(o)/a(ll)] england> england> queens> Evaluating expression: queens [1,2,3,4] :: [Int]
 Result: [2,4,1,3]
-More solutions? [y(es)/N(o)/a(ll)] queens> generating diamond.fcy ...
-diamond> Goal: diamond 10 :: IO ()
+More values? [y(es)/N(o)/a(ll)] queens> diamond> Evaluating expression: diamond 10 :: IO ()
                                        1    
                                   11       2    
                               21      12       3    
@@ -251,8 +230,7 @@ diamond> Goal: diamond 10 :: IO ()
                               98      89      80    
                                   99      90    
                                      100    
-diamond> diamond> generating chords.fcy ...
-chords> Goal: run sounds :: IO ()
+diamond> diamond> chords> Evaluating expression: run sounds :: IO ()
 Proposed chords:
 Amin/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
@@ -268,7 +246,7 @@ Fmaj/4 Cmaj/4 (3) || Fmaj/4 Emin/4 (3) || Amin/4 Cmaj/4 (3) || Amin/4 Emin/4 (3)
 Cmaj/8 (4) || Emin/8 (4) || Amin/8 (3)
 Cmaj/8 (7)
 Gmaj/4 Fmaj/4 (0) || Gmaj/4 Amin/4 (0) || Emin/4 Fmaj/4 (0) || Emin/4 Amin/4 (0)
-chords> chords> Goal: run nicolas :: IO ()
+chords> chords> Evaluating expression: run nicolas :: IO ()
 Proposed chords:
 Cmaj/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
@@ -286,105 +264,93 @@ Cmaj/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
 Fmaj/4 Gmaj/4 (0) || Fmaj/4 Emin/4 (0) || Amin/4 Gmaj/4 (0) || Amin/4 Emin/4 (0)
 Fmaj/8 (0) || Amin/8 (0)
-chords> chords> chords> generating arithseq.fcy ...
-arithseq> Goal: l1 :: [Int]
+chords> chords> chords> arithseq> Evaluating expression: l1 :: [Int]
 Result: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-More solutions? [y(es)/N(o)/a(ll)] arithseq> Goal: l2 :: [Int]
+More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l2 :: [Int]
 Result: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-More solutions? [y(es)/N(o)/a(ll)] arithseq> Goal: l3 :: [Int]
+More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l3 :: [Int]
 Result: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97]
-More solutions? [y(es)/N(o)/a(ll)] arithseq> Goal: l4 :: [Int]
+More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l4 :: [Int]
 Result: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77]
-More solutions? [y(es)/N(o)/a(ll)] arithseq> generating multgen.fcy ...
-multgen> Goal: goal1 :: [(Int,Int)]
+More values? [y(es)/N(o)/a(ll)] arithseq> multgen> Evaluating expression: goal1 :: [(Int,Int)]
 Result: [(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
-More solutions? [y(es)/N(o)/a(ll)] multgen> Goal: goal2 :: [(Int,Int)]
+More values? [y(es)/N(o)/a(ll)] multgen> Evaluating expression: goal2 :: [(Int,Int)]
 Result: [(1,1),(2,1),(2,2),(3,1),(3,2),(3,3)]
-More solutions? [y(es)/N(o)/a(ll)] multgen> Goal: goal3 :: [(Int,Int,Int)]
+More values? [y(es)/N(o)/a(ll)] multgen> Evaluating expression: goal3 :: [(Int,Int,Int)]
 Result: [(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(9,40,41),(10,24,26),(12,16,20),(12,35,37),(14,48,50),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40),(27,36,45),(30,40,50)]
-More solutions? [y(es)/N(o)/a(ll)] multgen> generating psort.fcy ...
-psort> Goal: goal 6 :: [Int]
+More values? [y(es)/N(o)/a(ll)] multgen> psort> Evaluating expression: goal 6 :: [Int]
 Result: [1,2,3,4,5,6]
-More solutions? [y(es)/N(o)/a(ll)] psort> generating default.fcy ...
-default> Goal: abs 0 :: Int
+More values? [y(es)/N(o)/a(ll)] psort> default> Evaluating expression: abs 0 :: Int
 Result: 0
-More solutions? [y(es)/N(o)/a(ll)] default> Goal: abs 3 :: Int
+More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: abs 3 :: Int
 Result: 1
-More solutions? [y(es)/N(o)/a(ll)] default> Goal: swap [3] :: [Int]
+More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3] :: [Int]
 Result: [3]
-More solutions? [y(es)/N(o)/a(ll)] default> Goal: swap [3,4] :: [Int]
+More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3,4] :: [Int]
 Result: [4,3]
-More solutions? [y(es)/N(o)/a(ll)] default> Goal: swap [3,4,5] :: [Int]
+More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3,4,5] :: [Int]
 Result: [3,4,5]
-More solutions? [y(es)/N(o)/a(ll)] default> default> generating casetest.fcy ...
-casetest> Goal: swap [1] :: [Int]
+More values? [y(es)/N(o)/a(ll)] default> default> casetest> Evaluating expression: swap [1] :: [Int]
 Result: [1]
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: swap [1,2] :: [Int]
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: swap [1,2] :: [Int]
 Result: [2,1]
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: swap [1,2,3] :: [Int]
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: swap [1,2,3] :: [Int]
 Result: [1,2,3]
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: f [1,2] :: Int
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: f [1,2] :: Int
 Result: 152
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: g (Just "xyz") :: Bool
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: g (Just "xyz") :: Bool
 Result: True
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: g (Just "ab") :: Bool
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: g (Just "ab") :: Bool
 Result: False
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: h [1,2] :: Bool
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [1,2] :: Bool
 Result: True
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: h [1,3] :: Bool
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [1,3] :: Bool
 Result: False
-More solutions? [y(es)/N(o)/a(ll)] casetest> Goal: h [2,div 1 0] :: Bool
+More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [2,div 1 0] :: Bool
 Result: False
-More solutions? [y(es)/N(o)/a(ll)] casetest> casetest> generating expr_parser.fcy ...
-expr_parser> Goal: ((expression val) "(10+5*2)/4") =:= [] :: Success
+More values? [y(es)/N(o)/a(ll)] casetest> casetest> expr_parser> Evaluating expression: ((expression val) "(10+5*2)/4") =:= [] :: Success
 Free variables in goal: val
-Result: success
 Bindings: 
 val=5
-More solutions? [y(es)/N(o)/a(ll)] expr_parser> generating palindrome.fcy ...
-palindrome> Goal: (pali "abaaba") =:= [] :: Success
 Result: success
-More solutions? [y(es)/N(o)/a(ll)] palindrome> Goal: pali5 :: [String]
-Result: ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
-More solutions? [y(es)/N(o)/a(ll)] palindrome> palindrome> palindrome> generating mortgage.fcy ...
-mortgage> Goal: mortgage 100000.0 180.0 0.01 r 0.0 :: Success
+More values? [y(es)/N(o)/a(ll)] expr_parser> palindrome> Evaluating expression: (pali "abaaba") =:= [] :: Success
+Result: success
+More values? [y(es)/N(o)/a(ll)] palindrome> Evaluating expression: pali5 :: IO [String]
+IO: ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
+palindrome> palindrome> palindrome> palindrome> mortgage> Evaluating expression: mortgage 100000.0 180.0 0.01 r 0.0 :: Success
 Free variables in goal: r
-Result: success
 Bindings: 
 r=1200.1680620915145
-More solutions? [y(es)/N(o)/a(ll)] mortgage> generating smm.fcy ...
-smm> Goal: smm l :: Success
-Free variables in goal: l
 Result: success
+More values? [y(es)/N(o)/a(ll)] mortgage> smm> Evaluating expression: smm l :: Success
+Free variables in goal: l
 Bindings: 
 l=[9,5,6,7,1,0,8,2]
-More solutions? [y(es)/N(o)/a(ll)] smm> smm> smm> smm> generating accountport.fcy ...
-accountport> Goal: goal1 b :: Success
-Free variables in goal: b
 Result: success
+More values? [y(es)/N(o)/a(ll)] smm> smm> smm> smm> accountport> Evaluating expression: goal1 b :: Success
+Free variables in goal: b
 Bindings: 
 b=250
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-accountport> accountport> Goal: goal2 b :: Success
-Free variables in goal: b
 Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+accountport> accountport> Evaluating expression: goal2 b :: Success
+Free variables in goal: b
 Bindings: 
 b=[Deposit 100,Withdraw 30,Withdraw 30,Deposit 70,Withdraw 30,Withdraw 30]
-More solutions? [y(es)/N(o)/a(ll)] No more solutions.
-accountport> accountport> accountport> generating nameserver.fcy ...
-nameserver> nameserver> Goal: gn1 :: IO ()
+Result: success
+More values? [y(es)/N(o)/a(ll)] No more solutions.
+accountport> accountport> accountport> nameserver> nameserver> Evaluating expression: gn1 :: IO ()
 Answer: 0
-nameserver> Goal: gn2 :: IO ()
+nameserver> Evaluating expression: gn2 :: IO ()
 Answer: 0
-nameserver> Goal: pn1 :: IO ()
-nameserver> Goal: pn2 :: IO ()
-nameserver> Goal: gn1 :: IO ()
+nameserver> Evaluating expression: pn1 :: IO ()
+nameserver> Evaluating expression: pn2 :: IO ()
+nameserver> Evaluating expression: gn1 :: IO ()
 Answer: 42
-nameserver> Goal: gn2 :: IO ()
+nameserver> Evaluating expression: gn2 :: IO ()
 Answer: 43
-nameserver> Goal: closeServer :: IO ()
-nameserver> nameserver> generating addserver.fcy ...
-addserver> addserver> Goal: addClient "localhost" 3 4 :: IO ()
+nameserver> Evaluating expression: closeServer :: IO ()
+nameserver> nameserver> addserver> addserver> Evaluating expression: addClient "localhost" 3 4 :: IO ()
 Answer: 7
-addserver> Goal: stopServer "localhost" :: IO ()
+addserver> Evaluating expression: stopServer "localhost" :: IO ()
 addserver> addserver> addserver> 
