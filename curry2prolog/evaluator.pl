@@ -16,7 +16,7 @@
 :- use_module(basics).
 :- prolog(sicstus)
    -> use_module('lib_src/prim_readshowterm'), % for showing characters
-      use_module('lib_src/prim_standard')
+      ensure_loaded(user:'lib_src/prim_standard')
     ; use_module('libswi/prim_readshowterm'),
       ensure_loaded(user:'libswi/prim_standard').
 
