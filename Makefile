@@ -224,6 +224,7 @@ dist:
 	cd $(PAKCSDIST) && $(MAKE) installscripts
 	cp pakcsinitrc $(PAKCSDIST)/pakcsinitrc
 	cd $(PAKCSDIST) && $(MAKE) frontend
+	cd $(PAKCSDIST) && $(MAKE) installlibs
 	cd $(PAKCSDIST)/lib && $(MAKE) fcy
 	cd $(PAKCSDIST)/lib && $(MAKE) acy
 	cd $(PAKCSDIST) && $(MAKE) cleandist  # delete unnessary files
