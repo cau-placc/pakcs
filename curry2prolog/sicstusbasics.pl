@@ -149,6 +149,7 @@ getSicstusVersion(SV) :-
 	 app("SICStus 4.0",_,Vs)  -> SV='4.0' ;
 	 app("SICStus 4.1",_,Vs)  -> SV='4.1' ;
 	 app("SICStus 4.2",_,Vs)  -> SV='4.2' ;
+	 app("SICStus 4.3",_,Vs)  -> SV='4.3' ;
 	 write(user_error,'ERROR: UNKNOWN SICSTUS PROLOG VERSION:'),
 	 nl(user_error),
 	 write(user_error,'PLEASE MODIFY pakcs/curry2prolog/sicstusbasics.pl'),
@@ -179,14 +180,14 @@ sicstus39orHigher :-
 
 sicstus310orHigher :-
 	getSicstusVersion(SV),
-	(SV = '3.10' ; SV = '3.11' ; SV = '3.12' ; sicstus40orHigher).
+	(SV = '3.10' ; SV = '3.11' ; SV = '3.12' ; sicstus4).
 
-sicstus40orHigher :-
+sicstus4 :-
 	getSicstusVersion(SV),
-	(SV = '4.0' ; SV = '4.1' ; SV = '4.2').
+	atom_codes(SV,[52|_]). % 52 = '4'
 
 
-generatePrologBasics :-	sicstus40orHigher, !,
+generatePrologBasics :-	sicstus4, !,
 	shellCmd('cp sicstusbasics.pl prologbasics.pl').
 generatePrologBasics :-	sicstus38orHigher, !,
 	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl > prologbasics.pl').
@@ -196,7 +197,7 @@ generatePrologBasics :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % import the right libraries:
-:- sicstus40orHigher
+:- sicstus4
    -> use_module(library(file_systems)),
       use_module(library(process))
     ; true.
@@ -314,7 +315,7 @@ garbageCollect :- garbage_collect.
 
 % get current working directory:
 workingDirectory(Dir) :-
-	sicstus40orHigher
+	sicstus4
 	-> current_directory(CDir),
 	   atom_codes(CDir,CDirS),
 	   (append(DirS,[47],CDirS) % check for trailing slash
@@ -324,31 +325,31 @@ workingDirectory(Dir) :-
 
 % set current working directory:
 setWorkingDirectory(Dir) :-
-	sicstus40orHigher
+	sicstus4
 	-> current_directory(_,Dir)
 	 ; working_directory(_,Dir).
 
 % get modification time of a file:
 fileModTime(File,ClockTime) :-
-	sicstus40orHigher
+	sicstus4
 	-> file_property(File,modify_timestamp,ClockTime)
 	 ; file_property(File,mod_time(ClockTime)).
 
 % get modification time of a file:
 fileSize(File,Size) :-
-	sicstus40orHigher
+	sicstus4
 	-> file_property(File,size_in_bytes,Size)
 	 ; file_property(File,size(Size)).
 
 % does a file exist and is a regular file?
 existsFile(File) :- 
-	sicstus40orHigher
+	sicstus4
 	-> file_exists(File)
 	 ; file_exists(File), file_property(File,type(regular)).
 
 % does a directory exist?
 existsDirectory(Dir) :-
-	sicstus40orHigher
+	sicstus4
 	-> directory_exists(Dir)
 	 ; file_exists(Dir), file_property(Dir,type(directory)).
 
@@ -357,7 +358,7 @@ makeDirectory(Dir) :- make_directory(Dir).
 
 % get all files in a directory:
 directoryFiles(Dir,Files) :-
-	sicstus40orHigher
+	sicstus4
 	-> directory_exists(Dir),
 	   absolute_file_name(Dir, AbsDir,
 	                      [file_type(directory),access(exist)]),
@@ -379,13 +380,13 @@ removeDirPrefix(Dir,AbsFile,File) :-
 
 % remove a file from the file system:
 deleteFile(File) :-
-	sicstus40orHigher
+	sicstus4
 	-> delete_file(File)
 	 ; delete_file(File,[]).
 
 % remove a directory from the file system:
 deleteDirectory(Dir) :-
-	sicstus40orHigher
+	sicstus4
 	-> delete_directory(Dir)
 	 ; delete_file(Dir,[directory]).
 
@@ -394,7 +395,7 @@ renameFile(File1,File2) :- rename_file(File1,File2).
 
 % remove a directory from the file system:
 renameDirectory(Dir1,Dir2) :-
-	sicstus40orHigher
+	sicstus4
 	-> rename_directory(Dir1,Dir2)
 	 ; rename_file(Dir1,Dir2).
 
@@ -412,13 +413,13 @@ canWriteFile(File) :-
 		     fail).
 
 % process of identifer of current Prolog process:
-currentPID(Pid) :- sicstus40orHigher -> process_id(Pid) ; pid(Pid).
+currentPID(Pid) :- sicstus4 -> process_id(Pid) ; pid(Pid).
 
 % put the current process asleep for the given amount of seconds:
 sleepSeconds(S) :- sleep(S).
 
 % get name of current host:
-getHostname(Name) :- sicstus40orHigher -> current_host(Name) ; host_name(Name).
+getHostname(Name) :- sicstus4 -> current_host(Name) ; host_name(Name).
 
 % execute a shell command and fail, if not successful:
 shellCmd(Cmd) :- shellCmd(Cmd,0).
@@ -426,7 +427,7 @@ shellCmd(Cmd) :- shellCmd(Cmd,0).
 % execute a shell command and return exit status:
 shellCmd(Cmd,Status) :-
 	%write(user_error,Cmd), nl(user_error),
-	(sicstus40orHigher
+	(sicstus4
          -> absolute_file_name(path(sh),SH,[access([exist,executable])]),
 	    process_create(SH,['-c',Cmd],[process(Pid)]),
             process_wait(Pid,exit(Status))
@@ -437,7 +438,7 @@ shellCmd(Cmd,Status) :-
 % is not already instantiated to 'std'):
 execCommand(Cmd,InWrite,OutRead,ErrRead) :-
 	(var(ErrRead) -> ErrReadArg=pipe(ErrRead) ; ErrReadArg=ErrRead),
-	(sicstus40orHigher
+	(sicstus4
 	 -> absolute_file_name(path(sh),SH,[access([exist,executable])]),
 	    process_create(SH,['-c',Cmd],
 			   [stdin(pipe(InWrite)),stdout(pipe(OutRead)),
@@ -565,7 +566,7 @@ days2month(Days,Year,CMonth,Month,Day) :-
 
 % Create a connection to a remote socket and return instream and outstream:
 connect2socket(Host,Port,Stream,Stream) :-
-	sicstus40orHigher
+	sicstus4
 	 -> socket_client_open(Host:Port,Stream,[type(text)])
 	  ; socket('AF_INET',Socket),
  	    socket_connect(Socket,'AF_INET'(Host,Port),Stream).
@@ -577,7 +578,7 @@ closeSocketStream(InStream,_OutStream) :- close(InStream).
 % (in this case, it is bound to a free port number).
 % The hostname and the new socket is returned.
 listenOnNewSocket(Port,Hostname,Socket) :-
-	sicstus40orHigher
+	sicstus4
 	 -> current_host(Hostname),
 	    (var(Port)
 	     -> socket_server_open(NewPort,Socket),
@@ -591,13 +592,13 @@ listenOnNewSocket(Port,Hostname,Socket) :-
 
 % return the read and write stream of a first connection to a socket:
 socketAccept(Socket,Client,Stream,Stream) :-
-        sicstus40orHigher
+        sicstus4
 	 -> socket_server_accept(Socket,Client,Stream,[type(text)])
 	  ; socket_accept(Socket,Client,Stream).
 
 % close a server socket.
 socketClose(Socket) :-
-        sicstus40orHigher
+        sicstus4
 	 -> socket_server_close(Socket)
 	  ; socket_close(Socket).
 
@@ -614,7 +615,7 @@ timeoutAsSicstus(TimeOut,TO) :-
 % the corresponding stream:
 waitForInputDataOnStreams(InStreams,Timeout,Index) :-
 	timeoutAsSicstus(Timeout,TO),
-	(sicstus40orHigher
+	(sicstus4
 	  -> socket_select([],_,InStreams,SelStreams,[],_,TO)
 	   ; socket_select([],_,_,TO,InStreams,SelStreams)),
 	!,
@@ -630,7 +631,7 @@ streamIndex([_|Streams],S,I) :- streamIndex(Streams,S,I1), I is I1+1.
 % fails if no client connection available within Timeout limit.
 waitForSocketClientStream(Socket,Timeout,Client,Stream,Stream) :-
 	timeoutAsSicstus(Timeout,TO),
-	(sicstus40orHigher
+	(sicstus4
 	  -> socket_select([Socket],ReadySockets,[],_,[],_,TO),
 	     ReadySockets=[Socket], % fail otherwise
 	     socket_server_accept(Socket,Client,Stream,[type(text)])
@@ -652,7 +653,7 @@ waitForSocketClientStream(Socket,Timeout,Client,Stream,Stream) :-
 waitForSocketOrInputStreams(Socket,Client,PortStream,PortStream,
 			    InStreams,Index) :-
 	sicstus385orHigher, !,
-	(sicstus40orHigher
+	(sicstus4
 	  -> socket_select([Socket],ReadySockets,InStreams,SelStreams,[],_,off),
 	     (ReadySockets=[Socket]
 	      -> socket_server_accept(Socket,Client,PortStream,[type(text)]),
@@ -792,7 +793,7 @@ mainPrologFileName(_PrologFile,MainPrologFile) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call a goal and return list of suspended goals:
 callAndReturnSuspensions(Goal,Suspensions) :-
-	sicstus40orHigher
+	sicstus4
          -> call_residue_vars(Goal,Vars),
 	    copy_term(Vars,NewVars,SuspGoal),
 	    bindVariables(Vars,NewVars),
