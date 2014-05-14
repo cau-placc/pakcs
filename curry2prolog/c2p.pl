@@ -1097,25 +1097,47 @@ failprint(Exp,E,E) :-
 parseProgram(Prog) :-
 	findSourceProg(Prog,_), !,
   	installDir(TCP),
-        appendAtoms(['"',TCP,'/bin/parsecurry" --flat'],PC),
-	atom_codes(PC,CL1),
-	(parser_warnings(no) -> append(CL1," --nowarns",CL2)
-	                      ; CL2 = CL1 ),
-	(verbosity(0) -> append(CL2," --quiet",CL3)
-	               ; CL3 = CL2 ),
-	getCurryPath(LP),
-	(LP=[] -> CL4 = CL3
-	        ; path2String(LP,LPS), append(LPS,[34],LPSQ),
-	          append(" --path ",[34|LPSQ],PLPS),
-	          append(CL3,PLPS,CL4)),
-	compileWithCompact(CWC), append(CL4,CWC,CL5),
-	append(CL5,[32|Prog],LoadCmdL),
-	atom_codes(LoadCmd,LoadCmdL),
+        %appendAtoms(['"',TCP,'/bin/parsecurry" --flat'],PC),
+	%atom_codes(PC,CL1),
+	%(parser_warnings(no) -> append(CL1," --nowarns",CL2)
+	%                      ; CL2 = CL1 ),
+	%(verbosity(0) -> append(CL2," --quiet",CL3)
+	%               ; CL3 = CL2 ),
+	%getCurryPath(LP),
+	%(LP=[] -> CL4 = CL3
+	%        ; path2String(LP,LPS), append(LPS,[34],LPSQ),
+	%          append(" --path ",[34|LPSQ],PLPS),
+	%          append(CL3,PLPS,CL4)),
+	%compileWithCompact(CWC), append(CL4,CWC,CL5),
+	%append(CL5,[32|Prog],LoadCmdL),
+	%atom_codes(LoadCmd,LoadCmdL),
+	appendAtoms(['"',TCP,'/bin/cymake" --flat'],CM1),
+	(parser_warnings(no) -> appendAtom(CM1,' --nowarns',CM2) ; CM2 = CM1 ),
+	(verbosity(0) -> appendAtom(CM2,' --no-verb',CM3)        ; CM3 = CM2 ),
+	(pakcsrc(warnoverlapping,no)
+           -> appendAtom(CM3,' --no-overlap-warn',CM4)           ; CM4 = CM3 ),
+	(pakcsrc(curryextensions,yes)
+           -> appendAtom(CM4,' --extended',CM5)                  ; CM5 = CM4 ),
+	getCurryPath(CP),
+	appendAtom(TCP,'/lib',TCPLib),
+	appendAtom(TCP,'/lib/meta',TCPLibMeta),
+	append(CP,[TCPLib,TCPLibMeta],ImportPath),
+	addImports(ImportPath,CM5,CM6),
+	atom_codes(ProgA,Prog),
+	appendAtoms([CM6,' ',ProgA],LoadCmd),
+	compileWithCompact(CWC),
+	(CWC=[] -> true
+           ; writeErr('WARNING: option "compact" currently not supported!'),
+             nlErr),
 	%write('Executing: '), write(LoadCmd), nl,
 	(shellCmd(LoadCmd) -> true
 	  ; writeErr('ERROR occurred during parsing!'), nlErr, fail).
 parseProgram(_). % do not parse if source program does not exist
 
+addImports([],CY,CY).
+addImports([I|Is],CY1,CY3) :-
+	appendAtoms([CY1,' -i',I],CY2),
+	addImports(Is,CY2,CY3).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % small pretty printer for type expressions:

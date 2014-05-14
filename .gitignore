@@ -42,6 +42,7 @@ bin/parsecurry
 bin/pakcs
 bin/addtypes
 bin/cass
+bin/cymake
 bin/currytest
 bin/currycreatemake
 bin/currydoc
