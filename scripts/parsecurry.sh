@@ -18,7 +18,7 @@ if [ ! -f "$PAKCSRC" ] ; then
 fi
 
 # executable of the parser:
-MCCPARSER="$PAKCSHOME/bin/.local/cymake"
+MCCPARSER="$PAKCSHOME/bin/cymake"
 if [ ! -f "$MCCPARSER" ] ; then # is the parser locally installed?
   echo "ERROR: Incomplete PAKCS installation: $MCCPARSER missing!" >&2
   exit 1

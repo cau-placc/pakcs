@@ -2,12 +2,12 @@
 # Installation of frontend
 ##############################################################################
 
-CYMAKE_BIN    =$(LOCALBIN)/cymake
+CYMAKE           = $(BINDIR)/cymake
 BASE_VERSION     := $(shell sed -n 's/^Version *: *\(.*\)$$/\1/p' curry-base/curry-base.cabal)
 FRONTEND_VERSION := $(shell sed -n 's/^Version *: *\(.*\)$$/\1/p' curry-frontend/curry-frontend.cabal)
 
 # install the sources of the front end from its repository
-$(CYMAKE_BIN): unregister
+$(CYMAKE): unregister
 	mkdir -p $(@D)
 	cd curry-base     && cabal install
 	cd curry-frontend && cabal install --bindir=$(@D)
