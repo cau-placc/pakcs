@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (May 12, 2014, under development)
+Release notes for PAKCS Version 1.11.3 (May 14, 2014, under development)
 ------------------------------------------------------------------------
 
 Changes to version 1.11.2:
@@ -17,6 +17,8 @@ Changes to version 1.11.2:
     into new library `Findall`.
   * Library `Distribution`: front-end parameters extended by supporting
     "special" (i.e., aribrary) arguments.
+  * Library `Distribution`: front-end paramter `outfile` removed and
+    front-end parameter `htmldir` added.
   * Library `Distribution` and `FlatCurry`: after calling the front end,
     an exception is raised if the front end returns with an error
     (due to an illegal source program).

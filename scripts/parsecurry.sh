@@ -27,10 +27,8 @@ fi
 # Prepare flags for MCC parser:
 MCCEXTENDED=
 MCCOVERLAPWARN=
-MCCOUTFILE=
 MCCVERB=
 MCCTARGET=
-MCCSUFFIX=
 # check flag "curryextensions" in pakcsrc:
 for i in `sed -n '/^curryextensions=/p' < "$PAKCSRC"`
 do 
@@ -74,12 +72,12 @@ QUIET=
 CONVERSION=no
 FULLPATH=
 TRANS=
-OUTFILE=
+HTMLDIR=
 
 while [ $# -gt 1 ] ; do
   case $1 in
     -q | --quiet | -quiet  ) QUIET=quiet ;;
-    -o                     ) shift ; OUTFILE=$1 ;;
+    --htmldir=*            ) HTMLDIR=$1 ;;
     --path | -path         ) shift ; CURRYPATH=$1 ; export CURRYPATH ;;
     --fullpath | -fullpath ) shift ; FULLPATH=$1 ;;
     --extended             ) MCCEXTENDED="--extended" ;;
@@ -107,7 +105,7 @@ if [ $# != 1 ] ; then
   echo >&2
   echo "<Options> is a sequence of:"  >&2
   echo "-q|--quiet       : work silently" >&2
-  echo "-o <file>        : write output into <file> (for target type --html)" >&2
+  echo "--htmldir=<dir>  : write output into directory <dir> (for --html targets)" >&2
   echo "--path <p>       : specify additional search path <p> for loading modules" >&2
   echo " (default search path = .:$PAKCSLIBPATH)" >&2
   echo "--fullpath <p>   : specify complete search path <p> for loading modules" >&2
@@ -181,13 +179,6 @@ while [ -n "$IP" ] ; do
   fi
 done
 
-if [ -z "$OUTFILE" ] ; then
-  case $TARGET in
-    cy   ) OUTFILE=$MAINDIR/${MODNAME}.cy ;;
-    html ) OUTFILE=$MAINDIR/${MODNAME}_curry.html ;;
-  esac
-fi
-
 # directory to store intermediate representations, like FlatCurry files,
 # interfaces, etc:
 CURRYDIR=$MAINDIR/.curry
@@ -205,16 +196,14 @@ case $TARGET in
   cint ) rm -f $PROG.cint ;;
   acy  ) rm -f $PROG.acy ;;
   uacy ) rm -f $PROG.uacy ;;
-  html ) rm -f $OUTFILE ;;
 esac
 
 case $TARGET in
   fcy  ) MCCTARGET=--flat ;;
   acy  ) MCCTARGET=--acy ;;
   uacy ) MCCTARGET=--uacy ;;
-  cy   ) MCCTARGET=--parse-only ; MCCOUTFILE="-o:$OUTFILE" ;;
-  html ) MCCTARGET=--html ; MCCOUTFILE="-o:$OUTFILE" ;
-                            MCCSUFFIX=$SOURCESUFFIX ;;
+  cy   ) MCCTARGET=--parse-only ;;
+  html ) MCCTARGET=--html ;;
 esac
 
 if [ -z "$QUIET" ] ; then
@@ -227,7 +216,7 @@ if [ -n "$MCCTARGET" ] ; then
   # Use mcc front end:
   OLDIFS="$IFS"
   IFS=":" # set separator to ':' for correct passing of IMPORTDIRS as arguments
-  "$MCCPARSER" $MCCEXTENDED $MCCOVERLAPWARN $MCCOUTFILE $MCCVERB $MCCTARGET $IMPORTDIRS $MODNAME$MCCSUFFIX
+  "$MCCPARSER" $MCCEXTENDED $MCCOVERLAPWARN $MCCVERB $MCCTARGET $HTMLDIR $IMPORTDIRS $MODNAME
   EXITCODE=$?
   IFS="$OLDIFS"
   if [ $EXITCODE -gt 0 ] ; then

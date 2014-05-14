@@ -75,7 +75,7 @@ all: config
 # Install all components of PAKCS
 #
 .PHONY: install
-install: installscripts installlibs
+install: installscripts copylibs
 	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
@@ -107,8 +107,8 @@ cleanscripts:
 	cd scripts && $(MAKE) clean
 
 # install the library sources from the trunk directory:
-.PHONY: installlibs
-installlibs:
+.PHONY: copylibs
+copylibs:
 	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
 # install front end (if sources are present):
@@ -224,7 +224,7 @@ dist:
 	cd $(PAKCSDIST) && $(MAKE) installscripts
 	cp pakcsinitrc $(PAKCSDIST)/pakcsinitrc
 	cd $(PAKCSDIST) && $(MAKE) frontend
-	cd $(PAKCSDIST) && $(MAKE) installlibs
+	cd $(PAKCSDIST) && $(MAKE) copylibs
 	cd $(PAKCSDIST)/lib && $(MAKE) fcy
 	cd $(PAKCSDIST)/lib && $(MAKE) acy
 	cd $(PAKCSDIST) && $(MAKE) cleandist  # delete unnessary files
