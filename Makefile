@@ -54,11 +54,29 @@ MANUALVERSION=$(DOCDIR)/src/version.tex
 export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
 export REPL_OPTS    = 
+# The frontend binary
+export CYMAKE       = $(BINDIR)/cymake
 # The cleancurry binary
 export CLEANCURRY   = $(BINDIR)/cleancurry
 
 # Logfile for make:
 MAKELOG=make.log
+
+# GHC and CABAL configuration (for installing the front end)
+# ----------------------------------------------------------
+# The path to the Glasgow Haskell Compiler and Cabal
+export GHC     := $(shell which ghc)
+export GHC-PKG := $(shell dirname "$(GHC)")/ghc-pkg
+export CABAL    = cabal
+# Command to unregister a package
+export GHC_UNREGISTER = "$(GHC-PKG)" unregister
+# Command to install missing packages using cabal
+export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)" -O2
+
+
+########################################################################
+# The targets
+########################################################################
 
 #
 # Install all components of PAKCS
@@ -112,7 +130,6 @@ copylibs:
 	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
 # install front end (if sources are present):
-# install front end:
 .PHONY: frontend
 frontend:
 	@if [ -d frontend ] ; then cd frontend && $(MAKE) ; fi
@@ -137,8 +154,8 @@ docs:
 # (only necessary if the front end is installed for the first time)
 .PHONY: installhaskell
 installhaskell:
-	cabal update
-	cabal install mtl
+	$(CABAL) update
+	$(CABAL_INSTALL) mtl
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
@@ -269,12 +286,12 @@ dist_%:
 	scp -p $*:$(BINDISTDIR)/pakcs\*.tar.gz .
 	ssh $* rm -rf $(BINDISTDIR)
 
-# compile cabal parser from the sources, replace them by binaries
+# compile front end from the sources, replace them by binaries
 # and put everything into a .tar.gz file:
 .PHONY: genbindist
 genbindist:
 	rm -f pakcs*.tar.gz
-	PATH=/opt/ghc/bin:/home/haskell/bin:$(PATH) && export PATH && make frontend
+	PATH=/opt/ghc/bin:/home/haskell/bin:$(PATH) && export PATH && $(MAKE) frontend
 	rm -rf frontend
 	$(MAKE) cleanscripts # remove local scripts
 	cd $(BINDISTDIR) && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
