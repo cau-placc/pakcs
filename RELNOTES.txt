@@ -13,6 +13,7 @@ Changes to version 1.11.2:
     moved to `tools/lib_reprecated`.
   * Prelude: definition of `div` changed (to be compatible with Haskell)
     and `quot`, `rem`, `divMod`, `quotRem` added.
+  * Prelude: `catchFail` omitted (use `catch` instead).
   * Prelude: encapsulated search operations (findall and more) moved
     into new library `Findall`.
   * Library `Distribution`: front-end parameters extended by supporting

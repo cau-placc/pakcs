@@ -1187,14 +1187,16 @@ serveCgiMessagesForForm servertimeout url cgikey portname
 -- computes a HTML form w.r.t. a state and a cgi environment:
 computeFormInStateAndEnv isinitform url cgikey fparams state scriptkey
                          hformact cenv =
-  catchFail tryComputeForm
-            (getUrlParameter >>= \uparam -> return (state,errorAsHtml uparam))
+  catch tryComputeForm
+        (\e -> do uparam <- getUrlParameter
+                  return (state,errorAsHtml e uparam))
  where
-  errorAsHtml urlparam = addHtmlContentType isinitform $ showHtmlPage $
+  errorAsHtml e urlparam = addHtmlContentType isinitform $ showHtmlPage $
    page "Server Error"
     [h1 [htxt "Error: Failure during computation"],
-     par [htxt "Your request cannot be processed due to a run-time error. ",
-          htxt "You can try to ",
+     par [htxt "Your request cannot be processed due to a run-time error:"],
+     pre [htxt (showError e)],
+     par [htxt "You can try to ",
           href (url ++ if null urlparam then "" else '?':urlparam)
                [htxt "click here"],
           htxt " to try again loading the web page or inform the web ",

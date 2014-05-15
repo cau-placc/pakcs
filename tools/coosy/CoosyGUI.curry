@@ -58,16 +58,18 @@ addlineGUI coosyhome =
    showObserve wp = do
      setValue rtxt "" wp
      logVarSel <- getValue logVarCheck wp
-     catchFail (readAndPrintEvents (\s -> appendValues rtxt wp s)
-                                   (toViewConf logVarSel))
-               (appendValue rtxt failMsg wp)
+     catch (readAndPrintEvents (\s -> appendValues rtxt wp s)
+                               (toViewConf logVarSel))
+           (\e -> putStrLn (showError e) >> appendValue rtxt failMsg wp)
 
    addObservers wp = do
      filename <- getOpenFileWithTypes curryFileTypes
      if null filename
        then done
-       else do msg <- catchFail (deriveFile filename) (return "Error occurred!")
-               setValue rtxt msg wp
+       else do
+         msg <- catch (deriveFile filename)
+                      (\e -> return ("Error occurred: " ++ showError e))
+         setValue rtxt msg wp
 
    showBusy handler wp = do
      setValue status "Status: running" wp

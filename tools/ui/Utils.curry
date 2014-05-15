@@ -17,7 +17,8 @@ invert f = g
   g (f' x) = x
 
 unsafeCatchFail :: a -> a -> a
-unsafeCatchFail x y = unsafePerformIO (catchFail (return x) (return y))
+unsafeCatchFail x y =
+  unsafePerformIO (catch (return x) (\e -> putStrLn (showError e) >> return y))
 
 doWhile :: (a -> Bool) -> [IO a] -> IO [a]
 doWhile _ [] = return []
