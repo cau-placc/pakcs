@@ -37,22 +37,21 @@ markdown_syntax.tex: markdown_syntax.txt
 	$(PAKCS) -r Markdown -m 'readFile "../../RELNOTES.txt" >>= writeFile "../RELNOTES.html" . markdownText2CompleteHTML "PAKCS Release Notes"'
 
 ../../lib/TEXDOC/LAST:
-	${MAKE} libdoc
+	$(MAKE) libdoc
 
 # generate documentation for all libraries
 .PHONY: libdoc
 libdoc:
-	@cd ../../lib && ${MAKE} texdoc
-	@rm -f lib && ln -s ../../lib/TEXDOC lib
+	@cd ../../lib && $(MAKE) texdoc
 
 .PHONY: install
 install:
-	${MAKE} ../markdown_syntax.html
-	${MAKE} ../INSTALL.html
-	${MAKE} ../GITINSTALL.html
-	${MAKE} ../RELNOTES.html
-	${MAKE} libdoc
-	${MAKE} ../Manual.pdf
+	$(MAKE) ../markdown_syntax.html
+	$(MAKE) ../INSTALL.html
+	$(MAKE) ../GITINSTALL.html
+	$(MAKE) ../RELNOTES.html
+	$(MAKE) libdoc
+	$(MAKE) ../Manual.pdf
 
 .PHONY: clean
 clean:
