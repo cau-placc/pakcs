@@ -249,8 +249,8 @@ prim_catchWorld(Action,ErrFunction,W,R,E0,E) :-
 		      applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E))),
 	!.
 prim_catchWorld(_,ErrFunction,W,R,E0,E) :-
-	atom2String('FAILURE ERROR: Execution failed',FailMsg),
-	applyErrorFunction(ErrFunction,'Prelude.IOError'(FailMsg),W,R,E0,E).
+	atom2String('IO action failed',FailMsg),
+	applyErrorFunction(ErrFunction,'Prelude.FailError'(FailMsg),W,R,E0,E).
 
 applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E) :-
 	prim_apply(ErrFunction,ErrValue,ErrAction,E0,E1),
