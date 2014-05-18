@@ -555,7 +555,8 @@ processCommand("usedimports",[]) :- !,
 	installDir(PH),
 	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
 		    AnaCmd),
-        %write('Executing: '), write(AnaCmd), nl,
+        (verbosityIntermediate -> write('Executing: '), write(AnaCmd), nl
+           ; true),
         shellCmdWithCurryPath(AnaCmd),
 	!, fail.
 
@@ -570,7 +571,8 @@ processCommand("interface",IFTail) :- !,
         installDir(PH),
 	appendAtoms(['"',PH,'/currytools/genint/GenInt" -int ',ProgA],
 		    GenIntCmd),
-        %write('Executing: '), write(GenIntCmd), nl,
+        (verbosityIntermediate -> write('Executing: '), write(GenIntCmd), nl
+           ; true),
         shellCmdWithCurryPath(GenIntCmd),
 	!, fail.
 
@@ -588,7 +590,8 @@ processCommand("browse",[]) :- !,
 	!,
         installDir(PH),
 	appendAtoms(['"',PH,'/bin/currybrowse" ',RealProg,' & '],BrowseCmd),
-        %write('Executing: '), write(BrowseCmd), nl,
+        (verbosityIntermediate -> write('Executing: '), write(BrowseCmd), nl
+           ; true),
         shellCmdWithCurryPath(BrowseCmd),
 	!, fail.
 
@@ -600,7 +603,8 @@ processCommand("coosy",[]) :- !,
 	         ; path2String([CoosyHome|SLP],PathS), atom_codes(Path,PathS),
 	           setCurryPath(Path)),
 	appendAtoms(['"',CoosyHome,'/CoosyGUI" ',CoosyHome,' &'],GuiCmd),
-        %write('Executing: '), write(GuiCmd), nl,
+        (verbosityIntermediate -> write('Executing: '), write(GuiCmd), nl
+           ; true),
         shellCmdWithCurryPath(GuiCmd),
 	(waitForFile('COOSYLOGS/READY',3) -> true
 	 ; writeErr('ERROR: COOSy startup failed'), nlErr, fail),
@@ -615,7 +619,8 @@ processCommand("xml",[]) :- !,
         atom_codes(ProgA,Prog),
         installDir(PH),
 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
-        %write('Executing: '), write(XmlCmd), nl,
+        (verbosityIntermediate -> write('Executing: '), write(XmlCmd), nl
+           ; true),
         shellCmdWithCurryPath(XmlCmd),
 	!, fail.
 
@@ -628,7 +633,8 @@ processCommand("peval",[]) :- !,
         atom_codes(ProgA,Prog),
         installDir(PH),
 	appendAtoms(['"',PH,'/tools/Peval/peval" ',ProgA],PevalCmd),
-        %write('Executing: '), write(PevalCmd), nl,
+        (verbosityIntermediate -> write('Executing: '), write(PevalCmd), nl
+           ; true),
         shellCmdWithCurryPath(PevalCmd),
 	!,
 	append(Prog,"_pe",ProgPE), % name of partially evaluated program
@@ -676,7 +682,8 @@ processCommand("show",[]) :- !, % show source code of current module
 	    installDir(PH), atom_codes(ProgA,Prog),
 	    appendAtoms(['"',PH,'/currytools/genint/GenInt" -mod ',ProgA],
 			ShowProgCmd),
-            %write('Executing: '), write(ShowProgCmd), nl,
+            (verbosityIntermediate ->
+		write('Executing: '), write(ShowProgCmd), nl ; true),
 	    shellCmdWithCurryPath(ShowProgCmd)),
 	!, fail.
 
@@ -739,7 +746,7 @@ processCommand("save",MainGoal) :- !,
 	 -> appendAtom(CMD1,'-standalone ',CMD2)
 	  ; CMD2=CMD1),
 	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
-	%write('Executing: '), write(Cmd), nl,
+	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
 	shellCmd(Cmd),
 	write('Executable saved in: '), write(ProgName), nl,
 	call(ProgInits),
@@ -913,7 +920,7 @@ processSetOption("-warn") :- !,
 
 processSetOption("+compact") :-
 	retract(compileWithCompact(_)),
-	asserta(compileWithCompact(" -compact")).
+	asserta(compileWithCompact(" --compact")).
 processSetOption("-compact") :-
 	retract(compileWithCompact(_)),
 	asserta(compileWithCompact([])).
@@ -1125,13 +1132,19 @@ parseProgram(Prog) :-
 	addImports(ImportPath,CM5,CM6),
 	atom_codes(ProgA,Prog),
 	appendAtoms([CM6,' ',ProgA],LoadCmd),
-	compileWithCompact(CWC),
-	(CWC=[] -> true
-           ; writeErr('WARNING: option "compact" currently not supported!'),
-             nlErr),
-	%write('Executing: '), write(LoadCmd), nl,
+	(verbosityIntermediate -> write('Executing: '), write(LoadCmd), nl
+           ; true),
 	(shellCmd(LoadCmd) -> true
-	  ; writeErr('ERROR occurred during parsing!'), nlErr, fail).
+	  ; writeErr('ERROR occurred during parsing!'), nlErr, fail),
+	appendAtoms(['"',TCP,'/bin/fcypp"'],PP1),
+	(verbosity(0) -> appendAtom(PP1,' --quiet',PP2) ; PP2 = PP1 ),
+	compileWithCompact(CWC), atom_codes(CWCA,CWC),
+	appendAtoms([PP2,CWCA,' ',ProgA],PPCmd),
+	(verbosityIntermediate -> write('Executing: '), write(PPCmd), nl
+           ; true),
+	(shellCmd(PPCmd) -> true
+	  ; writeErr('ERROR occurred during FlatCurry preprocessing!'), nlErr,
+	    fail).
 parseProgram(_). % do not parse if source program does not exist
 
 addImports([],CY,CY).
@@ -1829,13 +1842,14 @@ showSourceCodeOfFunction(QF) :-
 	(retract(lastShownSourceCode(LastModS,LastF)) ; LastModS=[]),
 	(LastModS=[] -> true
           ; getModStream(LastModS,LastStr),
-            %write('SEND: -'), write(LastF), nl,
+            (verbosityIntermediate -> write('SEND: -'), write(LastF), nl
+	       ; true),
             put_code(LastStr,45), write(LastStr,LastF), nl(LastStr),
             flush_output(LastStr)),
 	atom_codes(QF,QFS),
 	append(ModS,[46|FS],QFS), !,
 	atom_codes(F,FS),
-	%write('SEND: +'), write(F), nl,
+	(verbosityIntermediate -> write('SEND: +'), write(F), nl ; true),
 	getModStream(ModS,Str),
 	put_code(Str,43), write(Str,F), nl(Str),
 	flush_output(Str),

@@ -1,15 +1,19 @@
 \section{Preprocessing FlatCurry Files}
 \label{sec-pakcspp}
 
-The current parser allows to apply transformations on the intermediate
-FlatCurry files after they are generated from the
-corresponding Curry source file.
+After the invocation of the Curry front end to parse
+Curry programs and translate them into the intermediate FlatCurry
+representation, one can apply transformations on the FlatCurry files
+before they are passed to the back end which translates
+the FlatCurry files into Prolog code.
+These transformation are invoked by the FlatCurry preprocessor
+\code{pakcs/bin/fycpp}.\pindex{fcypp}
 Currently, only the FlatCurry file corresponding to the main module
 can be transformed.
 
 A transformation can be specified as follows:
 \begin{enumerate}
-\item {\bf Options to \code{pakcs/bin/parsecurry}:}
+\item {\bf Options to \code{pakcs/bin/fcypp}:}
 \begin{description}
 \item[\fbox{\code{--fpopt}}]\pindex{-fpopt}
 Apply functional pattern optimization
@@ -44,7 +48,6 @@ export FCYPP="--fpopt"
 will apply the functional pattern optimization if programs are compiled
 and loaded in the \CYS programming environment.
 
-
 \item {\bf Putting options into the source code:}\pindex{PAKCS_OPTION_FCYPP}\\
 If the source code contains a line with a comment of the form (the comment
 must start at the beginning of the line)
@@ -69,7 +72,7 @@ they are executed in the following order:
 \begin{enumerate}
 \item all transformations specified by the environemnt variable
 \code{FCYPP} (from left to right)
-\item all transformations specified as command line options of parsecurry
+\item all transformations specified as command line options of \code{fcypp}
    (from left to right)
 \item all transformations specified by a comment line in the source code
    (from left to right)

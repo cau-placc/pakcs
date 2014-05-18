@@ -49,6 +49,7 @@ bin/currydoc
 bin/currybrowse
 bin/dataToXml
 bin/erd2curry
+bin/fcypp
 bin/spiceup
 cpns/CPNSD
 curry2prolog/prologbasics.pl
