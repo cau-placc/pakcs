@@ -3,7 +3,8 @@
 
 :- module(prologbasics,
 	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
-	   sicstus310orHigher/0,
+	   verbosity/1,
+       sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
@@ -43,6 +44,11 @@
 	   create_mutable/2, get_mutable/2, update_mutable/2]).
 
 :- use_module(pakcsversion).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The verbosity level is defined here since it is already used here...
+:- dynamic verbosity/1.
+verbosity(1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Principle kind of Prolog system and version used for this implementation.
@@ -532,7 +538,11 @@ try_save_program(_).
 % Auxiliaries for compiling programs and loading run-time libraries:
 
 % compile a Prolog file:
-compilePrologFile(PrologFileName) :- compile(user:PrologFileName).
+compilePrologFile(PrologFileName) :-
+	(verbosity(3) -> write('>>> Compile Prolog program: '),
+	                 write(PrologFileName), nl
+                       ; true),
+	compile(user:PrologFileName).
 
 % compile a Prolog file and try to save it in fast load format:
 compilePrologFileAndSave(PrologFileName) :-
@@ -540,6 +550,9 @@ compilePrologFileAndSave(PrologFileName) :-
 
 % consult a Prolog file or a .po file if it exists (not in SWI)
 consultPrologorPOFile(PrologFileName,_POFileName) :-
+	(verbosity(3) -> write('>>> Consulting Prolog file: '),
+	                 write(PrologFileName), nl
+                   ; true),
 	consult(user:PrologFileName).
 
 
@@ -555,10 +568,14 @@ ensure_lib_loaded(Lib) :- % first, look into working directory:
 	appendAtom(Dir,Lib,DirLib),
 	appendAtom(DirLib,'.pl',DirLibPl),
 	existsFile(DirLibPl), !,
+	(verbosity(3) -> write('>>> Load Prolog library: '), write(DirLib), nl
+                       ; true),
 	ensure_loaded(user:DirLib).
 ensure_lib_loaded(Lib) :-
 	moduleDir(Dir),
 	appendAtom(Dir,Lib,DirLib),
+	(verbosity(3) -> write('>>> Load Prolog library: '), write(DirLib), nl
+                       ; true),
 	ensure_loaded(user:DirLib).
 
 

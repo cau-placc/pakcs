@@ -15,4 +15,5 @@ smm l =
         where s,e,n,d,m,o,r,y free
 
 
--- smm [S,E,N,D,M,O,R,Y]
+-- smm [s,e,n,d,m,o,r,y]  where s,e,n,d,m,o,r,y free
+

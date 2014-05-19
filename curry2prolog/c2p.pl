@@ -1101,8 +1101,8 @@ failprint(Exp,E,E) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call the front-end to parse a Curry program (argument is a string):
 
-parseProgram(Prog) :-
-	findSourceProg(Prog,_), !,
+parseProgram(ProgS) :-
+	findSourceProg(ProgS,ProgPathS), !,
   	installDir(TCP),
         %appendAtoms(['"',TCP,'/bin/parsecurry" --flat'],PC),
 	%atom_codes(PC,CL1),
@@ -1116,7 +1116,7 @@ parseProgram(Prog) :-
 	%          append(" --path ",[34|LPSQ],PLPS),
 	%          append(CL3,PLPS,CL4)),
 	%compileWithCompact(CWC), append(CL4,CWC,CL5),
-	%append(CL5,[32|Prog],LoadCmdL),
+	%append(CL5,[32|ProgS],LoadCmdL),
 	%atom_codes(LoadCmd,LoadCmdL),
 	appendAtoms(['"',TCP,'/bin/cymake" --flat'],CM1),
 	(parser_warnings(no) -> appendAtom(CM1,' --nowarns',CM2) ; CM2 = CM1 ),
@@ -1130,8 +1130,8 @@ parseProgram(Prog) :-
 	appendAtom(TCP,'/lib/meta',TCPLibMeta),
 	append(CP,[TCPLib,TCPLibMeta],ImportPath),
 	addImports(ImportPath,CM5,CM6),
-	atom_codes(ProgA,Prog),
-	appendAtoms([CM6,' ',ProgA],LoadCmd),
+	atom_codes(Prog,ProgS),
+	appendAtoms([CM6,' ',Prog],LoadCmd),
 	(verbosityIntermediate -> write('Executing: '), write(LoadCmd), nl
            ; true),
 	(shellCmd(LoadCmd) -> true
@@ -1139,7 +1139,11 @@ parseProgram(Prog) :-
 	appendAtoms(['"',TCP,'/bin/fcypp"'],PP1),
 	(verbosity(0) -> appendAtom(PP1,' --quiet',PP2) ; PP2 = PP1 ),
 	compileWithCompact(CWC), atom_codes(CWCA,CWC),
-	appendAtoms([PP2,CWCA,' ',ProgA],PPCmd),
+	% delete leading './' in ProgPathS:
+	(append([46,47],PPS,ProgPathS) -> true ; PPS=ProgPathS),
+	extractProgName(PPS,ProgNameS),
+	atom_codes(ProgName,ProgNameS),
+	appendAtoms([PP2,CWCA,' ',ProgName],PPCmd),
 	(verbosityIntermediate -> write('Executing: '), write(PPCmd), nl
            ; true),
 	(shellCmd(PPCmd) -> true
@@ -1622,7 +1626,7 @@ escape(N)  --> "\\", [C1,C2,C3],
 extractProgName(S,ProgName) :-
 	removeBlanks(S,S1),
 	(append(P,".curry",S1) -> true ;
-	 append(P,".lcurry",S1) -> true ; P=S),
+	 append(P,".lcurry",S1) -> true ; P=S1),
 	workingDirectory(Dir),
 	atom_codes(Dir,DirS),
 	((append(DirS,[47|ProgS],P), \+ append(_,[47|_],ProgS))

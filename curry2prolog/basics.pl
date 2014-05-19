@@ -3,7 +3,7 @@
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
 		  noLoadMessage/0, lastload/1, plprofiling/1,
-		  verbosity/1, setVerbosity/1, verbosityIntermediate/0,
+		  setVerbosity/1, verbosityIntermediate/0,
 		  verbosemode/1, setVerboseMode/1, quietmode/1, rtargs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
@@ -47,8 +47,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic lastload/1, plprofiling/1,
-	   verbosity/1, quietmode/1, verbosemode/1, rtargs/1,
+:- dynamic lastload/1, plprofiling/1, quietmode/1, verbosemode/1, rtargs/1,
 	   compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
@@ -113,12 +112,12 @@ verbosemode(no). % yes if program should be executed in verbose mode
 setVerboseMode(V) :-
 	retract(verbosemode(_)), asserta(verbosemode(V)).
 
-verbosity(1). % verbosity level
+% verbosity/1 is defined in prologbasics.pl
 
 setVerbosity(N) :-
 	retract(verbosity(_)), asserta(verbosity(N)).
 
-% verbosity level >= 2 (intermdiate messages)?
+% verbosity level >= 2 (show intermediate messages)?
 verbosityIntermediate :- verbosity(N), N>1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -3,6 +3,7 @@
 
 :- module(prologbasics,
 	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
+	   verbosity/1,
 	   sicstus310orHigher/0, generatePrologBasics/0,
 %SICS3X	   append/3, member/2,
 %SICS37	   atom_codes/2, number_codes/2,
@@ -45,6 +46,11 @@
 :- use_module(pakcsversion).
 
 %SICS37 :- op(400, yfx, [rem]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The verbosity level is defined here since it is already used here...
+:- dynamic verbosity/1.
+verbosity(1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set ISO language, if possible
@@ -734,7 +740,11 @@ try_save_program(_).
 % Auxiliaries for compiling programs and loading run-time libraries:
 
 % compile a Prolog file:
-compilePrologFile(PrologFileName) :- compile(user:PrologFileName).
+compilePrologFile(PrologFileName) :-
+	(verbosity(3) -> write('>>> Compile Prolog program: '),
+	                 write(PrologFileName), nl
+                       ; true),
+	compile(user:PrologFileName).
 
 % compile a Prolog file and try to save it in fast load format:
 compilePrologFileAndSave(PrologFileName) :-
@@ -743,15 +753,24 @@ compilePrologFileAndSave(PrologFileName) :-
 	app(FileNameS,".po",POFileNameS),
 	atom_codes(POFileName,POFileNameS),
 	(fileExistsAndNewer(POFileName,PrologFileName)
-	 -> load_files(user:POFileName) % for faster compilation
+	 -> (verbosity(3) -> write('>>> Loading Prolog file: '),
+	                     write(POFileName), nl
+                           ; true),
+	    load_files(user:POFileName) % for faster compilation
 	  ; compilePrologFile(PrologFileName),
 	    try_save_program(PrologFileName)).
 
 % consult a Prolog file or a .po file if it exists
 consultPrologorPOFile(PrologFileName,POFileName) :-
 	(fileExistsAndNewer(POFileName,PrologFileName)
-	 -> load_files(user:POFileName) % for faster compilation
-	  ; consult(user:PrologFileName)).
+	 -> (verbosity(3) -> write('>>> Loading Prolog file: '),
+	                     write(POFileName), nl
+                           ; true),
+	    load_files(user:POFileName) % for faster compilation
+	  ; (verbosity(3) -> write('>>> Consulting Prolog file: '),
+	                     write(PrologFileName), nl
+                           ; true),
+	    consult(user:PrologFileName)).
 
 
 % directory containing the system run-time modules:
@@ -766,10 +785,14 @@ ensure_lib_loaded(Lib) :- % first, look into working directory:
 	appendAtom(Dir,Lib,DirLib),
 	appendAtom(DirLib,'.pl',DirLibPl),
 	file_exists(DirLibPl), !,
+	(verbosity(3) -> write('>>> Load Prolog library: '), write(DirLib), nl
+                       ; true),
 	ensure_loaded(user:DirLib).
 ensure_lib_loaded(Lib) :-
 	moduleDir(Dir),
 	appendAtom(Dir,Lib,DirLib),
+	(verbosity(3) -> write('>>> Load Prolog library: '), write(DirLib), nl
+                       ; true),
 	ensure_loaded(user:DirLib).
 
 
