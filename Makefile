@@ -40,8 +40,6 @@ export BINDIR=$(ROOT)/bin
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
-# Directory where local executables are stored:
-export LOCALBIN=$(BINDIR)/.local
 # The version information file for Curry2Prolog:
 C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
@@ -217,7 +215,7 @@ cleantools:
 .PHONY: cleanall
 cleanall:
 	$(MAKE) clean
-	rm -rf $(LOCALBIN) $(LIBDIR)
+	rm -rf $(LIBDIR)
 
 
 #################################################################################
@@ -302,10 +300,10 @@ genbindist:
 #
 .PHONY: cleandist
 cleandist:
-	rm -rf $(LOCALBIN)
 	rm -rf .git .gitmodules .gitignore
 	rm -rf lib-trunk
 	rm -rf currytools/.git currytools/.gitignore
+	rm -f $(CYMAKE)
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
