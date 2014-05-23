@@ -2,13 +2,13 @@
 # PAKCS: The Portland Aachen Kiel Curry System
 # ============================================
 #
-# An Prolog-based implementation of the functional logic language Curry
+# A Prolog-based implementation of the functional logic language Curry
 # developed by
 #
 # Sergio Antoy, Bernd Brassel, Martin Engelke, Michael Hanus, Klaus Hoeppner,
 # Johannes Koj, Philipp Niederau, Ramin Sadre, Frank Steiner
 #
-# (contact: mh@informatik.uni-kiel.de)
+# (contact: pakcs@curry-language.org)
 #****************************************************************************
 
 # Some information about this installation

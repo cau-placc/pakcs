@@ -54,8 +54,5 @@ printPakcsHeader :-
 	buildDate(BD), writeNQ(BD), writeNQ(')'), nlNQ,
 	writeNQ('(RWTH Aachen, CAU Kiel, Portland State University)'), nlNQ,
 	nlNQ,
-	writeNQ('Bug reports: mh@informatik.uni-kiel.de'), nlNQ,
-	nlNQ,
-	writeNQ('Type ":h" for help'), nlNQ,
-	nlNQ,
+	writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'), nlNQ,
 	flush_output.

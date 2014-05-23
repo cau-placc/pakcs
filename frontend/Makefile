@@ -10,7 +10,14 @@ $(CYMAKE): $(DEPS)
 	$(MAKE) unregister
 	mkdir -p $(@D)
 	cd curry-base     && $(CABAL_INSTALL)
+	$(MAKE) transformers # see below
 	cd curry-frontend && $(CABAL_INSTALL) --bindir=$(@D)
+
+# Temporary workaround for https://github.com/haskell/cabal/issues/1855
+# see also http://www.haskell.org/pipermail/cabal-devel/2014-May/009795.html
+.PHONY: transformers
+transformers:
+	$(CABAL_INSTALL) transformers-compat -f transformers3
 
 # unregister previous version to avoid cabal install failures
 .PHONY: unregister
