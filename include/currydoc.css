@@ -1,6 +1,8 @@
 /* Changes to default bootstrap style: */
 
+/* Use always white background */
 body {
+  background: white; color: black;
   padding-top: 60px;
   padding-bottom: 40px;
 }
@@ -43,28 +45,33 @@ section {
   font-style: italic;
 }
 
-.keyword { color:blue }
-.constructorname_constrpattern { color : #ff00ff }
-.constructorname_constrcall { color : #ff00ff }
-.constructorname_constrdecla { color : #ff00ff }
-.constructorname_otherconstrkind { color : #ff00ff }
-.typeconstructor_typedecla  { color : #ff7f50 }
-.typeconstructor_typeuse  { color : #ff7f50 }
-.typeconstructor_typeexport  { color : #ff7f50 }
-.function_infixfunction  { color : #800080 }
-.function_typsig  { color : #800080 }
-.function_fundecl  { color : #800080 }
-.function_functioncall  { color : #800080 }
-.function_otherfunctionkind  { color : #800080 }
-.moduleName  { color : #800000 }
-.commentary  { color : green }
-.numberCode  { color : #008080 }
-.stringCode  { color : #800000 }
-.charCode  { color : #800000 }
-.symbol  { color : #666666 }
-.identifier_iddecl   { color : black }
-.identifier_idoccur   { color : black }
-.identifier_unknownid   { color : black }
-.codeWarning  {font-weight: bold;font-style:italic; color : red }
-.codeError  { font-style:italic; color : #a52a2a }
-.notParsed  { font-style:italic; color : #C0C0C0 }
+/* specials for HTML source code: */
+
+/* Show hyperlinks without underscore */
+a:visited, a:link, a:active { text-decoration: none }
+
+.linenumbers {
+  width        : 40px;
+  text-align   : right;
+  color        : grey;
+  padding-right: 10px;
+  border-right : 1px solid grey;
+}
+
+.sourcecode  {
+  padding-left: 10px;
+}
+
+.pragma  { color : green   }
+.comment { color : green   }
+.keyword { color : blue    }
+.symbol  { color : #C0C0C0 }
+.type    { color : #ff7f50 }
+.cons    { color : #ff00ff }
+.label   { color : #90EE90 }
+.func    { color : #800080 }
+.ident   { color : black   }
+.module  { color : #800000 }
+.number  { color : #008080 }
+.string  { color : #800000 }
+.char    { color : #800000 }
