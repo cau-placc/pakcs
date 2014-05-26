@@ -288,6 +288,17 @@ Show also messages related to loading Prolog files and libraries
 into the run-time systems and other intermediate messages and results.
 \end{description}
 
+\item[\fbox{\code{parser $opts$}}]\pindex{parser}
+Define additional options passed to the \CYS front end, i.e.,
+the parser program \code{\cyshome/bin/cymake}.
+For instance, setting the option
+\begin{curry}
+:set parser -F --pgmF=transcurry
+\end{curry}
+has the effect that each Curry module to be compiled is
+transformed by the preprocessor command \code{transcurry}
+into a new Curry program which is actually compiled.
+
 \end{description}
 
 \item[\fbox{\code{:set}}]\pindex{:set}

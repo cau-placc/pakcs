@@ -1,12 +1,13 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (May 14, 2014, under development)
+Release notes for PAKCS Version 1.11.3 (May 26, 2014, under development)
 ------------------------------------------------------------------------
 
 Changes to version 1.11.2:
   * PAKCS parameter `--safe` added to support safe execution without
     I/O actions.
+  * Option ":set parser" added for setting options passed to cymake.
   * Bug fix to ensure compatibility with SWI-Prolog Vers. 6.6
   * Old deprecated libraries (`AbsCurry`, `AbsCurryIO`, `DaVinci`,
     `Flat`, `FlatCurryTools`, `FlatTools`, `FlatXML`, `Flat2FCY`, `Tk`)
@@ -26,6 +27,7 @@ Changes to version 1.11.2:
     an exception is raised if the front end returns with an error
     (due to an illegal source program).
   * Library `HTML`: `formMetaInfo` added, HTML header changed to HTML5.
+  * Libraries `Format` and `RegExp` added.
   * Tool `erd2curry` updated to new version with support for SQLite database.
     Bug fix in code generation w.r.t. checking of cardinality constraints.
   * Tool `spicey` (web framework) added and updated with a RESTful interface

@@ -13,12 +13,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic mainFunction/1, compileWithCompact/1,
-	   parser_warnings/1, freeVarsUndeclared/1, letBindings/1,
+	   parser_warnings/1, parserOptions/1,
+	   freeVarsUndeclared/1, letBindings/1,
 	   addImports/1, noIoAtTopLevel/0.
 
 mainFunction("main"). % the main function for options -r and -s
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
+parserOptions(''). % additional options passed to cymake parser
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 letBindings([]). % list of top-level bindings
@@ -413,29 +415,30 @@ processCommand("help",[]) :- !,
 
 processCommand("set",[]) :- !,
 	write('Options for ":set" command:'), nl,
-	write('+/-allfails       - show all failures if printfail is turned on'), nl,
-	write('+/-compact        - reduce size of target program during compilation'), nl,
-	write('+/-consfail       - show pattern matching/unification failures'), nl,
-	write('                    ("+consfail int": interactive mode to show fail trace)'), nl,
-	write('                    ("+consfail all": show complete fail trace)'), nl,
-	write('                    ("+consfail file:F": store complete fail trace in file F)'), nl,
-	write('+/-debug          - debug mode (compile with debugging information)'), nl,
-	write('+/-error          - show messages on standard error in saved program states'), nl,
-	write('+/-free           - free variables need not be declared in initial goals'), nl,
-	write('+/-plprofile      - use Prolog profiler'), nl,
-	write('+/-printfail      - show failures in top-level evaluation'), nl,
-	write('+/-profile        - show profile data in debug mode'), nl,
-	write('+/-suspend        - show suspended goals at end of suspended computation'), nl,
-	write('+/-time           - show execution time'), nl,
-	write('+/-verbose        - verbose mode (printing initial goals)'), nl,
-	write('+/-warn           - show parser warnings'), nl,
-	write('path <path>       - set additional search path for loading modules'), nl,
-	write('printdepth <n>    - set print depth to <n> (0 = unlimited)'), nl,
-	write('v<n>              - verbosity level'), nl,
-	write('                     0: quiet (errors and warnings only)'), nl,
-	write('                     1: status messages (default)'), nl,
-	write('                     2: intermediate messages and commands'), nl,
-	write('                     3: all intermediate results'), nl,
+	write('+/-allfails     - show all failures if printfail is turned on'), nl,
+	write('+/-compact      - reduce size of target program during compilation'), nl,
+	write('+/-consfail     - show pattern matching/unification failures'), nl,
+	write('                  ("+consfail int": interactive mode to show fail trace)'), nl,
+	write('                  ("+consfail all": show complete fail trace)'), nl,
+	write('                  ("+consfail file:F": store complete fail trace in file F)'), nl,
+	write('+/-debug        - debug mode (compile with debugging information)'), nl,
+	write('+/-error        - show messages on standard error in saved program states'), nl,
+	write('+/-free         - free variables need not be declared in initial goals'), nl,
+	write('+/-plprofile    - use Prolog profiler'), nl,
+	write('+/-printfail    - show failures in top-level evaluation'), nl,
+	write('+/-profile      - show profile data in debug mode'), nl,
+	write('+/-suspend      - show suspended goals at end of suspended computation'), nl,
+	write('+/-time         - show execution time'), nl,
+	write('+/-verbose      - verbose mode (printing initial goals)'), nl,
+	write('+/-warn         - show parser warnings'), nl,
+	write('path <path>     - set additional search path for loading modules'), nl,
+	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
+	write('v<n>            - verbosity level'), nl,
+	write('                   0: quiet (errors and warnings only)'), nl,
+	write('                   1: status messages (default)'), nl,
+	write('                   2: intermediate messages and commands'), nl,
+	write('                   3: all intermediate results'), nl,
+	write('parser  <opts>  - additional options passed to parser (cymake)'), nl,
 	nl,
 	write('Options in debug mode:'), nl,
 	write('+/-single         - single step mode'), nl,
@@ -474,10 +477,11 @@ processCommand("set",[]) :- !,
 	write(warn), write('  '),
 	nl,
 	loadPath('.',LP), path2String(LP,SP),
-	atom_codes(AP,SP), write('loadpath   = '), write(AP), nl,
-	printDepth(PD), write('printdepth = '),
+	atom_codes(AP,SP),     write('loadpath      : '), write(AP), nl,
+	printDepth(PD),        write('printdepth    : '),
 	(PD=0 -> write(PD) ; PD1 is PD-1, write(PD1)), nl,
-	verbosity(VL),  write('verbosity  = '), write(VL), nl,
+	verbosity(VL),         write('verbosity     : '), write(VL), nl,
+	parserOptions(POpts),  write('parser options: '), write(POpts), nl,
 	(compileWithDebug ->
 	  (singlestep -> write('+') ; write('-')), write(single), write('  '),
 	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
@@ -990,6 +994,12 @@ processSetOption(Option) :-
 	(D=0 -> D1=D ; D1 is D+1),
 	asserta(printDepth(D1)).
 processSetOption(Option) :-
+	append("parser ",OptTail,Option), !,
+	removeBlanks(OptTail,StrippedOpt),
+	atom_codes(POpts,StrippedOpt),
+	retract(parserOptions(_)),	
+	asserta(parserOptions(POpts)).
+processSetOption(Option) :-
 	append("spy ",OptTail,Option), !,
 	checkDebugMode,
 	removeBlanks(OptTail,P),
@@ -1130,8 +1140,9 @@ parseProgram(ProgS) :-
 	appendAtom(TCP,'/lib/meta',TCPLibMeta),
 	append(CP,[TCPLib,TCPLibMeta],ImportPath),
 	addImports(ImportPath,CM5,CM6),
+	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
-	appendAtoms([CM6,' ',Prog],LoadCmd),
+	appendAtoms([CM6,' ',POpts,' ',Prog],LoadCmd),
 	(verbosityIntermediate -> write('Executing: '), write(LoadCmd), nl
            ; true),
 	(shellCmd(LoadCmd) -> true
