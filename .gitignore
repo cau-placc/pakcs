@@ -47,6 +47,7 @@ bin/currytest
 bin/currycreatemake
 bin/currydoc
 bin/currybrowse
+bin/currypp
 bin/dataToXml
 bin/erd2curry
 bin/fcypp
