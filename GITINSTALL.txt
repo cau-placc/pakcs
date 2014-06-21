@@ -33,7 +33,7 @@ If you install PAKCS for the first time, you need to install
 some Haskell packages required by the front end via Cabal,
 i.e., run the command
 
-    make installcabal
+    make installhaskell
 
 Now you can install the complete system by the command
 
