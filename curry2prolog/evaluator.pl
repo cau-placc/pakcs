@@ -535,7 +535,11 @@ writeVar(Str,V) :-
 % in order to print the results in a nicer way:
 bindFreeVars(_,[]).
 bindFreeVars(Susp,[(V=B)|Bs]) :-
-	((var(B), \+ occursVarInTerm(B,Susp)) -> B=V ; true),
+	((var(B), \+ occursVarInTerm(B,Susp))
+          -> on_exception(_,B=V,true) % we catch exceptions here since
+              % it is possible that the suspensions are incomplete and do not
+              % contain all constraints (e.g., in SICStus4 or SWI)
+           ; true),
 	bindFreeVars(Susp,Bs).
 
 % does a variable occurs in a term?
