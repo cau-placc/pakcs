@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (July 1, 2014, under development)
--------------------------------------------------------------------------
+Release notes for PAKCS Version 1.11.3 (July 8, 2014)
+-----------------------------------------------------
 
 Changes to version 1.11.2:
   * PAKCS parameter `--safe` added to support safe execution without
@@ -27,6 +27,7 @@ Changes to version 1.11.2:
     an exception is raised if the front end returns with an error
     (due to an illegal source program).
   * Libraries `Float` and `Integer`: Power operators added.
+  * Library `Float`: hyperbolic/ arc sine/cosine/tangent operators added.
   * Library `HTML`: `formMetaInfo` added, HTML header changed to HTML5.
   * Library `SetFunctions`: `notEmpty` added.
   * Libraries `Format` and `RegExp` added.

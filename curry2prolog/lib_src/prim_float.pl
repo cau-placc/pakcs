@@ -30,4 +30,20 @@ prim_cos(X,R) :- R is cos(X).
 
 prim_tan(X,R) :- R is tan(X).
 
+prim_asin(X,R) :- R is asin(X).
+
+prim_acos(X,R) :- R is acos(X).
+
 prim_atan(X,R) :- R is atan(X).
+
+prim_sinh(X,R) :- R is sinh(X).
+
+prim_cosh(X,R) :- R is cosh(X).
+
+prim_tanh(X,R) :- R is tanh(X).
+
+prim_asinh(X,R) :- R is asinh(X).
+
+prim_acosh(X,R) :- R is acosh(X).
+
+prim_atanh(X,R) :- R is atanh(X).
