@@ -69,7 +69,9 @@ evaluateGoalAndExit(Goal) :-
 % evaluate an expression with a given type and a given list of free variables:
 evaluateMainExpression(Exp,Type,Vs) :-
 	setExitCode(0),
-	retract(allsolutionmode(_)), asserta(allsolutionmode(no)),
+	retract(allsolutionmode(_)),
+	(pakcsrc(interactive,no) -> asserta(allsolutionmode(yes))
+			          ; asserta(allsolutionmode(no))),
 	retract(numberOfCalls(_)), retract(numberOfExits(_)),
 	asserta(numberOfCalls(0)), asserta(numberOfExits(0)),
 	retractAllFacts(profile_data/3),
@@ -146,8 +148,9 @@ evaluateMainExpression(_,_,_) :- % ignore proof attempt for IO ND
 	showProfileData,
 	!, fail.
 evaluateMainExpression(_,_,_) :-
-	write('No more solutions.'), nl,
-	setExitCode(2),
+        (pakcsrc(interactive,yes)
+	  -> write('No more values.'), nl, setExitCode(2)
+	   ; true),
 	showProfileData,
 	!, fail.
 

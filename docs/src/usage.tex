@@ -54,10 +54,14 @@ and show the computed results. Since \CYS
 compiles Curry programs into Prolog programs,
 non-deterministic computations are implemented by backtracking.
 Therefore, computed results are shown one after the other.
-After each computed result, you will be asked whether
+In the \emph{interactive mode} (which can be set in the
+configuration file \ccode{\curryrc} or by setting the option
+\code{interactive}, see below), you will be asked
+after each computed result whether
 you want to see the next alternative result or all alternative results.
 The default answer value for this question can be defined
-in the \ccode{.pakcsrc} file (see Section~\ref{sec-customization}).
+in the configuration file \ccode{\curryrc} file
+(see Section~\ref{sec-customization}).
 
 \textbf{Free variables in initial expressions} must be declared as in Curry programs
 (if the free variable mode\index{free variable mode} is not turned on,
@@ -226,6 +230,16 @@ proceeds with a failure.
 Reduce the size of target programs by using the
 parser option \ccode{--compact}
 (see Section~\ref{sec-pakcspp} for details about this option).
+
+\item[\fbox{\code{+/-interactive}}]\pindex{interactive}
+Turn on/off the interactive mode.
+In the interactive mode, the next non-deterministic value
+is computed only when the user requests it.
+Thus, one has also the possibility to terminate the
+enumeration of all values after having seen some values.
+The default value for this option can be set in the
+configuration file \ccode{\curryrc} (initially, the interactive
+mode is turned off).
 
 \item[\fbox{\code{+/-profile}}]\pindex{profile} Profile mode.
 If the profile mode is on, then information about

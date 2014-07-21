@@ -1,12 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.3 (July 8, 2014)
------------------------------------------------------
+Release notes for PAKCS Version 1.11.3 (July 21, 2014)
+------------------------------------------------------
 
 Changes to version 1.11.2:
   * PAKCS parameter `--safe` added to support safe execution without
     I/O actions.
+  * Option ":set +/-interactive" added for setting interactive mode.
+    Initially, the interactive mode is TURNED OFF (new in this
+    version!). The default value can be set in the `.pakcsrc` file.
   * Option ":set parser" added for setting options passed to cymake.
   * Bug fix to ensure compatibility with SWI-Prolog Vers. 6.6
   * Old deprecated libraries (`AbsCurry`, `AbsCurryIO`, `DaVinci`,
