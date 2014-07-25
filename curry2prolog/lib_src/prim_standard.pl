@@ -543,6 +543,93 @@ hnfAndWaitUntilGroundHNF(X,E0,E) :-
 	           ; waitUntilGround(X,E0,E).
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implementation of rewriteAll:
+%
+% To avoid evaluation of global variables, they are bound to constant terms
+% of the form 'VAR'(i) during evaluation of rewriteAll.
+% Moreover, it is strict, i.e., it evaluates always all solutions!
+
+:- block prim_rewriteAll(?,?,-,?).
+prim_rewriteAll(Exp,RVals,E0,E) :-
+	copy_term(Exp,CopyExp),
+	vars2failed(Exp,CopyExp,1,_,[],VarMap),
+	rewriteAllExec(CopyExp,Vals,E0,E1),
+	undoBindings(Vals,VarMap,RVals), E1=E.
+
+:- block rewriteAllExec(?,?,-,?).
+rewriteAllExec(Exp,Vals,E0,E) :-
+	hasPrintedFailure
+	 -> findall(Val,user:nf(Exp,Val,E0,_),Vals),
+	    E0=E
+	  ; asserta(hasPrintedFailure),
+	    findall(Val,user:nf(Exp,Val,E0,_),Vals),
+	    retract(hasPrintedFailure), E0=E.
+
+% same as rewriteAll but computes only first value:
+:- block prim_rewriteSome(?,?,-,?).
+prim_rewriteSome(Exp,RVals,E0,E) :-
+	copy_term(Exp,CopyExp),
+	vars2failed(Exp,CopyExp,1,_,[],VarMap),
+	rewriteSomeExec(CopyExp,Vals,E0,E1),
+	undoBindings(Vals,VarMap,RVals), E1=E.
+
+:- block rewriteSomeExec(?,?,-,?).
+rewriteSomeExec(Exp,Val,E0,E) :-
+	hasPrintedFailure
+	 -> rewriteSomeExecWithPF(Exp,Val,E0,E)
+	  ; asserta(hasPrintedFailure),
+	    rewriteSomeExecWithoutPF(Exp,Val,E0,E).
+
+rewriteSomeExecWithPF(Exp,R,E0,E) :- user:nf(Exp,Val,E0,E), !,
+	R = 'Prelude.Just'(Val).
+
+rewriteSomeExecWithoutPF(Exp,R,E0,E) :-
+	user:nf(Exp,Val,E0,E), retract(hasPrintedFailure), !,
+	R = 'Prelude.Just'(Val).
+rewriteSomeExecWithoutPF(_,R,E0,E) :-
+	retract(hasPrintedFailure), !, R='Prelude.Nothing', E0=E.
+
+% enumerate all variables in an expression by binding to 'VAR'(i)
+vars2failed(X,Y,I,J,VM,[(I,X)|VM]) :-
+	var(Y), !, Y='VAR'(I),
+	J is I+1.
+vars2failed(_,'VAR'(_),I,I,VM,VM) :- !. % already bound variable
+vars2failed(share(M),share(N),I,J,VM0,VM1) :-
+	!,
+	get_mutable(X,M), get_mutable(Y,N),
+	((X='$eval'(Exp1), Y='$eval'(Exp2)) -> true ; Exp1=X, Exp2=Y),
+	vars2failed(Exp1,Exp2,I,J,VM0,VM1).
+vars2failed(S,T,I,J,VM0,VM1) :-
+	functor(T,_,N), vars2failedArgs(1,N,S,T,I,J,VM0,VM1).
+
+vars2failedArgs(A,N,_,_,I,I,VM,VM) :- A>N, !.
+vars2failedArgs(A,N,S,T,I,J,VM0,VM2) :-
+	arg(A,S,ArgS), arg(A,T,ArgT),
+	vars2failed(ArgS,ArgT,I,K,VM0,VM1),
+	A1 is A+1, vars2failedArgs(A1,N,S,T,K,J,VM1,VM2).
+
+% replace in an expression bindings to 'VAR'(i) by original variables
+undoBindings(X,_,X) :-	var(X), !.
+undoBindings('VAR'(I),VM,V) :- !, getVariable4Index(VM,I,V).
+undoBindings(share(_),_,_) :- !,
+	writeErr('Internal error in undoBindings: share occurred'), nlErr,
+	fail.
+undoBindings(T,VM,S) :-
+	functor(T,F,N), functor(S,F,N),
+	undoBindingsArgs(1,N,T,VM,S).
+
+undoBindingsArgs(A,N,_,_,_) :- A>N, !.
+undoBindingsArgs(A,N,T,VM,S) :-
+	arg(A,T,ArgT), arg(A,S,ArgS),
+	undoBindings(ArgT,VM,ArgS),
+	A1 is A+1, undoBindingsArgs(A1,N,T,VM,S).
+
+% get the index assigned to a variable:
+getVariable4Index([(Index,V)|_],Index,V) :- !.
+getVariable4Index([_|VM],Index,V) :- getVariable4Index(VM,Index,V).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Directed non-strict equality for matching against functional patterns:
 % (first argument must be the functional pattern):

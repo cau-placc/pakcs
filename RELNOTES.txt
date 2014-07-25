@@ -1,6 +1,13 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.11.4 (July 25, 2014)
+------------------------------------------------------
+
+Changes to version 1.11.3:
+  * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
+
+
 Release notes for PAKCS Version 1.11.3 (July 21, 2014)
 ------------------------------------------------------
 
