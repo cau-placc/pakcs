@@ -311,6 +311,40 @@ allCommands(["add","browse","cd","coosy","edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
 	     "save","set","show","type","usedimports","xml"]).
 
+% Expand an option that may be shortened to its full name:
+expandOption(ShortOpt,FullOpt) :-
+	(append(OptFirst,[32|OptRest],ShortOpt)
+         -> true ; OptFirst=ShortOpt,OptRest=[]),
+	allOptions(AllOpts),
+	findall(FullOptF,prefixOf(OptFirst,AllOpts,FullOptF),FullOpts),
+	(FullOpts=[Opt] -> (OptRest=[] -> FullOpt=Opt
+                                        ; append(Opt,[32|OptRest],FullOpt))
+         ; (FullOpts=[]
+	     -> writeErr('ERROR: unknown option. Type :set for help'),
+	        nlErr, fail
+  	      ; writeErr('ERROR: option not unique. Type :set for help'),
+	        nlErr, fail)).
+
+% all possible options:
+allOptions(["+allfails","-allfails",
+            "+compact","-compact",
+            "+consfail","-consfail",
+            "+debug","-debug",
+            "+error","-error",
+            "+free","-free",
+            "+interactive","-interactive",
+            "+plprofile","-plprofile",
+            "+printfail","-printfail",
+            "+profile","-profile",
+            "+suspend","-suspend",
+            "+time","-time",
+            "+verbose","-verbose",
+            "+warn","-warn",
+            "path","printdepth","v0","v1","v2","v3","parser",
+            "+single","-single",
+            "+spy","-spy","spy",
+            "+trace","-trace"]).
+
 isLowerCaseOf(L,C) :- 65=<C, C=<90, !, L is C+32.
 isLowerCaseOf(C,C).
 
@@ -494,7 +528,8 @@ processCommand("set",[]) :- !,
 	!, fail.
 
 processCommand("set",Option) :- !,
-	processSetOption(Option),
+	expandOption(Option,CompletedOption),
+	processSetOption(CompletedOption),
 	!, fail.
 
 processCommand("add",Arg) :- !,

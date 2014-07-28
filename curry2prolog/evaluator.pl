@@ -68,7 +68,7 @@ evaluateGoalAndExit(Goal) :-
 
 % evaluate an expression with a given type and a given list of free variables:
 evaluateMainExpression(Exp,Type,Vs) :-
-	setExitCode(0),
+	setExitCode(2), % exit code = 2 if value cannot be computed
 	retract(allsolutionmode(_)),
 	(pakcsrc(interactive,no) -> asserta(allsolutionmode(yes))
 			          ; asserta(allsolutionmode(no))),
@@ -97,6 +97,7 @@ evaluateMainExpression(Exp,Type,Vs) :-
 		        ; setExitCode(1), printError(ErrorMsg)) ),
 	getRunTime(RTime2),
 	getElapsedTime(ETime2),
+	setExitCode(0), % exit code = 0 since we found a value
 	% don't print failures after backtracking:
 	((hasPrintedFailure ; printAllFailures) -> true
 	 ; asserta(hasPrintedFailure)),
@@ -140,12 +141,16 @@ evaluateMainExpression(Exp,Type,Vs) :-
 	       (More=[58|_] -> storeFirstCmds([More]) ; true),
 	       More = -1)).   % do not fail if user types end-of-file
 evaluateMainExpression(_,_,_) :-
-	% no further message ("no more sols") in case of abort:
+	% no further message ("no more values") in case of abort:
 	retract(errorAbort),
 	!, fail.
 evaluateMainExpression(_,_,_) :- % ignore proof attempt for IO ND
 	retract(nextIOproof),
 	showProfileData,
+	!, fail.
+evaluateMainExpression(_,_,_) :-
+	exitCode(2), % we still try to find the first value
+	writeErr('*** No value found!'), nlErr,
 	!, fail.
 evaluateMainExpression(_,_,_) :-
         (pakcsrc(interactive,yes)
@@ -167,7 +172,7 @@ writeMainResult(_,Suspended,Vs,'$io'(Value)) :- !,
 writeMainResult(_,Suspended,Vs,Value) :- !,
 	(verbosemode(yes) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
-	
+
 writeMoreSolutions :-
 	pakcsrc(moresolutions,MS),
 	write('More values? ['),
