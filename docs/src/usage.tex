@@ -12,18 +12,57 @@ execution of compiled programs is fairly efficient
 if a good Prolog implementation like SICStus-Prolog is used.
 
 
-\subsection{How to Use \CYS}
-\label{sec-use-curry2prolog}
+\subsection{Invoking \CYS}
+\label{sec:invoke-kics2}
 
-To start \CYS, execute the command
-\ccode{pakcs}\pindex{pakcs}
+To start \CYS, execute the command \ccode{pakcs}\pindex{pakcs}
 (this is a shell script stored in
 \code{\cyshome/bin} where \cyshome is the installation directory
 of \CYS).
-When the system is ready, the prelude (\code{\cyshome/lib/Prelude.curry})
+When the system is ready (i.e., when the prompt \ccode{Prelude>} occurs),
+the prelude (\code{\cyshome/lib/Prelude.curry})
 is already loaded, i.e., all definitions in the prelude are accessible.
-Now you can type in various commands.
-The {\bf most important commands} are
+Now you can type various commands (see next section)
+or an expression to be evaluated.
+
+One can also invoke \CYS with parameters.
+These parameters are usual a sequence of commands
+(see next section) that are executed before the user interaction
+starts. For instance, the invocation
+\begin{curry}
+pakcs :load Mod :add List
+\end{curry}
+starts \CYS, loads the main module \code{Mod}, and adds the additional
+module \code{List}.
+The invocation
+\begin{curry}
+pakcs :load Mod :eval config
+\end{curry}
+starts \CYS, loads the main module \code{Mod}, and evaluates
+the operation \code{config} before the user interaction starts.
+As a final example, the invocation
+\begin{curry}
+pakcs :load Mod :save :quit
+\end{curry}
+starts \CYS, loads the main module \code{Mod}, creates an executable,
+and terminates \CYS. This invocation could be useful in ``make'' files
+for systems implemented in Curry.
+
+It is also possible to overwrite the values defined in the
+configuration file \ccode{.pakcsrc}
+(see Section~\ref{sec-customization})
+when starting \CYS. For this purpose, one can put options of the form
+\begin{curry}
+pakcs -Dname=val
+\end{curry}
+where \code{name} is a property defined in the configuration file
+and \code{val} its new value.
+
+
+\subsection{Commands of \CYS}
+\label{sec:pakcs-commands}
+
+The {\bf most important commands} of \CYS are
 (it is sufficient to type a unique prefix of a command if it is unique,
 e.g., one can type \ccode{:r} instead of \ccode{:reload}):
 
@@ -301,6 +340,20 @@ or generating Prolog target files.
 Show also messages related to loading Prolog files and libraries
 into the run-time systems and other intermediate messages and results.
 \end{description}
+
+\item[\fbox{\code{safe}}]\pindex{safe}
+Turn on the safe execution mode.
+In the safe execution mode, the initial goal is
+not allowed to be of type \code{IO} and the program should not
+import the module \code{Unsafe}.
+Furthermore, the allowed commands are
+\code{eval}, \code{load}, \code{quit}, and \code{reload}.
+This mode is useful to use \CYS in uncontrolled environments,
+like a computation service in a web page, where \CYS could
+be invoked by
+\begin{curry}
+pakcs :set safe
+\end{curry}
 
 \item[\fbox{\code{parser $opts$}}]\pindex{parser}
 Define additional options passed to the \CYS front end, i.e.,

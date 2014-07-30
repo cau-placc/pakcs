@@ -9,12 +9,13 @@
 #
 ############################################################################
 
+# Default parameters that are always passed as initial parameters to KiCS2
+# (e.g., ":set +time :set +interactive")
+defaultparams=
+
 # Define path for searching modules in addition to standard PAKCS libraries:
 # (this path is placed in front of the standard PAKCS library path)
 libraries=
-
-# Default value for interactive mode (values: yes | no)
-interactive=no
 
 # Default value when asking for more solutions (values: yes | no | all)
 moresolutions=yes

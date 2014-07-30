@@ -15,7 +15,7 @@
 :- dynamic mainFunction/1, compileWithCompact/1,
 	   parser_warnings/1, parserOptions/1,
 	   freeVarsUndeclared/1, letBindings/1,
-	   addImports/1, noIoAtTopLevel/0.
+	   addImports/1, safeMode/1.
 
 mainFunction("main"). % the main function for options -r and -s
 compileWithCompact([]).  % parsecurry options for compactification
@@ -24,7 +24,7 @@ parserOptions(''). % additional options passed to cymake parser
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 letBindings([]). % list of top-level bindings
-%noIoAtTopLevel. % uncomment this if IO actions are not allowed at top level
+safeMode(no). % safe execution without IO actions at top level?
 
 % Read the PAKCS rc file to define some constants
 readRcFile(ArgProps) :-
@@ -89,6 +89,11 @@ pakcsMain :-
 	getProgramArgs(Args),
 	processDArgs(Args,Props),
 	readRcFile(Props),
+	pakcsrc(defaultparams,DefParamA),
+	atom_codes(DefParamA,DefParamS),
+	split2words(DefParamS,DefParamsS),
+	map2M(prologbasics:atomCodes,DefParamsA,DefParamsS),
+	processArgs(DefParamsA),
 	processArgs(Args),
 	rtargs(RTArgs),
 	(RTArgs=[] -> true
@@ -142,7 +147,8 @@ processArgs([Arg|Args]) :-
 processArgs(['--safe'|Args]) :- !, % safe execution mode
 	retract(forbiddenModules(_)),
 	asserta(forbiddenModules(['Unsafe'])),
-	asserta(noIoAtTopLevel), !,
+	retract(safeMode(_)),
+	asserta(safeMode(yes)), !,
 	processArgs(Args).
 processArgs(['-set'|Args]) :- !, processArgs(['--set'|Args]). % backward compat.
 processArgs(['--set',path,Path|Args]) :- !,
@@ -245,8 +251,6 @@ writeMainHelp :-
 	writeErr('-q|--quiet   : work silently'), nlErr,
 	writeErr('--noreadline : do not use input line editing via command "rlwrap"'), nlErr,
 	writeErr('-Dname=val   : define pakcsrc property "name" as "val"'), nlErr,
-	writeErr('--safe       : safe execution mode without I/O actions'), nlErr,
-	writeErr('--set OPT    : set option OPT (equivalent to command ":set OPT")'), nlErr,
 	writeErr('-m F         : define F as the main function (default: main) for -i|-r|-s'), nlErr,
 	writeErr('-l PROG      : load PROG.curry as the initial program'), nlErr,
 	writeErr('-i PROG      : load PROG.curry and evaluate <main function> after loading'), nlErr,
@@ -340,7 +344,7 @@ allOptions(["+allfails","-allfails",
             "+time","-time",
             "+verbose","-verbose",
             "+warn","-warn",
-            "path","printdepth","v0","v1","v2","v3","parser",
+            "path","printdepth","v0","v1","v2","v3","parser","safe",
             "+single","-single",
             "+spy","-spy","spy",
             "+trace","-trace"]).
@@ -366,7 +370,7 @@ process([58|Cs]) :- !, % 58=':'
 	map2M(user:isLowerCaseOf,LShortCmd,ShortCmd),
 	expandCommand(LShortCmd,Cmd),
 	removeBlanks(Rest,Params),
-	(Cmd="load" -> true ; ioAdmissible),
+	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
 	processCommand(Cmd,Params).
 process(S) :- append("let",STail,S),
 	removeBlanks(STail,SStrip),
@@ -385,7 +389,7 @@ process(Input) :-
 	call(ExecGoal).
 
 % check whether arbitrary top-level IO actions are allowed:
-ioAdmissible :- noIoAtTopLevel, !,
+ioAdmissible :- safeMode(yes), !,
 	write('Only initial expressions of non I/O type are allowed!'), nl,
 	setExitCode(3),
 	fail.
@@ -473,6 +477,7 @@ processCommand("set",[]) :- !,
 	write('                   1: status messages (default)'), nl,
 	write('                   2: intermediate messages and commands'), nl,
 	write('                   3: all intermediate results'), nl,
+	write('safe            - safe execution mode without I/O actions'), nl,
 	write('parser  <opts>  - additional options passed to parser (cymake)'), nl,
 	nl,
 	write('Options in debug mode:'), nl,
@@ -495,7 +500,7 @@ processCommand("set",[]) :- !,
 	write(debug),	write('  '),
 	freeVarsUndeclared(FV), (FV=yes -> write('+') ; write('-')),
 	write(free),	write('  '),
-	(pakcsrc(interactive,yes) -> write('+') ; write('-')),
+	(interactiveMode(yes) -> write('+') ; write('-')),
 	write(interactive), write('  '),
 	nl,
 	(compileWithFailPrint -> write('+') ; write('-')),
@@ -916,11 +921,11 @@ processSetOption("-free") :- !,
 	retract(freeVarsUndeclared(_)),
 	asserta(freeVarsUndeclared(no)).
 processSetOption("+interactive") :- !,
-	retract(pakcsrc(interactive,_)),
-	asserta(pakcsrc(interactive,yes)).
+	retract(interactiveMode(_)),
+	asserta(interactiveMode(yes)).
 processSetOption("-interactive") :- !,
-	retract(pakcsrc(interactive,_)),
-	asserta(pakcsrc(interactive,no)).
+	retract(interactiveMode(_)),
+	asserta(interactiveMode(no)).
 processSetOption("+plprofile") :- prolog(sicstus), !,
 	retract(plprofiling(_)),
 	prolog_flag(compiling,_,profiledcode),
@@ -1043,6 +1048,11 @@ processSetOption(Option) :-
 	atom_codes(POpts,StrippedOpt),
 	retract(parserOptions(_)),	
 	asserta(parserOptions(POpts)).
+processSetOption("safe") :- !,
+	retract(forbiddenModules(_)),
+	asserta(forbiddenModules(['Unsafe'])),
+	retract(safeMode(_)),
+	asserta(safeMode(yes)), !.
 processSetOption(Option) :-
 	append("spy ",OptTail,Option), !,
 	checkDebugMode,

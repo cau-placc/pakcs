@@ -5,7 +5,7 @@
 	  [currentprogram/1, numberOfCalls/1, numberOfExits/1,
 	   singlestep/0, tracemode/0, spymode/0, spypoints/1,
 	   printDepth/1, printAllFailures/0,
-	   profiling/1, suspendmode/1, timemode/1,
+	   profiling/1, suspendmode/1, interactiveMode/1, timemode/1,
            profileCall/1, profileFail/1, profileExit/1, profileRedo/1,
 	   firstCmds/1, storeFirstCmds/1, addFirstCmds/1,
 	   evaluateGoalAndExit/1, evaluateMainExpression/3,
@@ -25,7 +25,8 @@
 :- dynamic numberOfCalls/1, numberOfExits/1, singlestep/0, tracemode/0,
 	   spypoints/1, spymode/0, spyFail/0, printDepth/1,
 	   profiling/1, profile_data/3, currentprogram/1,
-	   suspendmode/1, allsolutionmode/1, timemode/1, nextIOproof/0,
+	   suspendmode/1, allsolutionmode/1, interactiveMode/1,
+	   timemode/1, nextIOproof/0,
 	   printAllFailures/0, errorAbort/0, firstCmds/1.
 
 currentprogram("Prelude").
@@ -42,6 +43,7 @@ printDepth(11). % maximal print depth of terms +1 (or 0 for infinity)
 profiling(no). % show profiling statistics in debug mode
 suspendmode(no). % yes if suspended goals should be shown
 allsolutionmode(no). % yes if all solutions should be shown without asking
+interactiveMode(no). % interactive mode?
 timemode(no).	 % yes if execution times should be shown
 firstCmds([]). % first commands to be executed in main interaction loop
 
@@ -70,8 +72,8 @@ evaluateGoalAndExit(Goal) :-
 evaluateMainExpression(Exp,Type,Vs) :-
 	setExitCode(2), % exit code = 2 if value cannot be computed
 	retract(allsolutionmode(_)),
-	(pakcsrc(interactive,no) -> asserta(allsolutionmode(yes))
-			          ; asserta(allsolutionmode(no))),
+	(interactiveMode(no) -> asserta(allsolutionmode(yes))
+		              ; asserta(allsolutionmode(no))),
 	retract(numberOfCalls(_)), retract(numberOfExits(_)),
 	asserta(numberOfCalls(0)), asserta(numberOfExits(0)),
 	retractAllFacts(profile_data/3),
@@ -153,7 +155,7 @@ evaluateMainExpression(_,_,_) :-
 	writeErr('*** No value found!'), nlErr,
 	!, fail.
 evaluateMainExpression(_,_,_) :-
-        (pakcsrc(interactive,yes)
+        (interactiveMode(yes)
 	  -> write('No more values.'), nl, setExitCode(2)
 	   ; true),
 	showProfileData,
