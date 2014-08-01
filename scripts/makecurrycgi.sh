@@ -153,16 +153,16 @@ fi
 echo "Generating saved state for initial expression: $MAIN"
 echo
 if [ $DEBUG = yes ] ; then
-  PRINTFAIL="-set +allfails -set +printfail"
+  PRINTFAIL=":set +allfails :set +printfail"
 elif [ -n "$DEBUGFILE" ] ; then
-  PRINTFAIL="-set +consfail file:$DEBUGFILE"
+  PRINTFAIL=":set +consfail file:$DEBUGFILE"
 else
   PRINTFAIL=
 fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-$PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL -m $MAINCALL -s $MAINMOD
+$PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
 STATE=$MAINMOD
 
 # now the file $STATE should contain the saved state computing the HTML form:
