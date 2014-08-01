@@ -19,22 +19,22 @@ manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex ../../lib/TE
 	cp manual.pdf ../Manual.pdf
 
 markdown_syntax.tex: markdown_syntax.txt
-	$(PAKCS) -r Markdown -m 'readFile "markdown_syntax.txt" >>= writeFile "markdown_syntax.tex" . markdownText2LaTeX'
+	$(PAKCS) :l Markdown :eval 'readFile "markdown_syntax.txt" >>= writeFile "markdown_syntax.tex" . markdownText2LaTeX' :quit
 
 ../markdown_syntax.html: markdown_syntax.txt
-	$(PAKCS) -r Markdown -m 'readFile "markdown_syntax.txt" >>= writeFile "../markdown_syntax.html" . markdownText2CompleteHTML "Markdown Syntax"'
+	$(PAKCS) :l Markdown :eval 'readFile "markdown_syntax.txt" >>= writeFile "../markdown_syntax.html" . markdownText2CompleteHTML "Markdown Syntax"' :quit
 
 # format installation description as HTML page
 ../INSTALL.html: ../../INSTALL.txt
-	$(PAKCS) -r Markdown -m 'readFile "../../INSTALL.txt" >>= writeFile "../INSTALL.html" . markdownText2CompleteHTML "PAKCS Installation Instructions"'
+	$(PAKCS) :l Markdown :eval 'readFile "../../INSTALL.txt" >>= writeFile "../INSTALL.html" . markdownText2CompleteHTML "PAKCS Installation Instructions"' :quit
 
 # format repository installation description as HTML page
 ../GITINSTALL.html: ../../GITINSTALL.txt
-	$(PAKCS) -r Markdown -m 'readFile "../../GITINSTALL.txt" >>= writeFile "../GITINSTALL.html" . markdownText2CompleteHTML "PAKCS Repository"'
+	$(PAKCS) :l Markdown :eval 'readFile "../../GITINSTALL.txt" >>= writeFile "../GITINSTALL.html" . markdownText2CompleteHTML "PAKCS Repository"' :quit
 
 # format release notes as HTML page
 ../RELNOTES.html: ../../RELNOTES.txt
-	$(PAKCS) -r Markdown -m 'readFile "../../RELNOTES.txt" >>= writeFile "../RELNOTES.html" . markdownText2CompleteHTML "PAKCS Release Notes"'
+	$(PAKCS) :l Markdown :eval 'readFile "../../RELNOTES.txt" >>= writeFile "../RELNOTES.html" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
 
 ../../lib/TEXDOC/LAST:
 	$(MAKE) libdoc

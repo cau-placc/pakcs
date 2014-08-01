@@ -280,6 +280,11 @@ The default value for this option can be set in the
 configuration file \ccode{\curryrc} (initially, the interactive
 mode is turned off).
 
+\item[\fbox{\code{+/-first}}]\pindex{first}
+Turn on/off the first-only mode.
+In the first-only mode, only the first value
+of the main expression is printed (instead of all values).
+
 \item[\fbox{\code{+/-profile}}]\pindex{profile} Profile mode.
 If the profile mode is on, then information about
 the number of calls, failures, exits etc.\ are collected for
@@ -402,16 +407,14 @@ in the current working directory.
 
 \item[\fbox{\code{:!$cmd$}}]\pindex{:"!} Shell escape: execute $cmd$ in a Unix shell.
 
-\item[\fbox{\code{:save}}]\pindex{:save} Save the current state of the system
-(together with the compiled program \code{prog.curry}) in the file
-\code{prog}, i.e., you can later start the program again
-by typing \ccode{prog} as a Unix command.
+\item[\fbox{\code{:save}}]\pindex{:save} Save the currently loaded
+program as an executable evaluating the main expression \ccode{main}.
+The executable is stored in the file \code{Mod}
+if \code{Mod} is the name of the currently loaded main module.
 
 \item[\fbox{\code{:save $expr$}}]\pindex{:save} Similar as \ccode{:save}
 but the expression $expr$ (typically: a call to the main
-function) will be executed after restoring the state
-and the execution of the restored state terminates when
-the evaluation of the expression $expr$ terminates.
+function) will be evaluated by the executable.
 
 \item[\fbox{\code{:fork $expr$}}]\pindex{:fork}
 The expression $expr$, which must be of type \ccode{IO ()},

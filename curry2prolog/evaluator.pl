@@ -5,9 +5,9 @@
 	  [currentprogram/1, numberOfCalls/1, numberOfExits/1,
 	   singlestep/0, tracemode/0, spymode/0, spypoints/1,
 	   printDepth/1, printAllFailures/0,
-	   profiling/1, suspendmode/1, interactiveMode/1, timemode/1,
+	   profiling/1, suspendmode/1, interactiveMode/1,
+	   firstSolutionMode/1, timemode/1,
            profileCall/1, profileFail/1, profileExit/1, profileRedo/1,
-	   firstCmds/1, storeFirstCmds/1, addFirstCmds/1,
 	   evaluateGoalAndExit/1, evaluateMainExpression/3,
 	   writeFailSource/1,
 	   writeCurry/1, writeVar/2, writeCurryTermWithFreeVarNames/2]).
@@ -26,8 +26,8 @@
 	   spypoints/1, spymode/0, spyFail/0, printDepth/1,
 	   profiling/1, profile_data/3, currentprogram/1,
 	   suspendmode/1, allsolutionmode/1, interactiveMode/1,
-	   timemode/1, nextIOproof/0,
-	   printAllFailures/0, errorAbort/0, firstCmds/1.
+	   firstSolutionMode/1, timemode/1, nextIOproof/0,
+	   printAllFailures/0, errorAbort/0.
 
 currentprogram("Prelude").
 numberOfCalls(0). % number of function calls
@@ -44,21 +44,8 @@ profiling(no). % show profiling statistics in debug mode
 suspendmode(no). % yes if suspended goals should be shown
 allsolutionmode(no). % yes if all solutions should be shown without asking
 interactiveMode(no). % interactive mode?
+firstSolutionMode(no). % first solution printing mode?
 timemode(no).	 % yes if execution times should be shown
-firstCmds([]). % first commands to be executed in main interaction loop
-
-
-% store a command for initialprocessing:
-storeFirstCmds(Cmds) :-
-	(retract(firstCmds(_)) -> true ; true), % just to be sure
-	asserta(firstCmds(Cmds)).
-	
-% add a command for initial processing:
-addFirstCmds(Cmds) :-
-	(retract(firstCmds(OCmds)) -> true ; OCmds=[]),
-	append(OCmds,Cmds,NCmds),
-	asserta(firstCmds(NCmds)).
-	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -72,8 +59,9 @@ evaluateGoalAndExit(Goal) :-
 evaluateMainExpression(Exp,Type,Vs) :-
 	setExitCode(2), % exit code = 2 if value cannot be computed
 	retract(allsolutionmode(_)),
-	(interactiveMode(no) -> asserta(allsolutionmode(yes))
-		              ; asserta(allsolutionmode(no))),
+	((interactiveMode(no), firstSolutionMode(no))
+           -> asserta(allsolutionmode(yes))
+            ; asserta(allsolutionmode(no))),
 	retract(numberOfCalls(_)), retract(numberOfExits(_)),
 	asserta(numberOfCalls(0)), asserta(numberOfExits(0)),
 	retractAllFacts(profile_data/3),
@@ -134,8 +122,7 @@ evaluateMainExpression(Exp,Type,Vs) :-
 		       ),                             % during IO ND checking
 		       asserta(nextIOproof), fail))
              ; allsolutionmode(no), % backtrack in allsolutionmode
-	       writeMoreSolutions,
-	       readMore(More),
+	       askForMoreSolutions(More),
 	       \+ More = "y", % backtrack if user types wants to see more
 	       showProfileData,
 	       !,
@@ -174,6 +161,12 @@ writeMainResult(_,Suspended,Vs,'$io'(Value)) :- !,
 writeMainResult(_,Suspended,Vs,Value) :- !,
 	(verbosemode(yes) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
+
+% ask for more solution (if necessary):
+askForMoreSolutions(More) :-
+	interactiveMode(no), firstSolutionMode(yes), !, More="n".
+askForMoreSolutions(More) :-
+	writeMoreSolutions, readMore(More).
 
 writeMoreSolutions :-
 	pakcsrc(moresolutions,MS),

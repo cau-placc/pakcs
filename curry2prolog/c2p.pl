@@ -12,12 +12,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic mainFunction/1, compileWithCompact/1,
+:- dynamic compileWithCompact/1,
 	   parser_warnings/1, parserOptions/1,
 	   freeVarsUndeclared/1, letBindings/1,
 	   addImports/1, safeMode/1.
 
-mainFunction("main"). % the main function for options -r and -s
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
 parserOptions(''). % additional options passed to cymake parser
@@ -99,20 +98,8 @@ pakcsMain :-
 	(RTArgs=[] -> true
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
-	((firstCmds([FstCmd]), append(":compile ",TailCmd,FstCmd))
-	 -> % -c option given, i.e., compile only:
-	    extractProgName(TailCmd,ProgString),
-	    isValidModuleName(ProgString),
-	    atom_codes(ProgAtom,ProgString),
-	    split2dirbase(ProgAtom,DirName,ProgName),
-	    (setWorkingDirectory(DirName) -> true ; halt(1)),
-	    atom_codes(ProgName,ProgNameS),
-	    (processCompile(ProgNameS,PrologFile) -> true ; halt(1)),
-	    (existsFile(PrologFile)
-	     -> loadAndCompile(PrologFile,[],create), halt(0)
-	      ; halt(1))
-	  ; printPakcsHeader,
-	    main).
+	printPakcsHeader,
+	main.
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
 
@@ -144,78 +131,42 @@ processArgs([Arg|Args]) :-
 	asserta(quietmode(yes)), !,
 	setVerbosity(0),
 	processArgs(Args).
-processArgs(['--safe'|Args]) :- !, % safe execution mode
-	retract(forbiddenModules(_)),
-	asserta(forbiddenModules(['Unsafe'])),
-	retract(safeMode(_)),
-	asserta(safeMode(yes)), !,
-	processArgs(Args).
-processArgs(['-set'|Args]) :- !, processArgs(['--set'|Args]). % backward compat.
-processArgs(['--set',path,Path|Args]) :- !,
-	atom_codes(Path,PathL),
-	append("path ",PathL,OptionL),
-	processSetOption(OptionL), !,
-	processArgs(Args).
-processArgs(['--set',printdepth,Num|Args]) :- !,
-	atom_codes(Num,NumL),
-	append("printdepth ",NumL,OptionL),
-	processSetOption(OptionL), !,
-	processArgs(Args).
-processArgs(['--set','+consfail',ConsOpt|Args]) :- !,
-	atom_codes(ConsOpt,ConsOptL),
-	((ConsOptL="int" ; ConsOptL="all" ; append("file:",_,ConsOptL))
-	 -> append("+consfail ",ConsOptL,OptionL),
-	    processSetOption(OptionL),
-	    processArgs(Args)
-	  ; processSetOption("+consfail"),
-	    processArgs([ConsOpt|Args])).
-processArgs(['--set',Option|Args]) :-
-	atom_codes(Option,OptionL),
-	processSetOption(OptionL), !,
-	processArgs(Args).
-processArgs(['-l',Prog|Args]) :- !,
-	atom_codes(Prog,ProgL),
-	append(":load ",ProgL,Load),
-	storeFirstCmds([Load]),
-	processArgs(Args).
-processArgs(['-m',Main|Args]) :-
-	atom_codes(Main,MainS),
-	retract(mainFunction(_)),
-	asserta(mainFunction(MainS)), !,
-	processArgs(Args).
-processArgs(['-r',Prog|Args]) :- !,
-	atom_codes(Prog,ProgL),
-	append(":load ",ProgL,Load),
-	storeFirstCmds([Load,"$MAIN",":quit"]),
-	processArgs(Args).
-processArgs(['-s',Prog|Args]) :- !,
-	atom_codes(Prog,ProgL),
-	append(":load ",ProgL,Load),
-	storeFirstCmds([Load,":save $MAIN",":quit"]),
-	processArgs(Args).
-processArgs(['-i',Prog|Args]) :- !,
-	atom_codes(Prog,ProgL),
-	append(":load ",ProgL,Load),
-	storeFirstCmds([Load,"$MAIN"]),
-	processArgs(Args).
 processArgs(['-c',Prog|Args]) :- !,
-	atom_codes(Prog,ProgL),
-	append(":compile ",ProgL,Compile),
-	storeFirstCmds([Compile]),
 	(Args=[] -> true
 	  ; writeErr('ERROR: Illegal arguments after "-c": '),
-	    writeErr(Args), nlErr, fail).
-processArgs([Arg|Args]) :- % for compatibility with KiCS2
+	    writeErr(Args), nlErr, fail),
+	processCompileOption(Prog).
+processArgs([Arg|Args]) :- % command option as in KiCS2
 	atom_codes(Arg,[58|CmdS]), !, % 58=':'
-	map2M(user:isLowerCaseOf,ShortCmd,CmdS),
-	expandCommand(ShortCmd,FullCmd),
+	expandCommand(CmdS,FullCmd),
 	extractReplCmdParameters(Args,Params,RArgs),
-	processReplCmd(FullCmd,Params,RArgs).
+	processReplCmd(FullCmd,Params),
+	processArgs(RArgs).
+processArgs([Arg|Args]) :-
+	atom_codes(Arg,[45|_]), !, % 45='-'
+	writeErr('ERROR: Illegal or no longer supported option: '),
+	writeErr([Arg|Args]), nlErr,
+	writeErr('Hint: use command options (like "pakcs :load rev")'), nlErr,
+	halt(1).
 processArgs([Arg|Args]) :-
 	retract(rtargs(RTA)),
 	append(RTA,[Arg],RTAs),
 	assertz(rtargs(RTAs)),
 	processArgs(Args).
+
+% process compile option "-c":
+processCompileOption(ProgOption) :-
+	atom_codes(ProgOption,ProgOptionS),
+	extractProgName(ProgOptionS,ProgString),
+	isValidModuleName(ProgString),
+	atom_codes(ProgAtom,ProgString),
+	split2dirbase(ProgAtom,DirName,ProgName),
+	(setWorkingDirectory(DirName) -> true ; halt(1)),
+	atom_codes(ProgName,ProgNameS),
+	(processCompile(ProgNameS,PrologFile) -> true ; halt(1)),
+	(existsFile(PrologFile)
+          -> loadAndCompile(PrologFile,[],create), halt(0)
+           ; halt(1)).
 
 % extract REPL command parameters (i.e., everything until next REPL command):
 extractReplCmdParameters([],[],[]).
@@ -225,14 +176,13 @@ extractReplCmdParameters([Arg|Args],[ArgS|Params],RArgs) :-
 	atom_codes(Arg,ArgS),
 	extractReplCmdParameters(Args,Params,RArgs).
 
-% process a REPL command parameter (i.e., store it for later processing)
-processReplCmd("save",[],Args) :- !,
-	addFirstCmds([":save $MAIN"]),
-	processArgs(Args).
-processReplCmd(Cmd,Params,Args) :- !,
+% process a REPL command parameter:
+processReplCmd("quit",Args) :- !,
+	(Args=[] -> exitCode(EC), halt(EC)
+	  ; writeErr('ERROR: Arguments after ":quit"!'), halt(1)).
+processReplCmd(Cmd,Params) :- !,
 	combine2cmd([Cmd|Params],CmdS),
-	addFirstCmds([[58|CmdS]]),
-	processArgs(Args).
+	(process([58|CmdS]) -> true ; true). % due to failure loop of REPL
 
 combine2cmd([],[]).
 combine2cmd([X],X).
@@ -251,12 +201,6 @@ writeMainHelp :-
 	writeErr('-q|--quiet   : work silently'), nlErr,
 	writeErr('--noreadline : do not use input line editing via command "rlwrap"'), nlErr,
 	writeErr('-Dname=val   : define pakcsrc property "name" as "val"'), nlErr,
-	writeErr('-m F         : define F as the main function (default: main) for -i|-r|-s'), nlErr,
-	writeErr('-l PROG      : load PROG.curry as the initial program'), nlErr,
-	writeErr('-i PROG      : load PROG.curry and evaluate <main function> after loading'), nlErr,
-	writeErr('-r PROG      : load PROG.curry, execute <main function> and quit'), nlErr,
-	writeErr('-s PROG      : load PROG.curry, execute ":save <main function>" and quit'), nlErr,
-	writeErr('-c PROG      : compile PROG.curry into a Prolog program and quit'), nlErr,
 	writeErr('ARGS         : further arguments passed to application (see System.getArgs)'), nlErr.
 
 
@@ -282,10 +226,7 @@ main :-
 	pakcs_prompt(Prompt), write(Prompt),
 	flush_output(user_output),
 	flush_output(user_error),
-	(firstCmds([Input|NextCmds]) % is there already a command to process?
-	 -> storeFirstCmds(NextCmds)
-	    %write(Prompt), atom_codes(Inp,Input), write(Inp), nl
-	  ; readLine(Input)),
+	readLine(Input),
 	(Input = -1 -> true
             ; removeBlanks(Input,ShortInput),
 	      process(ShortInput)),
@@ -297,7 +238,8 @@ main :-
 cleanupAtEnd :- cleanSourceCodeGUIs.
 
 % Expand a command that may be shortened to its full name:
-expandCommand(ShortCmd,Cmd) :-
+expandCommand(AShortCmd,Cmd) :-
+	map2M(user:isLowerCaseOf,ShortCmd,AShortCmd),
 	allCommands(AllCmds),
 	findall(FullCmd,prefixOf(ShortCmd,AllCmds,FullCmd),FullCmds),
 	(FullCmds=[Cmd] -> true ;
@@ -319,8 +261,9 @@ allCommands(["add","browse","cd","coosy","edit","eval","fork","help",
 expandOption(ShortOpt,FullOpt) :-
 	(append(OptFirst,[32|OptRest],ShortOpt)
          -> true ; OptFirst=ShortOpt,OptRest=[]),
+	map2M(user:isLowerCaseOf,LOptFirst,OptFirst),
 	allOptions(AllOpts),
-	findall(FullOptF,prefixOf(OptFirst,AllOpts,FullOptF),FullOpts),
+	findall(FullOptF,prefixOf(LOptFirst,AllOpts,FullOptF),FullOpts),
 	(FullOpts=[Opt] -> (OptRest=[] -> FullOpt=Opt
                                         ; append(Opt,[32|OptRest],FullOpt))
          ; (FullOpts=[]
@@ -337,6 +280,7 @@ allOptions(["+allfails","-allfails",
             "+error","-error",
             "+free","-free",
             "+interactive","-interactive",
+            "+first","-first",
             "+plprofile","-plprofile",
             "+printfail","-printfail",
             "+profile","-profile",
@@ -360,15 +304,9 @@ process(S) :- append(":!",STail,S), !, ioAdmissible,
 	atom_codes(Cmd,ShellString),
 	shellCmd(Cmd),
 	!, fail.
-process(Input) :- % replace $MAIN by <main function>:
-	append(I1,[36|I2],Input), append("MAIN",I3,I2), !,
-	mainFunction(Main),
-	append(Main,I3,MI3), append(I1,MI3,MainInput),
-	process(MainInput).
 process([58|Cs]) :- !, % 58=':'
 	(append(ShortCmd,[32|Rest],Cs) -> true ; ShortCmd=Cs, Rest=[]),
-	map2M(user:isLowerCaseOf,LShortCmd,ShortCmd),
-	expandCommand(LShortCmd,Cmd),
+	expandCommand(ShortCmd,Cmd),
 	removeBlanks(Rest,Params),
 	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
 	processCommand(Cmd,Params).
@@ -439,8 +377,8 @@ processCommand("help",[]) :- !,
 	write(':programs         - show names of all Curry programs available in load path'), nl,
 	write(':cd <dir>         - change current directory to <dir>'), nl,
 	write(':!<command>       - execute <command> in shell'), nl,
-	write(':save             - save current state to <prog>'), nl,
-	write(':save <expr>      - save current state to <prog> with initial <expr>'), nl,
+	write(':save             - save executable to <prog> with main expression "main"'), nl,
+	write(':save <expr>      - save executable to <prog> with main expression <expr>'), nl,
 	write(':fork <expr>      - fork new process evaluating <expr> (of type "IO ()")'), nl,
 	write(':coosy            - start Curry Object Observation System'), nl,
 	write(':xml              - translate current program into XML format'), nl,
@@ -463,6 +401,7 @@ processCommand("set",[]) :- !,
 	write('+/-error        - show messages on standard error in saved program states'), nl,
 	write('+/-free         - free variables need not be declared in initial goals'), nl,
 	write('+/-interactive  - turn on/off interactive execution of initial goal'), nl,
+	write('+/-first        - turn on/off printing only first value'), nl,
 	write('+/-plprofile    - use Prolog profiler'), nl,
 	write('+/-printfail    - show failures in top-level evaluation'), nl,
 	write('+/-profile      - show profile data in debug mode'), nl,
@@ -502,6 +441,8 @@ processCommand("set",[]) :- !,
 	write(free),	write('  '),
 	(interactiveMode(yes) -> write('+') ; write('-')),
 	write(interactive), write('  '),
+	(firstSolutionMode(yes) -> write('+') ; write('-')),
+	write(first), write('  '),
 	nl,
 	(compileWithFailPrint -> write('+') ; write('-')),
 	write(printfail), write('  '),
@@ -764,7 +705,8 @@ processCommand("cd",DirString) :- !,
 	    nlErr),
 	!, fail.
 
-processCommand("save",MainGoal) :- !,
+processCommand("save",Exp) :- !,
+	(Exp=[] -> MainGoal="main" ; MainGoal=Exp),
 	currentprogram(Prog),
 	atom_codes(ProgName,Prog),
 	(Prog="Prelude" -> writeErr('ERROR: no program loaded'),
@@ -774,19 +716,17 @@ processCommand("save",MainGoal) :- !,
 	initializationsInProg(ProgInits),
 	resetDynamicPreds,
 	(retract(rtargs(_)) -> true ; true),
-	(MainGoal=[]
-	 -> saveprog_entry(ProgStName,(ProgInits,user:main))
-	 ; % start saved program in non-verbose mode if initial goal provided:
-	   verbosemode(QM), setVerboseMode(no),
-	   processExpression(MainGoal,ExecGoal),
-	   %write('Goal to execute:'), nl, writeq(ExecGoal), nl,
-	   (pakcsrc(smallstate,yes)
-	    -> atom_codes(ProgA,Prog), prog2PrologFile(ProgA,ProgPl),
-	       createSavedState(ProgPl,ProgStName,
+	% start saved program in non-verbose mode if initial goal provided:
+	verbosemode(QM), setVerboseMode(no),
+	processExpression(MainGoal,ExecGoal),
+	%write('Goal to execute:'), nl, writeq(ExecGoal), nl,
+	(pakcsrc(smallstate,yes)
+	 -> atom_codes(ProgA,Prog), prog2PrologFile(ProgA,ProgPl),
+	    createSavedState(ProgPl,ProgStName,
 			(ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))
-	     ; saveprog_entry(ProgStName,
+	  ; saveprog_entry(ProgStName,
  		        (ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))),
-	   setVerboseMode(QM)),
+	setVerboseMode(QM),
 	installDir(PH),
 	appendAtoms(['"',PH,'/bin/.makesavedstate" '],CMD1),
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
@@ -926,6 +866,12 @@ processSetOption("+interactive") :- !,
 processSetOption("-interactive") :- !,
 	retract(interactiveMode(_)),
 	asserta(interactiveMode(no)).
+processSetOption("+first") :- !,
+	retract(firstSolutionMode(_)),
+	asserta(firstSolutionMode(yes)).
+processSetOption("-first") :- !,
+	retract(firstSolutionMode(_)),
+	asserta(firstSolutionMode(no)).
 processSetOption("+plprofile") :- prolog(sicstus), !,
 	retract(plprofiling(_)),
 	prolog_flag(compiling,_,profiledcode),

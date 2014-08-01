@@ -1,10 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.4 (July 25, 2014)
-------------------------------------------------------
+Release notes for PAKCS Version 1.11.4 (August 1, 2014)
+-------------------------------------------------------
 
 Changes to version 1.11.3:
+  * PAKCS options have the form of commands (e.g., `pakcs :set v2 :load rev`).
+    Old options (except setting of `.pakcsrc` properties) are no longer
+    necessary and, thus, not supported.
+  * PAKCS command `:save`: if no argument is given, the executable
+    is saved with the initial expression `main`.
   * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
 
 
