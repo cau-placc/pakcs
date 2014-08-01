@@ -2,130 +2,127 @@
  |  __  |    /  \     | |  / /  |  ____| |  _____|   Portland Aachen Kiel
  | |  | |   / /\ \    | |_/ /   | |      | |_____    Curry System
  | |__| |  / /__\ \   |  _  |   | |      |_____  |   
- |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.3 (4)
+ |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.4 (1)
  |_|     /_/      \_\ |_|  \_\  |______| |_______|   
 
-Curry2Prolog(swi 6.6) Compiler Environment (Version of 2014-05-12)
+Curry2Prolog(swi 6.6) Compiler Environment (Version of 2014-08-01)
 (RWTH Aachen, CAU Kiel, Portland State University)
 
-Bug reports: mh@informatik.uni-kiel.de
-
-Type ":h" for help
-
-Prelude> Prelude> Prelude> Prelude> rev> Evaluating expression: append [1,2] [3,4] :: [Int]
+Type ":h" for help (contact: pakcs@curry-language.org)
+Prelude> rev> Evaluating expression: append [1,2] [3,4] :: [Int]
 Result: [1,2,3,4]
-More values? [y(es)/N(o)/a(ll)] rev> Evaluating expression: rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
+rev> Evaluating expression: rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 Result: [10,9,8,7,6,5,4,3,2,1]
-More values? [y(es)/N(o)/a(ll)] rev> rev> higher> Evaluating expression: g1 :: [Int]
+rev> higher> Evaluating expression: g1 :: [Int]
 Result: [1,3,2]
-More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g2 :: [Int]
+higher> Evaluating expression: g2 :: [Int]
 Result: [1,3,2]
-More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g3 :: Int
+higher> Evaluating expression: g3 :: Int
 Result: 3
-More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g4 :: Int
+higher> Evaluating expression: g4 :: Int
 Result: 120
-More values? [y(es)/N(o)/a(ll)] higher> Evaluating expression: g5 :: Int
+higher> Evaluating expression: g5 :: Int
 Result: 120
-More values? [y(es)/N(o)/a(ll)] higher> higher> quicksort> Evaluating expression: qsort [2,3,1,0] :: [Int]
+higher> quicksort> Evaluating expression: qsort [2,3,1,0] :: [Int]
 Result: [0,1,2,3]
-More values? [y(es)/N(o)/a(ll)] quicksort> quicksort> qsortlet> Evaluating expression: qsort [2,3,1,0] :: [Int]
+quicksort> qsortlet> Evaluating expression: qsort [2,3,1,0] :: [Int]
 Result: [0,1,2,3]
-More values? [y(es)/N(o)/a(ll)] qsortlet> qsortlet> inflists> Evaluating expression: goal1 :: [Int]
+qsortlet> inflists> Evaluating expression: goal1 :: [Int]
 Result: [1,1,2,3,5,8,13,21,34,55]
-More values? [y(es)/N(o)/a(ll)] inflists> Evaluating expression: goal2 :: [Int]
+inflists> Evaluating expression: goal2 :: [Int]
 Result: [2,3,5,7,11]
-More values? [y(es)/N(o)/a(ll)] inflists> inflists> family_rel> Evaluating expression: goal1 child :: Bool
+inflists> family_rel> Evaluating expression: goal1 child :: Bool
 Free variables in goal: child
 Bindings: 
 child=Susan
 Result: True
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 child=Peter
 Result: True
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-family_rel> family_rel> Evaluating expression: grandfather g c :: Bool
+family_rel> Evaluating expression: grandfather g c :: Bool
 Free variables in goal: g, c
 Bindings: 
 g=Antony
 c=Susan
 Result: True
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 g=Antony
 c=Peter
 Result: True
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 g=Bill
 c=Andrew
 Result: True
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 g=Antony
 c=Andrew
 Result: True
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-family_rel> family_rel> family_rel> family_fun> Evaluating expression: (father child) =:= John :: Success
+family_rel> family_fun> Evaluating expression: (father child) =:= John :: Success
 Free variables in goal: child
 Bindings: 
 child=Susan
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 child=Peter
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-family_fun> family_fun> Evaluating expression: grandfather g c :: Success
+family_fun> Evaluating expression: grandfather g c :: Success
 Free variables in goal: g, c
 Bindings: 
 g=Antony
 c=Susan
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 g=Antony
 c=Peter
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 g=Bill
 c=Andrew
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 g=Antony
 c=Andrew
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-family_fun> family_fun> family_fun> horseman> Evaluating expression: horseman m h (int2nat 8) (int2nat 20) :: Success
+family_fun> horseman> Evaluating expression: horseman m h (int2nat 8) (int2nat 20) :: Success
 Free variables in goal: m, h
 Bindings: 
 m=S (S (S (S (S (S O)))))
 h=S (S O)
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-horseman> horseman> Evaluating expression: horseman m h (S (S O)) f :: Success
+horseman> Evaluating expression: horseman m h (S (S O)) f :: Success
 Free variables in goal: m, h, f
 Bindings: 
 m=O
 h=S (S O)
 f=S (S (S (S (S (S (S (S O)))))))
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 m=S O
 h=S O
 f=S (S (S (S (S (S O)))))
 Result: success
-More values? [y(es)/N(o)/a(ll)] horseman> horseman> first> Evaluating expression: goal1 :: [Nat]
+Bindings: 
+m=S (S O)
+h=O
+f=S (S (S (S O)))
+Result: success
+horseman> first> Evaluating expression: goal1 :: [Nat]
 Result: [O,S O]
-More values? [y(es)/N(o)/a(ll)] first> Evaluating expression: goal2 x y :: Success
+first> Evaluating expression: goal2 x y :: Success
 Free variables in goal: x, y
 Bindings: 
 x=S O
 y=O
 Result: success
-More values? [y(es)/N(o)/a(ll)] first> first> member> Evaluating expression: goal2 x :: Bool
+first> member> Evaluating expression: goal2 x :: Bool
 Free variables in goal: x
 Bindings: 
 x=2
 Result: True
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 x=3
 Result: True
-More values? [y(es)/N(o)/a(ll)] member> member> colormap> Evaluating expression: goal1 l1 l2 l3 l4 :: Success
+member> colormap> Evaluating expression: goal1 l1 l2 l3 l4 :: Success
 Free variables in goal: l1, l2, l3, l4
 Bindings: 
 l1=Red
@@ -133,13 +130,289 @@ l2=Yellow
 l3=Green
 l4=Red
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 l1=Red
 l2=Yellow
 l3=Green
 l4=Blue
 Result: success
-More values? [y(es)/N(o)/a(ll)] colormap> Evaluating expression: goal2 l1 l2 l3 l4 :: Success
+Bindings: 
+l1=Red
+l2=Yellow
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Yellow
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Yellow
+l4=Blue
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Green
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Green
+l4=Blue
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Green
+l4=Red
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Yellow
+l4=Blue
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Yellow
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Green
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Green
+l4=Red
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Green
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Yellow
+l4=Blue
+Result: success
+colormap> Evaluating expression: goal2 l1 l2 l3 l4 :: Success
 Free variables in goal: l1, l2, l3, l4
 Bindings: 
 l1=Red
@@ -147,70 +420,369 @@ l2=Yellow
 l3=Green
 l4=Red
 Result: success
-More values? [y(es)/N(o)/a(ll)] Bindings: 
+Bindings: 
 l1=Red
 l2=Yellow
 l3=Green
 l4=Blue
 Result: success
-More values? [y(es)/N(o)/a(ll)] colormap> colormap> account> Evaluating expression: goal1 b :: Success
+Bindings: 
+l1=Red
+l2=Yellow
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Yellow
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Yellow
+l4=Blue
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Green
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Green
+l4=Red
+Result: success
+Bindings: 
+l1=Red
+l2=Blue
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Green
+l4=Blue
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Red
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Yellow
+l2=Green
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Green
+l4=Red
+Result: success
+Bindings: 
+l1=Yellow
+l2=Blue
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Yellow
+l4=Blue
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Blue
+l4=Yellow
+Result: success
+Bindings: 
+l1=Green
+l2=Red
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Blue
+l4=Red
+Result: success
+Bindings: 
+l1=Green
+l2=Yellow
+l3=Blue
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Green
+l2=Blue
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Yellow
+l4=Green
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Yellow
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Green
+l4=Yellow
+Result: success
+Bindings: 
+l1=Blue
+l2=Red
+l3=Green
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Red
+l4=Green
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Green
+l4=Red
+Result: success
+Bindings: 
+l1=Blue
+l2=Yellow
+l3=Green
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Red
+l4=Yellow
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Red
+l4=Blue
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Yellow
+l4=Red
+Result: success
+Bindings: 
+l1=Blue
+l2=Green
+l3=Yellow
+l4=Blue
+Result: success
+colormap> account> Evaluating expression: goal1 b :: Success
 Free variables in goal: b
 Bindings: 
 b=250
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> Evaluating expression: goal2 b :: Success
+account> Evaluating expression: goal2 b :: Success
 Free variables in goal: b
 Bindings: 
 b=150
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> Evaluating expression: goal3 s :: Success
+account> Evaluating expression: goal3 s :: Success
 Free variables in goal: s
 Bindings: 
 s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-account> account> account> maxtree> Evaluating expression: goal2 :: Btree Int
+account> maxtree> Evaluating expression: goal2 :: Btree Int
 Result: Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
-More values? [y(es)/N(o)/a(ll)] maxtree> maxtree> assembler> Evaluating expression: goal :: [Int]
+maxtree> assembler> Evaluating expression: goal :: [Int]
 Result: [9,4,9,0]
-More values? [y(es)/N(o)/a(ll)] assembler> assembler> ralign> Evaluating expression: goal1 :: [[Letter]]
+assembler> ralign> Evaluating expression: goal1 :: [[Letter]]
 Result: [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-More values? [y(es)/N(o)/a(ll)] ralign> Evaluating expression: goal2 :: [[Letter]]
+ralign> Evaluating expression: goal2 :: [[Letter]]
 Result: [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-More values? [y(es)/N(o)/a(ll)] ralign> ralign> tctest> f :: Int -> Int
+ralign> tctest> f :: Int -> Int
 tctest> i :: a -> a
 tctest> k :: a -> Int
 tctest> rectype> h :: ([Int],[Bool])
 rectype> iodemo> Evaluating expression: dialog :: IO ()
 Ihr Name?
 Hallo michael, rueckwaerts lautet Ihr Name: leahcim
-iodemo> iodemo> iodemo> england> Evaluating expression: q1 x :: Success
+iodemo> england> Evaluating expression: q1 x :: Success
 Free variables in goal: x
 Bindings: 
 x=Gloucester
 Result: success
-More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q2 x y :: Success
+Bindings: 
+x=Bath
+Result: success
+england> Evaluating expression: q2 x y :: Success
 Free variables in goal: x, y
 Bindings: 
 x=Bristol
 y=Bath
 Result: success
-More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q4l :: [City]
+Bindings: 
+x=Sherbourne
+y=Shaftesbury
+Result: success
+Bindings: 
+x=Dorchester
+y=Sherbourne
+Result: success
+Bindings: 
+x=Cirencester
+y=Cheltenham
+Result: success
+Bindings: 
+x=Cheltenham
+y=Gloucester
+Result: success
+england> Evaluating expression: q4l :: [City]
 Result: [Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
-More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q5l :: [City]
+england> Evaluating expression: q5l :: [City]
 Result: [Salisbury,Gloucester,Cirencester,Cheltenham]
-More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q7 x :: Success
+england> Evaluating expression: q7 x :: Success
 Free variables in goal: x
 Bindings: 
 x=Somerset
 Result: success
-More values? [y(es)/N(o)/a(ll)] england> Evaluating expression: q10 :: Int
+Bindings: 
+x=Gloucestershire
+Result: success
+Bindings: 
+x=Avon
+Result: success
+england> Evaluating expression: q10 :: Int
 Result: 6
-More values? [y(es)/N(o)/a(ll)] england> england> queens> Evaluating expression: queens [1,2,3,4] :: [Int]
+england> queens> Evaluating expression: queens [1,2,3,4] :: [Int]
 Result: [2,4,1,3]
-More values? [y(es)/N(o)/a(ll)] queens> diamond> Evaluating expression: diamond 10 :: IO ()
+Result: [3,1,4,2]
+queens> diamond> Evaluating expression: diamond 10 :: IO ()
                                        1    
                                   11       2    
                               21      12       3    
@@ -230,7 +802,7 @@ More values? [y(es)/N(o)/a(ll)] queens> diamond> Evaluating expression: diamond 
                               98      89      80    
                                   99      90    
                                      100    
-diamond> diamond> chords> Evaluating expression: run sounds :: IO ()
+diamond> chords> Evaluating expression: run sounds :: IO ()
 Proposed chords:
 Amin/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
@@ -246,7 +818,7 @@ Fmaj/4 Cmaj/4 (3) || Fmaj/4 Emin/4 (3) || Amin/4 Cmaj/4 (3) || Amin/4 Emin/4 (3)
 Cmaj/8 (4) || Emin/8 (4) || Amin/8 (3)
 Cmaj/8 (7)
 Gmaj/4 Fmaj/4 (0) || Gmaj/4 Amin/4 (0) || Emin/4 Fmaj/4 (0) || Emin/4 Amin/4 (0)
-chords> chords> Evaluating expression: run nicolas :: IO ()
+chords> Evaluating expression: run nicolas :: IO ()
 Proposed chords:
 Cmaj/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
@@ -264,82 +836,80 @@ Cmaj/8 (0)
 Gmaj/8 (0) || Dmin/8 (0)
 Fmaj/4 Gmaj/4 (0) || Fmaj/4 Emin/4 (0) || Amin/4 Gmaj/4 (0) || Amin/4 Emin/4 (0)
 Fmaj/8 (0) || Amin/8 (0)
-chords> chords> chords> arithseq> Evaluating expression: l1 :: [Int]
+chords> chords> arithseq> Evaluating expression: l1 :: [Int]
 Result: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l2 :: [Int]
+arithseq> Evaluating expression: l2 :: [Int]
 Result: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l3 :: [Int]
+arithseq> Evaluating expression: l3 :: [Int]
 Result: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97]
-More values? [y(es)/N(o)/a(ll)] arithseq> Evaluating expression: l4 :: [Int]
+arithseq> Evaluating expression: l4 :: [Int]
 Result: [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77]
-More values? [y(es)/N(o)/a(ll)] arithseq> multgen> Evaluating expression: goal1 :: [(Int,Int)]
+arithseq> multgen> Evaluating expression: goal1 :: [(Int,Int)]
 Result: [(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
-More values? [y(es)/N(o)/a(ll)] multgen> Evaluating expression: goal2 :: [(Int,Int)]
+multgen> Evaluating expression: goal2 :: [(Int,Int)]
 Result: [(1,1),(2,1),(2,2),(3,1),(3,2),(3,3)]
-More values? [y(es)/N(o)/a(ll)] multgen> Evaluating expression: goal3 :: [(Int,Int,Int)]
+multgen> Evaluating expression: goal3 :: [(Int,Int,Int)]
 Result: [(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(9,40,41),(10,24,26),(12,16,20),(12,35,37),(14,48,50),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40),(27,36,45),(30,40,50)]
-More values? [y(es)/N(o)/a(ll)] multgen> psort> Evaluating expression: goal 6 :: [Int]
+multgen> psort> Evaluating expression: goal 6 :: [Int]
 Result: [1,2,3,4,5,6]
-More values? [y(es)/N(o)/a(ll)] psort> default> Evaluating expression: abs 0 :: Int
+psort> default> Evaluating expression: abs 0 :: Int
 Result: 0
-More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: abs 3 :: Int
+default> Evaluating expression: abs 3 :: Int
 Result: 1
-More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3] :: [Int]
+default> Evaluating expression: swap [3] :: [Int]
 Result: [3]
-More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3,4] :: [Int]
+default> Evaluating expression: swap [3,4] :: [Int]
 Result: [4,3]
-More values? [y(es)/N(o)/a(ll)] default> Evaluating expression: swap [3,4,5] :: [Int]
+default> Evaluating expression: swap [3,4,5] :: [Int]
 Result: [3,4,5]
-More values? [y(es)/N(o)/a(ll)] default> default> casetest> Evaluating expression: swap [1] :: [Int]
+default> default> casetest> Evaluating expression: swap [1] :: [Int]
 Result: [1]
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: swap [1,2] :: [Int]
+casetest> Evaluating expression: swap [1,2] :: [Int]
 Result: [2,1]
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: swap [1,2,3] :: [Int]
+casetest> Evaluating expression: swap [1,2,3] :: [Int]
 Result: [1,2,3]
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: f [1,2] :: Int
+casetest> Evaluating expression: f [1,2] :: Int
 Result: 152
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: g (Just "xyz") :: Bool
+casetest> Evaluating expression: g (Just "xyz") :: Bool
 Result: True
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: g (Just "ab") :: Bool
+casetest> Evaluating expression: g (Just "ab") :: Bool
 Result: False
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [1,2] :: Bool
+casetest> Evaluating expression: h [1,2] :: Bool
 Result: True
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [1,3] :: Bool
+casetest> Evaluating expression: h [1,3] :: Bool
 Result: False
-More values? [y(es)/N(o)/a(ll)] casetest> Evaluating expression: h [2,div 1 0] :: Bool
+casetest> Evaluating expression: h [2,div 1 0] :: Bool
 Result: False
-More values? [y(es)/N(o)/a(ll)] casetest> casetest> expr_parser> Evaluating expression: ((expression val) "(10+5*2)/4") =:= [] :: Success
+casetest> casetest> expr_parser> Evaluating expression: ((expression val) "(10+5*2)/4") =:= [] :: Success
 Free variables in goal: val
 Bindings: 
 val=5
 Result: success
-More values? [y(es)/N(o)/a(ll)] expr_parser> palindrome> Evaluating expression: (pali "abaaba") =:= [] :: Success
+expr_parser> palindrome> Evaluating expression: (pali "abaaba") =:= [] :: Success
 Result: success
-More values? [y(es)/N(o)/a(ll)] palindrome> Evaluating expression: pali5 :: IO [String]
+palindrome> Evaluating expression: pali5 :: IO [String]
 IO: ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
-palindrome> palindrome> palindrome> palindrome> mortgage> Evaluating expression: mortgage 100000.0 180.0 0.01 r 0.0 :: Success
+palindrome> palindrome> palindrome> mortgage> Evaluating expression: mortgage 100000.0 180.0 0.01 r 0.0 :: Success
 Free variables in goal: r
 Bindings: 
 r=1200.1680620915145
 Result: success
-More values? [y(es)/N(o)/a(ll)] mortgage> smm> Evaluating expression: smm l :: Success
+mortgage> smm> Evaluating expression: smm l :: Success
 Free variables in goal: l
 Bindings: 
 l=[9,5,6,7,1,0,8,2]
 Result: success
-More values? [y(es)/N(o)/a(ll)] smm> smm> smm> smm> accountport> Evaluating expression: goal1 b :: Success
+smm> smm> smm> accountport> Evaluating expression: goal1 b :: Success
 Free variables in goal: b
 Bindings: 
 b=250
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-accountport> accountport> Evaluating expression: goal2 b :: Success
+accountport> Evaluating expression: goal2 b :: Success
 Free variables in goal: b
 Bindings: 
 b=[Deposit 100,Withdraw 30,Withdraw 30,Deposit 70,Withdraw 30,Withdraw 30]
 Result: success
-More values? [y(es)/N(o)/a(ll)] No more solutions.
-accountport> accountport> accountport> nameserver> nameserver> Evaluating expression: gn1 :: IO ()
+accountport> nameserver> nameserver> Evaluating expression: gn1 :: IO ()
 Answer: 0
 nameserver> Evaluating expression: gn2 :: IO ()
 Answer: 0
@@ -350,7 +920,7 @@ Answer: 42
 nameserver> Evaluating expression: gn2 :: IO ()
 Answer: 43
 nameserver> Evaluating expression: closeServer :: IO ()
-nameserver> nameserver> addserver> addserver> Evaluating expression: addClient "localhost" 3 4 :: IO ()
+nameserver> addserver> addserver> Evaluating expression: addClient "localhost" 3 4 :: IO ()
 Answer: 7
 addserver> Evaluating expression: stopServer "localhost" :: IO ()
-addserver> addserver> addserver> 
+addserver> addserver> 
