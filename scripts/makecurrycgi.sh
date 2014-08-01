@@ -13,7 +13,8 @@ MAINCALL="main_cgi_9999_$$"
 
 ERROR=
 HELP=no
-PAKCSOPTIONS=
+PAKCSDOPTIONS=
+PAKCSOPTIONS=":set -time :set -interactive :set -verbose"
 COMPACT=no
 DEBUG=no
 DEBUGFILE=
@@ -30,7 +31,7 @@ ARGS=
 while [ $# -gt 0 -a -z "$ERROR" ]; do
   case $1 in
    -help | -h | -\? ) HELP=yes ;;
-   -D*              ) PAKCSOPTIONS="$PAKCSOPTIONS $1" ;;
+   -D*              ) PAKCSDOPTIONS="$PAKCSDOPTIONS $1" ;;
    -noerror         ) echo "WARNING: option -noerror no longer supported!" ;;
    -compact         ) COMPACT=yes ;;
    -debug           ) DEBUG=yes ;;
@@ -162,7 +163,7 @@ fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-$PAKCSHOME/bin/pakcs $PAKCSOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
+$PAKCSHOME/bin/pakcs $PAKCSDOPTIONS $PAKCSOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
 STATE=$MAINMOD
 
 # now the file $STATE should contain the saved state computing the HTML form:
