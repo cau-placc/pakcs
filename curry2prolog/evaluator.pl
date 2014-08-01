@@ -72,6 +72,9 @@ evaluateMainExpression(Exp,Type,Vs) :-
 	(retract(hasPrintedFailure) -> true ; true),
 	getRunTime(RTime1),
 	getElapsedTime(ETime1),
+	evaluateMainExp(E,Vs,RTime1,ETime1).
+
+evaluateMainExp(E,Vs,RTime1,ETime1) :-
 	evalToken(Eval),
 	extractMakeShareInTerm(E,MSE),
 	on_exception(ErrorMsg,
@@ -85,26 +88,16 @@ evaluateMainExpression(Exp,Type,Vs) :-
 		      ErrorMsg=debugger_abort
 		       -> write('Execution aborted.'), nl, fail
 		        ; setExitCode(1), printError(ErrorMsg)) ),
-	getRunTime(RTime2),
-	getElapsedTime(ETime2),
 	setExitCode(0), % exit code = 0 since we found a value
 	% don't print failures after backtracking:
 	((hasPrintedFailure ; printAllFailures) -> true
 	 ; asserta(hasPrintedFailure)),
-	(timemode(yes)
-           -> write('Execution time: '), RTime is RTime2-RTime1, write(RTime),
-	      write(' msec. / '),
-	      write('elapsed: '), ETime is ETime2-ETime1, write(ETime),
-	      write(' msec.'), nl
-           ; true),
-	numberOfCalls(NC), numberOfExits(NE),
-	(NC>0 -> write('Number of function calls: '), write(NC), nl,
-	         write('Number of function exits: '), write(NE), nl
-               ; true),
 	bindingsForNewVariables(Vs,V,NewVs),
 	(Vs=[] -> true ; writeBindingsWithFreeVarNames(Suspended,Vs,NewVs)),
 	writeMainResult(Done,Suspended,NewVs,V),
 	(Suspended=[] -> true ; writeSuspendedGoals(Suspended)),
+	((interactiveMode(yes) ; firstSolutionMode(yes))
+         -> showStatistics(RTime1,ETime1) ; true),
 	flush_output,
 	(var(Done)
          -> showProfileData, !, fail
@@ -129,24 +122,37 @@ evaluateMainExpression(Exp,Type,Vs) :-
 	       % store command (beginning with ":") for processing:
 	       (More=[58|_] -> storeFirstCmds([More]) ; true),
 	       More = -1)).   % do not fail if user types end-of-file
-evaluateMainExpression(_,_,_) :-
+evaluateMainExp(_,_,_,_) :-
 	% no further message ("no more values") in case of abort:
 	retract(errorAbort),
 	!, fail.
-evaluateMainExpression(_,_,_) :- % ignore proof attempt for IO ND
+evaluateMainExp(_,_,_,_) :- % ignore proof attempt for IO ND
 	retract(nextIOproof),
 	showProfileData,
 	!, fail.
-evaluateMainExpression(_,_,_) :-
+evaluateMainExp(_,_,_,_) :-
 	exitCode(2), % we still try to find the first value
 	writeErr('*** No value found!'), nlErr,
 	!, fail.
-evaluateMainExpression(_,_,_) :-
+evaluateMainExp(_,_,RTime1,ETime1) :-
         (interactiveMode(yes)
 	  -> write('No more values.'), nl, setExitCode(2)
-	   ; true),
+	   ; showStatistics(RTime1,ETime1)),
 	showProfileData,
 	!, fail.
+
+showStatistics(RTime1,ETime1) :-
+	getRunTime(RTime2), getElapsedTime(ETime2),
+	(timemode(yes)
+           -> write('Execution time: '), RTime is RTime2-RTime1, write(RTime),
+	      write(' msec. / '),
+	      write('elapsed: '), ETime is ETime2-ETime1, write(ETime),
+	      write(' msec.'), nl
+           ; true),
+	numberOfCalls(NC), numberOfExits(NE),
+	(NC>0 -> write('Number of function calls: '), write(NC), nl,
+	         write('Number of function exits: '), write(NE), nl
+               ; true).
 
 writeMainResult(Done,_,_,_) :- var(Done), !, % goal suspended
 	writeErr('*** Goal suspended!'), nlErr.
