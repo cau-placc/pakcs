@@ -126,8 +126,10 @@ evaluateMainExp(_,_,_,_) :-
 	% no further message ("no more values") in case of abort:
 	retract(errorAbort),
 	!, fail.
-evaluateMainExp(_,_,_,_) :- % ignore proof attempt for IO ND
+evaluateMainExp(_,_,RTime1,ETime1) :- % ignore proof attempt for IO ND
 	retract(nextIOproof),
+	((interactiveMode(no), firstSolutionMode(no))
+	   -> showStatistics(RTime1,ETime1) ; true),
 	showProfileData,
 	!, fail.
 evaluateMainExp(_,_,_,_) :-
