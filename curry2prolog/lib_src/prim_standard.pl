@@ -581,12 +581,17 @@ rewriteSomeExec(Exp,Val,E0,E) :-
 	  ; asserta(hasPrintedFailure),
 	    rewriteSomeExecWithoutPF(Exp,Val,E0,E).
 
-rewriteSomeExecWithPF(Exp,R,E0,E) :- user:nf(Exp,Val,E0,E), !,
-	R = 'Prelude.Just'(Val).
+rewriteSomeExecWithPF(Exp,R,E0,E) :-
+        on_exception(_,
+		     (user:nf(Exp,Val,E0,E), R = 'Prelude.Just'(Val)),
+		     (R='Prelude.Nothing', E0=E)),
+	!.
 
 rewriteSomeExecWithoutPF(Exp,R,E0,E) :-
-	user:nf(Exp,Val,E0,E), retract(hasPrintedFailure), !,
-	R = 'Prelude.Just'(Val).
+	on_exception(_,
+		     (user:nf(Exp,Val,E0,E), R = 'Prelude.Just'(Val)),
+		     (R='Prelude.Nothing', E0=E)),
+	retract(hasPrintedFailure), !.
 rewriteSomeExecWithoutPF(_,R,E0,E) :-
 	retract(hasPrintedFailure), !, R='Prelude.Nothing', E0=E.
 
