@@ -553,7 +553,7 @@ hnfAndWaitUntilGroundHNF(X,E0,E) :-
 :- block prim_rewriteAll(?,?,-,?).
 prim_rewriteAll(Exp,RVals,E0,E) :-
 	copy_term(Exp,CopyExp),
-	vars2failed(Exp,CopyExp,1,_,[],VarMap),
+	numbersVarsInExps(Exp,CopyExp,1,_,[],VarMap),
 	rewriteAllExec(CopyExp,Vals,E0,E1),
 	undoBindings(Vals,VarMap,RVals), E1=E.
 
@@ -570,7 +570,7 @@ rewriteAllExec(Exp,Vals,E0,E) :-
 :- block prim_rewriteSome(?,?,-,?).
 prim_rewriteSome(Exp,RVals,E0,E) :-
 	copy_term(Exp,CopyExp),
-	vars2failed(Exp,CopyExp,1,_,[],VarMap),
+	numbersVarsInExps(Exp,CopyExp,1,_,[],VarMap),
 	rewriteSomeExec(CopyExp,Vals,E0,E1),
 	undoBindings(Vals,VarMap,RVals), E1=E.
 
@@ -595,24 +595,26 @@ rewriteSomeExecWithoutPF(Exp,R,E0,E) :-
 rewriteSomeExecWithoutPF(_,R,E0,E) :-
 	retract(hasPrintedFailure), !, R='Prelude.Nothing', E0=E.
 
-% enumerate all variables in an expression by binding to 'VAR'(i)
-vars2failed(X,Y,I,J,VM,[(I,X)|VM]) :-
+% enumerate all variables in a duplicated expression (second argument)
+% by binding them to 'VAR'(i) and construct a mapping from variables indices
+% to the corresponding variables in the original expression (first argument).
+numbersVarsInExps(X,Y,I,J,VM,[(I,X)|VM]) :-
 	var(Y), !, Y='VAR'(I),
 	J is I+1.
-vars2failed(_,'VAR'(_),I,I,VM,VM) :- !. % already bound variable
-vars2failed(share(M),share(N),I,J,VM0,VM1) :-
+numbersVarsInExps(_,'VAR'(_),I,I,VM,VM) :- !. % already bound variable
+numbersVarsInExps(share(M),share(N),I,J,VM0,VM1) :-
 	!,
 	get_mutable(X,M), get_mutable(Y,N),
 	((X='$eval'(Exp1), Y='$eval'(Exp2)) -> true ; Exp1=X, Exp2=Y),
-	vars2failed(Exp1,Exp2,I,J,VM0,VM1).
-vars2failed(S,T,I,J,VM0,VM1) :-
-	functor(T,_,N), vars2failedArgs(1,N,S,T,I,J,VM0,VM1).
+	numbersVarsInExps(Exp1,Exp2,I,J,VM0,VM1).
+numbersVarsInExps(S,T,I,J,VM0,VM1) :-
+	functor(T,_,N), numbersVarsInExpsArgs(1,N,S,T,I,J,VM0,VM1).
 
-vars2failedArgs(A,N,_,_,I,I,VM,VM) :- A>N, !.
-vars2failedArgs(A,N,S,T,I,J,VM0,VM2) :-
+numbersVarsInExpsArgs(A,N,_,_,I,I,VM,VM) :- A>N, !.
+numbersVarsInExpsArgs(A,N,S,T,I,J,VM0,VM2) :-
 	arg(A,S,ArgS), arg(A,T,ArgT),
-	vars2failed(ArgS,ArgT,I,K,VM0,VM1),
-	A1 is A+1, vars2failedArgs(A1,N,S,T,K,J,VM1,VM2).
+	numbersVarsInExps(ArgS,ArgT,I,K,VM0,VM1),
+	A1 is A+1, numbersVarsInExpsArgs(A1,N,S,T,K,J,VM1,VM2).
 
 % replace in an expression bindings to 'VAR'(i) by original variables
 undoBindings(X,_,X) :-	var(X), !.
