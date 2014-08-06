@@ -253,9 +253,9 @@ prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
 prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
-allCommands(["add","browse","cd","coosy","edit","eval","fork","help",
+allCommands(["add","browse","cd","coosy","define","edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
-	     "save","set","show","type","usedimports","xml"]).
+	     "save","set","show","source","type","usedimports","xml"]).
 
 % Expand an option that may be shortened to its full name:
 expandOption(ShortOpt,FullOpt) :-
@@ -309,18 +309,6 @@ process([58|Cs]) :- !, % 58=':'
 	removeBlanks(Rest,Params),
 	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
 	processCommand(Cmd,Params).
-process(S) :- append("let",STail,S),
-	removeBlanks(STail,SStrip),
-	mainbinding(Var,Exp,SStrip,[]),
-	!, ioAdmissible,
-	typecheck(Exp,_Type),
-	exp2Term(Exp,[],_Term,Vs),
-	(Vs=[(V=_)|Bs]
-	 -> write('*** Error: free variables in top-level binding: '),
-	    writeVar(user_output,V), writeVars(user_output,Bs), nl, fail
-	  ; true),
-	retract(letBindings(Lets)), asserta(letBindings([Var=Exp|Lets])),
-	!, fail.
 process(Input) :-
 	processExpression(Input,ExecGoal),
 	call(ExecGoal).
@@ -360,8 +348,7 @@ processCommand("help",[]) :- !,
 	write(':add <prog>       - add module <prog> to currently loaded modules'),nl,
 	write(':reload           - recompile currently loaded modules'),nl,
 	write(':eval <expr>      - evaluate expression <expr>'), nl,
-	write('<expr>            - evaluate expression <expr>'), nl,
-	write('let <var>=<expr>  - define variable binding for subsequent goals'), nl,
+	write(':define <v>=<exp> - define variable binding for subsequent expressions'), nl,
 	write(':type <expr>      - show the type of <expression>'),nl,
 	write(':browse           - browse program and its imported modules'),nl,
 	write(':interface        - show interface of current program'),nl,
@@ -372,12 +359,13 @@ processCommand("help",[]) :- !,
 	write(':modules          - show list of currently loaded modules'), nl,
 	write(':show             - show source of currently loaded Curry program'), nl,
 	write(':show <m>         - show source of module <m>'), nl,
-	write(':show <f>         - show source code of function <f> in separate window'), nl,
+	write(':source <f>       - show source code of (visible!) function <f>'), nl,
+	write(':source <m>.<f>   - show source code of function <f> in module <m>'), nl,
 	write(':programs         - show names of all Curry programs available in load path'), nl,
 	write(':cd <dir>         - change current directory to <dir>'), nl,
 	write(':!<command>       - execute <command> in shell'), nl,
-	write(':save             - save executable to <prog> with main expression "main"'), nl,
-	write(':save <expr>      - save executable to <prog> with main expression <expr>'), nl,
+	write(':save             - save executable with main expression "main"'), nl,
+	write(':save <expr>      - save executable with main expression <expr>'), nl,
 	write(':fork <expr>      - fork new process evaluating <expr> (of type "IO ()")'), nl,
 	write(':coosy            - start Curry Object Observation System'), nl,
 	write(':xml              - translate current program into XML format'), nl,
@@ -385,7 +373,8 @@ processCommand("help",[]) :- !,
 	write(':set <option>     - set a command line option'), nl,
 	write(':set              - help on :set command'), nl,
 	write(':help             - show this message'), nl,
-	write(':quit             - leave the PAKCS environment'), nl,
+	write(':quit             - leave the PAKCS environment'), nl, nl,
+	write('... or type any <expression> to evaluate'), nl,
 	nl, fail.
 
 processCommand("set",[]) :- !,
@@ -397,15 +386,15 @@ processCommand("set",[]) :- !,
 	write('                  ("+consfail all": show complete fail trace)'), nl,
 	write('                  ("+consfail file:F": store complete fail trace in file F)'), nl,
 	write('+/-debug        - debug mode (compile with debugging information)'), nl,
-	write('+/-free         - free variables need not be declared in initial goals'), nl,
-	write('+/-interactive  - turn on/off interactive execution of initial goal'), nl,
+	write('+/-free         - free variables need not be declared in initial expressions'), nl,
+	write('+/-interactive  - turn on/off interactive execution of initial expression'), nl,
 	write('+/-first        - turn on/off printing only first value'), nl,
 	write('+/-plprofile    - use Prolog profiler'), nl,
 	write('+/-printfail    - show failures in top-level evaluation'), nl,
 	write('+/-profile      - show profile data in debug mode'), nl,
 	write('+/-suspend      - show suspended goals at end of suspended computation'), nl,
 	write('+/-time         - show execution time'), nl,
-	write('+/-verbose      - verbose mode (printing initial goals)'), nl,
+	write('+/-verbose      - verbose mode (printing initial expressions)'), nl,
 	write('+/-warn         - show parser warnings'), nl,
 	write('path <path>     - set additional search path for loading modules'), nl,
 	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
@@ -521,6 +510,18 @@ processCommand("reload",[]) :- !,
 processCommand("eval",ExprInput) :- !,
 	processExpression(ExprInput,ExecGoal),
 	call(ExecGoal).
+
+processCommand("define",BindingS) :- !,
+	mainbinding(Var,Exp,BindingS,[]),
+	!, ioAdmissible,
+	typecheck(Exp,_Type),
+	exp2Term(Exp,[],_Term,Vs),
+	(Vs=[(V=_)|Bs]
+	 -> write('*** Error: free variables in top-level binding: '),
+	    writeVar(user_output,V), writeVars(user_output,Bs), nl, fail
+	  ; true),
+	retract(letBindings(Lets)), asserta(letBindings([Var=Exp|Lets])),
+	!, fail.
 
 processCommand("type",ExprInput) :- !,
 	(mainexpr(Exp,FreeVars,ExprInput,[]) -> true
@@ -681,7 +682,16 @@ processCommand("show",EntityS) :-
 	shellCmd(Cmd),
 	!, fail.
 
-processCommand("show",ExprInput) :- !, % show source code of a function
+processCommand("show",_) :- !,
+	writeErr('ERROR: source file not found'), nlErr,
+	!, fail.
+
+processCommand("source",Arg) :-
+	append(ModS,[46|FunS],Arg), !, % show source code of function in module
+	showSourceCodeOfFunction(ModS,FunS),
+	!, fail.
+
+processCommand("source",ExprInput) :- !, % show source code of a function
 	(mainexpr(Exp,FreeVars,ExprInput,[]) -> true
                        ; write('*** Syntax error'), nl, !, failWithExitCode),
 	typecheck(Exp,_Type),
@@ -1845,12 +1855,21 @@ updateProperty(N,Ns,Vs,[_|Ps],NL) :- updateProperty(N,Ns,Vs,Ps,NL).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % show source code of a function call:
-showSourceCode(partcall(_,F,_)) :- showSourceCodeOfFunction(F).
-showSourceCode(FCall) :- FCall =.. [F|_], showSourceCodeOfFunction(F).
+showSourceCode(F) :- var(F),
+	writeErr('Cannot show source code of a variable!'), nlErr.
+showSourceCode(partcall(_,QF,_)) :- !,
+	atom_codes(QF,QFS),
+	append(ModS,[46|FS],QFS), !,
+	showSourceCodeOfFunction(ModS,FS).
+showSourceCode(FCall) :- FCall =.. [QF|_],
+	atom_codes(QF,QFS),
+	append(ModS,[46|FS],QFS), !,
+	showSourceCodeOfFunction(ModS,FS).
 
 % show source code of a function via the simple GUI for showing complete fun's:
-showSourceCodeOfFunction(QF) :-
-	writeNQ('Showing source code of function '), writeNQ(QF),
+showSourceCodeOfFunction(ModS,FunS) :-
+	writeNQ('Showing source code of function '),
+	append(ModS,[46|FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
 	writeNQ('...'), nlNQ,
 	(retract(lastShownSourceCode(LastModS,LastF)) ; LastModS=[]),
 	(LastModS=[] -> true
@@ -1859,9 +1878,8 @@ showSourceCodeOfFunction(QF) :-
 	       ; true),
             put_code(LastStr,45), write(LastStr,LastF), nl(LastStr),
             flush_output(LastStr)),
-	atom_codes(QF,QFS),
-	append(ModS,[46|FS],QFS), !,
-	atom_codes(F,FS),
+	!,
+	atom_codes(F,FunS),
 	(verbosityIntermediate -> write('SEND: +'), write(F), nl ; true),
 	getModStream(ModS,Str),
 	put_code(Str,43), write(Str,F), nl(Str),

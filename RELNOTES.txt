@@ -10,6 +10,9 @@ Changes to version 1.11.3:
     necessary and, thus, not supported.
   * PAKCS command `:save`: if no argument is given, the executable
     is saved with the initial expression `main`.
+  * PAKCS command `:source` added: allows separate viewing of visible or
+    qualified function definitions.
+  * PAKCS command `let var=exp` has now command syntax: `:define var=exp`
   * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
 
 

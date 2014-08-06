@@ -133,7 +133,7 @@ typed in the top-level of \CYS.
 Same as $expr$. This command might be useful when putting
 commands as arguments when invoking \code{pakcs}.
 
-\item[\fbox{\code{let} $x$ \code{=} $expr$}]
+\item[\fbox{:define $x$=$expr$}]
 Define the identifier $x$ as an abbreviation for the expression $expr$
 which can be used in subsequent expressions. The identifier $x$
 is visible until the next \code{load} or \code{reload} command.
@@ -394,9 +394,12 @@ the decompiled Curry program text is shown.
 Show the source text of module $m$ which must be accessible
 via the current load path.
 
-\item[\fbox{\code{:show $f$}}]\pindex{:show}
-Show the source code of function $f$ (provided that the name $f$
-is different from a module accessilbe via the current load path)
+\item[\fbox{\code{:source $f$}}]\pindex{:source}
+Show the source code of function $f$ (which must be visible
+in the currently loaded module) in a separate window.
+
+\item[\fbox{\code{:source $m$.$f$}}]\pindex{:source}
+Show the source code of function $f$ defined in module $m$
 in a separate window.
 
 \item[\fbox{\code{:cd $dir$}}]\pindex{:cd}
