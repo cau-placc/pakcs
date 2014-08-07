@@ -375,6 +375,8 @@ prim_ensureNotFreeHNF(Val,Result,E0,E) :-
 	             ; prim_ensureHnfNotFree(Val,Result,E0,E).
 
 ?- block prim_ensureHnfNotFree(-,?,?,?), prim_ensureHnfNotFree(?,?,-,?).
+% Required for rewriteAll: variable constants will never be ground
+prim_ensureHnfNotFree('VAR'(_),_,_,_) :- !, fail.
 prim_ensureHnfNotFree(Val,Val,E,E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -464,6 +466,8 @@ prim_findall_exec(SG,Sols,E0,E) :-
 	    retract(hasPrintedFailure), E0=E.
 
 :- block waitUntilGround(-,?,?), waitUntilGround(?,-,?).
+waitUntilGround('VAR'(_),_,_) :- % Required for rewriteAll:
+	!, fail. % variable constants will never be ground
 waitUntilGround(share(M),E0,E) :-
 	!,
 	get_mutable(V,M),
@@ -586,6 +590,8 @@ rewriteSomeExecWithPF(Exp,R,E0,E) :-
 		     (user:nf(Exp,Val,E0,E), R = 'Prelude.Just'(Val)),
 		     (R='Prelude.Nothing', E0=E)),
 	!.
+rewriteSomeExecWithPF(_,R,E0,E) :-
+	R='Prelude.Nothing', E0=E.
 
 rewriteSomeExecWithoutPF(Exp,R,E0,E) :-
 	on_exception(_,
