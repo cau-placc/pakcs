@@ -375,8 +375,6 @@ prim_ensureNotFreeHNF(Val,Result,E0,E) :-
 	             ; prim_ensureHnfNotFree(Val,Result,E0,E).
 
 ?- block prim_ensureHnfNotFree(-,?,?,?), prim_ensureHnfNotFree(?,?,-,?).
-% Required for rewriteAll: variable constants will never be ground
-prim_ensureHnfNotFree('VAR'(_),_,_,_) :- !, fail.
 prim_ensureHnfNotFree(Val,Val,E,E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -466,8 +464,6 @@ prim_findall_exec(SG,Sols,E0,E) :-
 	    retract(hasPrintedFailure), E0=E.
 
 :- block waitUntilGround(-,?,?), waitUntilGround(?,-,?).
-waitUntilGround('VAR'(_),_,_) :- % Required for rewriteAll:
-	!, fail. % variable constants will never be ground
 waitUntilGround(share(M),E0,E) :-
 	!,
 	get_mutable(V,M),
@@ -550,97 +546,85 @@ hnfAndWaitUntilGroundHNF(X,E0,E) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of rewriteAll:
 %
-% To avoid evaluation of global variables, they are bound to constant terms
-% of the form 'VAR'(i) during evaluation of rewriteAll.
-% Moreover, it is strict, i.e., it evaluates always all solutions!
+% To consider the evaluation or binding of non-local variables as
+% a failure, they are extracted before and checked afterwards for
+% unboundedness.
+% Moreover, rewriteAll is strict, i.e., it evaluates always all solutions!
 
 :- block prim_rewriteAll(?,?,-,?).
-prim_rewriteAll(Exp,RVals,E0,E) :-
-	copy_term(Exp,CopyExp),
-	numbersVarsInExps(Exp,CopyExp,1,_,[],VarMap),
-	rewriteAllExec(CopyExp,Vals,E0,E1),
-	undoBindings(Vals,VarMap,RVals), E1=E.
+prim_rewriteAll(Exp,Vals,E0,E) :-
+	varsInExp(Exp,[],ExpVars),
+	rewriteAllExec(ExpVars,Exp,Vals,E0,E1),
+	E1=E.
 
-:- block rewriteAllExec(?,?,-,?).
-rewriteAllExec(Exp,Vals,E0,E) :-
+:- block rewriteAllExec(?,?,?,-,?).
+rewriteAllExec(ExpVars,Exp,Vals,E0,E) :-
 	hasPrintedFailure
-	 -> findall(Val,user:nf(Exp,Val,E0,_),Vals),
+	 -> findall(Val,
+		    (user:nf(Exp,Val,E0,_), allUnboundVariables(ExpVars)),
+		    Vals),
 	    E0=E
 	  ; asserta(hasPrintedFailure),
-	    findall(Val,user:nf(Exp,Val,E0,_),Vals),
+	    findall(Val,
+		    (user:nf(Exp,Val,E0,_), allUnboundVariables(ExpVars)),
+		    Vals),
 	    retract(hasPrintedFailure), E0=E.
 
 % same as rewriteAll but computes only first value:
 :- block prim_rewriteSome(?,?,-,?).
-prim_rewriteSome(Exp,RVals,E0,E) :-
-	copy_term(Exp,CopyExp),
-	numbersVarsInExps(Exp,CopyExp,1,_,[],VarMap),
-	rewriteSomeExec(CopyExp,Vals,E0,E1),
-	undoBindings(Vals,VarMap,RVals), E1=E.
+prim_rewriteSome(Exp,Vals,E0,E) :-
+        varsInExp(Exp,[],ExpVars),
+	rewriteSomeExec(ExpVars,Exp,Vals,E0,E1),
+	E1=E.
 
-:- block rewriteSomeExec(?,?,-,?).
-rewriteSomeExec(Exp,Val,E0,E) :-
+:- block rewriteSomeExec(?,?,?,-,?).
+rewriteSomeExec(ExpVars,Exp,Val,E0,E) :-
 	hasPrintedFailure
-	 -> rewriteSomeExecWithPF(Exp,Val,E0,E)
+	 -> rewriteSomeExecWithPF(ExpVars,Exp,Val,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    rewriteSomeExecWithoutPF(Exp,Val,E0,E).
+	    rewriteSomeExecWithoutPF(ExpVars,Exp,Val,E0,E).
 
-rewriteSomeExecWithPF(Exp,R,E0,E) :-
+rewriteSomeExecWithPF(ExpVars,Exp,R,E0,E) :-
         on_exception(_,
-		     (user:nf(Exp,Val,E0,E), R = 'Prelude.Just'(Val)),
+		     (user:nf(Exp,Val,E0,E), allUnboundVariables(ExpVars),
+		      R = 'Prelude.Just'(Val)),
 		     (R='Prelude.Nothing', E0=E)),
 	!.
-rewriteSomeExecWithPF(_,R,E0,E) :-
+rewriteSomeExecWithPF(_,_,R,E0,E) :-
 	R='Prelude.Nothing', E0=E.
 
-rewriteSomeExecWithoutPF(Exp,R,E0,E) :-
+rewriteSomeExecWithoutPF(ExpVars,Exp,R,E0,E) :-
 	on_exception(_,
-		     (user:nf(Exp,Val,E0,E), R = 'Prelude.Just'(Val)),
+		     (user:nf(Exp,Val,E0,E), allUnboundVariables(ExpVars),
+		      R = 'Prelude.Just'(Val)),
 		     (R='Prelude.Nothing', E0=E)),
 	retract(hasPrintedFailure), !.
-rewriteSomeExecWithoutPF(_,R,E0,E) :-
+rewriteSomeExecWithoutPF(_,_,R,E0,E) :-
 	retract(hasPrintedFailure), !, R='Prelude.Nothing', E0=E.
 
-% enumerate all variables in a duplicated expression (second argument)
-% by binding them to 'VAR'(i) and construct a mapping from variables indices
-% to the corresponding variables in the original expression (first argument).
-numbersVarsInExps(X,Y,I,J,VM,[(I,X)|VM]) :-
-	var(Y), !, Y='VAR'(I),
-	J is I+1.
-numbersVarsInExps(_,'VAR'(_),I,I,VM,VM) :- !. % already bound variable
-numbersVarsInExps(share(M),share(N),I,J,VM0,VM1) :-
+% get all variables occurring in an expression:
+varsInExp(X,Vs,Vs) :- var(X), varInList(X,Vs), !. % already found variable
+varsInExp(X,Vs,[X|Vs]) :- var(X), !.
+varsInExp(share(N),VM0,VM1) :-
 	!,
-	get_mutable(X,M), get_mutable(Y,N),
-	((X='$eval'(Exp1), Y='$eval'(Exp2)) -> true ; Exp1=X, Exp2=Y),
-	numbersVarsInExps(Exp1,Exp2,I,J,VM0,VM1).
-numbersVarsInExps(S,T,I,J,VM0,VM1) :-
-	functor(T,_,N), numbersVarsInExpsArgs(1,N,S,T,I,J,VM0,VM1).
+	get_mutable(X,N),
+	(X='$eval'(Exp) -> true ; Exp=X),
+	varsInExp(Exp,VM0,VM1).
+varsInExp(T,VM0,VM1) :-
+	functor(T,_,N), varsInExpArgs(1,N,T,VM0,VM1).
 
-numbersVarsInExpsArgs(A,N,_,_,I,I,VM,VM) :- A>N, !.
-numbersVarsInExpsArgs(A,N,S,T,I,J,VM0,VM2) :-
-	arg(A,S,ArgS), arg(A,T,ArgT),
-	numbersVarsInExps(ArgS,ArgT,I,K,VM0,VM1),
-	A1 is A+1, numbersVarsInExpsArgs(A1,N,S,T,K,J,VM1,VM2).
+varInList(X,[Y|_]) :- X==Y, !.
+varInList(X,[_|Ys]) :- varInList(X,Ys).
 
-% replace in an expression bindings to 'VAR'(i) by original variables
-undoBindings(X,_,X) :-	var(X), !.
-undoBindings('VAR'(I),VM,V) :- !, getVariable4Index(VM,I,V).
-undoBindings(share(_),_,_) :- !,
-	writeErr('Internal error in undoBindings: share occurred'), nlErr,
-	fail.
-undoBindings(T,VM,S) :-
-	functor(T,F,N), functor(S,F,N),
-	undoBindingsArgs(1,N,T,VM,S).
+varsInExpArgs(A,N,_,VM,VM) :- A>N, !.
+varsInExpArgs(A,N,T,VM0,VM2) :-
+	arg(A,T,ArgT),
+	varsInExp(ArgT,VM0,VM1),
+	A1 is A+1, varsInExpArgs(A1,N,T,VM1,VM2).
 
-undoBindingsArgs(A,N,_,_,_) :- A>N, !.
-undoBindingsArgs(A,N,T,VM,S) :-
-	arg(A,T,ArgT), arg(A,S,ArgS),
-	undoBindings(ArgT,VM,ArgS),
-	A1 is A+1, undoBindingsArgs(A1,N,T,VM,S).
-
-% get the index assigned to a variable:
-getVariable4Index([(Index,V)|_],Index,V) :- !.
-getVariable4Index([_|VM],Index,V) :- getVariable4Index(VM,Index,V).
+% checks whether a list contains different unbound variables:
+allUnboundVariables(Vs) :-
+        length(Vs,N), \+ \+ numbervars(Vs,0,N).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

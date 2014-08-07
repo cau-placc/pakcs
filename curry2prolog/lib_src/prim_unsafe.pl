@@ -18,7 +18,7 @@
 	user:hnf(Exp,H,E0,E).
 
 prim_isVar(Term,H) :- var(Term), !, H='Prelude.True'.
-prim_isVar('VAR'(_),H) :- !, H='Prelude.True'. % for ports and rewriteAll
+prim_isVar('VAR'(_),H) :- !, H='Prelude.True'. % for ports
 prim_isVar(_,'Prelude.False').
 
 prim_identicalVar(Y,X,H) :-
@@ -26,7 +26,7 @@ prim_identicalVar(Y,X,H) :-
 	(X==Y -> H='Prelude.True' ; H='Prelude.False').
 prim_identicalVar(_,X,H) :- var(X), !, H='Prelude.False'.
 prim_identicalVar(Y,_,H) :- var(Y), !, H='Prelude.False'.
-prim_identicalVar('VAR'(I),'VAR'(J),H) :- !, % for ports and rewriteAll
+prim_identicalVar('VAR'(I),'VAR'(J),H) :- !, % for ports
 	(I=J -> H='Prelude.True' ; H='Prelude.False').
 prim_identicalVar(_,_,'Prelude.False').
 
