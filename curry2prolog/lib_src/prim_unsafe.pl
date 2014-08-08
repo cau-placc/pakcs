@@ -32,6 +32,44 @@ prim_identicalVar(_,_,'Prelude.False').
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comparison of any data term including free variables.
+?- block prim_compareAnyTerm(?,?,?,-,?).
+prim_compareAnyTerm(X,Y,R,E0,E) :-
+	user:hnf(X,HX,E0,E1),
+	user:hnf(Y,HY,E1,E2),
+	prim_compareAnyTermHNF(HX,HY,R,E2,E).
+
+?- block prim_compareAnyTermHNF(?,?,?,-,?).
+prim_compareAnyTermHNF(X,Y,R,E0,E) :- (var(X) ; var(Y)), !,
+	(X==Y -> R='Prelude.EQ' ; (X@<Y -> R='Prelude.LT' ; R='Prelude.GT')),
+	E0=E.
+prim_compareAnyTermHNF('FAIL'(Src),_,'FAIL'(Src),E,E) :- !.
+prim_compareAnyTermHNF(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
+prim_compareAnyTermHNF(X,Y,R,E0,E) :- number(X), !,
+	(X=Y -> R='Prelude.EQ' ; (X<Y -> R='Prelude.LT' ; R='Prelude.GT')),
+	E0=E.
+prim_compareAnyTermHNF(X,Y,R,E0,E) :- isCharCons(X), !,
+	char_int(X,VX), char_int(Y,VY),
+	(VX=VY -> R='Prelude.EQ' ; (VX<VY -> R='Prelude.LT' ; R='Prelude.GT')),
+	E0=E.
+prim_compareAnyTermHNF(X,Y,R,E0,E) :-
+	functor(X,FX,NX), functor(Y,FY,NY),
+	user:constructortype(FX,_,NX,_,IX,_),
+	user:constructortype(FY,_,NY,_,IY,_), !,
+	(IX<IY -> R='Prelude.LT', E0=E ; (IX>IY -> R='Prelude.GT', E0=E
+          ; prim_compareAnyTermArgs(1,NX,X,Y,R,E0,E))).
+
+?- block prim_compareAnyTermArgs(?,?,?,?,?,-,?).
+prim_compareAnyTermArgs(I,N,_,_,R,E0,E) :- I>N, !, R='Prelude.EQ', E0=E.
+prim_compareAnyTermArgs(I,N,X,Y,R,E0,E) :-
+	arg(I,X,ArgX), arg(I,Y,ArgY),
+	prim_compareAnyTerm(ArgX,ArgY,ArgR,E0,E1),
+	(ArgR='Prelude.EQ' -> I1 is I+1,
+	                      prim_compareAnyTermArgs(I1,N,X,Y,R,E1,E)
+	                    ; R=ArgR, E1=E).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion of Curry data terms (with variables) into string representation in
 % standard prefix notation
