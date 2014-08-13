@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.4 (August 8, 2014)
--------------------------------------------------------
+Release notes for PAKCS Version 1.11.4 (August 13, 2014)
+--------------------------------------------------------
 
 Changes to version 1.11.3:
   * PAKCS options have the form of commands (e.g., `pakcs :set v2 :load rev`).
@@ -14,7 +14,7 @@ Changes to version 1.11.3:
     qualified function definitions.
   * PAKCS command `let var=exp` has now command syntax: `:define var=exp`
   * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
-  * Library `Unsafe`: `compareAnyTerm` added.
+  * Library `Unsafe`: `compareAnyTerm` and `isGround` added.
 
 Release notes for PAKCS Version 1.11.3 (July 21, 2014)
 ------------------------------------------------------

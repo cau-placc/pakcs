@@ -54,9 +54,6 @@ newFunctionCounter("",0). % counter for generating new function names
 newAuxFunctions([]). % list of generated auxiliary functions
                      % (for nested case/or)
 dynamicPredNames([]). % list of pred names/file names for dynamic predicates
-keepMainPrologFile(no). % define argument as 'yes' if the main Prolog
-                        % file generated for hnf and generic clauses
-                        % should not be deleted after loading
 forbiddenModules([]). % module names that are not allowed (e.g., Unsafe)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -557,7 +554,7 @@ loadMain(PrologFile) :-
 	deleteMainPrologFile(MainPrologFile).
 
 deleteMainPrologFile(MainPrologFile) :-
-	((plprofiling(yes) ; keepMainPrologFile(yes))
+	((plprofiling(yes) ; pakcsrc(keepfiles,yes))
 	 -> true % prog.pl.main needed later for PlProfileData.getHnfDefinitions
           ; % delete MainPrologFile:
 	    deleteFile(MainPrologFile)).

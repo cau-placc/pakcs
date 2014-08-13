@@ -60,4 +60,10 @@ smallstate=no
 # Values: yes | no
 standalone=no
 
+# Should the generated main Prolog file (containing hnf and other generic
+# clauses) be kept (in /tmp/pakcsprogXXXX.pl.main)?
+# (values: yes | no )
+# Usually, it is deleted, i.e., "yes" might be useful for debugging
+keepfiles=no
+
 ############################################################################

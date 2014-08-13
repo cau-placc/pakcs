@@ -31,6 +31,17 @@ prim_identicalVar('VAR'(I),'VAR'(J),H) :- !, % for ports
 prim_identicalVar(_,_,'Prelude.False').
 
 
+prim_isGround(T,H) :- var(T), !, H='Prelude.False'.
+prim_isGround(T,H) :- functor(T,_,N), prim_isGroundArgs(1,N,T,H).
+
+prim_isGroundArgs(A,N,_,H) :- A>N, !, H='Prelude.True'.
+prim_isGroundArgs(A,N,T,H) :-
+	arg(A,T,Arg), prim_isGround(Arg,GA),
+	(GA='Prelude.False'
+          -> H=GA
+           ; A1 is A+1, prim_isGroundArgs(A1,N,T,H)).
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Comparison of any data term including free variables.
