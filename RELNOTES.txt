@@ -14,6 +14,7 @@ Changes to version 1.11.3:
     qualified function definitions.
   * PAKCS command `let var=exp` has now command syntax: `:define var=exp`
   * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
+  * Library `Prolog` added.
   * Library `Unsafe`: `compareAnyTerm` and `isGround` added.
 
 Release notes for PAKCS Version 1.11.3 (July 21, 2014)
