@@ -1,10 +1,11 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.4 (August 13, 2014)
+Release notes for PAKCS Version 1.11.4 (August 22, 2014)
 --------------------------------------------------------
 
 Changes to version 1.11.3:
+  * PAKCS can also be invoked via the command `curry` in the bin directory.
   * PAKCS options have the form of commands (e.g., `pakcs :set v2 :load rev`).
     Old options (except setting of `.pakcsrc` properties) are no longer
     necessary and, thus, not supported.
@@ -16,6 +17,7 @@ Changes to version 1.11.3:
   * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
   * Library `Prolog` added.
   * Library `Unsafe`: `compareAnyTerm` and `isGround` added.
+  * Tool `CASS`: new analysis `RequiredValues` added.
 
 Release notes for PAKCS Version 1.11.3 (July 21, 2014)
 ------------------------------------------------------

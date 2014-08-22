@@ -142,6 +142,11 @@ tools:
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
+# compile CASS analysis environment:
+.PHONY: cass
+cass:
+	@if [ -r bin/pakcs ] ; then cd currytools/CASS && $(MAKE) ; fi
+
 # compile documentation, if necessary:
 .PHONY: docs
 docs:
