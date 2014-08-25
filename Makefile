@@ -26,7 +26,7 @@ BUILDVERSION=2
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
 COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
-# The name of the Curry system, needed for installation of currytools
+# The name of the Curry system, needed for installation of system libraries:
 export CURRYSYSTEM=pakcs
 
 # Paths used in this installation
