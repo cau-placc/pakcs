@@ -51,7 +51,7 @@ MANUALVERSION=$(DOCDIR)/src/version.tex
 # The REPL binary, used for building various tools
 export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
-export REPL_OPTS    = 
+export REPL_OPTS    = :set -time
 # The frontend binary
 export CYMAKE       = $(BINDIR)/cymake
 # The cleancurry binary

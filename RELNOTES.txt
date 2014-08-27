@@ -1,10 +1,12 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.4 (August 22, 2014)
+Release notes for PAKCS Version 1.11.4 (August 27, 2014)
 --------------------------------------------------------
 
 Changes to version 1.11.3:
+  * The interactive top-level loop uses the standard front end
+    to parse expressions if the option `+free` is not set.
   * PAKCS can also be invoked via the command `curry` in the bin directory.
   * PAKCS options have the form of commands (e.g., `pakcs :set v2 :load rev`).
     Old options (except setting of `.pakcsrc` properties) are no longer

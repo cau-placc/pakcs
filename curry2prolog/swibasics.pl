@@ -37,7 +37,7 @@
 	   try_save_predicates/2,
 	   compilePrologFile/1, compilePrologFileAndSave/1,
 	   consultPrologorPOFile/2, ensure_lib_loaded/1,
-	   getNewPrologFileName/1, mainPrologFileName/2,
+	   getNewFileName/2, mainPrologFileName/2,
 	   callAndReturnSuspensions/2, writeqWithVars/1,
 	   genBlockDecl/4,
 	   prolog_flag/2, prolog_flag/3,
@@ -579,11 +579,11 @@ ensure_lib_loaded(Lib) :-
 	ensure_loaded(user:DirLib).
 
 
-% get name of temporary Prolog file:
-getNewPrologFileName(PrologFile) :-
-	tmp_file(curry_main,Main),
+% get name of temporary file with a given (possibly empty) suffix:
+getNewFileName(Suffix,PrologFile) :-
+	tmp_file(pakcs_file,Main),
 	atom_codes(Main,MainS),
-	append(MainS,".pl",ProgS),
+	(Suffix=[] -> ProgS=MainS ; append(MainS,[46|Suffix],ProgS)),
 	atom_codes(PrologFile,ProgS),
 	append("rm -f ",ProgS,RmCmdS),
 	atom_codes(RmCmd,RmCmdS),

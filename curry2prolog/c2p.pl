@@ -14,7 +14,7 @@
 
 :- dynamic compileWithCompact/1,
 	   parser_warnings/1, parserOptions/1,
-	   freeVarsUndeclared/1, letBindings/1,
+	   freeVarsUndeclared/1, varDefines/1,
 	   addImports/1, safeMode/1.
 
 compileWithCompact([]).  % parsecurry options for compactification
@@ -22,7 +22,7 @@ parser_warnings(yes). % no if the warnings of the parser should be suppressed
 parserOptions(''). % additional options passed to cymake parser
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
-letBindings([]). % list of top-level bindings
+varDefines([]). % list of top-level bindings
 safeMode(no). % safe execution without IO actions at top level?
 
 % Read the PAKCS rc file to define some constants
@@ -310,8 +310,8 @@ process([58|Cs]) :- !, % 58=':'
 	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
 	processCommand(Cmd,Params).
 process(Input) :-
-	processExpression(Input,ExecGoal),
-	call(ExecGoal).
+	processExpression(Input,ExprGoal),
+	call(ExprGoal).
 
 % check whether arbitrary top-level IO actions are allowed:
 ioAdmissible :- safeMode(yes), !,
@@ -320,16 +320,12 @@ ioAdmissible :- safeMode(yes), !,
 	fail.
 ioAdmissible.
 
-processExpression(Input,ExecGoal) :-
-	(mainexpr(Exp,FreeVars,Input,[])
-          -> true
-           ; write('*** Syntax error'), nl, setExitCode(1), !, fail),
-	%write('Type expression: '), writeq(Exp), nl,
-	typecheck(Exp,Type),
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% process a given main expression:
+
+processExpression(Input,ExprGoal) :-
+	parseMainExpression(Input,Term,Type,Vs),
 	(isIoType(Type) -> ioAdmissible ; true),
-	exp2Term(Exp,[],Term,Vs),
-	%write('Translated expression: '), writeq(Term), nl,
-	checkFreeVars(FreeVars,Vs),
 	(verbosemode(yes) -> write('Evaluating expression: '),
 	                     writeCurryTermWithFreeVarNames(Vs,Term),
 			     write(' :: '),
@@ -337,9 +333,195 @@ processExpression(Input,ExecGoal) :-
 			     % print free goal variables if present:
 			     writeFreeVars(Vs)
 		           ; true),
-	!,
-	ExecGoal = evaluateMainExpression(Term,Type,Vs).
+	ExprGoal = evaluateMainExpression(Term,Type,Vs).
 
+parseMainExpression(Input,Term,Type,Vs) :-
+	(freeVarsUndeclared(yes)
+	  -> parseExpressionSimple(Input,Term,Type,Vs)
+	   ; parseExpressionWithFrontend(Input,Term,Type,Vs)),
+	(verbosityDetailed
+          -> write('Translated expression: '), writeq(Term), nl
+           ; true).
+
+parseExpressionSimple(Input,Term,Type,Vs) :-
+	(mainexpr(Exp,FreeVars,Input,[])
+          -> true
+           ; write('*** Syntax error'), nl, setExitCode(1), !, fail),
+	%write('Type expression: '), writeq(Exp), nl,
+	typecheck(Exp,Type),
+	exp2Term(Exp,[],Term,Vs),
+	checkFreeVars(FreeVars,Vs),
+	!.
+
+% process a given main expression by writing it into a main module
+% and calling the front end:
+parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
+	getNewFileName("",MainExprMod),
+	parseExpressionWithFrontendOnFile(MainExprMod,Input,MainExp,Type,Vs).
+
+parseExpressionWithFrontendOnFile(MainExprMod,Input,MainExp,Type,Vs) :-
+	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
+	splitWhereFree(Input,InputExp,FreeVars),
+	writeMainExprFile(MainExprModFile,InputExp,FreeVars),
+	atom_codes(MainExprMod,MainExprModS),
+	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
+	parseProgram(MainExprModS,PVerb,no),
+	findFlatProgFileInLoadPath(MainExprMod,PathProgName),
+	split2dirbase(PathProgName,ProgDir,ModName),
+	loadPath(ProgDir,LoadPath),
+	readProgInLoadPath(LoadPath,ModName,FlatProg,_),
+	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
+	length(FreeVars,NumVars),
+	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,FlatExp))|MoreFs],
+	!,
+	(MoreFs=[] -> true
+                    ; writeErr('ERROR: local function definitions not yet allowed in main expressions!'),
+		      nlErr, fail),
+	stripFuncTypes(NumVars,FuncType,FType),
+	flatType2MainType([],FType,_,Type),
+	flatExp2MainExp([],FlatExp,EVs,MainExp),
+	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
+	!,
+	deleteMainExpFiles(MainExprMod).
+parseExpressionWithFrontendOnFile(MainExprMod,_,_,_,_) :-
+	deleteMainExpFiles(MainExprMod),
+	!, fail.
+
+% delete all auxiliary files for storing main expression:
+deleteMainExpFiles(MainExprMod) :-
+	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
+	(pakcsrc(keepfiles,yes) -> true ; deleteFileIfExists(MainExprModFile)),
+	prog2FlatCurryFile(MainExprMod,MainExprFcyFile),
+	deleteFileIfExists(MainExprFcyFile),
+	prog2InterfaceFile(MainExprMod,MainExprFintFile),
+	deleteFileIfExists(MainExprFintFile),
+	prog2ICurryFile(MainExprMod,MainExprIcurryFile),
+	deleteFileIfExists(MainExprIcurryFile).
+
+stripFuncTypes(0,Type,Type) :- !.
+stripFuncTypes(N,'FuncType'(_,RType),Type) :-
+        N1 is N-1, stripFuncTypes(N1,RType,Type).
+
+replaceFreeVarInEnv(_,_,[],[]).
+replaceFreeVarInEnv(FreeVars,RuleArgs,[(EVN=EV)|Env],[(EVN1=EV)|TEnv]) :-
+        atom_codes(EVN,[95,120|Vs]), number_codes(V,Vs),
+	replaceFreeEnvVar(FreeVars,RuleArgs,V,EVN1),
+        replaceFreeVarInEnv(FreeVars,RuleArgs,Env,TEnv).
+
+replaceFreeEnvVar([],[],V,NV) :-
+        number_codes(V,Vs), atom_codes(NV,[95|Vs]).
+replaceFreeEnvVar([FV|FreeVars],[RA|RuleArgs],V,NV) :-
+        (V=RA -> appendAtoms(['_',FV],NV)
+               ; replaceFreeEnvVar(FreeVars,RuleArgs,V,NV)).
+
+splitWhereFree(Input,Exp,Vs) :-
+        append(IWOfree," free",Input),
+	append(IWOvars,Vars,IWOfree),
+	append(Exp," where ",IWOvars), !,
+	splitWhereVars(Vars,Vs).
+splitWhereFree(Input,Input,[]).
+
+splitWhereVars(VarsS,[V|Vs]) :- 
+        append(VarS,[44|Vars],VarsS), !,
+	removeBlanks(VarS,VarS1), atom_codes(V,VarS1),
+	splitWhereVars(Vars,Vs).
+splitWhereVars(VarS,[V]) :- removeBlanks(VarS,VarS1), atom_codes(V,VarS1).
+
+flatType2MainType(Vs,'TVar'(I),Vs1,TV) :-
+	number_codes(I,IS), atom_codes(VN,[97|IS]), addVar(VN,Vs,TV,Vs1).
+flatType2MainType(Vs,'FuncType'(FT1,FT2),Vs2,'FuncType'(T1,T2)) :-
+        flatType2MainType(Vs,FT1,Vs1,T1),
+        flatType2MainType(Vs1,FT2,Vs2,T2).
+flatType2MainType(Vs,'TCons'(TNameS,TArgs),Vs1,'TCons'(TName,Args)) :-
+        atom_codes(TNameO,TNameS),
+	flatCons2MainCons(TNameO,TName),
+	flatTypes2MainTypes(Vs,TArgs,Vs1,Args).
+
+flatTypes2MainTypes(Vs,[],Vs,[]).
+flatTypes2MainTypes(Vs,[FE|FEs],Vs2,[E|Es]) :-
+	flatType2MainType(Vs,FE,Vs1,E),
+	flatTypes2MainTypes(Vs1,FEs,Vs2,Es).
+
+flatExp2MainExp(Vs,'Var'(I),Vs1,V) :-
+	number_codes(I,IS), atom_codes(VN,[95,120|IS]), addVar(VN,Vs,V,Vs1).
+flatExp2MainExp(Vs,'Lit'('Intc'(I)),Vs,I).
+flatExp2MainExp(Vs,'Lit'('Floatc'(F)),Vs,F).
+flatExp2MainExp(Vs,'Lit'('Charc'(I)),Vs,I_Atom) :- char_int(I_Atom,I).
+flatExp2MainExp(Vs,'Comb'(_,FNameS,[FA1,FA2]),Vs1,Exp) :-
+	atom_codes('Prelude.apply',FNameS), !,
+	flatExps2MainExps(Vs,[FA1,FA2],Vs1,[A1,A2]),
+	(compileWithSharing(function)
+	 -> Exp = makeShare('Prelude.apply'(A1,A2),_)
+	  ; Exp = 'Prelude.apply'(A1,A2)).
+flatExp2MainExp(Vs,'Comb'(CType,FNameS,FArgs),Vs1,Exp) :-
+	atom_codes(FNameO,FNameS),
+	flatCons2MainCons(FNameO,FName),
+	flatExps2MainExps(Vs,FArgs,Vs1,Args),
+	FExp =.. [FName|Args],
+	((CType='FuncCall' ; CType='ConsCall' ; CType='ConsPartCall'(_))
+	 -> Missing=0
+	  ; CType='FuncPartCall'(Missing)),
+	term2partcall(FExp,Missing,ExpOrPartCall),
+	(compileWithSharing(function)
+	 -> Exp = makeShare(ExpOrPartCall,_)
+	  ; Exp = ExpOrPartCall).
+flatExp2MainExp(Vs,'Free'(_,FExp),Vs1,Exp) :-
+	flatExp2MainExp(Vs,FExp,Vs1,Exp).
+flatExp2MainExp(Vs,'Let'(Bindings,FExp),Vs1,Exp) :-
+	letbindings2constr(Bindings,FExp,BindingExp),
+	flatExp2MainExp(Vs,BindingExp,Vs1,Exp).
+flatExp2MainExp(_,'Or'(_,_),_,_) :-
+        writeErr('ERROR: Or not yet allowed in main expressions!'), nlErr,
+	!, fail.
+flatExp2MainExp(_,'Typed'(_,_),_,_) :-
+        writeErr('ERROR: Typed not yet allowed in main expressions!'), nlErr,
+	!, fail.
+flatExp2MainExp(_,'Case'(_,_,_),_,_) :-
+        writeErr('ERROR: Case not yet allowed in main expressions!'), nlErr,
+	!, fail.
+
+flatExps2MainExps(Vs,[],Vs,[]).
+flatExps2MainExps(Vs,[FE|FEs],Vs2,[E|Es]) :-
+	flatExp2MainExp(Vs,FE,Vs1,E),
+	flatExps2MainExps(Vs1,FEs,Vs2,Es).
+
+flatCons2MainCons('Prelude.:','.') :- !.
+flatCons2MainCons('Prelude.[]',[]) :- !.
+flatCons2MainCons(C,C).
+
+writeMainExprFile(ExprFile,Input,FreeVars) :-
+	(verbosityIntermediate
+          -> write('Writing Curry main expression file: '), write(ExprFile), nl
+           ; true),
+	open(ExprFile,write,S),
+	lastload(Prog),
+	(Prog="" -> true ; write(S,'import '), putChars(S,Prog), nl(S)),
+	addImports(Imps), writeMainImports(S,Imps),
+	write(S,'pakcsMainGoal'),
+	writeFreeVarArgs(S,FreeVars),
+	write(S,' = '),
+	varDefines(VarDefs), writeVarDefs(S,VarDefs),
+	putChars(S,Input), nl(S),
+	close(S).
+
+writeVarDefs(_,[]).
+writeVarDefs(S,[Var=Exp|VarDefs]) :-
+	exp2Term(Exp,[],Term,_),
+	write(S,'let '), write(S,Var), write(S,' = '),
+	writeCurryOnStream(S,Term), write(S,' in '),
+	writeVarDefs(S,VarDefs).
+
+writeFreeVarArgs(_,[]).
+writeFreeVarArgs(S,[V|Vs]) :-
+        write(S,' '), write(S,V), writeFreeVarArgs(S,Vs).
+
+writeMainImports(_,[]).
+writeMainImports(S,[Imp|Imps]) :-
+	write(S,'import '), write(S,Imp), nl(S),
+	writeMainImports(S,Imps).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 processCommand("quit",[]) :- !.
 processCommand("help",[]) :- !,
@@ -500,7 +682,7 @@ processCommand("reload",[]) :- !,
 	              asserta(currentprogram(Prog)),
 		      initializationsInProg(ProgInits), call(ProgInits)),
 	             printError(ErrorMsg) ),
-	retract(letBindings(_)), asserta(letBindings([])),
+	retract(varDefines(_)), asserta(varDefines([])),
 	(compileWithDebug -> retract(spypoints(_)),
 	                     asserta(spypoints([])),
 	                     singleOn, traceOn, spyOff
@@ -508,8 +690,7 @@ processCommand("reload",[]) :- !,
 	!, fail.
 
 processCommand("eval",ExprInput) :- !,
-	processExpression(ExprInput,ExecGoal),
-	call(ExecGoal).
+	process(ExprInput).
 
 processCommand("define",BindingS) :- !,
 	mainbinding(Var,Exp,BindingS,[]),
@@ -517,18 +698,18 @@ processCommand("define",BindingS) :- !,
 	typecheck(Exp,_Type),
 	exp2Term(Exp,[],_Term,Vs),
 	(Vs=[(V=_)|Bs]
-	 -> write('*** Error: free variables in top-level binding: '),
+	 -> write('ERROR: free variables in top-level binding: '),
 	    writeVar(user_output,V), writeVars(user_output,Bs), nl, fail
 	  ; true),
-	retract(letBindings(Lets)), asserta(letBindings([Var=Exp|Lets])),
+	retract(varDefines(Lets)),
+	(append(Defs1,[Var=_|Defs2],Lets)
+          -> append(Defs1,Defs2,OldDefs) % delete old definition
+           ; OldDefs = Lets),
+	asserta(varDefines([Var=Exp|OldDefs])),
 	!, fail.
 
 processCommand("type",ExprInput) :- !,
-	(mainexpr(Exp,FreeVars,ExprInput,[]) -> true
-                       ; write('*** Syntax error'), nl, !, failWithExitCode),
-	typecheck(Exp,Type),
-	exp2Term(Exp,[],Term,Vs),
-	checkFreeVars(FreeVars,Vs),
+	parseMainExpression(ExprInput,Term,Type,Vs),
 	writeCurryTermWithFreeVarNames(Vs,Term),
 	write(' :: '),
 	numbersmallvars(97,_,Type), writeType(Type), nl,
@@ -692,11 +873,7 @@ processCommand("source",Arg) :-
 	!, fail.
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	(mainexpr(Exp,FreeVars,ExprInput,[]) -> true
-                       ; write('*** Syntax error'), nl, !, failWithExitCode),
-	typecheck(Exp,_Type),
-	exp2Term(Exp,[],Term,Vs),
-	checkFreeVars(FreeVars,Vs),
+	parseMainExpression(ExprInput,Term,_Type,_Vs),
 	showSourceCode(Term),
 	!, fail.
 
@@ -796,7 +973,9 @@ writeModuleFile((M,F)) :-
 
 % compile a source program into Prolog code:
 processCompile(ProgS,PrologFile) :-
-	parseProgram(ProgS),
+	verbosity(Verbosity),
+	parser_warnings(Warnings),
+	parseProgram(ProgS,Verbosity,Warnings),
 	atom_codes(Prog,ProgS),
 	prog2PrologFile(Prog,LocalPrologFile),
 	tryXml2Fcy(Prog),
@@ -1026,9 +1205,7 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	(mainexpr(Exp,_,ExprInput,[]) -> true
-                                 ; write('*** Syntax error'), nl, !, fail),
-	typecheck(Exp,Type),
+	parseMainExpression(ExprInput,_Term,Type,_Vs),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
@@ -1037,9 +1214,9 @@ processFork(ExprString) :-
 	processExpression(ExprString,ExecGoal),
 	forkProcessForGoal(evaluator:evaluateGoalAndExit(ExecGoal)),
 	setVerboseMode(QM),
-	sleepSeconds(2). % wait a little bit for starting up the new process
+	sleepSeconds(1). % wait a little bit for starting up the new process
 
-% check whether all free vars start with uppercase latter, if required:
+% check whether all free vars are declared, if required:
 checkFreeVars(FreeVars,Vs) :-
 	freeVarsUndeclared(no),
 	filterUndeclaredFreeVars(FreeVars,Vs,NUVs),
@@ -1119,30 +1296,16 @@ failprint(Exp,E,E) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call the front-end to parse a Curry program (argument is a string):
 
-parseProgram(ProgS) :-
+parseProgram(ProgS,Verbosity,Warnings) :-
 	findSourceProg(ProgS,ProgPathS), !,
   	installDir(TCP),
-        %appendAtoms(['"',TCP,'/bin/parsecurry" --flat'],PC),
-	%atom_codes(PC,CL1),
-	%(parser_warnings(no) -> append(CL1," --nowarns",CL2)
-	%                      ; CL2 = CL1 ),
-	%(verbosity(0) -> append(CL2," --quiet",CL3)
-	%               ; CL3 = CL2 ),
-	%getCurryPath(LP),
-	%(LP=[] -> CL4 = CL3
-	%        ; path2String(LP,LPS), append(LPS,[34],LPSQ),
-	%          append(" --path ",[34|LPSQ],PLPS),
-	%          append(CL3,PLPS,CL4)),
-	%compileWithCompact(CWC), append(CL4,CWC,CL5),
-	%append(CL5,[32|ProgS],LoadCmdL),
-	%atom_codes(LoadCmd,LoadCmdL),
 	appendAtoms(['"',TCP,'/bin/cymake" --flat'],CM1),
-	(parser_warnings(no) -> appendAtom(CM1,' --nowarns',CM2) ; CM2 = CM1 ),
-	(verbosity(0) -> appendAtom(CM2,' --no-verb',CM3)        ; CM3 = CM2 ),
+	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
+	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	(pakcsrc(warnoverlapping,no)
-           -> appendAtom(CM3,' --no-overlap-warn',CM4)           ; CM4 = CM3 ),
+           -> appendAtom(CM3,' --no-overlap-warn',CM4)    ; CM4 = CM3 ),
 	(pakcsrc(curryextensions,yes)
-           -> appendAtom(CM4,' --extended',CM5)                  ; CM5 = CM4 ),
+           -> appendAtom(CM4,' --extended',CM5)           ; CM5 = CM4 ),
 	getCurryPath(CP),
 	appendAtom(TCP,'/lib',TCPLib),
 	appendAtom(TCP,'/lib/meta',TCPLibMeta),
@@ -1168,7 +1331,7 @@ parseProgram(ProgS) :-
 	(shellCmd(PPCmd) -> true
 	  ; writeErr('ERROR occurred during FlatCurry preprocessing!'), nlErr,
 	    fail).
-parseProgram(_). % do not parse if source program does not exist
+parseProgram(_,_,_). % do not parse if source program does not exist
 
 addImports([],CY,CY).
 addImports([I|Is],CY1,CY3) :-
@@ -1419,6 +1582,8 @@ transDefinedFunc(ModF,ModFAtom) :-
 %
 % current restrictions:
 % - no lambda abstractions
+% - no case expressions
+% - no let expressions
 
 hasfixity('.',infixr(5)) :- !. % hack for list cons operator
 hasfixity('Prelude..',infixr(9)) :- !. % hack for function composition operator
@@ -1427,7 +1592,7 @@ hasfixity(O,Fixity) :-
 	(OFix=nofix -> Fixity=infixl(9) % non declared opids have fixity "infixl 9"
 	             ; Fixity=OFix).
 
-% parser for (let) bindings:
+% parser for (define) bindings:
 mainbinding(X,E) --> id(XS), skipblanks, "=", skipblanks,
 	             expr(E), {atom_codes(X,XS)}.
 
@@ -1528,7 +1693,7 @@ getBinding(Var,[_|Bs],E) :- getBinding(Var,Bs,E).
 
 % basic expressions:
 bexpr(Exp) --> id(S), {atom_codes(Name,S),
-		       letBindings(Lets), getBinding(Name,Lets,Exp)}.
+		       varDefines(Lets), getBinding(Name,Lets,Exp)}.
 bexpr(var(Name)) --> id(S), {atom_codes(Name,S)}.
 bexpr(var(Name)) --> "(", skipblanks, opid(S), ")", skipblanks,
                      {(S="=" ; S="|") -> !, fail ; atom_codes(Name,S)}.

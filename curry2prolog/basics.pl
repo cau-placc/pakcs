@@ -3,7 +3,7 @@
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
 		  noLoadMessage/0, lastload/1, plprofiling/1,
-		  setVerbosity/1, verbosityIntermediate/0,
+		  setVerbosity/1, verbosityIntermediate/0, verbosityDetailed/0,
 		  verbosemode/1, setVerboseMode/1, quietmode/1, rtargs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
@@ -35,9 +35,10 @@
 		  foldr/4, foldr1/3, appendAtoms/2, split2words/2,
 		  codes2number/2, isDigit/1,
 		  retractAllFacts/1, prefixComma/3,
-		  tryWriteFile/1, tryDeleteFile/1,
+		  tryWriteFile/1, tryDeleteFile/1, deleteFileIfExists/1,
 		  ensureDirOfFile/1, prog2PrologFile/2,
 		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
+		  prog2ICurryFile/2,
 		  readLine/1, readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
 		  printError/1,prologError2Atom/2]).
@@ -119,6 +120,9 @@ setVerbosity(N) :-
 
 % verbosity level >= 2 (show intermediate messages)?
 verbosityIntermediate :- verbosity(N), N>1.
+
+% verbosity level = 3 (show all details and intermediate results)?
+verbosityDetailed :- verbosity(N), N>2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % writing outputs:
@@ -504,6 +508,10 @@ tryWriteFile(File) :-
 tryDeleteFile(File) :-
 	on_exception(ErrorMsg,deleteFile(File),printError(ErrorMsg)).
 
+% delete a file if it exists:
+deleteFileIfExists(File) :-
+	existsFile(File) -> tryDeleteFile(File) ; true.
+
 % ensure that there exists the directory (usually, .curry/pakcs) of the given
 % file name, i.e., create it if it does not exist (and catch/show any errors):
 ensureDirOfFile(File) :-
@@ -521,13 +529,16 @@ prog2PrologFile(Prog,PrologFile) :-
 prog2InterfaceFile(Prog,IntFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	appendAtoms([ProgDir,'/.curry/',ProgBase,'.fint'],IntFile).
-	%appendAtoms([ProgDir,'/',ProgBase,'.fint'],IntFile).
 
 % generate the name of the FlatCurry file for a given Curry program name:
 prog2FlatCurryFile(Prog,FlatFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	appendAtoms([ProgDir,'/.curry/',ProgBase,'.fcy'],FlatFile).
-	%appendAtoms([ProgDir,'/',ProgBase,'.fcy'],FlatFile).
+
+% generate the name of the InterfaceCurry file for a given Curry program name:
+prog2ICurryFile(Prog,ICurryFile) :-
+	split2dirbase(Prog,ProgDir,ProgBase),
+	appendAtoms([ProgDir,'/.curry/',ProgBase,'.icurry'],ICurryFile).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -39,7 +39,7 @@
 	   try_save_program/1, saveprog_entry/2, try_save_predicates/2,
 	   ensure_lib_loaded/1, compilePrologFile/1,
 	   compilePrologFileAndSave/1, consultPrologorPOFile/2,
-	   getNewPrologFileName/1, mainPrologFileName/2,
+	   getNewFileName/2, mainPrologFileName/2,
 	   callAndReturnSuspensions/2, writeqWithVars/1,
 	   genBlockDecl/4]).
 
@@ -796,12 +796,13 @@ ensure_lib_loaded(Lib) :-
 	ensure_loaded(user:DirLib).
 
 
-% get name of temporary Prolog file:
-getNewPrologFileName(PrologFile) :-
+% get name of temporary file with a given (possibly empty) suffix:
+getNewFileName(Suffix,NewFile) :-
 	currentPID(PID),
 	number_codes(PID,PIDS),
-	app("/tmp/pakcsprog",PIDS,P1), app(P1,".pl",ProgS),
-	atom_codes(PrologFile,ProgS),
+	app("/tmp/pakcs_file_",PIDS,P1),
+	(Suffix=[] -> ProgS=P1 ; app(P1,[46|Suffix],ProgS)),
+	atom_codes(NewFile,ProgS),
 	app("rm -f ",ProgS,RmCmdS),
 	atom_codes(RmCmd,RmCmdS),
 	shellCmd(RmCmd).
@@ -810,7 +811,7 @@ getNewPrologFileName(PrologFile) :-
 % determine for a given Prolog file name (of the main module) a file name
 % where the clauses for the main predicates (hnf, constrEq,...) should be stored:
 mainPrologFileName(_PrologFile,MainPrologFile) :-
-	getNewPrologFileName(NewPrologFile),
+	getNewFileName("pl",NewPrologFile),
 	appendAtom(NewPrologFile,'.main',MainPrologFile).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

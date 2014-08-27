@@ -10,7 +10,8 @@
            profileCall/1, profileFail/1, profileExit/1, profileRedo/1,
 	   evaluateGoalAndExit/1, evaluateMainExpression/3,
 	   writeFailSource/1,
-	   writeCurry/1, writeVar/2, writeCurryTermWithFreeVarNames/2]).
+	   writeCurry/1, writeCurryOnStream/2,
+	   writeVar/2, writeCurryTermWithFreeVarNames/2]).
 
 :- use_module(prologbasics).
 :- use_module(basics).
@@ -93,7 +94,8 @@ evaluateMainExp(E,Vs,RTime1,ETime1) :-
 	((hasPrintedFailure ; printAllFailures) -> true
 	 ; asserta(hasPrintedFailure)),
 	bindingsForNewVariables(Vs,V,NewVs),
-	(Vs=[] -> true ; writeBindingsWithFreeVarNames(Suspended,Vs,NewVs)),
+	filterAnonymousVars(Vs,FVs),
+	(FVs=[] -> true ; writeBindingsWithFreeVarNames(Suspended,FVs,NewVs)),
 	writeMainResult(Done,Suspended,NewVs,V),
 	(Suspended=[] -> true ; writeSuspendedGoals(Suspended)),
 	((interactiveMode(yes) ; firstSolutionMode(yes))
@@ -578,6 +580,13 @@ writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
 writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
 	\+ \+ (bindFreeVars(Suspensions,AllBindings), writeSubstitution(Bindings)),
 	write(' '), !.
+
+% filter anonymous bindings (introduced by top-level let expressions):
+filterAnonymousVars([],[]).
+filterAnonymousVars([(V=_)|Bs],FBs) :- atom_codes(V,[_,C|_]), C<65, !,
+	filterAnonymousVars(Bs,FBs).
+filterAnonymousVars([(V=B)|Bs],[(V=B)|FBs]) :-
+	filterAnonymousVars(Bs,FBs).
 
 % show an output substitution in a readable way:
 writeBindings([]).

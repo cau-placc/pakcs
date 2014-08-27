@@ -7,8 +7,10 @@
 	  [c2p/1, c2p/2,
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
 	   forbiddenModules/1, writeClause/1,
+	   readProgInLoadPath/4,
 	   checkProgramHeader/1, deletePrologTarget/1,
-	   maxTupleArity/1, tryXml2Fcy/1]).
+	   maxTupleArity/1, tryXml2Fcy/1,
+	   letbindings2constr/3]).
 
 :- use_module(prologbasics).
 :- use_module(pakcsversion).
@@ -128,7 +130,7 @@ c2p(Prog,PrologFile) :-
 	writeErr('ERROR during compilation of program "'),
 	writeErr(Prog),
 	writeErr('"!'), nlErr,
-	(existsFile(PrologFile) -> tryDeleteFile(PrologFile) ; true).
+	deleteFileIfExists(PrologFile).
 
 % read all imported entities (types/functions/operators) of a set of modules:
 readImportedEntities(_,[],_,ImpTypes,ImpFuncs,ImpOps,ImpTypes,ImpFuncs,ImpOps) :- !.
@@ -254,7 +256,7 @@ generateProg(_,PrologFile) :-
 	told,
 	writeErr('ERROR during compiling, no program generated!'),
 	nlErr,
-	(existsFile(PrologFile) -> tryDeleteFile(PrologFile) ; true).
+	deleteFileIfExists(PrologFile).
 
 % write head of generated Prolog file:
 writePrologHeader :-
