@@ -585,7 +585,7 @@ getNewFileName(Suffix,PrologFile) :-
 	atom_codes(Main,MainS),
 	(Suffix=[] -> ProgS=MainS ; append(MainS,[46|Suffix],ProgS)),
 	atom_codes(PrologFile,ProgS),
-	append("rm -f ",ProgS,RmCmdS),
+	append("rm -rf ",ProgS,RmCmdS),
 	atom_codes(RmCmd,RmCmdS),
 	shellCmd(RmCmd).
 

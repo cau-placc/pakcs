@@ -356,10 +356,12 @@ parseExpressionSimple(Input,Term,Type,Vs) :-
 % process a given main expression by writing it into a main module
 % and calling the front end:
 parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
-	getNewFileName("",MainExprMod),
-	parseExpressionWithFrontendOnFile(MainExprMod,Input,MainExp,Type,Vs).
+	getNewFileName("",MainExprDir),
+	makeDirectory(MainExprDir),
+	parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs).
 
-parseExpressionWithFrontendOnFile(MainExprMod,Input,MainExp,Type,Vs) :-
+parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs) :-
+	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
 	writeMainExprFile(MainExprModFile,InputExp,FreeVars),
@@ -382,21 +384,22 @@ parseExpressionWithFrontendOnFile(MainExprMod,Input,MainExp,Type,Vs) :-
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
 	!,
-	deleteMainExpFiles(MainExprMod).
-parseExpressionWithFrontendOnFile(MainExprMod,_,_,_,_) :-
-	deleteMainExpFiles(MainExprMod),
+	deleteMainExpFiles(MainExprDir).
+parseExpressionWithFrontendOnFile(MainExprDir,_,_,_,_) :-
+	deleteMainExpFiles(MainExprDir),
 	!, fail.
 
 % delete all auxiliary files for storing main expression:
-deleteMainExpFiles(MainExprMod) :-
-	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
-	(pakcsrc(keepfiles,yes) -> true ; deleteFileIfExists(MainExprModFile)),
+deleteMainExpFiles(MainExprDir) :-
+	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	prog2FlatCurryFile(MainExprMod,MainExprFcyFile),
 	deleteFileIfExists(MainExprFcyFile),
 	prog2InterfaceFile(MainExprMod,MainExprFintFile),
 	deleteFileIfExists(MainExprFintFile),
 	prog2ICurryFile(MainExprMod,MainExprIcurryFile),
-	deleteFileIfExists(MainExprIcurryFile).
+	deleteFileIfExists(MainExprIcurryFile),
+	appendAtoms(['rm -rf ',MainExprDir],RmdirCmd),
+	(pakcsrc(keepfiles,yes) -> true ; shellCmd(RmdirCmd)).
 
 stripFuncTypes(0,Type,Type) :- !.
 stripFuncTypes(N,'FuncType'(_,RType),Type) :-

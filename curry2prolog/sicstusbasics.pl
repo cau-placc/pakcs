@@ -803,7 +803,7 @@ getNewFileName(Suffix,NewFile) :-
 	app("/tmp/pakcs_file_",PIDS,P1),
 	(Suffix=[] -> ProgS=P1 ; app(P1,[46|Suffix],ProgS)),
 	atom_codes(NewFile,ProgS),
-	app("rm -f ",ProgS,RmCmdS),
+	app("rm -rf ",ProgS,RmCmdS),
 	atom_codes(RmCmd,RmCmdS),
 	shellCmd(RmCmd).
 
