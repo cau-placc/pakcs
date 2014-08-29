@@ -9,8 +9,7 @@
 	   forbiddenModules/1, writeClause/1,
 	   readProgInLoadPath/4,
 	   checkProgramHeader/1, deletePrologTarget/1,
-	   maxTupleArity/1, tryXml2Fcy/1,
-	   letbindings2constr/3]).
+	   maxTupleArity/1, tryXml2Fcy/1, varIndex2VarExp/2]).
 
 :- use_module(prologbasics).
 :- use_module(pakcsversion).
@@ -754,7 +753,7 @@ completeCaseInBranch(FName,_,'Rigid',
 	atom_codes('Prelude.[]',EmptyList),
 	atom_codes('Prelude.:',ConsList),
 	FNameExp = 'Comb'('FuncCall',FName,[]),
-	map2M(compiler:var2Exp,Args,ArgExps),
+	map2M(compiler:varIndex2VarExp,Args,ArgExps),
 	ConsExp = 'Comb'('ConsCall',Cons,ArgExps),
 	ArgExp = 'Comb'('ConsCall',ConsList,[ConsExp,
 					     'Comb'('ConsCall',EmptyList,[])]),
@@ -768,7 +767,7 @@ generateMissingBranch(FName,Cons/Arity,'Branch'('Pattern'(Cons,Args),Failed)) :-
 	atom_codes('Prelude.[]',EmptyList),
 	atom_codes('Prelude.:',ConsList),
 	FNameExp = 'Comb'('FuncCall',FName,[]),
-	map2M(compiler:var2Exp,Args,ArgExps),
+	map2M(compiler:varIndex2VarExp,Args,ArgExps),
 	ConsExp = 'Comb'('ConsCall',Cons,ArgExps),
 	ArgExp = 'Comb'('ConsCall',ConsList,[ConsExp,
 					     'Comb'('ConsCall',EmptyList,[])]),
@@ -844,7 +843,7 @@ elimCasesInExp('Or'(E1,E2),'Comb'('FuncCall',FNew,FVExps)) :-
 	% elimCasesInExp(E1,NE1), no need to do that.
 	% elimCasesInExp(E2,NE2),
 	freeVarsInExp('Or'(E1,E2),FVs),
-	map2M(compiler:var2Exp,FVs,FVExps),
+	map2M(compiler:varIndex2VarExp,FVs,FVExps),
 	genAuxFuncName(FNew),
 	length(FVs,FNArity),
         elimNestedOrCases('Func'(FNew,FNArity,'Private',
@@ -857,7 +856,7 @@ elimCasesInExp('Case'(CT,CE,Branches),
 	elimCasesInExp(CE,NCE),
 	% elimCasesInBranches(Branches,NewBranches),
 	freeVarsInBranches(Branches,FVs),
-	map2M(compiler:var2Exp,FVs,FVExps),
+	map2M(compiler:varIndex2VarExp,FVs,FVExps),
 	genAuxFuncName(FNew),
 	length(FVs,FVLength),
 	FNArity is FVLength+1,
@@ -893,8 +892,6 @@ elimCasesInBranches(['Branch'(Pat,Exp)|Cs],
 	            ['Branch'(Pat,NewExp)|NCs]) :-
 	elimCasesInExp(Exp,NewExp),
 	elimCasesInBranches(Cs,NCs).
-
-var2Exp(I,'Var'(I)).
 
 % find a new variable index not occurring in a list of variables:
 newVarIndex(Index,Vars,NewIndex) :-
@@ -1045,7 +1042,8 @@ getTypeOfFunction([_|Funs],Name,FunType) :-
 	getTypeOfFunction(Funs,Name,FunType).
 
 addTVar(V,'TVar'(V)).
-varIndex2VarExp(V,'Var'(V)).
+
+varIndex2VarExp(I,'Var'(I)).
 
 constype2funtype([],T,T).
 constype2funtype([T|Ts],RT,'FuncType'(T,FT)) :-	constype2funtype(Ts,RT,FT).

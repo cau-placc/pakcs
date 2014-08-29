@@ -358,7 +358,15 @@ parseExpressionSimple(Input,Term,Type,Vs) :-
 parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
-	parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs).
+	workingDirectory(CurDir),
+	getCurryPath(SLP),
+	(SLP=[] -> setCurryPath(CurDir)
+                 ; path2String([CurDir|SLP],CPathS), atom_codes(CPath,CPathS),
+	           setCurryPath(CPath)),
+	parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs),
+	(SLP=[] -> setCurryPath('')
+                 ; path2String(SLP,PathS), atom_codes(Path,PathS),
+	           setCurryPath(Path)).
 
 parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs) :-
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
@@ -374,11 +382,14 @@ parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs) :-
 	readProgInLoadPath(LoadPath,ModName,FlatProg,_),
 	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
 	length(FreeVars,NumVars),
-	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,FlatExp))|MoreFs],
+	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,RuleExp))|MoreFs],
 	!,
-	(MoreFs=[] -> true
-                    ; writeErr('ERROR: local function definitions not yet allowed in main expressions!'),
-		      nlErr, fail),
+	((MoreFs=[], simpleFlatExp(RuleExp))
+          -> FlatExp = RuleExp
+           ; compileMainExpression(MainExprMod),
+	     map2M(compiler:varIndex2VarExp,RuleArgs,RuleVars),
+	     FlatExp = 'Comb'('FuncCall',
+	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
 	stripFuncTypes(NumVars,FuncType,FType),
 	flatType2MainType([],FType,_,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
@@ -401,6 +412,20 @@ deleteMainExpFiles(MainExprDir) :-
 	appendAtoms(['rm -rf ',MainExprDir],RmdirCmd),
 	(pakcsrc(keepfiles,yes) -> true ; shellCmd(RmdirCmd)).
 
+% compile and load the "main expression program" since it contains some
+% functions generated from the main expression, e.g., let bindings:
+compileMainExpression(MainExprMod) :-
+	prog2PrologFile(MainExprMod,PrologFile),
+	c2p(MainExprMod,PrologFile),
+	currentModule(CurrMod),
+	on_exception(ErrorMsg,
+                     (addImports(AddImps),
+		      loadAndCompile(PrologFile,AddImps,create)),
+	             printError(ErrorMsg) ),
+	curryModule(CurrMod).
+
+
+% strip the first n function types from a type expression:
 stripFuncTypes(0,Type,Type) :- !.
 stripFuncTypes(N,'FuncType'(_,RType),Type) :-
         N1 is N-1, stripFuncTypes(N1,RType,Type).
@@ -445,6 +470,19 @@ flatTypes2MainTypes(Vs,[FE|FEs],Vs2,[E|Es]) :-
 	flatType2MainType(Vs,FE,Vs1,E),
 	flatTypes2MainTypes(Vs1,FEs,Vs2,Es).
 
+% is a FlatCurry expression simple, i.e., does not contains Let/Case/Or/Typed?
+simpleFlatExp('Var'(_)).
+simpleFlatExp('Lit'(_)).
+simpleFlatExp('Comb'(_,_,Args)) :- simpleFlatExps(Args).
+simpleFlatExp('Free'(_,Exp)) :- simpleFlatExp(Exp).
+simpleFlatExp('Let'(_,_)) :- fail.
+simpleFlatExp('Or'(_,_)) :- fail.
+simpleFlatExp('Typed'(_,_)) :- fail.
+simpleFlatExp('Case'(_,_,_)) :- fail.
+simpleFlatExps([]).
+simpleFlatExps([E|Es]) :- simpleFlatExp(E), simpleFlatExps(Es).
+
+% translate FlatCurry expression from fcy reader into internal format:
 flatExp2MainExp(Vs,'Var'(I),Vs1,V) :-
 	number_codes(I,IS), atom_codes(VN,[95,120|IS]), addVar(VN,Vs,V,Vs1).
 flatExp2MainExp(Vs,'Lit'('Intc'(I)),Vs,I).
@@ -470,17 +508,17 @@ flatExp2MainExp(Vs,'Comb'(CType,FNameS,FArgs),Vs1,Exp) :-
 	  ; Exp = ExpOrPartCall).
 flatExp2MainExp(Vs,'Free'(_,FExp),Vs1,Exp) :-
 	flatExp2MainExp(Vs,FExp,Vs1,Exp).
-flatExp2MainExp(Vs,'Let'(Bindings,FExp),Vs1,Exp) :-
-	letbindings2constr(Bindings,FExp,BindingExp),
-	flatExp2MainExp(Vs,BindingExp,Vs1,Exp).
+flatExp2MainExp(_,'Let'(_,_),_,_) :-
+        writeErr('ERROR: Let not allowed in main expressions!'), nlErr,
+	!, fail.
 flatExp2MainExp(_,'Or'(_,_),_,_) :-
-        writeErr('ERROR: Or not yet allowed in main expressions!'), nlErr,
+        writeErr('ERROR: Or not allowed in main expressions!'), nlErr,
 	!, fail.
 flatExp2MainExp(_,'Typed'(_,_),_,_) :-
-        writeErr('ERROR: Typed not yet allowed in main expressions!'), nlErr,
+        writeErr('ERROR: Typed not allowed in main expressions!'), nlErr,
 	!, fail.
 flatExp2MainExp(_,'Case'(_,_,_),_,_) :-
-        writeErr('ERROR: Case not yet allowed in main expressions!'), nlErr,
+        writeErr('ERROR: Case not allowed in main expressions!'), nlErr,
 	!, fail.
 
 flatExps2MainExps(Vs,[],Vs,[]).
