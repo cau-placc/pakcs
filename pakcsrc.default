@@ -39,6 +39,14 @@ showcommand=
 # (e.g., used in the Curry browser and the erd2curry tools)
 dotviewcommand=dot -Tps > /tmp/dotxxx ; gv /tmp/dotxxx
 
+# Optimize Boolean equalities (==): transform them into binding
+# constraints (=:=) whenever they must be evaluated only to True.
+# possible values:
+#   no   (do not optimize)
+#   fast (optimize w.r.t. standard Prelude)
+#   full (perform full program analysis to optimize more occurrences)
+bindingoptimization=fast
+
 # Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
 verboserc=no
 

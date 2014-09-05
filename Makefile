@@ -21,7 +21,7 @@ MINORVERSION=11
 # The revision version number:
 REVISIONVERSION=4
 # The build version number:
-BUILDVERSION=3
+BUILDVERSION=4
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -101,7 +101,9 @@ install: installscripts copylibs
 	 else rm -f bin/pakcs ; fi
 	# compile all libraries:
 	@cd lib && $(MAKE) acy
-	# prepare for separate compilation by compiling all librariers to Prolog code:
+	# compile optimization tools:
+	@cd currytools/optimize && $(MAKE)
+	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
 	$(MAKE) tools
 	$(MAKE) docs

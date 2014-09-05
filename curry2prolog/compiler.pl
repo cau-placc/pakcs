@@ -326,7 +326,7 @@ readInterface([Dir|Dirs],Prog,FlatInt,DirProgName) :-
 	      ; true)
 	  ; readInterface(Dirs,Prog,FlatInt,DirProgName)).
 
-% read a flat program:
+% read a FlatCurry program:
 readProg(LoadPath,Prog,FlatProg,AbsFlatProgFile) :-
 	readProgInLoadPath(LoadPath,Prog,FlatProg,AbsFlatProgFile).
 
@@ -339,7 +339,20 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	prog2FlatCurryFile(DirProg,DirProgFile),
 	tryXml2Fcy(DirProg),
 	(existsFile(DirProgFile)
-	 -> readFlcFromFcy(DirProgFile,PlainFlatProg),
+	 -> installDir(PH),
+	    appendAtoms([PH,'/currytools/optimize/bindingopt'],OptProg),
+	    ((existsFile(OptProg), \+ pakcsrc(bindingoptimization,no))
+	     -> verbosity(VL),
+	        (VL=0 -> OptVL=48 ; OptVL is VL+47),
+	        atom_codes(VParam,[45,118,OptVL,32]), % define -vN
+		(pakcsrc(bindingoptimization,fast) -> FParam='-f '
+	                                            ; FParam=' '),
+	        appendAtoms(['"',OptProg,'" ',VParam,FParam,DirProgFile],OptCmd),
+                (verbosityIntermediate -> write('Executing: '),write(OptCmd),nl
+                  ; true),
+	        shellCmdWithCurryPath(OptCmd)
+              ; true),
+            readFlcFromFcy(DirProgFile,PlainFlatProg),
 	    AbsFlatProgFile = DirProgFile,
 	    mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg),
 	    (verbosityIntermediate
@@ -1873,12 +1886,12 @@ transBoolEq(Suffix) :-
 	   writeClause((BoolEqHnf_X_FAIL_E_E :- !))),
 	BoolEqHnf_A_B_R_E0_E =.. [BoolEqHnf,A,B,R,E0,E],
 	writeClause((BoolEqHnf_A_B_R_E0_E :-
-		       number(A), !, (A==B->R='Prelude.True';R='Prelude.False'), E0=E)),
+		       number(A), !, (A=B->R='Prelude.True';R='Prelude.False'), E0=E)),
 	appendAtom(genBoolEqHnfBody,Suffix,GenBoolEqHnfBody),
 	GenBoolEqHnfBody_1_NA =.. [GenBoolEqHnfBody,1,NA,A,B,SeqBody],
 	writeClause((BoolEqHnf_A_B_R_E0_E :-
-		       functor(A,FA,NA),functor(B,FB,NB),
-		       ((FA==FB,NA==NB,GenBoolEqHnfBody_1_NA)
+		       functor(A,FA,NA),
+		       ((functor(B,FA,NA),GenBoolEqHnfBody_1_NA)
 		          -> hnf(SeqBody,R,E0,E)
 		           ; R='Prelude.False',E0=E))),
 	nl,
