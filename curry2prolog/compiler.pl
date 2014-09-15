@@ -350,7 +350,9 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	        appendAtoms(['"',OptProg,'" ',VParam,FParam,DirProgFile],OptCmd),
                 (verbosityIntermediate -> write('Executing: '),write(OptCmd),nl
                   ; true),
-	        shellCmdWithCurryPath(OptCmd)
+	        (shellCmdWithCurryPath(OptCmd) -> true
+	          ; writeErr('WARNING: no binding optimization performed due to error!'),
+		    nlErr)
               ; true),
             readFlcFromFcy(DirProgFile,PlainFlatProg),
 	    AbsFlatProgFile = DirProgFile,
