@@ -339,21 +339,7 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	prog2FlatCurryFile(DirProg,DirProgFile),
 	tryXml2Fcy(DirProg),
 	(existsFile(DirProgFile)
-	 -> installDir(PH),
-	    appendAtoms([PH,'/currytools/optimize/bindingopt'],OptProg),
-	    ((existsFile(OptProg), \+ pakcsrc(bindingoptimization,no))
-	     -> verbosity(VL),
-	        (VL=0 -> OptVL=48 ; OptVL is VL+47),
-	        atom_codes(VParam,[45,118,OptVL,32]), % define -vN
-		(pakcsrc(bindingoptimization,fast) -> FParam='-f '
-	                                            ; FParam=' '),
-	        appendAtoms(['"',OptProg,'" ',VParam,FParam,DirProgFile],OptCmd),
-                (verbosityIntermediate -> write('Executing: '),write(OptCmd),nl
-                  ; true),
-	        (shellCmdWithCurryPath(OptCmd) -> true
-	          ; writeErr('WARNING: no binding optimization performed due to error!'),
-		    nlErr)
-              ; true),
+	 -> preprocessFcyFile(DirProgFile),
             readFlcFromFcy(DirProgFile,PlainFlatProg),
 	    AbsFlatProgFile = DirProgFile,
 	    mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg),
@@ -361,6 +347,24 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	     -> checkForFurtherFcyProgs(Dir,Dirs,Prog) ; true)
 	  ; readProgInLoadPath(Dirs,Prog,FlatProg,AbsFlatProgFile)).
 
+% Pre-process the FlatCurry program before loading for compilation.
+% Currently, the binding optimizer (replace =:=/2 by ==/2) is applied.
+preprocessFcyFile(FcyFile) :-
+    installDir(PH),
+    appendAtoms([PH,'/currytools/optimize/bindingopt'],OptProg),
+    existsFile(OptProg), \+ pakcsrc(bindingoptimization,no), !,
+    verbosity(VL),
+    (VL=0 -> OptVL=48 ; OptVL is VL+47),
+    atom_codes(VParam,[45,118,OptVL,32]), % define -vN
+    (pakcsrc(bindingoptimization,fast) -> FParam='-f ' ; FParam=' '),
+    appendAtoms(['"',OptProg,'" ',VParam,FParam,FcyFile],OptCmd),
+    (verbosityIntermediate -> write('Executing: '), write(OptCmd),nl ; true),
+    (shellCmdWithCurryPath(OptCmd) -> true
+     ; writeErr('WARNING: no binding optimization performed for file:'), nlErr,
+       writeErr(FcyFile),
+       nlErr).
+preprocessFcyFile(_).
+ 
 checkForFurtherFcyProgs(_,[],_).
 checkForFurtherFcyProgs(FcyDir,[Dir|Dirs],Prog) :-
 	appendAtoms([Dir,'/',Prog],DirProg),
