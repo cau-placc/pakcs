@@ -11,7 +11,8 @@
 %:- module(prim_io,
 %	  [prim_stdin/1,prim_stdout/1,prim_stderr/1,prim_openFile/3,
 %	   prim_hClose/2,prim_hFlush/2,prim_hIsEOF/2,prim_hSeek/4,
-%	   prim_hWaitForInputs/5,prim_hWaitForInputsOrMsg/5,
+%	   prim_hWaitForInput/5,prim_hWaitForInputs/5,
+%          prim_hWaitForInputsOrMsg/5,
 %	   prim_hGetChar/2,prim_hPutChar/3,
 %          prim_hIsReadable/2,prim_hIsWritable/2]).
 
@@ -64,6 +65,14 @@ currySeekMode2plmode('IO.AbsoluteSeek',bof).
 currySeekMode2plmode('IO.RelativeSeek',current).
 currySeekMode2plmode('IO.SeekFromEnd',eof).
 
+
+?- block prim_hWaitForInput(?,?,?,-,?).
+prim_hWaitForInput(Hdl,TO,partcall(1,exec_hWaitForInput,[TO,Hdl]),E,E).
+?- block exec_hWaitForInput(?,?,?,?,-,?).
+exec_hWaitForInput(RStream,RTO,World,'$io'(B),E0,E) :-
+	exec_hWaitForInputs([RStream],RTO,World,'$io'(N),E0,E1),
+	(N=0 -> B='Prelude.True' ; B='Prelude.False'),
+	!, E1=E.
 
 ?- block prim_hWaitForInputs(?,?,?,-,?).
 prim_hWaitForInputs(H,T,partcall(1,exec_hWaitForInputs,[T,H]),E,E).
