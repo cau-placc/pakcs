@@ -58,15 +58,12 @@ curry2prolog/prologbasics.pl
 curry2prolog/libswi
 curry2prolog/pakcs
 tools/Peval/peval
-tools/check
 tools/coosy/CoosyGUI
 tools/curry2xml
-tools/erd2curry/Main
 tools/optimize/CompactFlat
 tools/optimize/NonStrictOpt
 tools/xmldata/dataToXml
 www/Registry
-www/SubmitForm
 www/submitform
 
 # documentation
