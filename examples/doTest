@@ -25,7 +25,10 @@ case "$BACKEND" in
   swi5     ) TESTLIBSBACKEND="testIO " ;;
 esac
 
-ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND"
+# test tools
+TESTTOOLS="testData2Xml"
+
+ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND $TESTTOOLS"
 
 # execute all unit tests:
 echo "Executing unit tests for back end $BACKEND..."
