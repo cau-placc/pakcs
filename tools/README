@@ -28,13 +28,7 @@ lib_deprecated:
 
 optimize:
    Directory containing a simple optimizer for FlatCurry programs
-   (integrated in the Curry2Prolog compiler environment by the
-   option "compact").
+   (integrated in PAKCS by the option "compact").
 
 ui:
    This directory contains libraries to implement generic user interfaces.
-
-xmldata:
-   Directory containing a tool to generate conversion functions
-   between data types and XML representations. The corresponding
-   tool is called by "pakcs/bin/dataToXml".

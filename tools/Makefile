@@ -9,7 +9,6 @@ OLDLIBDIR=$(ROOT)/tools/lib_deprecated
 .PHONY: all
 all:    curry2xml
 	@cd optimize  ; $(MAKE)
-	@cd xmldata   ; $(MAKE)
 	@cd Peval     ; $(MAKE)
 	@cd coosy     ; $(MAKE)
 	@cd ui        ; $(MAKE)
@@ -28,5 +27,4 @@ clean:
 	cd Peval     ; $(MAKE) clean
 	cd coosy     ; $(MAKE) clean
 	cd optimize  ; $(MAKE) clean
-	cd xmldata   ; $(MAKE) clean
 	cd ui        ; $(MAKE) clean

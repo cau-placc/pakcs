@@ -49,7 +49,7 @@ bin/currycreatemake
 bin/currydoc
 bin/currybrowse
 bin/currypp
-bin/dataToXml
+bin/data2xml
 bin/erd2curry
 bin/fcypp
 bin/spiceup
@@ -62,7 +62,6 @@ tools/coosy/CoosyGUI
 tools/curry2xml
 tools/optimize/CompactFlat
 tools/optimize/NonStrictOpt
-tools/xmldata/dataToXml
 www/Registry
 www/submitform
 
