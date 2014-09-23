@@ -12,13 +12,15 @@ bigCoin = 2 ? 4
 
 f x = coin + x
 
-test1 = assertSolutions "NoSetFun" (\x -> x =:= f bigCoin) [2,3,4,5]
+test1 = assertValues "NoSetFun" (f bigCoin) [2,3,4,5]
 
-test2 = assertSolutions "SetFun_f_bigCoin"
-                        (=:= (foldValues (+) 0 (set1 f bigCoin)))
-                        [5,9]
+test2 = assertValues "SetFun_f_bigCoin"
+                     (foldValues (+) 0 (set1 f bigCoin))
+                     [5,9]
 
 -------------------------------------------------------------------------
+-- The flight example from the paper introducing set functions
+
 data FlightNumber = LH469 | NWA92 | LH10 | KL1783
 
 data City = Portland | Frankfurt | Amsterdam | Hamburg
@@ -74,6 +76,7 @@ testFlight2 = assertEqual "Flight2" (shortestItinSelect Portland Hamburg)
 
 
 -------------------------------------------------------------------------
+-- Definition of n-queens with set functions
 
 perm [] = []
 perm (x:xs) = ndinsert x (perm xs)
@@ -88,9 +91,9 @@ queens n | isEmpty ((set1 unsafe) p) = p
        unsafe (_++[x]++y++[z]++_) = abs (x-z) =:= length y + 1
 
 
-testq1 = assertSolutions "Queens4" (=:= (queens 4)) [[3,1,4,2],[2,4,1,3]]
+testq1 = assertValues "Queens4" (queens 4) [[3,1,4,2],[2,4,1,3]]
 
-testq2 = assertSolutions "Queens6" (=:= (queens 6))
+testq2 = assertValues "Queens6" (queens 6)
              [[5,3,1,6,4,2],[4,1,5,2,6,3],[3,6,2,5,1,4],[2,4,6,1,3,5]]
 
 -------------------------------------------------------------------------

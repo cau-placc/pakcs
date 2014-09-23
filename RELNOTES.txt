@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.4 (September 5, 2014)
-----------------------------------------------------------
+Release notes for PAKCS Version 1.11.4 (September 23, 2014)
+-----------------------------------------------------------
 
 Changes to version 1.11.3:
   * The interactive top-level loop uses the standard front end
@@ -23,6 +23,7 @@ Changes to version 1.11.3:
   * Tool `CASS`: new analysis `RequiredValues` added.
   * Optimization tool `bindingopt` for transforming Boolean equalities
     into constraint equalities added.
+  * Tool `data2xml` for data conversion to XML and back added.
 
 
 Release notes for PAKCS Version 1.11.3 (July 21, 2014)

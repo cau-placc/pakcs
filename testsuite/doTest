@@ -1,15 +1,14 @@
 #!/bin/sh
-# script to execute tests for Curry
-PAKCSHOME=..
+# script to execute unit tests for Curry
+CURRYHOME=..
+CURRYBIN=$CURRYHOME/bin
 
 TESTPARAMS="--window"
 if [ "$1" = "--nogui" ] ; then
   TESTPARAMS=
 fi
 
-$PAKCSHOME/bin/cleancurry
-
-BACKEND=`echo "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" | $PAKCSHOME/bin/pakcs -l Distribution -q 2> /dev/null`
+BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
 
 # test for basic language features
 TESTLANG="testFunctional testInfinite testHigher testNarr testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testNonStrictUnif testFuncPattern testAsPattern"
@@ -30,6 +29,9 @@ TESTTOOLS="testData2Xml"
 
 ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND $TESTTOOLS"
 
+# clean up before
+$KICS2BIN/cleancurry
+
 # execute all unit tests:
 echo "Executing unit tests for back end $BACKEND..."
-$PAKCSHOME/bin/currytest $TESTPARAMS $ALLTESTS
+$CURRYBIN/currytest $TESTPARAMS $ALLTESTS
