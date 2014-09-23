@@ -790,9 +790,20 @@ isCompleteList([X|Xs],[X|L]) :- isCompleteList(Xs,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print an error message:
-printError(Error):-
+printError(error(_,Error)):-
 	prologError2Atom(Error,ErrorA),
 	writeErr(ErrorA), nlErr,
+        seen, told,
+        !,
+        fail.
+printError(Error):-write(Error),nl,
+	writeErr('ERROR: '), print_message(error,Error),
+        seen, told,
+        !,
+        fail.
+printError(Error):-
+	prologTerm2Atom(Error,ErrorA),
+	writeErr('ERROR: '), writeErr(ErrorA), nlErr,
         seen, told,
         !,
         fail.
@@ -809,10 +820,6 @@ prologError2Atom(existence_error(_Goal,_,ObjType,Culprit,_),ErrA) :-
 prologError2Atom(permission_error(_Goal,_,ObjType,Culprit,Msg),ErrA) :-
 	atom(ObjType), atom(Culprit), atom(Msg), !,
 	appendAtoms(['PERMISSION ERROR: ',ObjType,' "',Culprit,'" ',Msg],ErrA).
-prologError2Atom(Err,ErrorAtom) :-
-	prologTerm2Atom(Err,ErrA), !,
-	appendAtoms(['ERROR: ',ErrA],ErrorAtom).
-prologError2Atom(_,'GENERAL ERROR').
 
 prologTerm2Atom(V,'_') :- var(V), !.
 prologTerm2Atom(A,A) :- atom(A), !.
