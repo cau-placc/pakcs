@@ -84,9 +84,9 @@ and compiles from this intermediate representation.
 \item[\fbox{\code{:reload}}]\pindex{:reload}
 Recompile all currently loaded modules.
 
-\item[\fbox{\code{:add} $m$}]\pindex{:add}
-Add module $m$ to the set of currently loaded modules
-so that its exported entities are available in the top-level environment.
+\item[\fbox{\code{:add} $m_1 \ldots m_n$}]\pindex{:add}
+Add modules $m_1,\ldots,m_n$ to the set of currently loaded modules
+so that their exported entities are available in the top-level environment.
 
 \item[\fbox{$expr$}] Evaluate the expression $expr$ to normal form
 and show the computed results. Since \CYS
@@ -102,32 +102,24 @@ The default answer value for this question can be defined
 in the configuration file \ccode{\curryrc} file
 (see Section~\ref{sec-customization}).
 
-\textbf{Free variables in initial expressions} must be declared as in Curry programs
+\textbf{Free variables in initial expressions} must be declared as
+in Curry programs
 (if the free variable mode\index{free variable mode} is not turned on,
-see option \ccode{+free} below), i.e.,
-either by a \ccode{let\ldots{}free in}
-or by a \ccode{where\ldots{}free} declaration.
+see option \ccode{+free} below).
+Thus, in order to see the results of their bindings,
+they must be introduced by a \ccode{where\ldots{}free} declaration.
 For instance, one can write
 \begin{curry}
-let xs,ys free in xs++ys =:= [1,2]
+not b where b free
 \end{curry}
-or
+in order to obtain the following bindings and results:
 \begin{curry}
-xs++ys =:= [1,2]  where xs,ys free
-\end{curry}
-in order to obtain the following three possible bindings:
-\begin{curry}
-{xs = [], ys = [1,2]} Success
-{xs = [1], ys = [2]} Success
-{xs = [1,2], ys = []} Success
+{b = True} False
+{b = False} True
 \end{curry}
 Without these declarations, an error is reported in order to
 avoid the unintended introduction of free variables in initial expressions
 by typos.
-
-Note that lambda abstractions, \code{let}s and list comprehensions
-in top-level expressions are not yet supported in initial expressions
-typed in the top-level of \CYS.
 
 \item[\fbox{:eval $expr$}]\pindex{:eval}
 Same as $expr$. This command might be useful when putting
@@ -208,15 +200,19 @@ In the debug mode, one can trace the evaluation of an expression,
 setting spy points (break points) etc.\ (see the commands
 for the debug mode described below).
 
-\item[\fbox{\code{+/-free}}]\pindex{free} Free variable mode.\index{free variable mode}
+\item[\fbox{\code{+/-free}}]\pindex{free}
+Free variable mode.\index{free variable mode}
 If the free variable mode is off (default), then
 free variables occurring in initial expressions entered in the
-\CYS environment must always be declared by a \ccode{let\ldots{}free in}
-or \ccode{where\ldots{}free} declaration (as in Curry programs).
+\CYS environment must always be declared by \ccode{where\ldots{}free}.
 This avoids the introduction of free variables in initial expressions
 by typos (which might lead to the exploration of infinite search spaces).
-If the free variable mode is on, each undefined symbol
+If the free variable mode is on, each undefined symbol occurring
 in an initial expression is considered as a free variable.
+In this case, the syntax of accepted initial expressions
+is more restricted.
+In particular, lambda abstractions, \code{let}s and list comprehensions
+are not allowed if the free variable mode is on.
 
 \item[\fbox{\code{+/-printfail}}]\pindex{printfail} Print failures.
 If this option is set, failures occurring during evaluation

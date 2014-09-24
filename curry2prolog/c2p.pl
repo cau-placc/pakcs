@@ -207,16 +207,15 @@ writeMainHelp :-
 % Compute the prompt of the interactive loop:
 pakcs_prompt('') :- quietmode(yes), !.
 pakcs_prompt(Prompt) :-
-        currentModule(MN), atom_codes(MN,MNS),
+	currentModule(MN),
 	currentprogram(CPS),
 	atom_codes(CP,CPS),
 	split2dirbase(CP,_,BaseProg),
-	atom_codes(BaseProg,CPS0),
-	(MN=BaseProg -> MCP=CPS0
-	 ; append(CPS0,"(module: ",CPS1),
-	   append(CPS1,MNS,CPS2), append(CPS2,[41],MCP)),
-	append(MCP,"> ",PromptString),
-	atom_codes(Prompt,PromptString),
+	addImports(AddImps),
+	intersperse(' ',[BaseProg|AddImps],AllMods),
+	appendAtoms(AllMods,CurrMods),
+	(MN=BaseProg -> appendAtoms([CurrMods,'> '],Prompt)
+	 ; appendAtoms([CurrMods,' (module: ',MN,')> '],Prompt)),
 	!.
 
 % main read-eval-print loop of the environment:
@@ -568,7 +567,7 @@ processCommand("quit",[]) :- !.
 processCommand("help",[]) :- !,
 	write('Commands (can be abbreviated to a prefix if unique):'), nl,
 	write(':load <prog>      - compile and load program "<prog>.curry" and all imports'),nl,
-	write(':add <prog>       - add module <prog> to currently loaded modules'),nl,
+	write(':add <m1> .. <mn> - add modules <m1> to <mn> to currently loaded modules'),nl,
 	write(':reload           - recompile currently loaded modules'),nl,
 	write(':eval <expr>      - evaluate expression <expr>'), nl,
 	write(':define <v>=<exp> - define variable binding for subsequent expressions'), nl,
@@ -689,10 +688,13 @@ processCommand("set",Option) :- !,
 	!, fail.
 
 processCommand("add",Arg) :- !,
-	extractProgName(Arg,Prog),
-	isValidModuleName(Prog),
-	atom_codes(Imp,Prog),
-	retract(addImports(Imps)), asserta(addImports([Imp|Imps])),
+	split2words(Arg,Args),
+	map2M(user:extractProgName,Args,Progs),
+	map1M(user:isValidModuleName,Progs),
+	map2M(prologbasics:atomCodes,NewImps,Progs),
+	retract(addImports(OldAddImps)),
+	append(NewImps,OldAddImps,NewAddImps),
+	asserta(addImports(NewAddImps)),
         processCommand("reload",[]),
 	!, fail.
 

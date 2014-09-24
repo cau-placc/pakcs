@@ -32,7 +32,8 @@
 		  rev/2, concat/2, take/3, drop/3, splitAt/4,
 		  memberEq/2, deleteFirst/3, replaceEq/4,
 		  union/3, diff/3,
-		  foldr/4, foldr1/3, appendAtoms/2, split2words/2,
+		  foldr/4, foldr1/3, intersperse/3,
+		  appendAtoms/2, split2words/2,
 		  codes2number/2, isDigit/1,
 		  retractAllFacts/1, prefixComma/3,
 		  tryWriteFile/1, tryDeleteFile/1, deleteFileIfExists/1,
@@ -452,6 +453,11 @@ foldr(C,E,[X|Xs],T) :- foldr(C,E,Xs,XsT), T =.. [C,X,XsT].
 % foldr1: replace '.' in a non-empty list by a constructor:
 foldr1(_,[X],X).
 foldr1(C,[X1,X2|Xs],T) :- foldr1(C,[X2|Xs],XsT), T =.. [C,X1,XsT].
+
+% intersperse: puts a separator (first arg) between all elements in a list:
+intersperse(_,[],[]).
+intersperse(_,[X],[X]).
+intersperse(Sep,[X,Y|Zs],[X,Sep|Xs]) :- intersperse(Sep,[Y|Zs],Xs).
 
 % concatenate a list of atom into a single atom:
 appendAtoms(As,A) :-
