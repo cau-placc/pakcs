@@ -84,7 +84,7 @@ noLoadMessage :- \+ verbosityIntermediate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-lastload(""). % program in last load command
+lastload("Prelude"). % program in last load command
 quietmode(no).	% yes if environment should work in quiet mode (option -q)
 plprofiling(no). % perform profiling with Prolog profiler
 rtargs([]).	% run-time arguments from script call

@@ -6,7 +6,8 @@
 	  [currentModule/1, loadedModule/2, initializationsInProg/1,
 	   currentCostCenters/1, curryModule/1, costCenters/1,
 	   initializeBeforeLoad/0, initializationsInModule/1,
-	   loadAndCompile/3, importModule/1, startCPNSD/0]).
+	   loadAndCompile/3, importModule/1, checkPrologTarget/2,
+	   startCPNSD/0]).
 
 :- dynamic currentModule/1, loadedModule/2, importedModule/1,
 	   initializationsInProg/1, currentCostCenters/1.
@@ -81,13 +82,19 @@ importModule(Mod) :- assertz(importedModule(Mod)).
 
 loadImportedModule(Mod) :- loadedModule(Mod,_), !. % already loaded
 loadImportedModule(Mod) :-
-	(findPrologTargetFileInLoadPath(Mod,PrologFile)
-	 -> assertz(loadedModule(Mod,PrologFile)),
-	    compilePrologFileAndSave(PrologFile)
-	  ; write(user_error,'ERROR: Compiled code for Curry module '),
-	    write(user_error,Mod),
-	    write(user_error,' not found!'),
-	    nl(user_error), !, fail).
+	checkPrologTarget(Mod,PrologFile),
+	assertz(loadedModule(Mod,PrologFile)),
+	compilePrologFileAndSave(PrologFile).
+
+% Check existence of the Prolog target file for a module:
+% If it exists, return name of target file, otherwise fail with error message.
+checkPrologTarget(Mod,PrologFile) :-
+	findPrologTargetFileInLoadPath(Mod,PrologFile), !.
+checkPrologTarget(Mod,_) :-
+	write(user_error,'ERROR: Compiled code for Curry module '),
+	write(user_error,Mod),
+	write(user_error,' not found!'),
+	nl(user_error), !, fail.
 
 % start the CPNS demon (used in initialization of library CPNS):
 startCPNSD :-

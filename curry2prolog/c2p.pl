@@ -307,7 +307,9 @@ process([58|Cs]) :- !, % 58=':'
 	expandCommand(ShortCmd,Cmd),
 	removeBlanks(Rest,Params),
 	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
-	processCommand(Cmd,Params).
+	processCommand(Cmd,Params),
+	!,
+	Cmd="quit".
 process(Input) :-
 	processExpression(Input,ExprGoal),
 	call(ExprGoal).
@@ -460,8 +462,7 @@ flatType2MainType(Vs,'FuncType'(FT1,FT2),Vs2,'FuncType'(T1,T2)) :-
         flatType2MainType(Vs,FT1,Vs1,T1),
         flatType2MainType(Vs1,FT2,Vs2,T2).
 flatType2MainType(Vs,'TCons'(TNameS,TArgs),Vs1,'TCons'(TName,Args)) :-
-        atom_codes(TNameO,TNameS),
-	flatCons2MainCons(TNameO,TName),
+	flatName2Atom(TNameS,TName),
 	flatTypes2MainTypes(Vs,TArgs,Vs1,Args).
 
 flatTypes2MainTypes(Vs,[],Vs,[]).
@@ -494,8 +495,7 @@ flatExp2MainExp(Vs,'Comb'(_,FNameS,[FA1,FA2]),Vs1,Exp) :-
 	 -> Exp = makeShare('Prelude.apply'(A1,A2),_)
 	  ; Exp = 'Prelude.apply'(A1,A2)).
 flatExp2MainExp(Vs,'Comb'(CType,FNameS,FArgs),Vs1,Exp) :-
-	atom_codes(FNameO,FNameS),
-	flatCons2MainCons(FNameO,FName),
+	flatName2Atom(FNameS,FName),
 	flatExps2MainExps(Vs,FArgs,Vs1,Args),
 	FExp =.. [FName|Args],
 	((CType='FuncCall' ; CType='ConsCall' ; CType='ConsPartCall'(_))
@@ -524,10 +524,6 @@ flatExps2MainExps(Vs,[],Vs,[]).
 flatExps2MainExps(Vs,[FE|FEs],Vs2,[E|Es]) :-
 	flatExp2MainExp(Vs,FE,Vs1,E),
 	flatExps2MainExps(Vs1,FEs,Vs2,Es).
-
-flatCons2MainCons('Prelude.:','.') :- !.
-flatCons2MainCons('Prelude.[]',[]) :- !.
-flatCons2MainCons(C,C).
 
 writeMainExprFile(ExprFile,Input,FreeVars) :-
 	(verbosityIntermediate
@@ -679,13 +675,11 @@ processCommand("set",[]) :- !,
 	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
 	  (tracemode  -> write('+') ; write('-')), write(trace), write('  '),
 	  write('/ spy points: '), spypoints(SPs), write(SPs), nl
-	 ; true),
-	!, fail.
+	 ; true).
 
 processCommand("set",Option) :- !,
 	expandOption(Option,CompletedOption),
-	processSetOption(CompletedOption),
-	!, fail.
+	processSetOption(CompletedOption).
 
 processCommand("add",Arg) :- !,
 	split2words(Arg,Args),
@@ -695,15 +689,19 @@ processCommand("add",Arg) :- !,
 	retract(addImports(OldAddImps)),
 	append(NewImps,OldAddImps,NewAddImps),
 	asserta(addImports(NewAddImps)),
-        processCommand("reload",[]),
-	!, fail.
+        (processCommand("reload",[])
+         -> true
+          ; retract(addImports(_)), asserta(addImports(OldAddImps))).
 
 processCommand("load",Arg) :- !,
 	extractProgName(Arg,Prog),
 	isValidModuleName(Prog),
-	retract(lastload(_)), asserta(lastload(Prog)),
-	retract(addImports(_)), asserta(addImports([])),
-        processCommand("reload",[]).
+	retract(lastload(OldLL)), asserta(lastload(Prog)),
+	retract(addImports(OldImps)), asserta(addImports([])),
+        (processCommand("reload",[])
+         -> true
+          ; retract(lastload(_)), asserta(lastload(OldLL)),
+	    retract(addImports(_)), asserta(addImports(OldImps))).
 
 processCommand("reload",[]) :- !,
 	lastload(Prog),
@@ -713,9 +711,10 @@ processCommand("reload",[]) :- !,
 	processCompile(Prog,PrologFile),
 	!,
 	existsFile(PrologFile),
+	addImports(AddImps),
+	map2M(loader:checkPrologTarget,AddImps,_),
 	on_exception(ErrorMsg,
-                     (addImports(AddImps),
-		      loadAndCompile(PrologFile,AddImps,create),
+                     (loadAndCompile(PrologFile,AddImps,create),
 		      atom_codes(PrologFile,PrologFileL),
 		      (append("/tmp/",_,PrologFileL)
 		       -> % remove temporary Prolog file:
@@ -729,8 +728,7 @@ processCommand("reload",[]) :- !,
 	(compileWithDebug -> retract(spypoints(_)),
 	                     asserta(spypoints([])),
 	                     singleOn, traceOn, spyOff
-	                   ; true),
-	!, fail.
+	                   ; true).
 
 processCommand("eval",ExprInput) :- !,
 	process(ExprInput).
@@ -748,15 +746,13 @@ processCommand("define",BindingS) :- !,
 	(append(Defs1,[Var=_|Defs2],Lets)
           -> append(Defs1,Defs2,OldDefs) % delete old definition
            ; OldDefs = Lets),
-	asserta(varDefines([Var=Exp|OldDefs])),
-	!, fail.
+	asserta(varDefines([Var=Exp|OldDefs])).
 
 processCommand("type",ExprInput) :- !,
 	parseMainExpression(ExprInput,Term,Type,Vs),
 	writeCurryTermWithFreeVarNames(Vs,Term),
 	write(' :: '),
-	numbersmallvars(97,_,Type), writeType(Type), nl,
-	!, fail.
+	numbersmallvars(97,_,Type), writeType(Type), nl.
 
 processCommand("usedimports",[]) :- !,
 	lastload(Prog),
@@ -768,8 +764,7 @@ processCommand("usedimports",[]) :- !,
 		    AnaCmd),
         (verbosityIntermediate -> write('Executing: '), write(AnaCmd), nl
            ; true),
-        shellCmdWithCurryPath(AnaCmd),
-	!, fail.
+        shellCmdWithCurryPath(AnaCmd).
 
 processCommand("interface",[]) :- !,
 	lastload(Prog),
@@ -784,8 +779,7 @@ processCommand("interface",IFTail) :- !,
 		    GenIntCmd),
         (verbosityIntermediate -> write('Executing: '), write(GenIntCmd), nl
            ; true),
-        shellCmdWithCurryPath(GenIntCmd),
-	!, fail.
+        shellCmdWithCurryPath(GenIntCmd).
 
 processCommand("browse",[]) :- !,
 	lastload(LastProg),
@@ -803,8 +797,7 @@ processCommand("browse",[]) :- !,
 	appendAtoms(['"',PH,'/bin/currybrowse" ',RealProg,' & '],BrowseCmd),
         (verbosityIntermediate -> write('Executing: '), write(BrowseCmd), nl
            ; true),
-        shellCmdWithCurryPath(BrowseCmd),
-	!, fail.
+        shellCmdWithCurryPath(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
         installDir(PH),
@@ -819,8 +812,7 @@ processCommand("coosy",[]) :- !,
         shellCmdWithCurryPath(GuiCmd),
 	(waitForFile('COOSYLOGS/READY',3) -> true
 	 ; writeErr('ERROR: COOSy startup failed'), nlErr, fail),
-	printCurrentLoadPath,
-	!, fail.
+	printCurrentLoadPath.
 
 processCommand("xml",[]) :- !,
 	lastload(Prog),
@@ -832,8 +824,7 @@ processCommand("xml",[]) :- !,
 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
         (verbosityIntermediate -> write('Executing: '), write(XmlCmd), nl
            ; true),
-        shellCmdWithCurryPath(XmlCmd),
-	!, fail.
+        shellCmdWithCurryPath(XmlCmd).
 
 processCommand("peval",[]) :- !,
 	lastload(Prog),
@@ -865,21 +856,18 @@ processCommand("edit",FileS) :-
 	atom_codes(Editor,EditorS),
 	concat([EditorS," ",FileS," &"],EditCmdS),
 	atom_codes(EditCmd,EditCmdS),
-	shellCmd(EditCmd),
-	!, fail.
+	shellCmd(EditCmd).
 
 % show a list of all Curry programs available in the load path:
 processCommand("programs",[]) :- !,
 	loadPath('.',LP),
 	write('Curry programs available in the load path:'), nl,
-	map1M(user:showProgramsInDirectory,LP),
-	!, fail.
+	map1M(user:showProgramsInDirectory,LP).
 
 processCommand("modules",[]) :- !, % show list of currently loaded modules
 	findall((M,P),loadedModule(M,P),Mods),
 	write('Currently loaded modules:'), nl,
-	map1M(user:writeModuleFile,Mods),
-	!, fail.
+	map1M(user:writeModuleFile,Mods).
 
 processCommand("show",[]) :- !, % show source code of current module
 	currentprogram(Prog),
@@ -895,30 +883,25 @@ processCommand("show",[]) :- !, % show source code of current module
 			ShowProgCmd),
             (verbosityIntermediate ->
 		write('Executing: '), write(ShowProgCmd), nl ; true),
-	    shellCmdWithCurryPath(ShowProgCmd)),
-	!, fail.
+	    shellCmdWithCurryPath(ShowProgCmd)).
 
 processCommand("show",EntityS) :-
 	findSourceProg(EntityS,SourceFileName), !, % show source of a module
 	atom_codes(File,SourceFileName),
 	getPager(Pager),
 	appendAtoms([Pager,' "',File,'"'],Cmd),
-	shellCmd(Cmd),
-	!, fail.
+	shellCmd(Cmd).
 
 processCommand("show",_) :- !,
-	writeErr('ERROR: source file not found'), nlErr,
-	!, fail.
+	writeErr('ERROR: source file not found'), nlErr.
 
 processCommand("source",Arg) :-
 	append(ModS,[46|FunS],Arg), !, % show source code of function in module
-	showSourceCodeOfFunction(ModS,FunS),
-	!, fail.
+	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
 	parseMainExpression(ExprInput,Term,_Type,_Vs),
-	showSourceCode(Term),
-	!, fail.
+	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
 	(DirString="" -> writeErr('ERROR: missing argument'), nlErr, fail
@@ -930,8 +913,7 @@ processCommand("cd",DirString) :- !,
 	  ; writeErr('ERROR: directory \''),
 	    writeErr(Dir),
 	    writeErr('\' does not exist!'),
-	    nlErr),
-	!, fail.
+	    nlErr).
 
 processCommand("save",Exp) :- !,
 	(Exp=[] -> MainGoal="main" ; MainGoal=Exp),
@@ -964,13 +946,9 @@ processCommand("save",Exp) :- !,
 	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
 	shellCmd(Cmd),
 	write('Executable saved in: '), write(ProgName), nl,
-	call(ProgInits),
-	!, fail.
+	call(ProgInits).
 
-processCommand("fork",STail) :- !,
-	processFork(STail),
-	!,
-	fail.
+processCommand("fork",STail) :- !, processFork(STail).
 
 processCommand(_,_) :- !,
 	write('ERROR: unknown command. Type :h for help'), nl, fail.
