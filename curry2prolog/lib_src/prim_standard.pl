@@ -172,7 +172,8 @@ prim_readFile(A,_) :-
 	raise_exception(EMsg).
 prim_readFile(A,Result) :-
 	string2Atom(A,FName),
-	open(FName,read,Stream),
+	fileOpenOptions(Options),
+	open(FName,read,Stream,Options),
 	(compileWithSharing(function)
 	 -> makeShare('Prelude.prim_readFileContents'(Stream),Result)
 	  ; Result = 'Prelude.prim_readFileContents'(Stream)).
@@ -202,7 +203,8 @@ prim_writeFile(F,S,partcall(1,prim_writeFileWorld,[S,F]),E,E).
 ?- block prim_writeFileWorld(?,?,?,?,-,?).
 prim_writeFileWorld(RA,S,W,H,E0,E) :- user:derefAll(RA,A),
 	string2Atom(A,FName),
-	open(FName,write,Stream),
+	fileOpenOptions(Options),
+	open(FName,write,Stream,Options),
 	prim_writeFileContents(Stream,S,W,H,E0,E).	
 
 ?- block prim_appendFile(?,?,?,-,?).
@@ -211,7 +213,8 @@ prim_appendFile(F,S,partcall(1,prim_appendFileWorld,[S,F]),E,E).
 ?- block prim_appendFileWorld(?,?,?,?,-,?).
 prim_appendFileWorld(RA,S,W,H,E0,E) :- user:derefAll(RA,A),
 	string2Atom(A,FName),
-	open(FName,append,Stream),
+	fileOpenOptions(Options),
+	open(FName,append,Stream,Options),
 	prim_writeFileContents(Stream,S,W,H,E0,E).	
 
 ?- block prim_writeFileContents(?,?,?,?,-,?).

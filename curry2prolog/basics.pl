@@ -616,7 +616,8 @@ readStreamContents(Stream,Cnts) :-
 % Conversion functions for characters:
 % During (Prolog) runtime, characters are represented as atoms
 % with a leading ^ followed by the character or an decimal
-% value for special characters (i.e., three digits).
+% value for special characters, i.e., either three (for ASCII)
+% or five digits (for Unicode)
 
 % is the argument internal representation of a character constructor?
 isCharCons(S) :- atom(S), atom_codes(S,[94|_]).
@@ -633,12 +634,25 @@ char_int(C,N) :- var(N), !,
 	(atom_codes(C,[94,N]) -> true
          ; (atom_codes(C,[94,N1,N2,N3])
             -> N is (N1-48)*100+(N2-48)*10+N3-48
-	     ; writeErr('INTERNAL ERROR in char_int: unknown char "'),
-	       writeErr(C), writeErr('"'), nlErr)), !.
+             ; (atom_codes(C,[94,N1,N2,N3,N4,N5])
+                -> N is (N1-48)*10000+(N2-48)*1000+(N3-48)*100+(N4-48)*10+N5-48
+	         ; writeErr('INTERNAL ERROR in char_int: unknown char "'),
+	           writeErr(C), writeErr('"'), nlErr))), !.
 char_int(C,N) :-
 	((N<32 ; N=96 ; N>126)  % 96 = '`' -> cause problems in SP4
-         -> N1 is (N//100)+48, N2 is ((N mod 100)//10)+48, N3 is (N mod 10)+48,
-	    atom_codes(C,[94,N1,N2,N3]) % decimal encoding for special chars
+         -> (N<256 % decimal encoding for special chars:
+             -> % ASCII:
+	        N1 is (N//100)+48,
+	        N2 is ((N mod 100)//10)+48,
+		N3 is (N mod 10)+48,
+		atom_codes(C,[94,N1,N2,N3])
+	      ; % Unicode:
+	        N1 is (N//10000)+48,
+	        N2 is ((N mod 10000)//1000)+48,
+	        N3 is ((N mod 1000)//100)+48,
+	        N4 is ((N mod 100)//10)+48,
+		N5 is (N mod 10)+48,
+		atom_codes(C,[94,N1,N2,N3,N4,N5]))
 	  ; atom_codes(C,[94,N])), !.
 
 % relate Curry strings (list of chars) and Prolog strings (list of ints):

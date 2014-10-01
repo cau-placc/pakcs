@@ -29,7 +29,8 @@ prim_stderr(Stream) :- prolog_flag(user_error,Stream).
 prim_openFile(A,Mode,Stream) :-
 	string2Atom(A,FName),
 	curryFileMode2plmode(Mode,PMode),
-	open(FName,PMode,Stream).
+	fileOpenOptions(Options),
+	open(FName,PMode,Stream,Options).
 
 curryFileMode2plmode('IO.ReadMode',read).
 curryFileMode2plmode('IO.WriteMode',write).

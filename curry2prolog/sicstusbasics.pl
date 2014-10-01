@@ -3,7 +3,7 @@
 
 :- module(prologbasics,
 	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
-	   verbosity/1,
+	   verbosity/1, fileOpenOptions/1,
 	   sicstus310orHigher/0, generatePrologBasics/0,
 %SICS3X	   append/3, member/2,
 %SICS37	   atom_codes/2, number_codes/2,
@@ -51,6 +51,12 @@
 % The verbosity level is defined here since it is already used here...
 :- dynamic verbosity/1.
 verbosity(1).
+
+% Default options for opening files.
+% Here, we set the encoding to UTF-8 for SICStus 4:
+fileOpenOptions(Options) :-
+	sicstus4 -> Options = [encoding('UTF-8')]
+                  ; Options = [].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set ISO language, if possible

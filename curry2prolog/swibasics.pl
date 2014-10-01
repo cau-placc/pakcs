@@ -3,7 +3,7 @@
 
 :- module(prologbasics,
 	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
-	   verbosity/1,
+	   verbosity/1, fileOpenOptions/1,
        sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
@@ -49,6 +49,10 @@
 % The verbosity level is defined here since it is already used here...
 :- dynamic verbosity/1.
 verbosity(1).
+
+% Default options for opening files.
+% Here, we set the encoding to UTF-8:
+fileOpenOptions([encoding(utf8)]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Principle kind of Prolog system and version used for this implementation.

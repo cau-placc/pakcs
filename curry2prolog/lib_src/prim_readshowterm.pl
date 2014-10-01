@@ -346,14 +346,18 @@ readTermArgs(S,Q,T,[Arg|Args]) :-
 	readTermS(S,Q,SA1,Arg), skipWhiteSpace(SA1,SA2),
 	readTermArgs(SA2,Q,T,Args).
 
-readChar([92,N1,N2,N3,39|T],T,C) :- N1>=48, N1<52, !,
-	N is (N1-48)*100+(N2-48)*10+N3-48,
-	char_int(C,N).
+readChar([92,N|S],T,C) :- N>=48, N<58, !, % read decimal numeric char
+	readDecimalChar(0,[N|S],T,C).
 readChar([92,N,39|T],T,C) :- !,
 	readStringChar(N,NS),
 	char_int(C,NS).
 readChar([N,39|T],T,C) :- char_int(C,N).
-	
+
+readDecimalChar(N,[39|T],T,C) :- !, char_int(C,N).
+readDecimalChar(N,[M|S],T,C) :- M>=48, M<58, !,
+	NM is 10*N+M-48,
+	readDecimalChar(NM,S,T,C).
+
 readString([34|T],T,[]) :- !.
 readString([92,N1,N2,N3|Ns],T,[C|Str]) :- N1>=48, N1<52, !,
 	N is (N1-48)*100+(N2-48)*10+N3-48,
@@ -366,6 +370,7 @@ readString([92,N|Ns],T,[C|Str]) :- !,
 readString([N|Ns],T,[C|Str]) :-
 	char_int(C,N),
 	readString(Ns,T,Str).
+
 readStringChar(34,34) :- !.
 readStringChar(92,92) :- !.
 readStringChar(110,10) :- !.
