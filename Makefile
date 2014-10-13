@@ -92,6 +92,8 @@ all: config
 #
 .PHONY: install
 install: installscripts copylibs
+	@echo "PAKCS installation configuration (file pakcsinitrc):"
+	@cat pakcsinitrc
 	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
