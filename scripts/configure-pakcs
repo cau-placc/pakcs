@@ -166,8 +166,6 @@ if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
         export SWIPROLOG
       else
         SWIPROLOG=
-        echo "Please put a correct definition for SICSTUSDIR or SWIPROLOG in $HOMEINITRC"
-        echo "if you want to use the PAKCS/Curry2Prolog compiler."
       fi
     else
       rm /tmp/swiprologout$$
@@ -177,6 +175,15 @@ if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
     SWIPROLOG=
   fi
 fi
+
+# Test whether we have found some Prolog system:
+if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
+  echo "Please put a correct definition for SICSTUSDIR or SWIPROLOG in"
+  echo "  $HOMEINITRC"
+  echo "if you want to use the PAKCS/Curry2Prolog compiler."
+  exit 1
+fi
+
 cd "$PAKCSHOME"
 
 # Create symbolic link bin/swiprolog if SWIPROLOG is correctly defined:
