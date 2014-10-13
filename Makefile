@@ -96,9 +96,8 @@ install: installscripts copylibs
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
-	@if [ -r bin/sicstusprolog -o -r bin/swiprolog ] ; \
-	 then $(MAKE) $(C2PVERSION) && cd curry2prolog && $(MAKE) ; \
-	 else rm -f bin/pakcs ; fi
+	$(MAKE) $(C2PVERSION)
+	cd curry2prolog && $(MAKE)
 	# compile all libraries:
 	@cd lib && $(MAKE) acy
 	# compile optimization tools:
