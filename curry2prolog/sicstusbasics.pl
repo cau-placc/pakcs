@@ -171,6 +171,10 @@ getSicstusVersion(SV) :-
 getSicstusVersionChars(Vs,'3.5') :- app("SICStus 3.5",_,Vs).
 getSicstusVersionChars(Vs,'3.7') :- app("SICStus 3.7",_,Vs).
 
+sicstus37orLower :-
+	getSicstusVersion(SV),
+        (SV='3.5' ; SV='3.7').
+
 sicstus37orHigher :-
 	getSicstusVersion(SV),
 	(SV = '3.7' ; sicstus38orHigher).
@@ -199,20 +203,21 @@ sicstus4 :-
 	atom_codes(SV,[52|_]). % 52 = '4'
 
 
+generatePrologBasics :- sicstus37orLower, !,
+	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl | sed "s/%SICS37/ /g" > prologbasics.pl').
 generatePrologBasics :-	sicstus4, !,
 	shellCmd('cp sicstusbasics.pl prologbasics.pl').
 generatePrologBasics :-	sicstus38orHigher, !,
 	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl > prologbasics.pl').
-generatePrologBasics :-
-	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl | sed "s/%SICS37/ /g" > prologbasics.pl').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % import the right libraries:
-:- sicstus4
-   -> use_module(library(file_systems)),
-      use_module(library(process))
-    ; true.
+:- sicstus37orLower -> true ;
+   (sicstus4
+    -> use_module(library(file_systems)),
+       use_module(library(process))
+     ; true).
 
 :- use_module(library(system)).
 :- use_module(library(sockets)).
