@@ -188,10 +188,120 @@ Show the list of all Curry programs that are available in the load path.
 
 \item[\fbox{\code{:set $option$}}]\pindex{:set}
 Set or turn on/off a specific option
-of the \CYS environment. Options are turned on by the prefix
+of the \CYS environment (see \ref{sec:options} for a description
+of all options). Options are turned on by the prefix
 \ccode{+} and off by the prefix \ccode{-}. Options that can only
 be set (e.g., \code{printdepth}) must not contain a prefix.
-The following options are currently supported:
+
+\item[\fbox{\code{:set}}]\pindex{:set}
+Show a help text on the possible options
+together with the current values of all options.
+
+\item[\fbox{\code{:show}}]\pindex{:show}
+Show the source text of the currently loaded Curry program.
+If the variable \code{showcommand} is set in the
+configuration file \ccode{.pakcsrc}
+(see Section~\ref{sec-customization}),
+its value is used as a command to show the source text,
+otherwise the environment variable \code{PAGER} or the standard command
+\ccode{cat} is used.
+If the source text is not available
+(since the program has been directly compiled from a FlatCurry
+or XML file), the loaded program is decompiled and
+the decompiled Curry program text is shown.
+
+\item[\fbox{\code{:show $m$}}]\pindex{:show}
+Show the source text of module $m$ which must be accessible
+via the current load path.
+
+\item[\fbox{\code{:source $f$}}]\pindex{:source}
+Show the source code of function $f$ (which must be visible
+in the currently loaded module) in a separate window.
+
+\item[\fbox{\code{:source $m$.$f$}}]\pindex{:source}
+Show the source code of function $f$ defined in module $m$
+in a separate window.
+
+\item[\fbox{\code{:cd $dir$}}]\pindex{:cd}
+Change the current working directory to $dir$.
+
+\item[\fbox{\code{:dir}}]\pindex{:dir} Show the names of all Curry programs
+in the current working directory.
+
+\item[\fbox{\code{:!$cmd$}}]\pindex{:"!} Shell escape: execute $cmd$ in a Unix shell.
+
+\item[\fbox{\code{:save}}]\pindex{:save} Save the currently loaded
+program as an executable evaluating the main expression \ccode{main}.
+The executable is stored in the file \code{Mod}
+if \code{Mod} is the name of the currently loaded main module.
+
+\item[\fbox{\code{:save $expr$}}]\pindex{:save} Similar as \ccode{:save}
+but the expression $expr$ (typically: a call to the main
+function) will be evaluated by the executable.
+
+\item[\fbox{\code{:fork $expr$}}]\pindex{:fork}
+The expression $expr$, which must be of type \ccode{IO ()},
+is evaluated in an independent process which runs in
+parallel to the current \CYS process.
+All output and error messages from this new process are suppressed.
+This command is useful to test distributed Curry programs
+(see Appendix~\ref{sec-ports}) where one can start
+a new server process by this command. The new process
+will be terminated when the evaluation of the expression $expr$
+is finished.
+
+\item[\fbox{\code{:coosy}}]\pindex{:coosy}
+Start the Curry Object Observation System COOSy,
+a tool to observe the execution of Curry programs.
+This commands starts a graphical user interface to show
+the observation results and adds to the load path the directory
+containing the modules that must be imported in order to annotate
+a program with observation points.
+Details about the use of COOSy can be found in the
+COOSy interface (under the ``Info'' button), and details
+about the general idea of observation debugging and the implementation
+of COOSy can be found in \cite{BrasselChitilHanusHuch04PADL}.
+
+\item[\fbox{\code{:xml}}]\pindex{:xml}
+Translate the currently loaded program module into an XML representation
+according to the format described in
+\url{http://www.informatik.uni-kiel.de/~curry/flat/}.
+Actually, this yields an implementation-independent
+representation of the corresponding FlatCurry program
+(see Appendix~\ref{sec-flatcurry} for a description of FlatCurry).
+If $prog$ is the name of the currently loaded program,
+the XML representation will be written into the file \ccode{$prog$_flat.xml}.
+
+\item[\fbox{\code{:peval}}]\pindex{:peval}
+Translate the currently loaded program module into an equivalent
+program where some subexpressions are partially evaluated
+so that these subexpressions are (hopefully) more efficiently executed.
+An expression $e$ to be partially evaluated
+must be marked in the source program by \code{(PEVAL e)}
+(where \code{PEVAL} is defined as the identity function in the prelude
+so that it has no semantical meaning).
+
+The partial evaluator
+translates a source program \code{$prog$.curry} into the
+partially evaluated program in intermediate representation
+stored in \code{$prog$_pe.fcy}. The latter program is implicitly loaded
+by the \code{peval} command so that the partially evaluated program
+is directly available. The corresponding source program
+can be shown by the \code{show} command (see above).
+
+The current partial evaluator is an experimental prototype
+(so it might not work on all programs) based on the ideas
+described in \cite{AlbertAlpuenteHanusVidal99LPAR,AlbertHanusVidal00LPAR,%
+AlbertHanusVidal01FLOPS,AlbertHanusVidal02JFLP}.
+
+\end{description}
+
+
+\subsection{Options of \CYS}
+\label{sec:options}
+
+The following options (which can be set by the command \ccode{:set})
+are currently supported:
 
 \begin{description}
 \item[\fbox{\code{+/-debug}}]\pindex{debug} Debug mode.
@@ -379,109 +489,6 @@ has the effect that the I/O operation \code{getArgs}
 returns the value \code{["first","second"]}.
 
 \end{description}
-
-\item[\fbox{\code{:set}}]\pindex{:set}
-Show a help text on the \ccode{:set $option$}
-command together with the current values of all options.
-
-\item[\fbox{\code{:show}}]\pindex{:show}
-Show the source text of the currently loaded Curry program.
-If the variable \code{showcommand} is set in the
-configuration file \ccode{.pakcsrc}
-(see Section~\ref{sec-customization}),
-its value is used as a command to show the source text,
-otherwise the environment variable \code{PAGER} or the standard command
-\ccode{cat} is used.
-If the source text is not available
-(since the program has been directly compiled from a FlatCurry
-or XML file), the loaded program is decompiled and
-the decompiled Curry program text is shown.
-
-\item[\fbox{\code{:show $m$}}]\pindex{:show}
-Show the source text of module $m$ which must be accessible
-via the current load path.
-
-\item[\fbox{\code{:source $f$}}]\pindex{:source}
-Show the source code of function $f$ (which must be visible
-in the currently loaded module) in a separate window.
-
-\item[\fbox{\code{:source $m$.$f$}}]\pindex{:source}
-Show the source code of function $f$ defined in module $m$
-in a separate window.
-
-\item[\fbox{\code{:cd $dir$}}]\pindex{:cd}
-Change the current working directory to $dir$.
-
-\item[\fbox{\code{:dir}}]\pindex{:dir} Show the names of all Curry programs
-in the current working directory.
-
-\item[\fbox{\code{:!$cmd$}}]\pindex{:"!} Shell escape: execute $cmd$ in a Unix shell.
-
-\item[\fbox{\code{:save}}]\pindex{:save} Save the currently loaded
-program as an executable evaluating the main expression \ccode{main}.
-The executable is stored in the file \code{Mod}
-if \code{Mod} is the name of the currently loaded main module.
-
-\item[\fbox{\code{:save $expr$}}]\pindex{:save} Similar as \ccode{:save}
-but the expression $expr$ (typically: a call to the main
-function) will be evaluated by the executable.
-
-\item[\fbox{\code{:fork $expr$}}]\pindex{:fork}
-The expression $expr$, which must be of type \ccode{IO ()},
-is evaluated in an independent process which runs in
-parallel to the current \CYS process.
-All output and error messages from this new process are suppressed.
-This command is useful to test distributed Curry programs
-(see Appendix~\ref{sec-ports}) where one can start
-a new server process by this command. The new process
-will be terminated when the evaluation of the expression $expr$
-is finished.
-
-\item[\fbox{\code{:coosy}}]\pindex{:coosy}
-Start the Curry Object Observation System COOSy,
-a tool to observe the execution of Curry programs.
-This commands starts a graphical user interface to show
-the observation results and adds to the load path the directory
-containing the modules that must be imported in order to annotate
-a program with observation points.
-Details about the use of COOSy can be found in the
-COOSy interface (under the ``Info'' button), and details
-about the general idea of observation debugging and the implementation
-of COOSy can be found in \cite{BrasselChitilHanusHuch04PADL}.
-
-\item[\fbox{\code{:xml}}]\pindex{:xml}
-Translate the currently loaded program module into an XML representation
-according to the format described in
-\url{http://www.informatik.uni-kiel.de/~curry/flat/}.
-Actually, this yields an implementation-independent
-representation of the corresponding FlatCurry program
-(see Appendix~\ref{sec-flatcurry} for a description of FlatCurry).
-If $prog$ is the name of the currently loaded program,
-the XML representation will be written into the file \ccode{$prog$_flat.xml}.
-
-\item[\fbox{\code{:peval}}]\pindex{:peval}
-Translate the currently loaded program module into an equivalent
-program where some subexpressions are partially evaluated
-so that these subexpressions are (hopefully) more efficiently executed.
-An expression $e$ to be partially evaluated
-must be marked in the source program by \code{(PEVAL e)}
-(where \code{PEVAL} is defined as the identity function in the prelude
-so that it has no semantical meaning).
-
-The partial evaluator
-translates a source program \code{$prog$.curry} into the
-partially evaluated program in intermediate representation
-stored in \code{$prog$_pe.fcy}. The latter program is implicitly loaded
-by the \code{peval} command so that the partially evaluated program
-is directly available. The corresponding source program
-can be shown by the \code{show} command (see above).
-
-The current partial evaluator is an experimental prototype
-(so it might not work on all programs) based on the ideas
-described in \cite{AlbertAlpuenteHanusVidal99LPAR,AlbertHanusVidal00LPAR,%
-AlbertHanusVidal01FLOPS,AlbertHanusVidal02JFLP}.
-
-\end{description}
 %
 \bigskip
 %
@@ -492,8 +499,7 @@ with the command \ccode{:set +debug}. In order to switch
 back to normal evaluation of the program, one has to execute
 the command \ccode{:set -debug}.
 
-In the debug mode, \CYS offers the following
-{\bf additional options for the \ccode{:set} command:}
+In the debug mode, \CYS offers the following additional options:
 %
 \begin{description}
 \item[\fbox{\code{+/-single}}]\pindex{single}
@@ -524,8 +530,8 @@ Although \CYS is primarily designed as an interactive system,
 it can also be used to process data in batch mode.
 For example, consider a Curry program, say \code{myprocessor}, that
 reads argument strings from the command line and processes them.
-Suppose the entry points is a function called \code{just_doit}
-that take no arguments. Such a processor can be invoked from
+Suppose the entry point is a function called \code{just_doit}
+that takes no arguments. Such a processor can be invoked from
 the shell as follows:
 \begin{curry}
 > pakcs :set args string1 string2 :load myprocessor.curry :eval just_doit :quit
