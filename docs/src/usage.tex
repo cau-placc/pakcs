@@ -367,6 +367,17 @@ has the effect that each Curry module to be compiled is
 transformed by the preprocessor command \code{transcurry}
 into a new Curry program which is actually compiled.
 
+\item[\fbox{\code{args $arguments$}}]\pindex{args}
+Define run-time arguments for the evaluation
+of the main expression.
+For instance, setting the option
+\begin{curry}
+:set args first second
+\end{curry}
+has the effect that the I/O operation \code{getArgs}
+(see library \code{System} (Section~\ref{Library:System})
+returns the value \code{["first","second"]}.
+
 \end{description}
 
 \item[\fbox{\code{:set}}]\pindex{:set}
@@ -505,6 +516,32 @@ to spy point (see the options shown in the single mode).
 If the spy mode is on, the single mode is automatically activated
 when a spy point is reached.
 \end{description}
+
+
+\subsection{Using \CYS in Batch Mode}
+
+Although \CYS is primarily designed as an interactive system,
+it can also be used to process data in batch mode.
+For example, consider a Curry program, say \code{myprocessor}, that
+reads argument strings from the command line and processes them.
+Suppose the entry points is a function called \code{just_doit}
+that take no arguments. Such a processor can be invoked from
+the shell as follows:
+\begin{curry}
+> pakcs :set args string1 string2 :load myprocessor.curry :eval just_doit :quit
+\end{curry}
+The \ccode{:quit} directive in necessary to avoid \CYS going
+into interactive mode after the
+excution of the expression being evaluated.
+The actual run-time arguments (\code{string1}, \code{string2})
+are defined by setting the option \code{args} (see above).
+
+Here is an example to use \CYS in this way:
+\begin{curry}
+> pakcs :set args Hello World :add System :eval "getArgs >>= putStrLn . unwords" :quit
+Hello World
+>
+\end{curry}
 
 
 \subsection{Command Line Editing}

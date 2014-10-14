@@ -4,7 +4,7 @@
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
 		  noLoadMessage/0, lastload/1, plprofiling/1,
 		  setVerbosity/1, verbosityIntermediate/0, verbosityDetailed/0,
-		  verbosemode/1, setVerboseMode/1, quietmode/1, rtargs/1,
+		  verbosemode/1, setVerboseMode/1, quietmode/1, rtArgs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
 		  hasPrintedFailure/0, printConsFailure/1,
@@ -49,7 +49,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic lastload/1, plprofiling/1, quietmode/1, verbosemode/1, rtargs/1,
+:- dynamic lastload/1, plprofiling/1, quietmode/1, verbosemode/1, rtArgs/1,
 	   compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
@@ -87,7 +87,7 @@ noLoadMessage :- \+ verbosityIntermediate.
 lastload("Prelude"). % program in last load command
 quietmode(no).	% yes if environment should work in quiet mode (option -q)
 plprofiling(no). % perform profiling with Prolog profiler
-rtargs([]).	% run-time arguments from script call
+rtArgs([]).	% run-time arguments from script call or ":set args" option
 compileWithSharing(variable). % if it should be compiled with variable sharing scheme
 %compileWithSharing(function). % if it should be compiled with function sharing scheme
 %compileWithDebug.    % include if it should be compiled with debugging code

@@ -92,9 +92,9 @@ pakcsMain :-
 	atom_codes(DefParamA,DefParamS),
 	split2words(DefParamS,DefParamsS),
 	map2M(prologbasics:atomCodes,DefParamsA,DefParamsS),
-	processArgs(DefParamsA),
-	processArgs(Args),
-	rtargs(RTArgs),
+	processArgs(DefParamsA), % process default parameters from .pakcsrc
+	processArgs(Args), % process current parameters
+	rtArgs(RTArgs),
 	(RTArgs=[] -> true
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
@@ -149,9 +149,9 @@ processArgs([Arg|Args]) :-
 	writeErr('Hint: use command options (like "pakcs :load rev")'), nlErr,
 	halt(1).
 processArgs([Arg|Args]) :-
-	retract(rtargs(RTA)),
+	retract(rtArgs(RTA)),
 	append(RTA,[Arg],RTAs),
-	assertz(rtargs(RTAs)),
+	assertz(rtArgs(RTAs)),
 	processArgs(Args).
 
 % process compile option "-c":
@@ -197,11 +197,11 @@ writeMainHelp :-
 	writeErr('Usage: pakcs <options>'), nlErr,
 	nlErr,
 	writeErr('Options:'), nlErr,
-	writeErr('-h|--help|-? : show this message and quit'), nlErr,
-	writeErr('-q|--quiet   : work silently'), nlErr,
-	writeErr('--noreadline : do not use input line editing via command "rlwrap"'), nlErr,
-	writeErr('-Dname=val   : define pakcsrc property "name" as "val"'), nlErr,
-	writeErr('ARGS         : further arguments passed to application (see System.getArgs)'), nlErr.
+	writeErr('-h|--help|-?  : show this message and quit'), nlErr,
+	writeErr('-q|--quiet    : work silently'), nlErr,
+	writeErr('--noreadline  : do not use input line editing via command "rlwrap"'), nlErr,
+	writeErr('-Dname=val    : define pakcsrc property "name" as "val"'), nlErr,
+	writeErr(':<cmd> <args> : command of the PAKCS environment'), nlErr.
 
 
 % Compute the prompt of the interactive loop:
@@ -266,10 +266,12 @@ expandOption(ShortOpt,FullOpt) :-
 	(FullOpts=[Opt] -> (OptRest=[] -> FullOpt=Opt
                                         ; append(Opt,[32|OptRest],FullOpt))
          ; (FullOpts=[]
-	     -> writeErr('ERROR: unknown option. Type :set for help'),
-	        nlErr, fail
-  	      ; writeErr('ERROR: option not unique. Type :set for help'),
-	        nlErr, fail)).
+	     -> writeErr('ERROR: unknown option: '),
+	        atom_codes(OF,OptFirst), writeErr(OF), nlErr,
+		writeErr('Type :set for help'), nlErr, fail
+  	      ; writeErr('ERROR: option not unique: '),
+	        atom_codes(OF,OptFirst), writeErr(OF), nlErr,
+		writeErr('Type :set for help'), nlErr, fail)).
 
 % all possible options:
 allOptions(["+allfails","-allfails",
@@ -286,7 +288,7 @@ allOptions(["+allfails","-allfails",
             "+time","-time",
             "+verbose","-verbose",
             "+warn","-warn",
-            "path","printdepth","v0","v1","v2","v3","parser","safe",
+            "path","printdepth","v0","v1","v2","v3","parser","safe","args",
             "+single","-single",
             "+spy","-spy","spy",
             "+trace","-trace"]).
@@ -623,6 +625,7 @@ processCommand("set",[]) :- !,
 	write('                   3: all intermediate results'), nl,
 	write('safe            - safe execution mode without I/O actions'), nl,
 	write('parser  <opts>  - additional options passed to parser (cymake)'), nl,
+	write('args    <args>  - run-time arguments passed to main program'), nl,
 	nl,
 	write('Options in debug mode:'), nl,
 	write('+/-single         - single step mode'), nl,
@@ -665,11 +668,14 @@ processCommand("set",[]) :- !,
 	write(warn), write('  '),
 	nl,
 	loadPath('.',LP), path2String(LP,SP),
-	atom_codes(AP,SP),     write('loadpath      : '), write(AP), nl,
-	printDepth(PD),        write('printdepth    : '),
+	atom_codes(AP,SP),     write('loadpath          : '), write(AP), nl,
+	printDepth(PD),        write('printdepth        : '),
 	(PD=0 -> write(PD) ; PD1 is PD-1, write(PD1)), nl,
-	verbosity(VL),         write('verbosity     : '), write(VL), nl,
-	parserOptions(POpts),  write('parser options: '), write(POpts), nl,
+	verbosity(VL),         write('verbosity         : '), write(VL), nl,
+	parserOptions(POpts),  write('parser options    : '), write(POpts), nl,
+	rtArgs(RTArgs),        write('run-time arguments: '),
+	intersperse(' ',RTArgs,RTBArgs),
+	appendAtoms(RTBArgs,AllArgs), write(AllArgs), nl,
 	(compileWithDebug ->
 	  (singlestep -> write('+') ; write('-')), write(single), write('  '),
 	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
@@ -925,7 +931,7 @@ processCommand("save",Exp) :- !,
 	appendAtom(ProgName,'.state',ProgStName),
 	initializationsInProg(ProgInits),
 	resetDynamicPreds,
-	(retract(rtargs(_)) -> true ; true),
+	(retract(rtArgs(_)) -> true ; true),
 	% start saved program in non-verbose mode if initial goal provided:
 	verbosemode(QM), setVerboseMode(no),
 	processExpression(MainGoal,ExecGoal),
@@ -1048,7 +1054,7 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 	writeClause((:- dynamic(prologbasics:pakcsrc/2))),
 	writeClause((:- AssertPakcsrcs,
 		        compile([PrologBasicsPl,BasicsPl,EvalPl,LoadPl]),
-		        (retract(rtargs(_)) -> true ; true),
+		        (retract(rtArgs(_)) -> true ; true),
 		        loadAndCompile(ProgPl,[],load(MainPrologFile)),
 		        saveprog_entry(ProgState,InitialGoal), halt)),
 	told,
@@ -1196,17 +1202,25 @@ processSetOption(Option) :-
 	retract(printDepth(_)),	
 	(D=0 -> D1=D ; D1 is D+1),
 	asserta(printDepth(D1)).
+processSetOption("safe") :- !,
+	retract(forbiddenModules(_)),
+	asserta(forbiddenModules(['Unsafe'])),
+	retract(safeMode(_)), asserta(safeMode(yes)), !.
+processSetOption("parser") :- !,
+	retract(parserOptions(_)), asserta(parserOptions([])).
 processSetOption(Option) :-
 	append("parser ",OptTail,Option), !,
 	removeBlanks(OptTail,StrippedOpt),
 	atom_codes(POpts,StrippedOpt),
-	retract(parserOptions(_)),	
-	asserta(parserOptions(POpts)).
-processSetOption("safe") :- !,
-	retract(forbiddenModules(_)),
-	asserta(forbiddenModules(['Unsafe'])),
-	retract(safeMode(_)),
-	asserta(safeMode(yes)), !.
+	retract(parserOptions(_)), asserta(parserOptions(POpts)).
+processSetOption("args") :- !,
+	retract(rtArgs(_)), asserta(rtArgs([])).
+processSetOption(Option) :-
+	append("args ",OptTail,Option), !,
+	removeBlanks(OptTail,StrippedOpt),
+	split2words(StrippedOpt,ArgsS),
+	map2M(prologbasics:atomCodes,Args,ArgsS),
+	retract(rtArgs(_)), asserta(rtArgs(Args)).
 processSetOption(Option) :-
 	append("spy ",OptTail,Option), !,
 	checkDebugMode,
@@ -1214,7 +1228,7 @@ processSetOption(Option) :-
 	atom_codes(PN,P),
 	spypoint(PN).
 processSetOption(_) :- !,
-	write('ERROR: unknown option. Type :set for help'), nl.
+	writeErr('ERROR: unknown option. Type :set for help'), nlErr.
 
 printCurrentLoadPath :-
 	loadPath('.',LP),

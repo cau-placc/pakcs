@@ -16,7 +16,7 @@ prim_getCPUTime(MS) :- getRunTime(MS).
 prim_getElapsedTime(MS) :- getElapsedTime(MS).
 
 prim_getArgs(StringArgs) :-
-        (rtargs(Args) -> true ; getProgramArgs(Args)),
+        (rtArgs(Args) -> true ; getProgramArgs(Args)),
         map2M(basics:atom2String,Args,StringArgs).
 
 prim_getEnviron(Var,Value) :-

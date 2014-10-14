@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.4 (September 23, 2014)
------------------------------------------------------------
+Release notes for PAKCS Version 1.11.4 (October 14, 2014)
+---------------------------------------------------------
 
 Changes to version 1.11.3:
   * The interactive top-level loop uses the standard front end
@@ -16,6 +16,7 @@ Changes to version 1.11.3:
   * PAKCS command `:source` added: allows separate viewing of visible or
     qualified function definitions.
   * PAKCS command `let var=exp` has now command syntax: `:define var=exp`
+  * PAKCS option `args` for setting run-time arguments added.
   * Library `Prelude`: `solve` and `&&>` added.
   * Library `Findall`: `rewriteAll` and `rewriteSome` added (experimental!).
   * Library `Prolog` added.
