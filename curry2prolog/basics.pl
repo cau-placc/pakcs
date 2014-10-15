@@ -25,7 +25,7 @@
 		  loadPath/2, findFileInLoadPath/2,
 		  findFlatProgFileInLoadPath/2,
 		  findPrologTargetFileInLoadPath/2, findFilePropertyInPath/4,
-		  split2dirbase/3, stripSuffix/2,
+		  toAbsPath/2, split2dirbase/3, stripSuffix/2,
 		  isIoType/1, isId/1, 
 		  constructorOrFunctionType/4,
 		  flatName2Atom/2, decodePrologName/2,
@@ -381,6 +381,21 @@ findPrologTargetFileInPath([Dir|Dirs],Prog,PathProg) :-
 	(existsFile(PrologFile)
 	 -> PathProg = PrologFile
 	  ; findPrologTargetFileInPath(Dirs,Prog,PathProg)).
+
+% transform a path name into an absolute path name:
+toAbsPath(Path,Path) :-	atom_codes(Path,[47|_]), !.  % already absolute path?
+toAbsPath(Path,AbsPath) :-
+        atom_codes(Path,[126,47|RPathS]), % home dir path ~/...?
+	!,
+	atom_codes(RPath,RPathS),
+	(getEnv('HOME',HomeDir) -> true ; HomeDir='~'),
+	appendAtoms([HomeDir,'/',RPath],AbsPath).
+toAbsPath('~',HomeDir) :- !,
+	(getEnv('HOME',HomeDir) -> true ; HomeDir='~').
+toAbsPath('.',CurDir) :- !,workingDirectory(CurDir).
+toAbsPath(Path,AbsPath) :-
+        workingDirectory(CurDir),
+	appendAtoms([CurDir,'/',Path],AbsPath).
 
 % split a file name into directory name (possibly '.') and base name:
 % (all parameters are atoms)

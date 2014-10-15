@@ -372,10 +372,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	writeMainExprFile(MainExprModFile,MainProg,InputExp,FreeVars),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
-	(MainPath='.' -> AbsMainPath=CurDir
-         ; (atom_codes(MainPath,[47|_]) % already absolute file name?
-             -> AbsMainPath=MainPath
-	      ; appendAtoms([CurDir,'/',MainPath],AbsMainPath))),
+	toAbsPath(MainPath,AbsMainPath),
 	getLocalCurryPath(LCP), % current locally set load path
         extendPath(AbsMainPath,LCP,NewLCP),
 	setCurryPath(NewLCP),
@@ -1199,8 +1196,11 @@ processSetOption("path") :- !,
 processSetOption(Option) :-
 	append("path ",OptTail,Option), !,
 	removeBlanks(OptTail,P),
-	atom_codes(AP,P),
-	setCurryPath(AP),
+	pathString2loadPath(P,Dirs),
+	map2M(basics:toAbsPath,Dirs,AbsDirs),
+	path2String(AbsDirs,PathS),
+	atom_codes(Path,PathS),
+	setCurryPath(Path),
 	printCurrentLoadPath.
 processSetOption(Option) :-
 	append("printdepth ",OptTail,Option), !,
