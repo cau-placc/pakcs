@@ -85,8 +85,8 @@ deleteEqualProps(Name,[Prop|Props],[Prop|DProps]) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Start main interactive environment:
 pakcsMain :-
-	getProgramArgs(Args),
-	processDArgs(Args,Props),
+	getProgramArgs(DArgs),
+	processDArgs(DArgs,Props,Args),
 	readRcFile(Props),
 	pakcsrc(defaultparams,DefParamA),
 	atom_codes(DefParamA,DefParamS),
@@ -104,21 +104,18 @@ pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
 
 % extract all run-time arguments of the form "-Dname=value" as a property list:
-processDArgs([],[]).
-processDArgs([Arg|Args],[prop(Name,Val)|Props]) :-
+processDArgs([],[],[]).
+processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Arg,[45,68|Def]), !, % [45,68] = "-D"
 	append(NameS,[61|ValS],Def), % 61 = '='
 	atom_codes(Name,NameS),
 	atom_codes(Val,ValS),
-	processDArgs(Args,Props).
-processDArgs([_|Args],Props) :-
-	processDArgs(Args,Props).
+	processDArgs(DArgs,Props,Args).
+processDArgs([Arg|DArgs],Props,[Arg|Args]) :-
+	processDArgs(DArgs,Props,Args).
 
 % process the remaining run-time arguments:
 processArgs([]).
-processArgs([Arg|Args]) :-
-	atom_codes(Arg,[45,68|_]), !, % [45,68] = "-D"
-	processArgs(Args).            % ignore since already processed
 processArgs(['--noreadline'|Args]) :-
 	processArgs(Args).            % ignore since already processed
 processArgs([Arg|_]) :-
@@ -387,10 +384,12 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	setCurryPath(LCP), % restore old settings
 	setWorkingDirectory(CurDir),
 	Parse=ok, % proceed only in case of successful parsing
-	findFlatProgFileInLoadPath(MainExprMod,PathProgName),
-	split2dirbase(PathProgName,ProgDir,ModName),
-	loadPath(ProgDir,LoadPath),
-	readProgInLoadPath(LoadPath,ModName,FlatProg,_),
+	loadPath(AbsMainPath,LoadPath),
+	setCurryPath(NewLCP),
+	setWorkingDirectory(MainExprDir),
+	readProgInLoadPath(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_),
+	setCurryPath(LCP), % restore old settings
+	setWorkingDirectory(CurDir),
 	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
 	length(FreeVars,NumVars),
 	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,RuleExp))|MoreFs],

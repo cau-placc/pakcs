@@ -273,9 +273,9 @@ path2String([D1,D2|Ds],DS) :-
 loadPath(MainDir,LoadPath) :-
 	getCurryPath(LCP),
 	getLocalLibPath(LocalLibPath),
-	getSysLibPath(LibPath),
+	getSysLibPath(SysLibPath),
 	append(LCP,LocalLibPath,LocalP),
-	append(LocalP,LibPath,LP),
+	append(LocalP,SysLibPath,LP),
 	lastload(ProgS),
 	atom_codes(Prog,ProgS),
 	split2dirbase(Prog,LastLoadDir,_),
