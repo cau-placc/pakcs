@@ -361,24 +361,32 @@ parseExpressionSimple(Input,Term,Type,Vs) :-
 parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
-	workingDirectory(CurDir),
-	getCurryPath(SLP),
-	(SLP=[] -> setCurryPath(CurDir)
-                 ; path2String([CurDir|SLP],CPathS), atom_codes(CPath,CPathS),
-	           setCurryPath(CPath)),
-	parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs),
-	(SLP=[] -> setCurryPath('')
-                 ; path2String(SLP,PathS), atom_codes(Path,PathS),
-	           setCurryPath(Path)).
+	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs).
 
-parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs) :-
+parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
-	writeMainExprFile(MainExprModFile,InputExp,FreeVars),
-	atom_codes(MainExprMod,MainExprModS),
+	lastload(MainProgS),
+	findSourceProg(MainProgS,MainProgPathS),
+	atom_codes(MainProgPath,MainProgPathS),
+	split2dirbase(MainProgPath,MainPath,MainProgSuffix),
+	stripSuffix(MainProgSuffix,MainProg),
+	writeMainExprFile(MainExprModFile,MainProg,InputExp,FreeVars),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
-	parseProgram(MainExprModS,PVerb,no),
+	workingDirectory(CurDir),
+	(MainPath='.' -> AbsMainPath=CurDir
+         ; (atom_codes(MainPath,[47|_]) % already absolute file name?
+             -> AbsMainPath=MainPath
+	      ; appendAtoms([CurDir,'/',MainPath],AbsMainPath))),
+	getLocalCurryPath(LCP), % current locally set load path
+        extendPath(AbsMainPath,LCP,NewLCP),
+	setCurryPath(NewLCP),
+	setWorkingDirectory(MainExprDir),
+	(parseProgram("PAKCS_Main_Exp",PVerb,no) -> Parse=ok ; Parse=failed),
+	setCurryPath(LCP), % restore old settings
+	setWorkingDirectory(CurDir),
+	Parse=ok, % proceed only in case of successful parsing
 	findFlatProgFileInLoadPath(MainExprMod,PathProgName),
 	split2dirbase(PathProgName,ProgDir,ModName),
 	loadPath(ProgDir,LoadPath),
@@ -399,7 +407,7 @@ parseExpressionWithFrontendOnFile(MainExprDir,Input,MainExp,Type,Vs) :-
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
 	!,
 	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontendOnFile(MainExprDir,_,_,_,_) :-
+parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
 	!, fail.
 
@@ -527,13 +535,13 @@ flatExps2MainExps(Vs,[FE|FEs],Vs2,[E|Es]) :-
 	flatExp2MainExp(Vs,FE,Vs1,E),
 	flatExps2MainExps(Vs1,FEs,Vs2,Es).
 
-writeMainExprFile(ExprFile,Input,FreeVars) :-
+writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
 	(verbosityIntermediate
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
 	open(ExprFile,write,S),
-	lastload(Prog),
-	(Prog="" -> true ; write(S,'import '), putChars(S,Prog), nl(S)),
+	(MainProg='Prelude' -> true
+          ; write(S,'import '), write(S,MainProg), nl(S)),
 	addImports(Imps), writeMainImports(S,Imps),
 	write(S,'pakcsMainGoal'),
 	writeFreeVarArgs(S,FreeVars),
@@ -737,7 +745,8 @@ processCommand("reload",[]) :- !,
 	                   ; true).
 
 processCommand("eval",ExprInput) :- !,
-	process(ExprInput).
+	processExpression(ExprInput,ExprGoal),
+	call(ExprGoal).
 
 processCommand("define",BindingS) :- !,
 	mainbinding(Var,Exp,BindingS,[]),

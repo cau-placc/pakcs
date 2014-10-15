@@ -19,12 +19,13 @@
 		  isCharCons/1, isString/1, char_int/2, cp_string/2,
 		  string2Atom/2, atom2String/2,
 		  removeShares/2, term2partcall/3, isCompleteList/2,
-		  path2String/2, pathString2loadPath/2,
-		  getCurryPath/1, setCurryPath/1, shellCmdWithCurryPath/1,
+		  extendPath/3, path2String/2, pathString2loadPath/2,
+		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
+		  shellCmdWithCurryPath/1,
 		  loadPath/2, findFileInLoadPath/2,
 		  findFlatProgFileInLoadPath/2,
 		  findPrologTargetFileInLoadPath/2, findFilePropertyInPath/4,
-		  split2dirbase/3,
+		  split2dirbase/3, stripSuffix/2,
 		  isIoType/1, isId/1, 
 		  constructorOrFunctionType/4,
 		  flatName2Atom/2, decodePrologName/2,
@@ -241,6 +242,13 @@ clearDynamicPred(Name/Arity,_) :- prim_dynamic:retractDeadDynamicFacts(Name/Arit
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Auxiliaries for handling load paths:
 
+% extend a path with a prefix, e.g.:
+% extendPath(test,current,'test:current')
+extendPath(Path,'',Path) :- !.
+extendPath('',Path,Path) :- !.
+extendPath(AddPath,OldPath,ExtPath) :-
+	appendAtoms([AddPath,':',OldPath],ExtPath).
+
 % translate a string containing a path into list of these directories:
 % (e.g., ".:pakcs/lib" -> ['.','pakcs/lib'])
 pathString2loadPath(SCP,LP1) :-
@@ -277,6 +285,8 @@ loadPath(MainDir,LoadPath) :-
 % store a local setting of CURRYPATH:
 :- dynamic localCurryPath/1.
 localCurryPath("").
+
+getLocalCurryPath(LCP) :- localCurryPath(LCPS), atom_codes(LCP,LCPS).
 
 getCurryPath(LCP) :-
 	localCurryPath(LocalCP),
@@ -382,6 +392,14 @@ split2dirbase(File,Dir,Base) :-
 	rev(RevDirS,DirS), atom_codes(Dir,DirS),
 	rev(RevBaseS,BaseS), atom_codes(Base,BaseS).
 split2dirbase(File,'.',File).
+
+% strip a suffix (the last suffix starting with a dot) from a file name (atom):
+stripSuffix(FileName,BaseName) :-
+	atom_codes(FileName,FileNameS),
+	rev(FileNameS,RevFileNameS),
+	append(_,[46|RevBaseNameS],RevFileNameS),  % 46 = '.'
+	!,
+	rev(RevBaseNameS,BaseNameS), atom_codes(BaseName,BaseNameS).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
