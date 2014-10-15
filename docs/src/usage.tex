@@ -430,6 +430,16 @@ inside this invocation of \CYS, i.e., the environment variable
 \ccode{CURRYPATH}\pindex{CURRYPATH} (see also Section~\ref{sec-modules})
 is set to $path$ in this invocation of \CYS.
 
+The path is a list of directories separated by \ccode{:}.
+The prefix \ccode{\char126} is replaced by the home directory as
+in the following example:
+\begin{curry}
+:set path aux:~/tests
+\end{curry}
+Relative directory names are replaced by absolute ones
+so that the path is independent of later changes of the
+current working directory.
+
 \item[\fbox{\code{printdepth $n$}}]\pindex{printdepth}
 Set the depth for printing terms to the value \code{n} (initially: 10).
 In this case subterms with a depth greater than \code{n} are abbreviated
