@@ -156,8 +156,10 @@ its value is used as an editor command, otherwise
 the environment variable \ccode{EDITOR}
 or a default editor (e.g., \ccode{vi}) is used.
 
-\item[\fbox{\code{:edit $file$}}]\pindex{:edit}
-Load file $file$ into a text editor which is defined
+\item[\fbox{\code{:edit $m$}}]\pindex{:edit}
+Load the source text of module $m$ (which must be accessible
+via the current load path if no path specification is given)
+into a text editor which is defined
 as in the command \ccode{:edit}.
 
 \item[\fbox{\code{:interface}}]\pindex{:interface}

@@ -578,13 +578,13 @@ processCommand("help",[]) :- !,
 	write(':type <expr>      - show the type of <expression>'),nl,
 	write(':browse           - browse program and its imported modules'),nl,
 	write(':interface        - show interface of current program'),nl,
-	write(':interface <prog> - show interface of program "<prog>.curry"'),nl,
+	write(':interface <m>    - show interface of module <m>'),nl,
 	write(':usedimports      - show all used imported functions/constructors'),nl,
-	write(':edit             - edit current program'), nl,
-	write(':edit <file>      - edit file "<file>"'), nl,
+	write(':edit             - load source of currently loaded module into editor'), nl,
+	write(':edit <m>         - load source of module <m> into editor'), nl,
 	write(':modules          - show list of currently loaded modules'), nl,
 	write(':show             - show source of currently loaded Curry program'), nl,
-	write(':show <m>         - show source of module <m>'), nl,
+	write(':show <m>         - show source code of module <m>'), nl,
 	write(':source <f>       - show source code of (visible!) function <f>'), nl,
 	write(':source <m>.<f>   - show source code of function <f> in module <m>'), nl,
 	write(':programs         - show names of all Curry programs available in load path'), nl,
@@ -852,7 +852,9 @@ processCommand("edit",[]) :- !, % edit current main module
 	findSourceProg(Prog,SourceFileName),
 	processCommand("edit",SourceFileName).
 
-processCommand("edit",FileS) :-
+processCommand("edit",EdTail) :-
+	extractProgName(EdTail,EntityS),
+	findSourceProg(EntityS,FileS), !,
 	getEditor(Editor),
 	atom_codes(Editor,EditorS),
 	concat([EditorS," ",FileS," &"],EditCmdS),
