@@ -843,18 +843,18 @@ isCompleteList([X|Xs],[X|L]) :- isCompleteList(Xs,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print an error message:
-printError(error(_,Error)):-
+printError(error(_,Error)) :-
 	prologError2Atom(Error,ErrorA),
 	writeErr(ErrorA), nlErr,
         seen, told,
         !,
         fail.
-printError(Error):-write(Error),nl,
+printError(Error) :-
 	writeErr('ERROR: '), print_message(error,Error),
         seen, told,
         !,
         fail.
-printError(Error):-
+printError(Error) :-
 	prologTerm2Atom(Error,ErrorA),
 	writeErr('ERROR: '), writeErr(ErrorA), nlErr,
         seen, told,

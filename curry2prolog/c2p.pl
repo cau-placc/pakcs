@@ -155,7 +155,7 @@ processArgs([Arg|Args]) :-
 processCompileOption(ProgOption) :-
 	atom_codes(ProgOption,ProgOptionS),
 	extractProgName(ProgOptionS,ProgString),
-	isValidModuleName(ProgString),
+	isValidProgramName(ProgString),
 	atom_codes(ProgAtom,ProgString),
 	split2dirbase(ProgAtom,DirName,ProgName),
 	(setWorkingDirectory(DirName) -> true ; halt(1)),
@@ -231,7 +231,9 @@ main :-
 	halt(EC).
 
 % things to do when leaving PAKCS interactive environment:
-cleanupAtEnd :- cleanSourceCodeGUIs.
+cleanupAtEnd :-
+	% ignore connection errors:
+	(on_exception(_ErrorMsg,cleanSourceCodeGUIs,true) -> true ; true).
 
 % Expand a command that may be shortened to its full name:
 expandCommand(AShortCmd,Cmd) :-
@@ -705,7 +707,7 @@ processCommand("add",Arg) :- !,
 
 processCommand("load",Arg) :- !,
 	extractProgName(Arg,Prog),
-	isValidModuleName(Prog),
+	isValidProgramName(Prog),
 	retract(lastload(OldLL)), asserta(lastload(Prog)),
 	retract(addImports(OldImps)), asserta(addImports([])),
         (processCommand("reload",[])
@@ -773,9 +775,7 @@ processCommand("usedimports",[]) :- !,
 	installDir(PH),
 	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
 		    AnaCmd),
-        (verbosityIntermediate -> write('Executing: '), write(AnaCmd), nl
-           ; true),
-        shellCmdWithCurryPath(AnaCmd).
+        shellCmdWithCurryPathWithReport(AnaCmd).
 
 processCommand("interface",[]) :- !,
 	lastload(Prog),
@@ -783,14 +783,12 @@ processCommand("interface",[]) :- !,
                   ; processCommand("interface",Prog)).
 processCommand("interface",IFTail) :- !,
 	extractProgName(IFTail,Prog),
-	isValidModuleName(Prog),
+	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
         installDir(PH),
 	appendAtoms(['"',PH,'/currytools/genint/GenInt" -int ',ProgA],
 		    GenIntCmd),
-        (verbosityIntermediate -> write('Executing: '), write(GenIntCmd), nl
-           ; true),
-        shellCmdWithCurryPath(GenIntCmd).
+        shellCmdWithCurryPathWithReport(GenIntCmd).
 
 processCommand("browse",[]) :- !,
 	lastload(LastProg),
@@ -806,9 +804,7 @@ processCommand("browse",[]) :- !,
 	!,
         installDir(PH),
 	appendAtoms(['"',PH,'/bin/currybrowse" ',RealProg,' & '],BrowseCmd),
-        (verbosityIntermediate -> write('Executing: '), write(BrowseCmd), nl
-           ; true),
-        shellCmdWithCurryPath(BrowseCmd).
+        shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
         installDir(PH),
@@ -818,9 +814,7 @@ processCommand("coosy",[]) :- !,
 	         ; path2String([CoosyHome|SLP],PathS), atom_codes(Path,PathS),
 	           setCurryPath(Path)),
 	appendAtoms(['"',CoosyHome,'/CoosyGUI" ',CoosyHome,' &'],GuiCmd),
-        (verbosityIntermediate -> write('Executing: '), write(GuiCmd), nl
-           ; true),
-        shellCmdWithCurryPath(GuiCmd),
+        shellCmdWithCurryPathWithReport(GuiCmd),
 	(waitForFile('COOSYLOGS/READY',3) -> true
 	 ; writeErr('ERROR: COOSy startup failed'), nlErr, fail),
 	printCurrentLoadPath.
@@ -833,9 +827,7 @@ processCommand("xml",[]) :- !,
         atom_codes(ProgA,Prog),
         installDir(PH),
 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
-        (verbosityIntermediate -> write('Executing: '), write(XmlCmd), nl
-           ; true),
-        shellCmdWithCurryPath(XmlCmd).
+        shellCmdWithCurryPathWithReport(XmlCmd).
 
 processCommand("peval",[]) :- !,
 	lastload(Prog),
@@ -846,9 +838,7 @@ processCommand("peval",[]) :- !,
         atom_codes(ProgA,Prog),
         installDir(PH),
 	appendAtoms(['"',PH,'/tools/Peval/peval" ',ProgA],PevalCmd),
-        (verbosityIntermediate -> write('Executing: '), write(PevalCmd), nl
-           ; true),
-        shellCmdWithCurryPath(PevalCmd),
+        shellCmdWithCurryPathWithReport(PevalCmd),
 	!,
 	append(Prog,"_pe",ProgPE), % name of partially evaluated program
 	write('Loading partially evaluated program "'),
@@ -867,7 +857,7 @@ processCommand("edit",FileS) :-
 	atom_codes(Editor,EditorS),
 	concat([EditorS," ",FileS," &"],EditCmdS),
 	atom_codes(EditCmd,EditCmdS),
-	shellCmd(EditCmd).
+	shellCmdWithReport(EditCmd).
 
 % show a list of all Curry programs available in the load path:
 processCommand("programs",[]) :- !,
@@ -886,28 +876,28 @@ processCommand("show",[]) :- !, % show source code of current module
 	 -> atom_codes(File,SourceFileName),
 	    getPager(Pager),
 	    appendAtoms([Pager,' ',File],Cmd),
-	    shellCmd(Cmd)
+	    shellCmdWithReport(Cmd)
 	  ; write('No source program file available, generating source from FlatCurry...'),
 	    nl, nl,
 	    installDir(PH), atom_codes(ProgA,Prog),
 	    appendAtoms(['"',PH,'/currytools/genint/GenInt" -mod ',ProgA],
 			ShowProgCmd),
-            (verbosityIntermediate ->
-		write('Executing: '), write(ShowProgCmd), nl ; true),
-	    shellCmdWithCurryPath(ShowProgCmd)).
+	    shellCmdWithCurryPathWithReport(ShowProgCmd)).
 
-processCommand("show",EntityS) :-
-	findSourceProg(EntityS,SourceFileName), !, % show source of a module
+processCommand("show",ShTail) :- % show source of a module
+	extractProgName(ShTail,EntityS),
+	findSourceProg(EntityS,SourceFileName), !,
 	atom_codes(File,SourceFileName),
 	getPager(Pager),
 	appendAtoms([Pager,' "',File,'"'],Cmd),
-	shellCmd(Cmd).
+	shellCmdWithReport(Cmd).
 
 processCommand("show",_) :- !,
 	writeErr('ERROR: source file not found'), nlErr.
 
 processCommand("source",Arg) :-
-	append(ModS,[46|FunS],Arg), !, % show source code of function in module
+	append(PModS,[46|FunS],Arg), !, % show source code of function in module
+	extractProgName(PModS,ModS),
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
@@ -954,8 +944,7 @@ processCommand("save",Exp) :- !,
 	 -> appendAtom(CMD1,'-standalone ',CMD2)
 	  ; CMD2=CMD1),
 	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
-	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
-	shellCmd(Cmd),
+	shellCmdWithReport(Cmd),
 	write('Executable saved in: '), write(ProgName), nl,
 	call(ProgInits).
 
@@ -963,6 +952,19 @@ processCommand("fork",STail) :- !, processFork(STail).
 
 processCommand(_,_) :- !,
 	write('ERROR: unknown command. Type :h for help'), nl, fail.
+
+% call "shellCmd" and report its execution if verbosityIntermediate:
+shellCmdWithReport(Cmd) :-
+	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
+	flush_output(user_output),
+	shellCmd(Cmd).
+
+% call "shellCmdWithCurryPath" and report its execution
+% if verbosityIntermediate:
+shellCmdWithCurryPathWithReport(Cmd) :-
+	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
+	flush_output(user_output),
+	shellCmdWithCurryPath(Cmd).
 
 
 % show the Curry programs in a given directory:
@@ -1357,9 +1359,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
 	appendAtoms([CM6,' ',POpts,' ',Prog],LoadCmd),
-	(verbosityIntermediate -> write('Executing: '), write(LoadCmd), nl
-           ; true),
-	(shellCmd(LoadCmd) -> true
+	(shellCmdWithReport(LoadCmd) -> true
 	  ; writeErr('ERROR occurred during parsing!'), nlErr, fail),
 	appendAtoms(['"',TCP,'/bin/fcypp"'],PP1),
 	(verbosity(0) -> appendAtom(PP1,' --quiet',PP2) ; PP2 = PP1 ),
@@ -1369,9 +1369,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	extractProgName(PPS,ProgNameS),
 	atom_codes(ProgName,ProgNameS),
 	appendAtoms([PP2,CWCA,' ',ProgName],PPCmd),
-	(verbosityIntermediate -> write('Executing: '), write(PPCmd), nl
-           ; true),
-	(shellCmd(PPCmd) -> true
+	(shellCmdWithReport(PPCmd) -> true
 	  ; writeErr('ERROR occurred during FlatCurry preprocessing!'), nlErr,
 	    fail).
 parseProgram(_,_,_). % do not parse if source program does not exist
@@ -1848,26 +1846,35 @@ escape(N)  --> "\\", [C1,C2,C3],
 	  N is (C1-48)*100+(C2-48)*10+C3-48 }.
 
 % extract the program name from a given input, i.e., remove all blanks,
+% replace leading "~" by current home directory,
 % delete possible suffix ".curry" or ".lcurry", and delete absolute
 % file path prefix if it is identical to the working directory:
 extractProgName(S,ProgName) :-
 	removeBlanks(S,S1),
 	(append(P,".curry",S1) -> true ;
 	 append(P,".lcurry",S1) -> true ; P=S1),
+	((P=[126|P1], getEnv('HOME',HomeDir))
+           -> atom_codes(HomeDir,HomeDirS), append(HomeDirS,P1,PH)
+            ; PH=P),
 	workingDirectory(Dir),
 	atom_codes(Dir,DirS),
-	((append(DirS,[47|ProgS],P), \+ append(_,[47|_],ProgS))
+	((append(DirS,[47|ProgS],PH), \+ append(_,[47|_],ProgS))
 	 -> ProgName=ProgS
-	  ; ProgName=P).
+	  ; ProgName=PH).
 
 % check whether a program name (obtained by extractProgName) contains
 % a valid module name:
-isValidModuleName(ProgString) :-
+isValidProgramName(ProgString) :-
 	atom_codes(ProgAtom,ProgString),
 	split2dirbase(ProgAtom,_,ModName),
 	atom_codes(ModName,ModString),
+	isValidModuleName(ModString).
+
+% check whether a module name (a code list) is valid:
+isValidModuleName(ModString) :-
 	(isValidModuleString(ModString) -> true
-	 ; writeErr('ERROR: Illegal module name: '), writeErr(ModName), nlErr,
+	 ; writeErr('ERROR: Illegal module name: '),
+	   atom_codes(ModName,ModString), writeErr(ModName), nlErr,
 	   fail).
 
 isValidModuleString([]).
@@ -2077,15 +2084,17 @@ showSourceCode(FCall) :- FCall =.. [QF|_],
 % show source code of a function via the simple GUI for showing complete fun's:
 showSourceCodeOfFunction(ModS,FunS) :-
 	writeNQ('Showing source code of function '),
-	append(ModS,[46|FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
+	concat([ModS,[46],FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
 	writeNQ('...'), nlNQ,
 	(retract(lastShownSourceCode(LastModS,LastF)) ; LastModS=[]),
 	(LastModS=[] -> true
           ; getModStream(LastModS,LastStr),
             (verbosityIntermediate -> write('SEND: -'), write(LastF), nl
 	       ; true),
-            put_code(LastStr,45), write(LastStr,LastF), nl(LastStr),
-            flush_output(LastStr)),
+            on_exception(_ErrorMsg,
+	                 (put_code(LastStr,45), write(LastStr,LastF),
+			  nl(LastStr), flush_output(LastStr)),
+			  retract(sourceCodeGUI(LastModS,_)))),
 	!,
 	atom_codes(F,FunS),
 	(verbosityIntermediate -> write('SEND: +'), write(F), nl ; true),
