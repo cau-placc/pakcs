@@ -386,7 +386,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	loadPath(AbsMainPath,LoadPath),
 	setCurryPath(NewLCP),
 	setWorkingDirectory(MainExprDir),
-	readProgInLoadPath(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_),
+	readProg(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_),
 	setCurryPath(LCP), % restore old settings
 	setWorkingDirectory(CurDir),
 	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
@@ -395,7 +395,9 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	!,
 	((MoreFs=[], simpleFlatExp(RuleExp))
           -> FlatExp = RuleExp
-           ; compileMainExpression(MainExprMod),
+           ; setCurryPath(NewLCP),
+	     compileMainExpression(MainExprMod),
+	     setCurryPath(LCP),
 	     map2M(compiler:varIndex2VarExp,RuleArgs,RuleVars),
 	     FlatExp = 'Comb'('FuncCall',
 	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),

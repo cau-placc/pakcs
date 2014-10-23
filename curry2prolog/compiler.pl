@@ -7,7 +7,7 @@
 	  [c2p/1, c2p/2,
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
 	   forbiddenModules/1, writeClause/1,
-	   readProgInLoadPath/4,
+	   readProg/4,
 	   checkProgramHeader/1, deletePrologTarget/1,
 	   maxTupleArity/1, tryXml2Fcy/1, varIndex2VarExp/2]).
 
@@ -308,11 +308,15 @@ tryXml2Fcy(_).
 
 
 % read a FlatCurry interface (or .fcy file if interface does not exist):
-readInterface([],Prog,_,_) :-
-	write('ERROR: FlatCurry file '), write(Prog),
-	write('.fcy not found!'), nl,
+readInterface(LoadPath,Prog,FlatInt,DirProgName) :-
+	readInterfaceInLoadPath(LoadPath,Prog,FlatInt,DirProgName), !.
+readInterface(LoadPath,Prog,_,_) :-
+	write('ERROR: Interface or FlatCurry file '), write(Prog),
+	write('.[fcy|fint] not found!'), nl,
+	write('Current load path: '), write(LoadPath), nl,
 	!, fail.
-readInterface([Dir|Dirs],Prog,FlatInt,DirProgName) :-
+
+readInterfaceInLoadPath([Dir|Dirs],Prog,FlatInt,DirProgName) :-
 	appendAtoms([Dir,'/',Prog],DirProg),
 	prog2InterfaceFile(DirProg,DirProgFint),
 	(existsFile(DirProgFint)
@@ -324,16 +328,17 @@ readInterface([Dir|Dirs],Prog,FlatInt,DirProgName) :-
 	    (verbosityIntermediate
 	     -> checkForFurtherFcyProgs(Dir,Dirs,Prog)
 	      ; true)
-	  ; readInterface(Dirs,Prog,FlatInt,DirProgName)).
+	  ; readInterfaceInLoadPath(Dirs,Prog,FlatInt,DirProgName)).
 
 % read a FlatCurry program:
 readProg(LoadPath,Prog,FlatProg,AbsFlatProgFile) :-
-	readProgInLoadPath(LoadPath,Prog,FlatProg,AbsFlatProgFile).
-
-readProgInLoadPath([],Prog,_,_) :-
+	readProgInLoadPath(LoadPath,Prog,FlatProg,AbsFlatProgFile), !.
+readProg(LoadPath,Prog,_,_) :-
 	write('ERROR: FlatCurry file '), write(Prog),
 	write('.fcy not found!'), nl,
+	write('Current load path: '), write(LoadPath), nl,
 	!, fail.
+
 readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	appendAtoms([Dir,'/',Prog],DirProg),
 	prog2FlatCurryFile(DirProg,DirProgFile),

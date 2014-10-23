@@ -91,7 +91,7 @@ all: config
 # Install all components of PAKCS
 #
 .PHONY: install
-install: installscripts copylibs
+install: cleanoldinfos installscripts copylibs
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	$(MAKE) frontend
@@ -109,6 +109,12 @@ install: installscripts copylibs
 	$(MAKE) tools
 	$(MAKE) docs
 	chmod -R go+rX .
+
+# Clean old files that might be in conflict with newer versions of PAKCS:
+.PHONY: cleanoldinfos
+cleanoldinfos:
+	# delete old RequiredValue analysis files since format has changed:
+	find $(HOME)/.curry/Analysis -name \*.RequiredValue.p\* -exec rm -f \{\} \;
 
 # Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
