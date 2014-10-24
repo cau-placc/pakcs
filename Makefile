@@ -114,7 +114,8 @@ install: cleanoldinfos installscripts copylibs
 .PHONY: cleanoldinfos
 cleanoldinfos:
 	# delete old RequiredValue analysis files since format has changed:
-	find $(HOME)/.curry/Analysis -name \*.RequiredValue.p\* -exec rm -f \{\} \;
+	@if [ -d $(HOME)/.curry/Analysis ] ; then \
+	  find $(HOME)/.curry/Analysis -name \*.RequiredValue.p\* -exec rm -f \{\} \; ; fi
 
 # Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
