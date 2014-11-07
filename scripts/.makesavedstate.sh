@@ -84,7 +84,8 @@ if test -n "$LC_ALL" ; then
   echo "LC_ALL=$LC_ALL" >> $TMPFILE
   echo "export LC_ALL" >> $TMPFILE
 fi
-echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE
+#echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE # old approach
+echo "PATH=\"\$PATH:$PATH\"" >> $TMPFILE # add install path after actual path
 echo "export PATH" >> $TMPFILE
 if [ -n "$SICSTUSDIR" ] ; then
   # check whether --noinfo parameter is accepted (e.g., not for SICStus 3.7):
