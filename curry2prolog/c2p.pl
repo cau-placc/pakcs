@@ -1883,7 +1883,7 @@ isValidModuleName(ModString) :-
 
 isValidModuleString([]).
 isValidModuleString([C|Cs]) :-
-	(isLetterCharCode(C) ; C=95),
+	(isLetterCharCode(C) ; C=95 ; C=46), % letter|_|.
 	isValidModuleString(Cs).
 
 

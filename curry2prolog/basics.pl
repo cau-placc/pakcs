@@ -562,23 +562,34 @@ tryEnsureDirOfFile(File) :-
 % generate the name of the Prolog file for a given Curry program name:
 prog2PrologFile(Prog,PrologFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
-	appendAtoms([ProgDir,'/.curry/pakcs/',ProgBase,'.pl'],PrologFile).
+	hierarchical2dirs(ProgBase,DProgBase),
+	appendAtoms([ProgDir,'/.curry/pakcs/',DProgBase,'.pl'],PrologFile).
 
 % generate the name of the interface file for a given Curry program name:
 prog2InterfaceFile(Prog,IntFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
-	appendAtoms([ProgDir,'/.curry/',ProgBase,'.fint'],IntFile).
+	hierarchical2dirs(ProgBase,DProgBase),
+	appendAtoms([ProgDir,'/.curry/',DProgBase,'.fint'],IntFile).
 
 % generate the name of the FlatCurry file for a given Curry program name:
 prog2FlatCurryFile(Prog,FlatFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
-	appendAtoms([ProgDir,'/.curry/',ProgBase,'.fcy'],FlatFile).
+	hierarchical2dirs(ProgBase,DProgBase),
+	appendAtoms([ProgDir,'/.curry/',DProgBase,'.fcy'],FlatFile).
 
 % generate the name of the InterfaceCurry file for a given Curry program name:
 prog2ICurryFile(Prog,ICurryFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
-	appendAtoms([ProgDir,'/.curry/',ProgBase,'.icurry'],ICurryFile).
+	hierarchical2dirs(ProgBase,DProgBase),
+	appendAtoms([ProgDir,'/.curry/',DProgBase,'.icurry'],ICurryFile).
 
+% translate a hierarchical module name (atom) into directory/file name,
+% i.e., replace dots by slashes:
+hierarchical2dirs(HModName,DModName) :-
+	atom_codes(HModName,HModNameS),
+	map2M(basics:dot2slash,HModNameS,DModNameS),
+	atom_codes(DModName,DModNameS).
+dot2slash(C1,C2) :- C1=46 -> C2=47 ; C2=C1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read a single line from stdin:
