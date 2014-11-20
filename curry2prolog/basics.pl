@@ -557,7 +557,28 @@ ensureDirOfFile(File) :-
 	on_exception(ErrorMsg,tryEnsureDirOfFile(File),printError(ErrorMsg)).
 tryEnsureDirOfFile(File) :-
 	split2dirbase(File,Dir,_),
-	(existsDirectory(Dir) -> true ; makeDirectory(Dir)).
+	(existsDirectory(Dir) -> true ; makeDirectoryWithParents(Dir)).
+
+% create directory and also their parents, if necessary:
+makeDirectoryWithParents(Dir) :-
+	atom_codes(Dir,DirS),
+	makeDirectoryWithParentsFrom([],DirS).
+
+makeDirectoryWithParentsFrom(PrefixS,DirS) :-
+	append(Dir1S,[47|Dir2S],DirS), \+ append(_,[47|_],Dir1S), !,
+	% create first subdir:
+	makeDirectoryWithPrefix(PrefixS,Dir1S),
+	(PrefixS=[] -> SubDirS = Dir1S
+	             ; append(PrefixS,[47|Dir1S],SubDirS)),
+	makeDirectoryWithParentsFrom(SubDirS,Dir2S).
+makeDirectoryWithParentsFrom(PrefixS,DirS) :-
+	makeDirectoryWithPrefix(PrefixS,DirS).
+
+makeDirectoryWithPrefix(PrefixS,DirS) :-
+	(PrefixS=[] -> CompleteDirS = DirS
+	             ; append(PrefixS,[47|DirS],CompleteDirS)),
+	atom_codes(CompleteDir,CompleteDirS),
+	(existsDirectory(CompleteDir) -> true ; makeDirectory(CompleteDir)).
 
 % generate the name of the Prolog file for a given Curry program name:
 prog2PrologFile(Prog,PrologFile) :-
