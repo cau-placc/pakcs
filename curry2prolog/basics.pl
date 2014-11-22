@@ -562,14 +562,15 @@ tryEnsureDirOfFile(File) :-
 % create directory and also their parents, if necessary:
 makeDirectoryWithParents(Dir) :-
 	atom_codes(Dir,DirS),
-	makeDirectoryWithParentsFrom([],DirS).
+	(DirS=[47|Dir1S] -> makeDirectoryWithParentsFrom([47],Dir1S)
+	                  ; makeDirectoryWithParentsFrom([],DirS)).
 
 makeDirectoryWithParentsFrom(PrefixS,DirS) :-
 	append(Dir1S,[47|Dir2S],DirS), \+ append(_,[47|_],Dir1S), !,
 	% create first subdir:
 	makeDirectoryWithPrefix(PrefixS,Dir1S),
-	(PrefixS=[] -> SubDirS = Dir1S
-	             ; append(PrefixS,[47|Dir1S],SubDirS)),
+	((PrefixS=[] ; PrefixS=[47]) -> append(PrefixS,Dir1S,SubDirS)
+	                              ; append(PrefixS,[47|Dir1S],SubDirS)),
 	makeDirectoryWithParentsFrom(SubDirS,Dir2S).
 makeDirectoryWithParentsFrom(PrefixS,DirS) :-
 	makeDirectoryWithPrefix(PrefixS,DirS).
