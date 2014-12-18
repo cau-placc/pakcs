@@ -19,7 +19,7 @@
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
-parserOptions(''). % additional options passed to cymake parser
+parserOptions('-X TypeClassExtensions'). % additional options passed to cymake parser
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 varDefines([]). % list of top-level bindings
@@ -447,8 +447,11 @@ replaceFreeVarInEnv(FreeVars,RuleArgs,[(EVN=EV)|Env],[(EVN1=EV)|TEnv]) :-
 	replaceFreeEnvVar(FreeVars,RuleArgs,V,EVN1),
         replaceFreeVarInEnv(FreeVars,RuleArgs,Env,TEnv).
 
-replaceFreeEnvVar([],[],V,NV) :-
+replaceFreeEnvVar([],[],V,NV) :- !,
         number_codes(V,Vs), atom_codes(NV,[95|Vs]).
+replaceFreeEnvVar([],_,_,_) :-
+	writeErr('Cannot handle overloaded top-level expression'), nlErr,
+	!, fail.
 replaceFreeEnvVar([FV|FreeVars],[RA|RuleArgs],V,NV) :-
         (V=RA -> appendAtoms(['_',FV],NV)
                ; replaceFreeEnvVar(FreeVars,RuleArgs,V,NV)).

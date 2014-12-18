@@ -4,8 +4,8 @@ LOGFILE=xxx$$
 ../bin/cleancurry -r
 cat << EOM | $PAKCS :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
 :l rev
-append [1,2] [3,4]
-rev [1,2,3,4,5,6,7,8,9,10]
+append [1,2] [3,4] :: [Int]
+rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 :l higher
 g1
 g2
@@ -13,9 +13,9 @@ g3
 g4
 g5
 :l quicksort
-qsort [2,3,1,0]
+qsort [2,3,1,0] :: [Int]
 :l qsortlet
-qsort [2,3,1,0]
+qsort [2,3,1,0] :: [Int]
 :l inflists
 goal1
 goal2
@@ -83,8 +83,8 @@ goal3
 :l psort
 goal 6
 :l default
-abs 0
-abs 3
+pabs 0
+pabs 3
 swap [3]
 swap [3,4]
 swap [3,4,5]

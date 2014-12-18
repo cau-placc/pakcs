@@ -47,7 +47,8 @@ data Term = Cons String [Term]
           | UnEval
           | Bottom
           | Black Term
- 
+  deriving Eq
+
 startSeparation :: [(Event,Bool)] -> [Trace]
 startSeparation [] = []
 startSeparation ((_,True):ts) = startSeparation ts
@@ -299,11 +300,11 @@ sp = text " "
 
 -- auxiliaries:
 
-categoriseBy :: (a -> b) -> [a] -> [(b,[a])]
+categoriseBy :: Eq b => (a -> b) -> [a] -> [(b,[a])]
 categoriseBy catF = foldr (\x -> insertToCategory (catF x) x)
                           []
 
-insertToCategory :: b -> a -> [(b,[a])] -> [(b,[a])]
+insertToCategory :: Eq b => b -> a -> [(b,[a])] -> [(b,[a])]
 insertToCategory cat x [] = [(cat,[x])]
 insertToCategory cat x ((cat',xs):cats)
         | cat == cat' = ((cat',x:xs):cats)

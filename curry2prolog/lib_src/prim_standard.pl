@@ -96,6 +96,17 @@ prim_letrec(X,XE,'Prelude.success',E0,E) :- create_mutable(XE,MX), X=share(MX), 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Definition of comparsion of primitive data:
+%
+prim_eqBasic(Y,X,R) :- X==Y -> R='Prelude.True' ; R='Prelude.False'.
+
+prim_leqNumber(Y,X,R) :- X=<Y -> R='Prelude.True' ; R='Prelude.False'.
+
+prim_leqChar(Y,X,R) :-
+	char_int(X,VX), char_int(Y,VY),
+	VX=<VY -> R='Prelude.True' ; R='Prelude.False'.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Definition of arithmetic functions:
 %
 prim_Int_plus(Y,X,R) :- R is X+Y.

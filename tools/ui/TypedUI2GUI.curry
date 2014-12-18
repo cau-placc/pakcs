@@ -146,13 +146,11 @@ invert f = f_invert
   --f_invert (local_f x) = x  -- here we use a function pattern
   f_invert y | (local_f x) =:<= y = x where x free -- the same without fun.pat.
 
-
 -------------------------------------------------------------------------------
 hideErrorLabel lref env     = do setValue lref "" env
                                  setVisible lref False env
 showErrorLabel lref msg env = do setValue lref msg env
                                  setVisible lref True env 
-
 
 --- A widget for editing integer values.
 wInt :: UISpec Int
@@ -254,7 +252,7 @@ wString :: UISpec (String)
 wString = wStringStyles []
 
 --- A widget for editing string values 
-wStringSize :: _ -> UISpec (String)
+wStringSize :: Int -> UISpec (String)
 wStringSize size = wStringStyles [Class [NameValue "size" (show size)]]
 
 
@@ -265,7 +263,7 @@ wRequiredString =
           `withCondition` (\s -> (not . null) s)
 
 --- A widget for editing string values that are required to be non-empty.
-wRequiredStringSize :: _ -> UISpec (String)
+wRequiredStringSize :: Int -> UISpec (String)
 wRequiredStringSize size =
   wStringSize size `withError`     "Missing input:"
                    `withCondition` (\s -> (not . null) s)
@@ -299,39 +297,46 @@ renderError widget errorref | ErrorRefs (labelref,colref) =:= errorref =
 -------------------------------------------------------------------------------
 
 --- WUI combinator for pairs.
-wPair :: UISpec a -> UISpec b -> UISpec ((a,b))
+wPair :: (Eq a, Eq b) => UISpec a -> UISpec b -> UISpec ((a,b))
 wPair = wCons2 (\a b -> (a,b))
 
 --- WUI combinator for triples.
-wTriple :: UISpec a -> UISpec b -> UISpec c -> UISpec (a,b,c)
+wTriple :: (Eq a, Eq b, Eq c) =>
+           UISpec a -> UISpec b -> UISpec c -> UISpec (a,b,c)
 wTriple = wCons3 (\a b c -> (a,b,c))
 
 --- WUI combinator for tuples of arity 4.
-w4Tuple :: UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec (a,b,c,d)
+w4Tuple :: (Eq a, Eq b, Eq c, Eq d) =>
+           UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec (a,b,c,d)
 w4Tuple = wCons4 (\a b c d -> (a,b,c,d))
 
 --- WUI combinator for tuples of arity 5.
-w5Tuple :: UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
+w5Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e) =>
+           UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
            UISpec (a,b,c,d,e)
 w5Tuple = wCons5 (\a b c d e -> (a,b,c,d,e))
 
 --- WUI combinator for tuples of arity 6.
-w6Tuple :: UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
+w6Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f) =>
+           UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
            UISpec f -> UISpec (a,b,c,d,e,f)
 w6Tuple = wCons6 (\a b c d e f -> (a,b,c,d,e,f))
 
 --- WUI combinator for tuples of arity 7.
-w7Tuple :: UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
+w7Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g) =>
+           UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
            UISpec f -> UISpec g -> UISpec (a,b,c,d,e,f,g)
 w7Tuple = wCons7 (\a b c d e f g -> (a,b,c,d,e,f,g))
 
 --- WUI combinator for tuples of arity 8.
-w8Tuple :: UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
+w8Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h) =>
+           UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
            UISpec f -> UISpec g -> UISpec h -> UISpec (a,b,c,d,e,f,g,h)
 w8Tuple = wCons8 (\a b c d e f g h -> (a,b,c,d,e,f,g,h))
 
 --- WUI combinator for tuples of arity 11.
-w11Tuple :: UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
+w11Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k) =>
+            UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
             UISpec f -> UISpec g -> UISpec h -> UISpec i -> UISpec j ->
             UISpec k -> UISpec (a,b,c,d,e,f,g,h,i,j,k)
 w11Tuple = wCons11 (\a b c d e f g h i j k -> (a,b,c,d,e,f,g,h,i,j,k))
@@ -342,7 +347,7 @@ w11Tuple = wCons11 (\a b c d e f g h i j k -> (a,b,c,d,e,f,g,h,i,j,k))
 --- The second and third arguments are the UI specifications
 --- for the argument types.
 
-wCons2 :: (a -> b -> c) -> UISpec a -> UISpec b -> UISpec c
+wCons2 :: (Eq a, Eq b) => (a -> b -> c) -> UISpec a -> UISpec b -> UISpec c
 wCons2 cons (UISpec rendera showa ) (UISpec renderb showb ) =  
   UISpec (renderTuple, tupleError, const $ return True) showc 
  where
@@ -402,7 +407,7 @@ wTextArea (rows,cols) = UISpec (head, "?", const $ return True)
                           setValue ref val env
 
 
-wList :: UISpec a -> UISpec [a]
+wList :: Eq a => UISpec a -> UISpec [a]
 wList (UISpec rendera showa) =
   UISpec (renderList,"Illegal list:",const $ return True)
           (\wparams vas ->
@@ -441,7 +446,7 @@ renderList = col
 --- preselected.
 --- The first argument is a mapping from values into HTML expressions
 --- that are shown for each item after the check box.
-wMultiCheckSelect :: (a->[UIWidget]) -> [a] -> UISpec [a]
+wMultiCheckSelect :: Eq a => (a->[UIWidget]) -> [a] -> UISpec [a]
 wMultiCheckSelect showelem selset =
   UISpec (renderTuple, tupleError, const $ return True)
           (\wparams vs -> checkWidget wparams vs)
@@ -485,7 +490,7 @@ newVars = unknown : newVars
 --- The current value should be contained in the value list and is preselected.
 --- The first argument is a mapping from values into strings to be shown
 --- in the selection widget.
-wSelect :: (a->String) -> [a] -> UISpec a
+wSelect :: Eq a => (a->String) -> [a] -> UISpec a
 wSelect showelem selset =
   UISpec (head,"?",const $ return True)
          (\wparams v -> selWidget wparams v)
@@ -565,7 +570,8 @@ runUISpec uispec val store = do
 
 ------------------------------------------------------------------------------
 
-wCons3 :: (a->b->c->d) -> UISpec a -> UISpec b -> UISpec c -> UISpec d
+wCons3 :: (Eq a, Eq b, Eq c) =>
+          (a->b->c->d) -> UISpec a -> UISpec b -> UISpec c -> UISpec d
 wCons3 cons (UISpec rendera showa) (UISpec renderb showb)
             (UISpec renderc showc) =
   UISpec (renderTuple, tupleError, const $ return True) showd 
@@ -605,7 +611,8 @@ wCons3 cons (UISpec rendera showa) (UISpec renderb showb)
        where nva, nvb, nvc free
 
 
-wCons4  :: (a->b->c->d->e) ->
+wCons4  :: (Eq a, Eq b, Eq c, Eq d) =>
+           (a->b->c->d->e) ->
             UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e
 wCons4 cons
         (UISpec wparama showa) (UISpec wparamb showb)
@@ -648,7 +655,8 @@ wCons4 cons
          setd nvd env
        where nva, nvb, nvc, nvd free 
 
-wCons5 :: (a -> b -> c -> d -> e -> f) -> UISpec a -> UISpec b -> UISpec c ->
+wCons5 :: (Eq a, Eq b, Eq c, Eq d, Eq e) =>
+          (a -> b -> c -> d -> e -> f) -> UISpec a -> UISpec b -> UISpec c ->
              UISpec d -> UISpec e -> UISpec f
 wCons5 cons (UISpec wparama showa) (UISpec wparamb showb)
             (UISpec wparamc showc) (UISpec wparamd showd)
@@ -695,7 +703,8 @@ wCons5 cons (UISpec wparama showa) (UISpec wparamb showb)
          sete nve env
        where nva, nvb, nvc, nvd, nve free 
 
-wCons6 :: (a -> b -> c -> d -> e -> f -> g) -> UISpec a -> UISpec b ->
+wCons6 :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f) =>
+          (a -> b -> c -> d -> e -> f -> g) -> UISpec a -> UISpec b ->
               UISpec c -> UISpec d -> UISpec e -> UISpec f -> UISpec g
 wCons6 cons
         (UISpec wparama showa) (UISpec wparamb showb)
@@ -748,7 +757,8 @@ wCons6 cons
          setf nvf env
        where nva, nvb, nvc, nvd, nve, nvf free 
 
-wCons7 :: (a -> b -> c -> d -> e -> f -> g -> h) -> UISpec a -> UISpec b ->
+wCons7 :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g) =>
+          (a -> b -> c -> d -> e -> f -> g -> h) -> UISpec a -> UISpec b ->
         UISpec c -> UISpec d -> UISpec e -> UISpec f -> UISpec g -> UISpec h
 wCons7 cons
         (UISpec wparama showa) (UISpec wparamb showb)
@@ -805,7 +815,8 @@ wCons7 cons
        where nva, nvb, nvc, nvd, nve, nvf, nvg free 
 
 
-wCons8 :: (a -> b -> c -> d -> e -> f -> g -> h -> i) -> UISpec a -> 
+wCons8 :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h) =>
+          (a -> b -> c -> d -> e -> f -> g -> h -> i) -> UISpec a -> 
    UISpec b -> UISpec c -> UISpec d -> UISpec e -> UISpec f -> UISpec g ->
    UISpec h -> UISpec i
 wCons8 cons
@@ -868,7 +879,8 @@ wCons8 cons
        where nva, nvb, nvc, nvd, nve, nvf, nvg, nvh free 
 
 
-wCons11 :: (a -> b -> c -> d -> e -> f -> g -> h -> i -> j -> k -> l) ->
+wCons11 :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k) =>
+           (a -> b -> c -> d -> e -> f -> g -> h -> i -> j -> k -> l) ->
             UISpec a -> UISpec b -> UISpec c -> UISpec d -> UISpec e ->
             UISpec f -> UISpec g -> UISpec h -> UISpec i -> UISpec j ->
             UISpec k -> UISpec l

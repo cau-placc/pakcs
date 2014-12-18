@@ -19,13 +19,14 @@ f x = let l = [r | p <- [x]]
 
 Example 1: Consider the Haskell definition
 
-abs 0 = 0
-abs x = 1
+pabs 0 = 0
+pabs x = 1
 
 We implement this as
 
-> abs x = let l = [0 | 0 <- [x]]
->         in  if l==[] then 1 else head l
+> pabs :: Int -> Int
+> pabs x = let l = [0 | 0 <- [x]]
+>          in  if l==[] then 1 else head l
 
 
 Example 2: Consider the Haskell definition
@@ -35,5 +36,6 @@ swap l = l
 
 We implement this as
 
+> swap :: [Int] -> [Int]
 > swap z = let l = [[y,x] | [x,y] <- [z]]
 >          in  if l==[] then z else head l

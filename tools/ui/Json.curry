@@ -22,6 +22,7 @@ data Json
   | Int Int
   | Bool Bool
   | Null
+ deriving (Eq,Show)
 
 --- Universal transformation for JSON values.
 trJson :: ([(String, a)] -> a) 
@@ -75,7 +76,7 @@ readJson s | null sols = failed
 spaceP :: Parser Char String
 spaceP s = [span isSpace s]
 
-listP :: Parser Char a -> Parser Char [a]
+listP :: Show a => Parser Char a -> Parser Char [a]
 listP p s 
   = case (p <.> spaceP) s of
       [] -> [([],s)]

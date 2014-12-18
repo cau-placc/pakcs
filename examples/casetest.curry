@@ -1,5 +1,6 @@
 -- Some tests for case expressions
 
+swap :: [Int] -> [Int]
 swap l = case l of
   [x,y] -> [y,x]
   _     -> l

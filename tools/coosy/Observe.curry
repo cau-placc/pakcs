@@ -69,15 +69,15 @@ recordEvent label event parent preds
 
 clearLogFile = do
    system ("touch "++logFile ""++"; rm "++logFile "*")
-   setAssoc stateName (show 0)
+   setAssoc stateName "0" --(show 0)
 
-clearFileCheck = 
-  let clearFile = logFileClear in
-   readFile clearFile >>= \clearStr ->
-   if clearStr == "1"
-     then setAssoc stateName (show 0) >>
-          writeFile clearFile ""
-     else return ()
+clearFileCheck = do
+  let clearFile = logFileClear
+  clearStr <- readFile clearFile
+  if clearStr == "1"
+    then do setAssoc stateName "0" --(show 0)
+            writeFile clearFile ""
+    else return ()
 
 observe :: Observer a -> String -> a -> a
 observe observeA label x = initialObserver observeA 0 x label (-1) preds

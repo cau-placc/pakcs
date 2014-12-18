@@ -3,8 +3,10 @@ import Findall
 -- Place n queens on a chessboard so that no queen can capture another queen:
 -- (this solution is due to Sergio Antoy)
 
+queens :: [Int] -> [Int]
 queens x | y=:=permute x & naf (capture x y) = y  where y free
 
+permute :: [a] -> [a]
 permute []     = []
 permute (x:xs) | u ++ v =:= permute xs  = u ++ [x] ++ v
   where u,v free
@@ -17,5 +19,8 @@ capture x y = let l1,l2,l3,x1,x2,y1,y2 free in
 -- negation as failure (implemented by encapsulated search):
 naf c = (findall (\_->c)) =:= []
 
+queens4 :: [Int]
 queens4 = queens [1,2,3,4]
+
+queens5 :: [Int]
 queens5 = queens [1,2,3,4,5]

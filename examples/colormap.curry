@@ -5,7 +5,7 @@
 -- auxiliary function:
 
 -- negation of ==:
-diff :: a -> a -> Success
+diff :: Eq a => a -> a -> Success
 diff x y = (x == y) =:= False
 
 {-
@@ -23,7 +23,7 @@ diff x y = (x == y) =:= False
 -}
 
 data Color = Red | Green | Yellow | Blue
-
+ deriving Eq
 
 isColor :: Color -> Success
 isColor Red    = success

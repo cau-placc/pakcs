@@ -7,7 +7,7 @@
 module UI(
   Command(..),Ref(..),Handler(..),
   Widget(Widget),
-  Event(..),WidgetKind(..),
+  Event(..),WidgetKind(..),showWidgetKind,
   CanvasItem(..),
   UIEnv,
   -- for stils
@@ -52,6 +52,7 @@ data Command act1 act2
 
 --- The data type of references to widgets in a UI window.
 data Ref r = Ref r
+ deriving Eq
 
 data Handler act1 act2
   = Handler Event (Command act1 act2)
@@ -96,6 +97,8 @@ data WidgetKind r act1 act2 =
   | Link  
   | RadioButton Bool
 
+showWidgetKind :: WidgetKind r a1 a2 -> String
+showWidgetKind _ = "<some WidgetKind>"
 
 defaultHandler :: a -> Handler a _
 defaultHandler cmd = Handler DefaultEvent (Cmd cmd)
@@ -103,7 +106,7 @@ defaultHandler cmd = Handler DefaultEvent (Cmd cmd)
 -------------------------------------------------------------------------------
 
 addStyle :: Widget r a1 a2 -> StyleClass -> Widget r a1 a2
-addStyle widget class = addStyles widget [class]
+addStyle widget stcls = addStyles widget [stcls]
 
 addStyles :: Widget r a1 a2 -> [StyleClass] -> Widget r a1 a2
 addStyles (Widget str mblabel mbref handlers styleClasses ws) classes 
@@ -149,8 +152,11 @@ data CanvasItem =
 -------------------------------------------------------------------------------
 
 data StyleClass = Class [Style]
+  deriving Show
 data Position = Center | Left | Right | Top | Bottom
+  deriving Show
 data Direction = X | Y | Both
+  deriving Show
 
 --- The data type of possible styles.
 data Style = 
@@ -167,16 +173,19 @@ data Style =
  | Border BorderStyle
  | Display Bool
  | NameValue String String 
- 
+ deriving Show
 
 data BorderStyle = Dotted | Dashed | Solid
+  deriving Show
 data FontStyle   = Bold | Italic | Underline
+  deriving Show
 
 --- The data type of possible colors.
 data Color 
   = Black | Blue | Brown | Cyan | Gold | Gray | Green
   | Magenta | Navy | Orange | Pink | Purple | Red
   | Tomato| Turquoise | Violet | White | Yellow | Default
+  deriving Show
 
 -------------------------------------------------------------------------------
 

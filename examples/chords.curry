@@ -27,11 +27,12 @@ import Findall
 
 -- The notes (C major scale, R denotes a rest)
 data Note = C | D | E | F | G | A | B | R
+ deriving Eq
 
 -- The chords
 data Chord = C_maj | D_maj | E_maj | F_maj | G_maj | G_maj7 | A_maj | B_maj |
              C_min | D_min | E_min | F_min | G_min | A_min | B_min
-
+  deriving Eq
 
 -------------------------- Auxiliary functions -----------------------------
 

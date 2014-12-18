@@ -9,6 +9,7 @@ from n = n : from (n+1)
 fibs = fibgen 1 1
 fibgen n1 n2 = n1 : fibgen n2 (n1+n2)
 
+goal1 :: [Int]
 goal1 = take 10 fibs
 
 
@@ -18,6 +19,7 @@ primes = sieve (from 2)
  
 sieve (x:xs) = x : sieve (filter (\y -> y `mod` x > 0) xs)
 
+goal2 :: [Int]
 goal2 = take 5 primes
 
 
@@ -30,4 +32,5 @@ hamming = 1:ordMerge (map (*2) hamming)
                      (ordMerge (map (*3) hamming)
                                (map (*5) hamming))
 
+goal3 :: [Int]
 goal3 = take 10 hamming
