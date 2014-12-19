@@ -91,7 +91,7 @@ all: config
 # Install all components of PAKCS
 #
 .PHONY: install
-install: cleanoldinfos installscripts copylibs
+install: installscripts copylibs
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	$(MAKE) frontend
