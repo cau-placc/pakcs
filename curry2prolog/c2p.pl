@@ -326,7 +326,9 @@ ioAdmissible.
 % process a given main expression:
 
 processExpression(Input,ExprGoal) :-
-	parseMainExpression(Input,Term,Type,Vs),
+	parseMainExpression(Input,Term,Type,Vs,Overloaded),
+	Overloaded=false, % we can only process non-overloaded expressions
+	!,
 	(isIoType(Type) -> ioAdmissible ; true),
 	(verbosemode(yes) -> write('Evaluating expression: '),
 	                     writeCurryTermWithFreeVarNames(Vs,Term),
@@ -336,16 +338,19 @@ processExpression(Input,ExprGoal) :-
 			     writeFreeVars(Vs)
 		           ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
+processExpression(_,_) :-
+	writeErr('Cannot handle overloaded top-level expressions'), nlErr,
+	!, fail.
 
-parseMainExpression(Input,Term,Type,Vs) :-
+parseMainExpression(Input,Term,Type,Vs,Ovld) :-
 	(freeVarsUndeclared(yes)
-	  -> parseExpressionSimple(Input,Term,Type,Vs)
-	   ; parseExpressionWithFrontend(Input,Term,Type,Vs)),
+	  -> parseExpressionSimple(Input,Term,Type,Vs,Ovld)
+	   ; parseExpressionWithFrontend(Input,Term,Type,Vs,Ovld)),
 	(verbosityDetailed
           -> write('Translated expression: '), writeq(Term), nl
            ; true).
 
-parseExpressionSimple(Input,Term,Type,Vs) :-
+parseExpressionSimple(Input,Term,Type,Vs,false) :-
 	(mainexpr(Exp,FreeVars,Input,[])
           -> true
            ; write('*** Syntax error'), nl, setExitCode(1), !, fail),
@@ -357,12 +362,12 @@ parseExpressionSimple(Input,Term,Type,Vs) :-
 
 % process a given main expression by writing it into a main module
 % and calling the front end:
-parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
+parseExpressionWithFrontend(Input,MainExp,Type,Vs,Ovld) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
-	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs).
+	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld).
 
-parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
+parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
@@ -405,9 +410,11 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	flatType2MainType([],FType,_,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
+	length(FreeVars,FVL), length(RuleArgs,RAL),
+	(FVL=RAL -> Ovld=false ; Ovld=true),
 	!,
 	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_) :-
+parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
 	!, fail.
 
@@ -447,11 +454,8 @@ replaceFreeVarInEnv(FreeVars,RuleArgs,[(EVN=EV)|Env],[(EVN1=EV)|TEnv]) :-
 	replaceFreeEnvVar(FreeVars,RuleArgs,V,EVN1),
         replaceFreeVarInEnv(FreeVars,RuleArgs,Env,TEnv).
 
-replaceFreeEnvVar([],[],V,NV) :- !,
+replaceFreeEnvVar([],_,V,NV) :- !,
         number_codes(V,Vs), atom_codes(NV,[95|Vs]).
-replaceFreeEnvVar([],_,_,_) :-
-	writeErr('Cannot handle overloaded top-level expression'), nlErr,
-	!, fail.
 replaceFreeEnvVar([FV|FreeVars],[RA|RuleArgs],V,NV) :-
         (V=RA -> appendAtoms(['_',FV],NV)
                ; replaceFreeEnvVar(FreeVars,RuleArgs,V,NV)).
@@ -767,7 +771,7 @@ processCommand("define",BindingS) :- !,
 	asserta(varDefines([Var=Exp|OldDefs])).
 
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(ExprInput,Term,Type,Vs),
+	parseMainExpression(ExprInput,Term,Type,Vs,_),
 	writeCurryTermWithFreeVarNames(Vs,Term),
 	write(' :: '),
 	numbersmallvars(97,_,Type), writeType(Type), nl.
@@ -908,7 +912,7 @@ processCommand("source",Arg) :-
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	parseMainExpression(ExprInput,Term,_Type,_Vs),
+	parseMainExpression(ExprInput,Term,_Type,_Vs,_),
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
@@ -1257,7 +1261,7 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	parseMainExpression(ExprInput,_Term,Type,_Vs),
+	parseMainExpression(ExprInput,_Term,Type,_Vs,_),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
