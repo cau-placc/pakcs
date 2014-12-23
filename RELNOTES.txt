@@ -1,13 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.5 (November 25, 2014)
+Release notes for PAKCS Version 1.11.5 (December 23, 2014)
 ----------------------------------------------------------
 
 Changes to version 1.11.4:
   * Support for hierarchical module names added,
     libraries `Distribution` and `FlatCurry` adapted for
     this purpose.
+  * Library `AbstractCurryGoodies` added.
+
 
 Release notes for PAKCS Version 1.11.4 (October 16, 2014)
 ---------------------------------------------------------
