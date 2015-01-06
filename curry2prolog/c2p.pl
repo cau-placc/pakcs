@@ -327,7 +327,12 @@ ioAdmissible.
 
 processExpression(Input,ExprGoal) :-
 	parseMainExpression(Input,Term,Type,Vs,Overloaded),
-	Overloaded=false, % we can only process non-overloaded expressions
+	processOrDefaultMainExpression(Input,Term,Type,Vs,Overloaded,ExprGoal).
+
+% If the main expression is overloaded, try to default it to some
+% numeric type:
+processOrDefaultMainExpression(_Input,Term,Type,Vs,false,ExprGoal) :-
+	% we can directly process non-overloaded expressions:
 	!,
 	(isIoType(Type) -> ioAdmissible ; true),
 	(verbosemode(yes) -> write('Evaluating expression: '),
@@ -338,9 +343,70 @@ processExpression(Input,ExprGoal) :-
 			     writeFreeVars(Vs)
 		           ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
-processExpression(_,_) :-
-	writeErr('Cannot handle overloaded top-level expressions'), nlErr,
-	!, fail.
+processOrDefaultMainExpression(Input,_,Type,_,_,ExprGoal) :-
+	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
+                            ; true),
+	(numCtxtType(Type)
+         -> defaultMainExp(Input,"Int",ExprGoal)
+	  ; frcCtxtType(Type)
+            -> defaultMainExp(Input,"Float",ExprGoal)
+             ; writeErr('Cannot handle overloaded top-level expressions'),
+	       nlErr, fail), !.
+
+% default the main expression to some given type:
+defaultMainExp(Input,DefType,ExprGoal) :-
+	(verbosityIntermediate
+          -> write('Defaulting expression to "'),
+	     atom_codes(DT,DefType), write(DT), write('"...'), nl
+           ; true),
+	concat(["(",Input,") :: ",DefType],TypedInput),
+	processExpression(TypedInput,ExprGoal).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Internal (FlatCurry) representations of some type contexts:
+
+% the internal representation of the type: Num a => a
+numCtxtType('FuncType'('TCons'('Prelude.(,,,,,,)',
+	                       ['FuncType'(A,'FuncType'(A,A)), % (+)
+			        'FuncType'(A,'FuncType'(A,A)), % (-)
+				'FuncType'(A,'FuncType'(A,A)), % (*)
+				'FuncType'(A,A),               % negate
+				'FuncType'(A,A),               % abs
+				'FuncType'(A,A),               % signum
+				'FuncType'('TCons'('Prelude.Int',[]),A)]),
+		       A)).
+
+% the internal representation of the type: Fractional a => a
+frcCtxtType('FuncType'('TCons'('Prelude.(,,,)',
+                               [NumDict,
+                                'FuncType'(A,'FuncType'(A,A)), % (/)
+				'FuncType'(A,A),               % recip
+				'FuncType'('TCons'('Prelude.Float',[]),A)]),
+                       A)) :-
+	numCtxtType('FuncType'(NumDict,A)).
+
+% the internal representation of the type: Eq a => a
+eqCtxtType('FuncType'(
+	'TCons'('Prelude.(,)',
+               ['FuncType'(A,'FuncType'(A,'TCons'('Prelude.Bool',[]))),   % (==)
+	        'FuncType'(A,'FuncType'(A,'TCons'('Prelude.Bool',[])))]), % (/=)
+	A)).
+
+% the internal representation of the type: Show a => a
+showCtxtType('FuncType'(
+	'TCons'('Prelude.(,,)',
+               ['FuncType'(A,'TCons'([],['TCons'('Prelude.Char',[])])),
+                'FuncType'('TCons'('Prelude.Int',[]),
+		  'FuncType'(A,
+		    'FuncType'('TCons'([],['TCons'('Prelude.Char',[])]),
+		               'TCons'([],['TCons'('Prelude.Char',[])])))),
+                'FuncType'('TCons'([],[A]),
+		  'FuncType'('TCons'([],['TCons'('Prelude.Char',[])]),
+		             'TCons'([],['TCons'('Prelude.Char',[])])))]),
+	A)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 parseMainExpression(Input,Term,Type,Vs,Ovld) :-
 	(freeVarsUndeclared(yes)
@@ -771,8 +837,9 @@ processCommand("define",BindingS) :- !,
 	asserta(varDefines([Var=Exp|OldDefs])).
 
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(ExprInput,Term,Type,Vs,_),
-	writeCurryTermWithFreeVarNames(Vs,Term),
+	parseMainExpression(ExprInput,Term,Type,Vs,Ovld),
+	(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
+                    ; writeCurryTermWithFreeVarNames(Vs,Term)),
 	write(' :: '),
 	numbersmallvars(97,_,Type), writeType(Type), nl.
 
@@ -1398,6 +1465,20 @@ writeType(T) :- writeType(T,top).
 % in case of 'nested', brackets are written around complex type expressions
 
 writeType(A,_) :- atom(A), !, write(A).
+% write some standard type contexts in their source form:
+writeType('FuncType'(S,T),top) :-
+	numCtxtType('FuncType'(S,A)), !, write('Num '), writeType(A,top),
+	write(' => '), writeType(T,top).
+writeType('FuncType'(S,T),top) :-
+	frcCtxtType('FuncType'(S,A)), !, write('Fractional '), writeType(A,top),
+	write(' => '), writeType(T,top).
+writeType('FuncType'(S,T),top) :-
+	eqCtxtType('FuncType'(S,A)), !, write('Eq '), writeType(A,top),
+	write(' => '), writeType(T,top).
+writeType('FuncType'(S,T),top) :-
+	showCtxtType('FuncType'(S,A)), !, write('Show '), writeType(A,top),
+	write(' => '), writeType(T,top).
+% write other functional types:
 writeType('FuncType'(S,T),top) :-
 	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
 	writeType(S,S_Tag), write(' -> '), writeType(T,top).
