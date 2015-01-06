@@ -65,8 +65,9 @@ prim_getHnfDefinitions(HnfInfos) :-
 	(Prog="" -> write('ERROR: no program loaded for profiling'), nl,
 	            !, fail
                   ; true),
-	prog2PrologFile(Prog,ProgPl),
-	mainPrologFileName(ProgPl,MainPlFile),
+	% this does no longer work since the main Prolog file is deleted
+	% by this operation:
+	mainPrologFileName(MainPlFile),
 	see(MainPlFile),
 	repeat,
 	read(Clause),

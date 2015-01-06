@@ -558,9 +558,9 @@ writeGenericClauses(CCs) :-
 % "Linker" for separate compilation:
 % create a file containing hnf clauses for all currently loaded functions
 % and the generic clauses to define =:=, ==, nf, etc:
-generateMainPlFile(PrologFile,MainFile) :-
+generateMainPlFile(_PrologFile,MainFile) :-
 	currentCostCenters(CCs),
-	mainPrologFileName(PrologFile,MainFile),
+	mainPrologFileName(MainFile),
 	tell(MainFile),
 	writeClause((:- noSingletonWarnings)),
 	writeClause((:- noDiscontiguousWarnings)),

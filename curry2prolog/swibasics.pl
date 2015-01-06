@@ -37,7 +37,6 @@
 	   try_save_predicates/2,
 	   compilePrologFile/1, compilePrologFileAndSave/1,
 	   consultPrologorPOFile/2, ensure_lib_loaded/1,
-	   getNewFileName/2, mainPrologFileName/2,
 	   callAndReturnSuspensions/2, writeqWithVars/1,
 	   genBlockDecl/4,
 	   prolog_flag/2, prolog_flag/3,
@@ -583,29 +582,18 @@ ensure_lib_loaded(Lib) :-
 	ensure_loaded(user:DirLib).
 
 
-% get name of temporary file with a given (possibly empty) suffix:
-getNewFileName(Suffix,PrologFile) :-
-	tmp_file(pakcs_file,Main),
-	atom_codes(Main,MainS),
-	(Suffix=[] -> ProgS=MainS ; append(MainS,[46|Suffix],ProgS)),
-	atom_codes(PrologFile,ProgS),
-	append("rm -rf ",ProgS,RmCmdS),
-	atom_codes(RmCmd,RmCmdS),
-	shellCmd(RmCmd).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define hook predicate to suppress warnings for redefined procedures
+% when loading Prolog programs (this is useful to avoid warnings
+% for the "main" hnf/nf/... predicates loaded from the main Prolog file):
+
+:- multifile user:message_hook/3.
+:- dynamic user:message_hook/3.
+
+user:message_hook(redefined_procedure(_,_),warning,_) :- !.
 
 
-% determine for a given Prolog file name (of the main module) a file name
-% where the clauses for the main predicates (hnf, constrEq,...) should be stored:
-mainPrologFileName(_PrologFile,MainPrologFile) :-
-	mainPrologFileName(MainPrologFile) -> true
-	 ; tmp_file(pakcs_main,MainPrologFile),
-	   assertz(mainPrologFileName(MainPrologFile)).
-
-% for storing the file name during the Prolog session:
-:- dynamic mainPrologFileName/1.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call a goal and return list of suspended goals (here always empty):
 callAndReturnSuspensions(Goal,Suspensions) :-
 	%call(Goal), Suspensions=[]. % for SWI < 5.6.60

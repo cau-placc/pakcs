@@ -19,6 +19,7 @@
 		  isCharCons/1, isString/1, char_int/2, cp_string/2,
 		  string2Atom/2, atom2String/2,
 		  removeShares/2, term2partcall/3, isCompleteList/2,
+		  getNewFileName/2, mainPrologFileName/1,
 		  extendPath/3, path2String/2, pathString2loadPath/2,
 		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
 		  shellCmdWithCurryPath/1,
@@ -237,6 +238,32 @@ clearDynamicPreds.
 clearDynamicPred(Name/Arity,'') :- retractAllFacts(Name/Arity), !.
 clearDynamicPred(Name/Arity,_) :- prim_dynamic:retractDeadDynamicFacts(Name/Arity), !.
 %clearDynamicPred(Name/Arity,_) :- user:retractDeadDynamicFacts(Name/Arity), !.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Auxiliaries for temporary files:
+
+% get a name of a temporary file (for the current PAKCS process)
+% with a given (possibly empty) suffix (and delete an already existing
+% file or directory):
+getNewFileName(Suffix,NewFile) :-
+	currentPID(PID),
+	number_codes(PID,PIDS),
+	append("/tmp/pakcs_file_",PIDS,P1),
+	(Suffix=[] -> ProgS=P1 ; append(P1,[46|Suffix],ProgS)),
+	atom_codes(NewFile,ProgS),
+	append("rm -rf ",ProgS,RmCmdS),
+	atom_codes(RmCmd,RmCmdS),
+	shellCmd(RmCmd).
+
+
+% determine (for the current PAKCS process) a file name
+% where the clauses for the main predicates (hnf, constrEq,...)
+% should be stored (and delete an already existing file):
+mainPrologFileName(MainPrologFile) :-
+	getNewFileName("pl",NewPrologFile),
+	appendAtom(NewPrologFile,'.main',MainPrologFile).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
