@@ -1,0 +1,45 @@
+% This style file contains environments and commands for type setting
+% context free grammars.
+\usepackage{amssymb}
+\usepackage[dvipsnames,usenames]{color}
+
+% Syntax extension
+% This annotates the new/changed parts of the syntax.
+\definecolor{extend}{named}{DarkOrchid}
+\newcommand{\extension}[1]{\color{extend}\trim{#1}\normalcolor}
+
+\newcommand{\removelinebreaks}[1]{\begingroup\def\\{ }#1\endgroup}
+\newcommand{\trim}[1]{\ignorespaces#1\unskip}
+
+% Grammar environment
+\newenvironment{grammar}{\bigskip \parindent=0pt \small \parskip=-.5\baselineskip}{}
+
+\newcommand{\production}[2]{\head{\nonterm{#1}}\makebox[3em]{\rm ::=}%
+{\it \trim{#2}}\\}
+\newcommand{\nonterm}[1]{\textit{\trim{#1}}}
+\newcommand{\term}[1]{{\rm {\texttt{#1}}}}
+\newcommand{\alt}{\\\head{}\makebox[3em][c]{\sor}}
+
+% inline alternative (no linebreak)
+\newcommand{\sor}{\ensuremath{|} }
+\newcommand{\opt}[1]{{\rm [}\trim{#1}{\rm ]}}
+\newcommand{\group}[1]{{\rm (}\trim{#1}{\rm )}}
+\newcommand{\many}[1]{{\rm \{}\trim{#1}{\rm \}}}
+\newcommand{\without}[2]{\ensuremath{#1_{\langle\trim{#2}\rangle}}}
+\newcommand{\seq}[3]{{\it #1$_1$ \term{#2} $\ldots$ \term{#2} #1$_#3$}}
+\newcommand{\text}[1]{{\rm #1}}
+
+\newcommand{\offside}[3]{\term{\{}\seq{#1}{#2}{#3} \term{\}}}
+\newcommand{\head}[1]{\makebox[1.3in][r]{\it #1}}
+\newcommand{\nextline}{\\\head{}\makebox[3em]{}}
+
+% Comment in right margin
+\newcommand{\margin}[1]{\hfill\ensuremath{(#1)}}
+\newcommand{\margtext}[1]{\margin{\mbox{\it#1}}}
+\newcommand{\margcomb}[2]{\margin{\mbox{\it#1},~#2}}
+\newcommand{\lexicon}[1]{\production{#1}{\text{see lexicon}}}
+
+\newcommand{\comment}[1]{} % ignore the argument
+\newcommand{\bs}{\mbox{\char92}}
+\newcommand{\caret}{\mbox{\char94}}
+\newcommand{\us}{\mbox{\char95}}
