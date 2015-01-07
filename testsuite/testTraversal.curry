@@ -14,6 +14,7 @@ import Assertion
 --- A datatype for lambda expressions.
 ---
 data Exp = Var Name | Lam Name Exp | App Exp Exp
+  deriving (Show,Eq)
 
 type Name = String
 

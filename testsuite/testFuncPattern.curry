@@ -37,6 +37,7 @@ test4 = assertValues "palindrome2" (pali "toto") []
 --------------------------------------------------------------------------------
 -- define tree transformations and search by function patterns:
 data Exp = Lit Int | Var [Char] | Add Exp Exp | Mul Exp Exp
+ deriving (Eq,Show)
 
 evalTo e = Add (Lit 0) e
          ? Add e (Lit 0)
@@ -84,6 +85,7 @@ test7 = assertIO "vars" (getVarsInExp bigexp >>= return . length) 256
 -- Dijsktra's Dutch National Flag problem with function patterns
 
 data Color = Red | White | Blue
+ deriving (Eq,Show)
 
 solve (x++[White]++y++[Red  ]++z) = solve (x++[Red]++y++[White]++z)
 solve (x++[Blue ]++y++[Red  ]++z) = solve (x++[Red]++y++[Blue]++z)

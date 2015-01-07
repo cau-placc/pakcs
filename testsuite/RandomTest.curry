@@ -14,7 +14,7 @@ test :: String -> ([Int]->Bool) -> Assertion Bool
 test s f = assertIO s (rndList lenRnds >>= return . f) True
 
 --- test equality on random list
-eq :: String -> ([Int]->a) -> ([Int]->a) -> Assertion Bool 
+eq :: Eq a => String -> ([Int]->a) -> ([Int]->a) -> Assertion Bool 
 eq s f g = test s (\x -> (f x)==(g x))
 
 --- length of test lists

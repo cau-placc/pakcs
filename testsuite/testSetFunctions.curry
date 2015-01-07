@@ -4,7 +4,6 @@
 
 import Assertion
 import SetFunctions
-import Integer(abs)
 
 coin = 0 ? 1
 
@@ -22,8 +21,11 @@ test2 = assertValues "SetFun_f_bigCoin"
 -- The flight example from the paper introducing set functions
 
 data FlightNumber = LH469 | NWA92 | LH10 | KL1783
+  deriving (Show,Eq)
 
 data City = Portland | Frankfurt | Amsterdam | Hamburg
+  deriving (Show,Eq)
+
 
 x :. y = (x,y)
 
