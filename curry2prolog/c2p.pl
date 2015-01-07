@@ -346,9 +346,9 @@ processOrDefaultMainExpression(_Input,Term,Type,Vs,false,ExprGoal) :-
 processOrDefaultMainExpression(Input,_,Type,_,_,ExprGoal) :-
 	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
                             ; true),
-	(numCtxtType(Type)
+	(ctxtType(Type,"Num")
          -> defaultMainExp(Input,"Int",ExprGoal)
-	  ; frcCtxtType(Type)
+	  ; ctxtType(Type,"Fractional")
             -> defaultMainExp(Input,"Float",ExprGoal)
              ; writeErr('Cannot handle overloaded top-level expressions'),
 	       nlErr, fail), !.
@@ -366,44 +366,68 @@ defaultMainExp(Input,DefType,ExprGoal) :-
 % Internal (FlatCurry) representations of some type contexts:
 
 % the internal representation of the type: Num a => a
-numCtxtType('FuncType'('TCons'('Prelude.(,,,,,,)',
-	                       ['FuncType'(A,'FuncType'(A,A)), % (+)
-			        'FuncType'(A,'FuncType'(A,A)), % (-)
-				'FuncType'(A,'FuncType'(A,A)), % (*)
-				'FuncType'(A,A),               % negate
-				'FuncType'(A,A),               % abs
-				'FuncType'(A,A),               % signum
-				'FuncType'('TCons'('Prelude.Int',[]),A)]),
-		       A)).
+ctxtType('FuncType'('TCons'('Prelude.(,,,,,,)',
+	                    ['FuncType'(A,'FuncType'(A,A)), % (+)
+			     'FuncType'(A,'FuncType'(A,A)), % (-)
+			     'FuncType'(A,'FuncType'(A,A)), % (*)
+			     'FuncType'(A,A),               % negate
+			     'FuncType'(A,A),               % abs
+			     'FuncType'(A,A),               % signum
+			     'FuncType'('TCons'('Prelude.Int',[]),A)]),A),
+	 "Num").
 
 % the internal representation of the type: Fractional a => a
-frcCtxtType('FuncType'('TCons'('Prelude.(,,,)',
-                               [NumDict,
-                                'FuncType'(A,'FuncType'(A,A)), % (/)
-				'FuncType'(A,A),               % recip
-				'FuncType'('TCons'('Prelude.Float',[]),A)]),
-                       A)) :-
-	numCtxtType('FuncType'(NumDict,A)).
+ctxtType('FuncType'('TCons'('Prelude.(,,,)',
+                            [NumDict,
+                             'FuncType'(A,'FuncType'(A,A)), % (/)
+			     'FuncType'(A,A),               % recip
+			     'FuncType'('TCons'('Prelude.Float',[]),A)]),A),
+         "Fractional") :-
+	ctxtType('FuncType'(NumDict,A),"Num").
 
 % the internal representation of the type: Eq a => a
-eqCtxtType('FuncType'(
-	'TCons'('Prelude.(,)',
-               ['FuncType'(A,'FuncType'(A,'TCons'('Prelude.Bool',[]))),   % (==)
-	        'FuncType'(A,'FuncType'(A,'TCons'('Prelude.Bool',[])))]), % (/=)
-	A)).
+ctxtType('FuncType'('TCons'('Prelude.(,)',
+                            ['FuncType'(A,'FuncType'(A,BoolType)),   % (==)
+			     'FuncType'(A,'FuncType'(A,BoolType))]), % (/=)
+	 A),"Eq") :-
+	BoolType = 'TCons'('Prelude.Bool',[]).
+
+% the internal representation of the type: Ord a => a
+ctxtType('FuncType'('TCons'('Prelude.(,,,,,,,)',
+                            [EqDict,
+                             'FuncType'(A,'FuncType'(A,OrderingType)),% compare
+                             'FuncType'(A,'FuncType'(A,BoolType)), % (<=)
+                             'FuncType'(A,'FuncType'(A,BoolType)), % (>=)
+                             'FuncType'(A,'FuncType'(A,BoolType)), % (<)
+                             'FuncType'(A,'FuncType'(A,BoolType)), % (>)
+                             'FuncType'(A,'FuncType'(A,A)),        % min
+                             'FuncType'(A,'FuncType'(A,A))]),        % max
+         A),"Ord") :-
+	ctxtType('FuncType'(EqDict,A),"Eq"),
+	OrderingType = 'TCons'('Prelude.Ordering',[]),
+	BoolType = 'TCons'('Prelude.Bool',[]).
 
 % the internal representation of the type: Show a => a
-showCtxtType('FuncType'(
+ctxtType('FuncType'(
 	'TCons'('Prelude.(,,)',
-               ['FuncType'(A,'TCons'([],['TCons'('Prelude.Char',[])])),
+               ['FuncType'(A,StringType),
                 'FuncType'('TCons'('Prelude.Int',[]),
-		  'FuncType'(A,
-		    'FuncType'('TCons'([],['TCons'('Prelude.Char',[])]),
-		               'TCons'([],['TCons'('Prelude.Char',[])])))),
-                'FuncType'('TCons'([],[A]),
-		  'FuncType'('TCons'([],['TCons'('Prelude.Char',[])]),
-		             'TCons'([],['TCons'('Prelude.Char',[])])))]),
-	A)).
+		  'FuncType'(A,'FuncType'(StringType,StringType))),
+                'FuncType'('TCons'([],[A]),'FuncType'(StringType,StringType))]),
+	 A),"Show") :-
+	StringType = 'TCons'([],['TCons'('Prelude.Char',[])]).
+
+% the internal representation of the type: Read a => a
+ctxtType('FuncType'(
+	'TCons'('Prelude.(,)',
+               ['FuncType'('TCons'('Prelude.Int',[]),
+		  'FuncType'(String,ListAString)), % readsPrec
+                'FuncType'(String,ListAsString)]), % readList
+	 A),"Read") :-
+	StringType = 'TCons'([],['TCons'('Prelude.Char',[])]),
+	ListAString = 'TCons'([],['TCons'('Prelude.(,)',[A,StringType])]),
+	ListAsString = 'TCons'([],['TCons'('Prelude.(,)',
+	                                   ['TCons'([],[A]),StringType])]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1465,18 +1489,10 @@ writeType(T) :- writeType(T,top).
 % in case of 'nested', brackets are written around complex type expressions
 
 writeType(A,_) :- atom(A), !, write(A).
-% write some standard type contexts in their source form:
+% write standard type contexts in their source form, if possible:
 writeType('FuncType'(S,T),top) :-
-	numCtxtType('FuncType'(S,A)), !, write('Num '), writeType(A,top),
-	write(' => '), writeType(T,top).
-writeType('FuncType'(S,T),top) :-
-	frcCtxtType('FuncType'(S,A)), !, write('Fractional '), writeType(A,top),
-	write(' => '), writeType(T,top).
-writeType('FuncType'(S,T),top) :-
-	eqCtxtType('FuncType'(S,A)), !, write('Eq '), writeType(A,top),
-	write(' => '), writeType(T,top).
-writeType('FuncType'(S,T),top) :-
-	showCtxtType('FuncType'(S,A)), !, write('Show '), writeType(A,top),
+	ctxtType('FuncType'(S,A),ClsName), !,
+	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,top),
 	write(' => '), writeType(T,top).
 % write other functional types:
 writeType('FuncType'(S,T),top) :-
