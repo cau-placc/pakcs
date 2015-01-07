@@ -4,6 +4,7 @@ import Assertion
 
 -- natural numbers defined by s-terms (O=zero, S=successor):
 data Nat = O | S Nat
+ deriving (Eq,Show)
 
 -- addition on natural numbers:
 add         :: Nat -> Nat -> Nat
