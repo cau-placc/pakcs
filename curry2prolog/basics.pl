@@ -190,7 +190,7 @@ evaluateDynamicPredInfo(P/N,Exp,Dir) :-
 	assertz(orgDynamicPredInfo(P/N,Exp)),
 	evalToken(Eval),
 	user:nf(Exp,NF,Eval,E1),
-	user:boolEq(NF,NF,_,E1,_), % groundness required
+	user:waitUntilGround(NF,E1,_), % groundness required
 	string2Atom(NF,DynAccess),
 	checkDynamicAccessMethod(DynAccess,Dir),
 	user:retractClause(dynamicPredInfo(P/N,_),_),
