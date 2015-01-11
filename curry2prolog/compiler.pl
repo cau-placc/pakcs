@@ -397,8 +397,9 @@ equalDirectories(Dir1,Dir2) :-
 % try to read primitive function specification file and merge infos into external
 % functions:
 mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg) :-
+        prog2DirProg(DirProg,RealDirProg),
 	PlainFlatProg = 'Prog'(ModName,_,_,_,_),
-	appendAtom(DirProg,'.prim_c2p',PrimXmlFile),
+	appendAtom(RealDirProg,'.prim_c2p',PrimXmlFile),
 	existsFile(PrimXmlFile),
 	!,
 	(verbosityIntermediate
