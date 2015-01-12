@@ -23,14 +23,14 @@
 		  extendPath/3, path2String/2, pathString2loadPath/2,
 		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
 		  shellCmdWithCurryPath/1,
-		  loadPath/2, findFileInLoadPath/2,
+		  loadPath/2, findSourceFileInLoadPath/3,
 		  findFlatProgFileInLoadPath/2,
 		  findPrologTargetFileInLoadPath/2, findFilePropertyInPath/4,
 		  toAbsPath/2, split2dirbase/3, stripSuffix/2,
 		  isIoType/1, isId/1, 
 		  constructorOrFunctionType/4,
 		  flatName2Atom/2, decodePrologName/2,
-		  isTupleCons/1, isLetterCharCode/1, isOpIdChar/1,
+		  isTupleCons/1, isLetterDigitCode/1, isOpIdChar/1,
 		  rev/2, concat/2, take/3, drop/3, splitAt/4,
 		  memberEq/2, deleteFirst/3, replaceEq/4,
 		  union/3, diff/3,
@@ -39,9 +39,9 @@
 		  codes2number/2, isDigit/1,
 		  retractAllFacts/1, prefixComma/3,
 		  tryWriteFile/1, tryDeleteFile/1, deleteFileIfExists/1,
-		  ensureDirOfFile/1, prog2PrologFile/2,
+		  ensureDirOfFile/1, prog2DirProg/2, prog2PrologFile/2,
 		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
-		  prog2ICurryFile/2,
+		  prog2ICurryFile/2, hierarchical2dirs/2,
 		  readLine/1, readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
 		  printError/1,prologError2Atom/2]).
@@ -365,13 +365,16 @@ findFilePropertyInPath([Dir|Dirs],Mod:PropPred,File,PathFile) :-
 	 -> PathFile = DirFile
 	  ; findFilePropertyInPath(Dirs,Mod:PropPred,File,PathFile)).
 
-% findFileInLoadPath(F,PF): find a file name w.r.t. to load path
-% F: file name (an atom)
-% FP: file name prefixed by directory in load path
-findFileInLoadPath(Prog,PathProg) :-
+% findSourceFileInLoadPath(F,PF): find a source program file w.r.t. to load path
+% Prog: program name (an atom with possible file path and suffix)
+% Ext: name extension ('.curry' or '.lcurry')
+% PathProg: file name prefixed by directory in load path
+findSourceFileInLoadPath(Prog,Ext,PathProg) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
+	prog2DirProg(ProgBase,ProgDBase),
+	appendAtoms([ProgDBase,Ext],ProgDBaseE),
 	loadPath(ProgDir,LP),
-	findFilePropertyInPath(LP,prologbasics:existsFile,ProgBase,PathProg).
+	findFilePropertyInPath(LP,prologbasics:existsFile,ProgDBaseE,PathProg).
 
 % findFlatProgFileInLoadPath(F,PF): find a program name that has an
 % existing FlatCurry file in the current load path
@@ -608,6 +611,15 @@ makeDirectoryWithPrefix(PrefixS,DirS) :-
 	atom_codes(CompleteDir,CompleteDirS),
 	(existsDirectory(CompleteDir) -> true ; makeDirectory(CompleteDir)).
 
+% generate the name of the program file for a given Curry program name,
+% i.e., replace all dots in a module name by slashes:
+prog2DirProg(Prog,ProgDir) :-
+	split2dirbase(Prog,ProgDirPrefix,ProgBase),
+	hierarchical2dirs(ProgBase,DProgBase),
+	(ProgDirPrefix='.'
+	 -> ProgDir=DProgBase
+	  ; appendAtoms([ProgDirPrefix,'/',DProgBase],ProgDir)).
+
 % generate the name of the Prolog file for a given Curry program name:
 prog2PrologFile(Prog,PrologFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
@@ -777,7 +789,7 @@ flatName2Atom(Name,Atom) :-
 % start checking module prefix:
 encodeName2Ident(Name,EName) :-
 	Name=[C|_],
-	((isLetterCharCode(C), encodeName2IdentMod(Name,EName))
+	((isLetterDigitCode(C), encodeName2IdentMod(Name,EName))
 	 -> true % the identifier was a qualified one
 	  ; (isOperatorName(Name)
 	     -> EName=Name % don't encode standard operators
@@ -786,31 +798,35 @@ encodeName2Ident(Name,EName) :-
 
 encodeName2IdentMod([],[]) :- fail. % no module prefix found
 encodeName2IdentMod([C],[C]) :- fail. % no module prefix found
-encodeName2IdentMod([C1,C2|Cs],[C1|TCs]) :-
-	(C1=46
-	 -> % module qualifier found, encode remaining name:
-	    (isLetterCharCode(C2)
-	     -> encodeString2Ident(Cs,TCs2), TCs = [C2|TCs2]
-	      ; (isOperatorName([C2|Cs])
-		 -> TCs=[C2|Cs]	% remaining name is an operator -> don't change
-		  ; encodeString2Ident([C2|Cs],TCs))
-	    )
-	  ; ((isLetterCharCode(C1) ; C1=95) % allowed module char?
-	     -> encodeName2IdentMod([C2|Cs],TCs)
-	      ; fail)).
+encodeName2IdentMod([47|Cs],[46|TCs]) :- !, % replace / by . in module name
+	encodeName2IdentMod(Cs,TCs).
+encodeName2IdentMod([46,C2|Cs],[46|TCs]) :- !,
+	% module qualifier found, encode remaining name:
+	(isLetterDigitCode(C2)
+	 -> encodeString2Ident(Cs,TCs2), TCs = [C2|TCs2]
+	  ; (isOperatorName([C2|Cs])
+	     -> TCs=[C2|Cs]	% remaining name is an operator -> don't change
+	      ; encodeString2Ident([C2|Cs],TCs))).
+encodeName2IdentMod([C1|Cs],[C1|TCs]) :-
+	(isLetterDigitCode(C1) ; C1=95) % allowed module char?
+	 -> encodeName2IdentMod(Cs,TCs)
+	  ; fail.
 
 % encode a string into a regular identifier by replacing all special
-% characters c by 'cx where cs is the 2-byte hex value of (ord c):
+% characters c (i.e., characters different from letters, digits, '_', '.')
+% by 'cx where cs is the 2-byte hex value of (ord c):
 encodeString2Ident([],[]).
 encodeString2Ident([C|Cs],[C|TCs]) :-
-	(isLetterCharCode(C) ; C=95), !,
+	(isLetterDigitCode(C) ; C=95 ; C=46), !,
 	encodeString2Ident(Cs,TCs).
 encodeString2Ident([C|Cs],[39,H1,H2|TCs]) :- % encode special char:
 	C1 is C // 16, int2hex(C1,H1),
 	C2 is C mod 16, int2hex(C2,H2),
 	encodeString2Ident(Cs,TCs).
 
-isLetterCharCode(C) :- 65=<C, C=<90 ; 97=<C, C=<122 ; 48=<C, C=<57.
+% is the argument a code of a letter or digit?
+isLetterDigitCode(C) :- 65=<C, C=<90 ; 97=<C, C=<122 ; 48=<C, C=<57.
+
 int2hex(I,H) :- I<10 -> H is 48+I ; H is 65+I-10.
 hex2int(H,I) :- H<65 -> I is H-48 ; I is H-65+10.
 

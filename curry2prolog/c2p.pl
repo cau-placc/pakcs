@@ -344,56 +344,72 @@ processOrDefaultMainExpression(_Input,Term,Type,Vs,false,ExprGoal) :-
 		           ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
 processOrDefaultMainExpression(Input,_,Type,_,_,ExprGoal) :-
-	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
-                            ; true),
-	(ctxtType(Type,"Num")
-         -> defaultMainExp(Input,"Int",ExprGoal)
-	  ; ctxtType(Type,"Fractional")
-            -> defaultMainExp(Input,"Float",ExprGoal)
-             ; writeErr('Cannot handle overloaded top-level expressions'),
-	       nlErr, fail), !.
+	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl ; true),
+	tryDefaultType(Input,Type,ExprGoal), !.
+processOrDefaultMainExpression(_,_,_,_,_,_) :-
+        writeErr('Cannot handle arbitrary overloaded top-level expressions'),
+	nlErr, fail.
+
+% try to default overloaded type of main expression:
+tryDefaultType(Input,'FuncType'(AType,RType),ExprGoal) :-
+	classDict(AType,TVar,DictName),
+	member(DictName,["Num","Fractional"]), !,
+	(DictName="Num"
+         -> TVar = 'TCons'('Prelude.Int',[]),
+	    tryDefaultType(Input,RType,ExprGoal)
+	  ; TVar = 'TCons'('Prelude.Float',[]),
+	    tryDefaultType(Input,RType,ExprGoal)).
+tryDefaultType(Input,Type,ExprGoal) :-
+	\+ (nonvar(RType), RType='FuncType'(_,_)),
+	defaultMainExp(Input,Type,ExprGoal).
 
 % default the main expression to some given type:
-defaultMainExp(Input,DefType,ExprGoal) :-
+defaultMainExp(Input,ExpType,ExprGoal) :-
+        % small hack to avoid redefinition of writeType/2 to writeType/3...
+        getNewFileName("maintype",NewFile),
+        tell(NewFile), writeType(ExpType), nl, told,
+	open(NewFile,read,Stream), readStreamLine(Stream,TypeString), close(Stream),
+	appendAtoms(['rm -rf ',NewFile],RmCmd), shellCmd(RmCmd),
 	(verbosityIntermediate
-          -> write('Defaulting expression to "'),
-	     atom_codes(DT,DefType), write(DT), write('"...'), nl
+          -> write('Defaulting expression type to "'),
+	     atom_codes(TypeA,TypeString),
+	     write(TypeA), write('"...'), nl
            ; true),
-	concat(["(",Input,") :: ",DefType],TypedInput),
+	concat(["(",Input,") :: ",TypeString],TypedInput),
 	processExpression(TypedInput,ExprGoal).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Internal (FlatCurry) representations of some type contexts:
 
-% the internal representation of the type: Num a => a
-ctxtType('FuncType'('TCons'('Prelude.(,,,,,,)',
+% the internal representation of the class dictionary: Num a
+classDict('TCons'('Prelude.(,,,,,,)',
 	                    ['FuncType'(A,'FuncType'(A,A)), % (+)
 			     'FuncType'(A,'FuncType'(A,A)), % (-)
 			     'FuncType'(A,'FuncType'(A,A)), % (*)
 			     'FuncType'(A,A),               % negate
 			     'FuncType'(A,A),               % abs
 			     'FuncType'(A,A),               % signum
-			     'FuncType'('TCons'('Prelude.Int',[]),A)]),A),
-	 "Num").
+			     'FuncType'('TCons'('Prelude.Int',[]),A)]),
+	 A,"Num").
 
-% the internal representation of the type: Fractional a => a
-ctxtType('FuncType'('TCons'('Prelude.(,,,)',
+% the internal representation of the class dictionary: Fractional a
+classDict('TCons'('Prelude.(,,,)',
                             [NumDict,
                              'FuncType'(A,'FuncType'(A,A)), % (/)
 			     'FuncType'(A,A),               % recip
-			     'FuncType'('TCons'('Prelude.Float',[]),A)]),A),
-         "Fractional") :-
-	ctxtType('FuncType'(NumDict,A),"Num").
+			     'FuncType'('TCons'('Prelude.Float',[]),A)]),
+         A,"Fractional") :-
+	classDict(NumDict,A,"Num").
 
-% the internal representation of the type: Eq a => a
-ctxtType('FuncType'('TCons'('Prelude.(,)',
+% the internal representation of the class dictionary: Eq a
+classDict('TCons'('Prelude.(,)',
                             ['FuncType'(A,'FuncType'(A,BoolType)),   % (==)
 			     'FuncType'(A,'FuncType'(A,BoolType))]), % (/=)
-	 A),"Eq") :-
+	 A,"Eq") :-
 	BoolType = 'TCons'('Prelude.Bool',[]).
 
-% the internal representation of the type: Ord a => a
-ctxtType('FuncType'('TCons'('Prelude.(,,,,,,,)',
+% the internal representation of the class dictionary: Ord a
+classDict('TCons'('Prelude.(,,,,,,,)',
                             [EqDict,
                              'FuncType'(A,'FuncType'(A,OrderingType)),% compare
                              'FuncType'(A,'FuncType'(A,BoolType)), % (<=)
@@ -402,28 +418,26 @@ ctxtType('FuncType'('TCons'('Prelude.(,,,,,,,)',
                              'FuncType'(A,'FuncType'(A,BoolType)), % (>)
                              'FuncType'(A,'FuncType'(A,A)),        % min
                              'FuncType'(A,'FuncType'(A,A))]),        % max
-         A),"Ord") :-
-	ctxtType('FuncType'(EqDict,A),"Eq"),
+         A,"Ord") :-
+	classDict(EqDict,A,"Eq"),
 	OrderingType = 'TCons'('Prelude.Ordering',[]),
 	BoolType = 'TCons'('Prelude.Bool',[]).
 
-% the internal representation of the type: Show a => a
-ctxtType('FuncType'(
-	'TCons'('Prelude.(,,)',
+% the internal representation of the class dictionary: Show a
+classDict('TCons'('Prelude.(,,)',
                ['FuncType'(A,StringType),
                 'FuncType'('TCons'('Prelude.Int',[]),
 		  'FuncType'(A,'FuncType'(StringType,StringType))),
                 'FuncType'('TCons'([],[A]),'FuncType'(StringType,StringType))]),
-	 A),"Show") :-
+	  A,"Show") :-
 	StringType = 'TCons'([],['TCons'('Prelude.Char',[])]).
 
-% the internal representation of the type: Read a => a
-ctxtType('FuncType'(
-	'TCons'('Prelude.(,)',
+% the internal representation of the class dictionary: Read a
+classDict('TCons'('Prelude.(,)',
                ['FuncType'('TCons'('Prelude.Int',[]),
-		  'FuncType'(String,ListAString)), % readsPrec
+		           'FuncType'(String,ListAString)), % readsPrec
                 'FuncType'(String,ListAsString)]), % readList
-	 A),"Read") :-
+	  A,"Read") :-
 	StringType = 'TCons'([],['TCons'('Prelude.Char',[])]),
 	ListAString = 'TCons'([],['TCons'('Prelude.(,)',[A,StringType])]),
 	ListAsString = 'TCons'([],['TCons'('Prelude.(,)',
@@ -462,11 +476,10 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
 	lastload(MainProgS),
-	findSourceProg(MainProgS,MainProgPathS),
-	atom_codes(MainProgPath,MainProgPathS),
-	split2dirbase(MainProgPath,MainPath,MainProgSuffix),
-	stripSuffix(MainProgSuffix,MainProg),
-	writeMainExprFile(MainExprModFile,MainProg,InputExp,FreeVars),
+	findSourceProgPath(MainProgS,MainPath),
+	atom_codes(MainProg,MainProgS),
+	split2dirbase(MainProg,_,MainProgName),
+	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
 	toAbsPath(MainPath,AbsMainPath),
@@ -1406,12 +1419,32 @@ checkDebugMode :-
 
 
 % exists there a Curry source program with name Prog (of type string)?
-findSourceProg(Prog,SourceFileName) :-
-	(Ext = ".lcurry" ; Ext = ".curry"),
-	append(Prog,Ext,LCProgL), atom_codes(LCurryProgName,LCProgL),
-	findFileInLoadPath(LCurryProgName,PathProgName),
+findSourceProg(ProgS,SourceFileName) :-
+	(Ext = '.curry' ; Ext = '.lcurry'),
+	atom_codes(Prog,ProgS),
+	findSourceFileInLoadPath(Prog,Ext,PathProgName),
 	!,
 	atom_codes(PathProgName,SourceFileName).
+
+% Find the path (an atom) to a Curry source program with name Prog (a string)
+% If the soure program has a hirarchical name, the path does not contain
+% the hierarchy of the name.
+findSourceProgPath(ProgS,ProgPath) :-
+	(Ext = '.curry' ; Ext = '.lcurry'),
+	atom_codes(Prog,ProgS),
+	findSourceFileInLoadPath(Prog,Ext,PathProgName),
+	!,
+	atom_codes(PathProgName,PathProgNameS),
+	split2dirbase(Prog,_,ProgName),
+	prog2DirProg(ProgName,ProgDName),
+	appendAtoms([ProgDName,Ext],LCurryProgName),
+	atom_codes(LCurryProgName,LCurryProgNameS),
+	(append(ProgPathS,[47|LCurryProgNameS],PathProgNameS)
+	 -> atom_codes(ProgPath,ProgPathS)
+	  ; LCurryProgNameS=PathProgNameS, % otherwise in current dir
+	    ProgPath='.'),
+	!.
+
 
 % exists there a program with name Prog (of type atom)?
 prog_exists(Prog) :-
@@ -1444,7 +1477,7 @@ failprint(Exp,E,E) :-
 % call the front-end to parse a Curry program (argument is a string):
 
 parseProgram(ProgS,Verbosity,Warnings) :-
-	findSourceProg(ProgS,ProgPathS), !,
+	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
 	appendAtoms(['"',TCP,'/bin/cymake" --flat'],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
@@ -1460,17 +1493,24 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	addImports(ImportPath,CM5,CM6),
 	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
-	appendAtoms([CM6,' ',POpts,' ',Prog],LoadCmd),
-	(shellCmdWithReport(LoadCmd) -> true
-	  ; writeErr('ERROR occurred during parsing!'), nlErr, fail),
+	split2dirbase(Prog,_,ProgName),
+	workingDirectory(CurDir),
+	setWorkingDirectory(ProgPath),
+	appendAtoms([CM6,' ',POpts,' ',ProgName],LoadCmd),
+	(shellCmdWithReport(LoadCmd) -> Parse=ok
+	  ; writeErr('ERROR occurred during parsing!'), nlErr, Parse=failed),
+	setWorkingDirectory(CurDir),
+	!, Parse=ok, % proceed only in case of successful parsing
+	% finally, we apply the FlatCury preprocessor:
+	findSourceProg(ProgS,ProgPathS), !,
 	appendAtoms(['"',TCP,'/bin/fcypp"'],PP1),
 	(verbosity(0) -> appendAtom(PP1,' --quiet',PP2) ; PP2 = PP1 ),
 	compileWithCompact(CWC), atom_codes(CWCA,CWC),
 	% delete leading './' in ProgPathS:
 	(append([46,47],PPS,ProgPathS) -> true ; PPS=ProgPathS),
-	extractProgName(PPS,ProgNameS),
-	atom_codes(ProgName,ProgNameS),
-	appendAtoms([PP2,CWCA,' ',ProgName],PPCmd),
+	atom_codes(PPSA,PPS),
+	stripSuffix(PPSA,ProgNameA),
+	appendAtoms([PP2,CWCA,' ',ProgNameA],PPCmd),
 	(shellCmdWithReport(PPCmd) -> true
 	  ; writeErr('ERROR occurred during FlatCurry preprocessing!'), nlErr,
 	    fail).
@@ -1488,11 +1528,12 @@ writeType(T) :- writeType(T,top).
 % the second argument is 'top' or 'nested':
 % in case of 'nested', brackets are written around complex type expressions
 
+writeType(A,_) :- var(A), !, write(A).
 writeType(A,_) :- atom(A), !, write(A).
 % write standard type contexts in their source form, if possible:
 writeType('FuncType'(S,T),top) :-
-	ctxtType('FuncType'(S,A),ClsName), !,
-	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,top),
+	classDict(S,A,ClsName), !,
+	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,nested),
 	write(' => '), writeType(T,top).
 % write other functional types:
 writeType('FuncType'(S,T),top) :-
@@ -1987,7 +2028,7 @@ isValidModuleName(ModString) :-
 
 isValidModuleString([]).
 isValidModuleString([C|Cs]) :-
-	(isLetterCharCode(C) ; C=95 ; C=46), % letter|_|.
+	(isLetterDigitCode(C) ; C=95 ; C=46), % letter|_|.
 	isValidModuleString(Cs).
 
 

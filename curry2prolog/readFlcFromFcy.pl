@@ -114,16 +114,9 @@ fcy2flcOp('Op'(OName,Fix,Int),'Op'(FOName,Fix,Int)) :-
 	fcy2flcQName(OName,FOName).
 
 fcy2flcQName('Prelude.(,)'(Mod,Name),FMName) :-
-	cp_string(Mod,"prelude"), !,
-	cp_string(Name,FName),
-	append("Prelude.",FName,FMName).
-fcy2flcQName('Prelude.(,)'(Mod,Name),FMName) :-
 	cp_string(Mod,FMod),
+	atom_codes(ModA,FMod),
+	hierarchical2dirs(ModA,ModDA), atom_codes(ModDA,ModDS),
 	cp_string(Name,FName),
-	append(FMod,[46|FName],FMName).
-
-
-
-
-
+	append(ModDS,[46|FName],FMName).
 
