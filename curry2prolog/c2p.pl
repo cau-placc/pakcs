@@ -360,15 +360,20 @@ tryDefaultType(Input,'FuncType'(AType,RType),ExprGoal) :-
 	  ; TVar = 'TCons'('Prelude.Float',[]),
 	    tryDefaultType(Input,RType,ExprGoal)).
 tryDefaultType(Input,Type,ExprGoal) :-
-	\+ (nonvar(RType), RType='FuncType'(_,_)),
+	\+ (nonvar(RType), RType='FuncType'(_,_)), % can't default functions
+	\+ append(_,[119,104,101,114,101|_],Input), % can't handler ...where...
 	defaultMainExp(Input,Type,ExprGoal).
 
 % default the main expression to some given type:
 defaultMainExp(Input,ExpType,ExprGoal) :-
         % small hack to avoid redefinition of writeType/2 to writeType/3...
         getNewFileName("maintype",NewFile),
-        tell(NewFile), writeType(ExpType), nl, told,
-	open(NewFile,read,Stream), readStreamLine(Stream,TypeString), close(Stream),
+        tell(NewFile),
+	  numbersmallvars(97,_,ExpType), writeType(ExpType), nl, 
+	told,
+	open(NewFile,read,Stream),
+	  readStreamLine(Stream,TypeString),
+	close(Stream),
 	appendAtoms(['rm -rf ',NewFile],RmCmd), shellCmd(RmCmd),
 	(verbosityIntermediate
           -> write('Defaulting expression type to "'),
