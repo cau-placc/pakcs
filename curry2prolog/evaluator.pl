@@ -541,8 +541,14 @@ revTransFunctor(Name,Name).
 
 % write a variable (i.e., omit first char which is always '_'):
 writeVar(Str,V) :-
-	atom_codes(V,[_|Cs]), atom_codes(V1,Cs),
+	atom_codes(V,[95,C|Cs]), !,
+	((C>=48, C=<57)
+          -> V1=V % internal Prolog-generated variable
+           ; atom_codes(V1,[C|Cs])), % omit first char
 	write(Str,V1).
+writeVar(_,V) :-
+	writeErr('Internal error: writeVar('), writeErr(V), write(')'),
+	nlErr.
 
 % instantiate unbound goal variables by the name of their variable
 % in order to print the results in a nicer way:
