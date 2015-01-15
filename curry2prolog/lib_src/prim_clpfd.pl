@@ -38,7 +38,8 @@ translateFD_Rel('CLPFD.>=#',#>=) :- !.
 translateFD_Rel(FD_Rel,_) :- writeErr('ERROR: Illegal FD constraint: '),
 	writeErr(FD_Rel), nlErr, !, fail.
 
-prim_FD_all_different(L,R) :- all_different(L), R='Prelude.success'.
+prim_FD_all_different(L,R) :-
+	all_different(L), R='Prelude.success'.
 
 prim_FD_indomain(Var,R) :-
 	(prolog(sicstus) -> indomain(Var) ; label([Var])),

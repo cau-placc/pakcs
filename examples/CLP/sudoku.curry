@@ -24,7 +24,7 @@ sudoku m =
   squares [] = []
   squares (l1:l2:l3:ls) = group3Rows [l1,l2,l3] ++ squares ls
   
-  group3Rows l123 = if head l123 == [] then [] else
+  group3Rows l123 = if null (head l123) then [] else
    concatMap (take 3) l123 : group3Rows (map (drop 3) l123)
 
 -- read a Su Doku specification written as a list of strings containing digits
