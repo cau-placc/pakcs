@@ -2,14 +2,14 @@ import CLPFD
 
 -- solving the n-queens problem in Curry with FD constraints:
 
-queens options n l =
-       gen_vars n =:= l &
-       domain l 1 (length l) &
-       all_safe l &
-       labeling options l
+queens options n qs =
+       gen_vars n =:= qs &
+       domain qs 1 n &
+       allSafe qs &
+       labeling options qs
 
-all_safe [] = success
-all_safe (q:qs) = safe q qs 1 & all_safe qs
+allSafe [] = success
+allSafe (q:qs) = safe q qs 1 & allSafe qs
 
 safe :: Int -> [Int] -> Int -> Success
 safe _ [] _ = success
@@ -19,5 +19,5 @@ no_attack q1 q2 p = q1 /=# q2 & q1 /=# q2+#p & q1 /=# q2-#p
 
 gen_vars n = if n==0 then [] else var : gen_vars (n-1)  where var free
 
--- queens [] 8 l  where l free
--- queens [FirstFail] 16 l  where l free
+-- queens [] 8 qs  where qs free
+-- queens [FirstFail] 16 qs  where qs free
