@@ -637,7 +637,7 @@ allUnboundVariables(Vs) :-
 unifEq(A,B,R,E0,E):- user:hnf(A,HA,E0,E1), unifEq1(HA,B,R,E1,E).
 
 :- block unifEq1(?,?,?,-,?).
-% In the following clause, we bind a function pattern variable to the
+% In the following clause, we bind a functional pattern variable to the
 % actual argument. This binding of a logical variable against
 % a non-constructor term is not problematic since the functional pattern
 % variable is a logical variable that is not enclosed
@@ -719,6 +719,13 @@ getSEqConstraints([control(_,_,_,NewConstraints)|L],
 replaceMultipleVariablesInArgs([],_,_,[]).
 replaceMultipleVariablesInArgs([X|Args],Below,Vars,[NewArg|LinArgs]) :-
 	var(X), !, getControlVar(X,Below,Vars,NewArg),
+	replaceMultipleVariablesInArgs(Args,Below,Vars,LinArgs).
+replaceMultipleVariablesInArgs([Arg|Args],Below,Vars,[Arg|LinArgs]) :-
+	% avoid repeating replacing already replaced variables
+	Arg = 'Prelude.&>'('Prelude.ifVar'(ShareVar,
+				      'Prelude.=:='(ShareVar,'Prelude.()'),
+				      'Prelude.=:='(_CtrlVar,'Prelude.()')),_),
+        !,
 	replaceMultipleVariablesInArgs(Args,Below,Vars,LinArgs).
 replaceMultipleVariablesInArgs([Arg|Args],Below,Vars,[LinArg|LinArgs]) :-
 	Arg =.. [FC|Ts],
