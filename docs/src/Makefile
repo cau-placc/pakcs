@@ -5,7 +5,7 @@ PAKCS=../../bin/pakcs
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex ../../lib/TEXDOC/LAST
+manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex lib/LAST
 	pdflatex manual
 	bibtex manual
 	pdflatex manual
