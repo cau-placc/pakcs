@@ -120,7 +120,7 @@ prim_negateFloat(X,R) :- R is -X.
 %
 prim_ord(C,N) :- char_int(C,N).
 
-prim_chr(N,C) :- N>=0, N<256, !, char_int(C,N).
+prim_chr(N,C) :- N>=0, N<1114112, !, char_int(C,N).
 prim_chr(_,_) :- raise_exception('chr: argument out of range').
 
 
