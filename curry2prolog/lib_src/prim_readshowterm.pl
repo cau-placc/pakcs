@@ -38,7 +38,9 @@ show_term(C,_,[Apo|S],E) :- % 39='''
 	isCharCons(C), !,
 	char_int(Apo,39),
 	char_int(C,N),
-	show_termchar(N,S,SE),
+	(N=39 -> char_int(BS,92), S=[BS,C|SE] % '
+	 ; (N=34 -> S=[C|SE] % "
+	          ; show_termchar(N,S,SE))),
 	SE = [Apo|E].
 show_term('Prelude.()',_,[Op,Cl|E],E) :- !, char_int(Op,40), char_int(Cl,41).
 show_term('VAR',_,S,E) :-
@@ -95,18 +97,23 @@ show_termstring([C|T],S,E) :-
 	show_termchar(N,S,ST),
 	show_termstring(T,ST,E).
 
-show_termchar(34,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,34]).
-show_termchar(39,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,39]).
-show_termchar(92,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,92]).
+show_termchar(34,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,34]). % 34="
+show_termchar(92,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,92]). % 92=\
 show_termchar(10,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,110]).
 show_termchar(13,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,114]).
 show_termchar(9,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,116]).
 show_termchar(8,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,98]).
-show_termchar(N,[C1,C2,C3,C4|E],E) :- (N<32 ; N>126), !,
-	N1 is (N//100)+48, N2 is ((N mod 100)//10)+48,
-	N3 is (N mod 10)+48,
-	cp_string([C1,C2,C3,C4],[92,N1,N2,N3]).
+show_termchar(N,[C1,C2,C3|E],E) :- N<32, !,
+	N1 is (N//10)+48, N2 is (N mod 10)+48,
+	cp_string([C1,C2,C3],[92,N1,N2]).
+show_termchar(N,E,F) :- N>126, !,
+	num2rdigits(N,RDs), rev(RDs,Ds),
+	cp_string(DS,[92|Ds]),
+	append(DS,F,E).
 show_termchar(N,[C|E],E) :- char_int(C,N).
+
+num2rdigits(N,[D]) :- N<10, !, D is N+48.
+num2rdigits(N,[D|Ds]) :- D is (N mod 10)+48, N1 is N//10, num2rdigits(N1,Ds).
 
 show_termlist(L,Q,SH,E) :- nonvar(L), L=[H|T], !,
 	show_term(H,Q,SH,SHE),
