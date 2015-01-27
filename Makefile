@@ -220,7 +220,7 @@ clean:
 .PHONY: cleantools
 cleantools:
 	cd curry2prolog && $(MAKE) clean
-	cd currytools && $(MAKE) clean
+	cd currytools && $(MAKE) uninstall
 	cd tools && $(MAKE) clean
 	cd cpns && $(MAKE) clean
 	cd www && $(MAKE) clean
