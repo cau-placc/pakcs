@@ -133,6 +133,7 @@ rm -f $MAINCURRY
 echo "module $MAINMOD($MAINCALL) where" >> $MAINCURRY
 echo "import $PROG" >> $MAINCURRY
 echo "import HTML" >> $MAINCURRY
+echo "$MAINCALL :: IO ()" >> $MAINCURRY
 if [ $WUIJS = no ] ; then
   echo "$MAINCALL = runFormServerWithKey \"$CGIPROG\" \"$CGIKEY\" ($MAIN)" >> $MAINCURRY
 else

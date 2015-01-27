@@ -488,7 +488,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
 	toAbsPath(MainPath,AbsMainPath),
-	getLocalCurryPath(LCP), % current locally set load path
+	getCurryPath(CP0), path2String(CP0,CP1), atom_codes(LCP,CP1),
         extendPath(AbsMainPath,LCP,NewLCP),
 	setCurryPath(NewLCP),
 	setWorkingDirectory(MainExprDir),
@@ -655,6 +655,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
 	open(ExprFile,write,S),
+	% suppress parser warnings:
+	write(S,'{-# OPTIONS_CYMAKE -Wnone #-}'), nl(S),
 	(MainProg='Prelude' -> true
           ; write(S,'import '), write(S,MainProg), nl(S)),
 	addImports(Imps), writeMainImports(S,Imps),
