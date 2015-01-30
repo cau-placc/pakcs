@@ -14,7 +14,7 @@ BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (
 TESTLANG="testFunctional testInfinite testHigher testNarr testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testNonStrictUnif testFuncPattern testAsPattern"
 
 # test for standard libraries
-TESTLIBS="testPrelude testCombinatorial testDatabase testDirectory testDynamic testFlatCurryGoodies testFlatCurryXML testGlobal testGlobalVariable testInteger testIOExts testList testSetFunctions testSort testSystem testTraversal testArray testDequeue testFiniteMap testRedBlackTree"
+TESTLIBS="testPrelude testCombinatorial testDatabase testDirectory testDynamic testFlatCurryGoodies testFlatCurryXML testGlobal testGlobalVariable testInteger testIOExts testList testSetFunctions testSort testSystem testTraversal testArray testDequeue testFiniteMap testRedBlackTree testFormat testRegExp"
 
 # additional library tests for PAKCS with various Prolog back ends:
 TESTLIBSBACKEND=
