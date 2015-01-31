@@ -3,6 +3,10 @@
 CURRYHOME=..
 CURRYBIN=$CURRYHOME/bin
 
+# use the right Curry system for the tests:
+PATH=$CURRYBIN:$PATH
+export PATH
+
 TESTPARAMS="--window"
 if [ "$1" = "--nogui" ] ; then
   TESTPARAMS=
