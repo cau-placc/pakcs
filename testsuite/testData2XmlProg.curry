@@ -10,6 +10,7 @@ import FlatCurryDataToXml
 import XML
 import System
 
+main :: IO ()
 main = do
   prog <- readFlatCurry "testData2XmlProg"
   --print prog
