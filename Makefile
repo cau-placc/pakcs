@@ -234,7 +234,7 @@ cleantools: $(CLEANCURRY)
 cleanall:
 	$(MAKE) clean
 	rm -rf $(LIBDIR)
-	rm -rf $(BINDIR)
+	if [ -d frontend ]; then rm -rf $(BINDIR) ; fi
 	rm -f pakcsinitrc pakcsinitrc.bak
 
 
