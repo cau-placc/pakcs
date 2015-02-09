@@ -204,10 +204,13 @@ libdoc:
 runtest: examples/doTest
 	cd examples && ./doTest --nogui
 
+$(CLEANCURRY):
+	cd scripts && $(MAKE) $@
+
 # Clean the system files, i.e., remove the installed PAKCS components
 # except for the front end
 .PHONY: clean
-clean:
+clean: $(CLEANCURRY)
 	rm -f $(MAKELOG)
 	$(MAKE) cleantools
 	if [ -d lib ] ; then cd lib && $(MAKE) clean ; fi
@@ -218,7 +221,7 @@ clean:
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
-cleantools:
+cleantools: $(CLEANCURRY)
 	cd curry2prolog && $(MAKE) clean
 	cd currytools && $(MAKE) uninstall
 	cd tools && $(MAKE) clean
@@ -231,6 +234,8 @@ cleantools:
 cleanall:
 	$(MAKE) clean
 	rm -rf $(LIBDIR)
+	rm -rf $(BINDIR)
+	rm -f pakcsinitrc pakcsinitrc.bak
 
 
 #################################################################################

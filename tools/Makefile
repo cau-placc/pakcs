@@ -21,10 +21,11 @@ curry2xml: curry2xml.curry $(OLDLIBDIR)/FlatXML.curry \
 	$(REPL) $(REPL_OPTS) :set path $(OLDLIBDIR) :load curry2xml :save :quit
 
 .PHONY: clean
-clean: 
+clean:
 	$(CLEANCURRY)
 	rm -f curry2xml
-	cd Peval     ; $(MAKE) clean
-	cd coosy     ; $(MAKE) clean
-	cd optimize  ; $(MAKE) clean
-	cd ui        ; $(MAKE) clean
+	cd Peval          && $(MAKE) clean
+	cd coosy          && $(MAKE) clean
+	cd optimize       && $(MAKE) clean
+	cd ui             && $(MAKE) clean
+	cd lib_deprecated && $(CLEANCURRY) -r
