@@ -296,8 +296,8 @@ dist:
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar --exclude=bin/cymake cf $(FULLNAME)-src.tar $(FULLNAME) && gzip $(FULLNAME)-src.tar
-	cd /tmp && tar --exclude=./frontend cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
+	cd /tmp && tar cf $(FULLNAME)-src.tar     $(FULLNAME) --exclude=bin/cymake && gzip $(FULLNAME)-src.tar
+	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) --exclude=./frontend && gzip $(FULLNAME)-$(ARCH).tar
 	mv /tmp/$(FULLNAME)-*.tar.gz .
 	rm -rf $(PAKCSDIST)
 	chmod 644 pakcs*.tar.gz
