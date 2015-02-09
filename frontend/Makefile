@@ -29,3 +29,8 @@ unregister:
 clean:
 	cd curry-base     && $(CABAL) clean
 	cd curry-frontend && $(CABAL) clean
+
+.PHONY: cleanall
+cleanall:
+	cd curry-base     && rm -rf dist/
+	cd curry-frontend && rm -rf dist/

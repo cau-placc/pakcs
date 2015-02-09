@@ -44,6 +44,10 @@ export DOCDIR        = $(ROOT)/docs
 C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
 MANUALVERSION=$(DOCDIR)/src/version.tex
+# Directory where local package installations are stored
+export LOCALPKG      = $(ROOT)/pkg
+# The path to the package database
+export PKGDB         = $(LOCALPKG)/pakcs.conf.d
 
 # Various executables used in the installation
 # --------------------------------------------
@@ -66,11 +70,30 @@ MAKELOG=make.log
 export GHC     := $(shell which ghc)
 export GHC-PKG := $(shell dirname "$(GHC)")/ghc-pkg
 export CABAL    = cabal
-# Command to unregister a package
-export GHC_UNREGISTER = "$(GHC-PKG)" unregister
-# Command to install missing packages using cabal
-export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)" -O2
 
+# Because of an API change in GHC 7.6,
+# we need to distinguish GHC < 7.6 and GHC >= 7.6.
+# GHC 7.6 renamed the option "package-conf" to "package-db".
+
+# extract GHC version
+GHC_MAJOR := $(shell "$(GHC)" --numeric-version | cut -d. -f1)
+GHC_MINOR := $(shell "$(GHC)" --numeric-version | cut -d. -f2)
+# Is the GHC version >= 7.6 ?
+GHC_GEQ_76 = $(shell test $(GHC_MAJOR) -gt 7 -o \( $(GHC_MAJOR) -eq 7 \
+              -a $(GHC_MINOR) -ge 6 \) ; echo $$?)
+# package-db (>= 7.6) or package-conf (< 7.6)?
+ifeq ($(GHC_GEQ_76),0)
+GHC_PKG_OPT = package-db
+else
+GHC_PKG_OPT = package-conf
+endif
+
+# Command to unregister a package
+export GHC_UNREGISTER = "$(GHC-PKG)" unregister --$(GHC_PKG_OPT)="$(PKGDB)"
+# Command to install missing packages using cabal
+export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)"       \
+                        --with-hc-pkg="$(GHC-PKG)" --prefix="$(LOCALPKG)" \
+                        --global --package-db="$(PKGDB)" -O2
 
 ########################################################################
 # The targets
@@ -137,9 +160,14 @@ cleanscripts:
 copylibs:
 	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
+# create package database
+$(PKGDB):
+	"$(GHC-PKG)" init $@
+	$(CABAL) update
+
 # install front end (if sources are present):
 .PHONY: frontend
-frontend:
+frontend: $(PKGDB)
 	@if [ -d frontend ] ; then cd frontend && $(MAKE) ; fi
 
 # compile the tools:
@@ -162,13 +190,6 @@ cass:
 docs:
 	@if [ -d $(DOCDIR)/src ] ; \
 	 then $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
-
-# install required cabal packages required by the front end
-# (only necessary if the front end is installed for the first time)
-.PHONY: installhaskell
-installhaskell:
-	$(CABAL) update
-	$(CABAL_INSTALL) mtl
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
@@ -218,6 +239,7 @@ clean: $(CLEANCURRY)
 	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
 	cd scripts && $(MAKE) clean
+	-cd frontend && $(MAKE) clean
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
@@ -231,10 +253,11 @@ cleantools: $(CLEANCURRY)
 
 # Clean everything (including the front end)
 .PHONY: cleanall
-cleanall:
-	$(MAKE) clean
+cleanall: clean
 	rm -rf $(LIBDIR)
-	if [ -d frontend ]; then rm -rf $(BINDIR) ; fi
+	rm -rf $(LOCALPKG)
+	-cd frontend && $(MAKE) cleanall
+	if [ -d frontend ]; then rm -rf $(BINDIR); fi
 	rm -f pakcsinitrc pakcsinitrc.bak
 
 
@@ -273,8 +296,8 @@ dist:
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar --exclude=bin/cymake cf $(FULLNAME)-src.tar $(FULLNAME) && gzip $(FULLNAME)-src.tar
-	cd /tmp && tar --exclude=./frontend cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
+	cd /tmp && tar cf $(FULLNAME)-src.tar     $(FULLNAME) --exclude=bin/cymake && gzip $(FULLNAME)-src.tar
+	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) --exclude=./frontend && gzip $(FULLNAME)-$(ARCH).tar
 	mv /tmp/$(FULLNAME)-*.tar.gz .
 	rm -rf $(PAKCSDIST)
 	chmod 644 pakcs*.tar.gz
@@ -289,5 +312,6 @@ cleandist:
 	rm -rf currytools/.git currytools/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
+	rm -rf $(LOCALPKG)
 	rm -rf docs/src
 	rm -f KNOWN_BUGS CHANGELOG.html
