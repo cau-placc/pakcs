@@ -82,6 +82,6 @@ libswi/%.pl: lib_src/%.pl
 # clean up everything
 .PHONY: clean
 clean: uninstall
-	rm -f c2p.state ../lib/.curry/pakcs/Prelude.pl ../bin/pakcs prologbasics.pl
+	rm -f c2p.state pakcs ../lib/.curry/pakcs/Prelude.pl ../bin/pakcs prologbasics.pl
 	rm -f pakcsversion.pl
-	rm -rf libswi/*
+	rm -rf libswi/
