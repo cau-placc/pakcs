@@ -245,16 +245,13 @@ cleanall:
 FULLNAME=pakcs-$(VERSION)
 # temporary directory to create distribution version
 PAKCSDIST=/tmp/$(FULLNAME)
-# temporary directory to create binary distribution version
-BINDISTDIR=/tmp/pakcsbin
-PAKCSBINDIST=$(BINDISTDIR)/$(FULLNAME)
 # architecture name
 ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
 
 .PHONY: dist
 dist:
 	rm -rf pakcs*.tar.gz $(PAKCSDIST) # remove old distributions
-	git clone . $(PAKCSDIST)                   # create copy of git version
+	git clone . $(PAKCSDIST)          # create copy of git version
 	cd $(PAKCSDIST) && git submodule init && git submodule update
 	cd $(PAKCSDIST) && $(MAKE) installscripts
 	cp pakcsinitrc $(PAKCSDIST)/pakcsinitrc
@@ -271,59 +268,25 @@ dist:
 	cd docs && cp -p Manual.pdf markdown_syntax.html $(PAKCSDIST)/docs
 	sed -e "/PAKCS developers/,\$$d" < $(PAKCSDIST)/scripts/pakcsinitrc.sh > $(PAKCSDIST)/pakcsinitrc
 	rm $(PAKCSDIST)/scripts/pakcsinitrc.sh
-	# generate binary distributions on remote hosts:
-	#$(MAKE) dist_$(USER)@lussac.informatik.uni-kiel.de # Linux 32bit dist
-	$(MAKE) dist_$(USER)@siran.informatik.uni-kiel.de  # Linux 64bit dist
-	#$(MAKE) dist_$(USER)@mickey.informatik.uni-kiel.de # SunOS distribution
-	# generate source distribution:
-	cp Makefile $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST)/lib && $(MAKE) clean # delete precompiled libraries
 	cat Makefile | sed -e "/distribution/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar cf $(FULLNAME)-src.tar $(FULLNAME) && gzip $(FULLNAME)-src.tar
-	mv /tmp/$(FULLNAME)-src.tar.gz .
-	chmod 644 pakcs*.tar.gz
+	cd /tmp && tar --exclude=bin/cymake cf $(FULLNAME)-src.tar $(FULLNAME) && gzip $(FULLNAME)-src.tar
+	cd /tmp && tar --exclude=./frontend cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
+	mv /tmp/$(FULLNAME)-*.tar.gz .
 	rm -rf $(PAKCSDIST)
+	chmod 644 pakcs*.tar.gz
 	@echo "----------------------------------------------------------------"
 	@echo "Distribution files pakcs*.tar.gz generated."
 
-# generate distribution on a remote host:
-dist_%:
-	cat Makefile | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
-	             > Makefile.dated
-	cat Makefile.dated | sed -e "/distribution/,\$$d" \
-	                   > $(PAKCSDIST)/Makefile
-	ssh $* rm -rf $(PAKCSBINDIST)
-	ssh $* mkdir -p $(BINDISTDIR)
-	scp -p -q -r $(PAKCSDIST) $*:$(PAKCSBINDIST)
-	scp -q Makefile.dated $*:$(PAKCSBINDIST)/../Makefile
-	rm Makefile.dated
-	ssh $* "cd $(PAKCSBINDIST) && $(MAKE) -f ../Makefile genbindist"
-	scp -p $*:$(BINDISTDIR)/pakcs\*.tar.gz .
-	ssh $* rm -rf $(BINDISTDIR)
-
-# compile front end from the sources, replace them by binaries
-# and put everything into a .tar.gz file:
-.PHONY: genbindist
-genbindist:
-	rm -f pakcs*.tar.gz
-	PATH=/opt/ghc/bin:/home/haskell/bin:$(PATH) && export PATH && $(MAKE) frontend
-	rm -rf frontend
-	$(MAKE) cleanscripts # remove local scripts
-	cd $(BINDISTDIR) && tar cf $(FULLNAME)-$(ARCH).tar $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
-
-
-#
 # Clean all files that should not be included in a distribution
-#
 .PHONY: cleandist
 cleandist:
 	rm -rf .git .gitmodules .gitignore
 	rm -rf lib-trunk
 	rm -rf currytools/.git currytools/.gitignore
-	rm -f $(CYMAKE)
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
