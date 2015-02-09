@@ -1024,7 +1024,7 @@ processCompile(ProgS,PrologFile) :-
 	    writeErr(Prog),
 	    writeErr(' not found!'),
 	    nlErr,
-	    deletePrologTarget(LocalPrologFile),!, fail),
+	    deletePrologTarget(LocalPrologFile),!, failWithExitCode),
 	prog2PrologFile(PathProgName,PrologFile),
 	checkProgramHeader(PrologFile),
 	c2p(Prog,PrologFile),
