@@ -103,9 +103,10 @@ export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)"       \
 # Install all components of PAKCS
 #
 .PHONY: all
-all: config
+all:
 	@rm -f $(MAKELOG)
 	@echo "Make started at `date`" > $(MAKELOG)
+	$(MAKE) config  2>&1 | tee -a $(MAKELOG)
 	$(MAKE) install 2>&1 | tee -a $(MAKELOG)
 	@echo "Make finished at `date`" >> $(MAKELOG)
 	@echo "Make process logged in file $(MAKELOG)"
@@ -267,44 +268,29 @@ cleanall: clean
 # directory name of distribution
 FULLNAME=pakcs-$(VERSION)
 # temporary directory to create distribution version
-PAKCSDIST=/tmp/$(FULLNAME)
+PAKCSDIST=$(FULLNAME)
 # architecture name
 ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
 # Files to be excluded for source distribution
-SRC_EXCLUDE = --exclude=$(FULLNAME)/bin
+SRC_EXCLUDE = --exclude=bin
 # Files to be excluded for binary distribution
-BIN_EXCLUDE = --exclude=$(FULLNAME)/frontend
+BIN_EXCLUDE = --exclude=frontend
 
 .PHONY: dist
 dist:
-	rm -rf pakcs*.tar.gz $(PAKCSDIST) # remove old distributions
+	rm -rf pakcs*.tar.gz $(PAKCSDIST) # remove any old distribution
 	git clone . $(PAKCSDIST)          # create copy of git version
 	cd $(PAKCSDIST) && git submodule init && git submodule update
-	cd $(PAKCSDIST) && $(MAKE) installscripts
-	cp pakcsinitrc $(PAKCSDIST)/pakcsinitrc
-	cd $(PAKCSDIST) && $(MAKE) frontend
 	cd $(PAKCSDIST) && $(MAKE) copylibs
-	cd $(PAKCSDIST)/lib && $(MAKE) fcy
-	cd $(PAKCSDIST)/lib && $(MAKE) acy
-	cd $(PAKCSDIST) && $(MAKE) cleandist  # delete unnessary files
-	# copy documentation:
-	@if [ -f docs/Manual.pdf ] ; \
-	 then cp docs/Manual.pdf $(PAKCSDIST)/docs ; fi
-	@if [ -f docs/markdown_syntax.html ] ; \
-	 then cp docs/markdown_syntax.html $(PAKCSDIST)/docs ; fi
-	cd docs && cp -p Manual.pdf markdown_syntax.html $(PAKCSDIST)/docs
-	sed -e "/PAKCS developers/,\$$d" < $(PAKCSDIST)/scripts/pakcsinitrc.sh > $(PAKCSDIST)/pakcsinitrc
-	rm $(PAKCSDIST)/scripts/pakcsinitrc.sh
-	cd $(PAKCSDIST)/lib && $(MAKE) clean # delete precompiled libraries
+	cd $(PAKCSDIST) && $(MAKE) cleandist # delete unnessary files
+	mkdir -p $(PAKCSDIST)/bin && cp -p $(CYMAKE) $(PAKCSDIST)/bin
+	cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs
 	cat Makefile | sed -e "/distribution/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
-	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar cf $(FULLNAME)-src.tar     $(SRC_EXCLUDE) $(FULLNAME) && gzip $(FULLNAME)-src.tar
-	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(BIN_EXCLUDE) $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
-	mv /tmp/$(FULLNAME)-*.tar.gz .
+	tar cfvz $(FULLNAME)-src.tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
+	tar cfvz $(FULLNAME)-$(ARCH).tar.gz $(BIN_EXCLUDE) $(PAKCSDIST)
 	rm -rf $(PAKCSDIST)
-	chmod 644 pakcs*.tar.gz
 	@echo "----------------------------------------------------------------"
 	@echo "Distribution files pakcs*.tar.gz generated."
 
@@ -316,6 +302,5 @@ cleandist:
 	rm -rf currytools/.git currytools/.gitignore
 	cd frontend/curry-base     && rm -rf .git .gitignore dist
 	cd frontend/curry-frontend && rm -rf .git .gitignore dist
-	rm -rf $(LOCALPKG)
 	rm -rf docs/src
 	rm -f KNOWN_BUGS CHANGELOG.html

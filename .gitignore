@@ -74,3 +74,6 @@ docs/markdown_syntax.html
 docs/INSTALL.html
 docs/GITINSTALL.html
 docs/RELNOTES.html
+
+# distribution
+pakcs-*.tar.gz
