@@ -270,6 +270,10 @@ FULLNAME=pakcs-$(VERSION)
 PAKCSDIST=/tmp/$(FULLNAME)
 # architecture name
 ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
+# Files to be excluded for source distribution
+SRC_EXCLUDE = --exclude=$(FULLNAME)/bin
+# Files to be excluded for binary distribution
+BIN_EXCLUDE = --exclude=$(FULLNAME)/frontend
 
 .PHONY: dist
 dist:
@@ -296,8 +300,8 @@ dist:
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	cd $(PAKCSDIST) && $(MAKE) cleanscripts # remove local scripts
-	cd /tmp && tar cf $(FULLNAME)-src.tar     --exclude=$(FULLNAME)/bin/cymake $(FULLNAME) && gzip $(FULLNAME)-src.tar
-	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar --exclude=$(FULLNAME)/frontend   $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
+	cd /tmp && tar cf $(FULLNAME)-src.tar     $(SRC_EXCLUDE) $(FULLNAME) && gzip $(FULLNAME)-src.tar
+	cd /tmp && tar cf $(FULLNAME)-$(ARCH).tar $(BIN_EXCLUDE) $(FULLNAME) && gzip $(FULLNAME)-$(ARCH).tar
 	mv /tmp/$(FULLNAME)-*.tar.gz .
 	rm -rf $(PAKCSDIST)
 	chmod 644 pakcs*.tar.gz
