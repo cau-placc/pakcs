@@ -266,15 +266,17 @@ cleanall: clean
 # Create distribution versions of the complete system as tar files pakcs*.tar.gz:
 
 # directory name of distribution
-FULLNAME=pakcs-$(VERSION)
+FULLNAME    = pakcs-$(VERSION)
 # temporary directory to create distribution version
-PAKCSDIST=$(FULLNAME)
+PAKCSDIST   = $(FULLNAME)
 # architecture name
-ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
+ARCH        = $(shell dpkg-architecture -qDEB_BUILD_ARCH)-$(shell uname -s)
 # Files to be excluded for source distribution
 SRC_EXCLUDE = --exclude=bin
 # Files to be excluded for binary distribution
 BIN_EXCLUDE = --exclude=frontend
+# Current date
+DIST_DATE   = $(shell date +%Y%m%d)
 
 .PHONY: dist
 dist:
@@ -288,8 +290,8 @@ dist:
 	cat Makefile | sed -e "/distribution/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
-	tar cfvz $(FULLNAME)-src.tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
-	tar cfvz $(FULLNAME)-$(ARCH).tar.gz $(BIN_EXCLUDE) $(PAKCSDIST)
+	tar cfvz $(FULLNAME)-src-$(DIST_DATE).tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
+	tar cfvz $(FULLNAME)-$(ARCH)-$(DIST_DATE).tar.gz $(BIN_EXCLUDE) $(PAKCSDIST)
 	rm -rf $(PAKCSDIST)
 	@echo "----------------------------------------------------------------"
 	@echo "Distribution files pakcs*.tar.gz generated."
