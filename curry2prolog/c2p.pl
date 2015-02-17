@@ -242,9 +242,11 @@ expandCommand(AShortCmd,Cmd) :-
 	findall(FullCmd,prefixOf(ShortCmd,AllCmds,FullCmd),FullCmds),
 	(FullCmds=[Cmd] -> true ;
 	 (FullCmds=[]
-	  -> writeErr('ERROR: unknown command. Type :h for help'),
+	  -> writeErr('ERROR: unknown command: ":'),
+	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeErr('"'),
 	     nlErr, fail
-	   ; writeErr('ERROR: command not unique. Type :h for help'),
+	   ; writeErr('ERROR: ambiguous command: ":'),
+	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeErr('"'),
 	     nlErr, fail)).
 
 prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
