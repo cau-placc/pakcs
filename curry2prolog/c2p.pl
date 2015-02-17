@@ -363,13 +363,10 @@ parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
 	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs).
 
 parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
+        getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
-	lastload(MainProgS),
-	findSourceProgPath(MainProgS,MainPath),
-	atom_codes(MainProg,MainProgS),
-	split2dirbase(MainProg,_,MainProgName),
 	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
@@ -408,6 +405,28 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	deleteMainExpFiles(MainExprDir).
 parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
+	!, fail.
+
+% get the name and path to the source code of the currently loaded main module
+% (or fail with an error message if there is no source code):
+getMainProgPath(MainProgName,MainPath) :-
+	lastload(MainProgS),
+	findSourceProgPath(MainProgS,MainPath), !,
+	atom_codes(MainProg,MainProgS),
+	split2dirbase(MainProg,_,MainProgName).
+getMainProgPath(CurrMod,MainPath) :-
+	currentModule(CurrMod), atom_codes(CurrMod,CurrModS),
+	findSourceProgPath(CurrModS,MainPath), !,
+	(verbosityQuiet -> true ;
+	    lastload(LoadProgS), atom_codes(LoadProg,LoadProgS),
+	    writeErr('*** Warning: module loaded from                : '),
+	    writeErr(LoadProg), nlErr,
+	    writeErr('    main expression parsed w.r.t. source module: '),
+	    writeErr(CurrMod), nlErr).
+getMainProgPath(_,_) :-
+	lastload(MainProgS), atom_codes(MainProg,MainProgS),
+	writeErr('Source program for module "'), writeErr(MainProg),
+	writeErr('" not found!'), nlErr,
 	!, fail.
 
 % delete all auxiliary files for storing main expression:
