@@ -439,8 +439,9 @@ writeCurryD(S,_,_,[]) :- write(S,[]), !.
 writeCurryD(S,_,_,T) :- atom(T), !,
 	(atom_codes(T,[95|_]) -> writeVar(user_output,T) % 95 = '_'
 	 ; revTransFunctor(T,ExtName),
-	   (isId(ExtName) -> write(S,ExtName)
-                           ; write(S,'('), write(S,ExtName), write(S,')'))).
+	    ((isId(ExtName) ; ExtName='()')
+	      -> write(S,ExtName)
+	       ; write(S,'('), write(S,ExtName), write(S,')'))).
 writeCurryD(S,D,_,T) :-
 	isCompleteList(T,TL),
 	!,
