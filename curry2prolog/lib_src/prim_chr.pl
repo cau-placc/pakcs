@@ -1,0 +1,18 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This program defines primitive operations used in the Curry
+% library CHRcompiled.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- use_module(library('chr/chr_runtime')).
+
+warnSuspendedConstraints(ShowAll,R) :-
+	find_chr_constraint(C), !,
+	write(user_error,'WARNING: residual CHR constraints:'),
+	writeSuspendedCHRConstraints(ShowAll),
+	R='Prelude.success'.
+warnSuspendedConstraints(_,'Prelude.success').
+
+writeSuspendedCHRConstraints(ShowAll) :-
+	find_chr_constraint(C), write(user_error,' '), write(user_error,C),
+	ShowAll='Prelude.False', !, write(user_error,'...'), nl(user_error).
+writeSuspendedCHRConstraints(_) :- nl(user_error).

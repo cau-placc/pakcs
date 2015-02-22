@@ -1,0 +1,56 @@
+  ______      __       _    _    ______   _______     
+ |  __  |    /  \     | |  / /  |  ____| |  _____|   Portland Aachen Kiel
+ | |  | |   / /\ \    | |_/ /   | |      | |_____    Curry System
+ | |__| |  / /__\ \   |  _  |   | |      |_____  |   
+ |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.5 (1)
+ |_|     /_/      \_\ |_|  \_\  |______| |_______|   
+
+Curry2Prolog(sicstus 4.3) Compiler Environment (Version of 2015-02-17)
+(RWTH Aachen, CAU Kiel, Portland State University)
+
+Type ":h" for help (contact: pakcs@curry-language.org)
+Prelude> Leq> {x=1} []
+Leq> {x=x, y=x, z=x} []
+Leq> {x=x, y=y, z=z, z'=z'} [Leq z z',Leq x y]
+Leq> Bool> {x=True, y=True, z=True} []
+Bool> {a=True, b=True, s=False, c=True} []
+Bool> {a=a, b=b, s=s, c=False} [And a b False,Or a b s]
+Bool> GCD> [GCD 4]
+GCD> [GCD 2]
+GCD> GCD CHR> Curry interface to CHR(Prolog) written to GCDCHR.curry
+GCD CHR> Fib> {x=21} [Fib 7 21,Fib 4 5,Fib 2 2,Fib 3 3,Fib 5 8,Fib 6 13]
+Fib> Fib CHR> Curry interface to CHR(Prolog) written to FIBCHR.curry
+Fib CHR> FD> {x=1, y=1} []
+FD> {x=3} []
+FD> {x=2, y=2, z=2} []
+FD> {xs=[2,3,1]} []
+{xs=[3,2,1]} []
+{xs=[1,3,2]} []
+{xs=[3,1,2]} []
+{xs=[1,2,3]} []
+{xs=[2,1,3]} []
+FD> {xs=[4,3,2,1]} []
+{xs=[2,3,4,1]} []
+{xs=[4,3,1,2]} []
+{xs=[1,3,4,2]} []
+{xs=[2,3,1,4]} []
+{xs=[1,3,2,4]} []
+FD> UnionFind> [Root 1,Arrow 2 1,Root 4,Root 3]
+UnionFind> {x=1} [Root 4,Root 3,Arrow 2 1,Root 1]
+UnionFind> {x=1, y=3} [Root 4,Arrow 2 1,Arrow 1 3,Root 3]
+UnionFind> [Root 5,Arrow 3 5,Arrow 4 3,Root 1,Arrow 2 1]
+UnionFind> {x=1, y=5} [Root 1,Arrow 2 1,Arrow 4 3,Arrow 3 5,Root 5]
+UnionFind> {x='a', y='e'} [Root 'a',Arrow 'b' 'a',Arrow 'd' 'c',Arrow 'c' 'e',Root 'e']
+UnionFind> UnionFind CHR> Curry interface to CHR(Prolog) written to UFCHR.curry
+UnionFind CHR> Primes> [Prime 2,Prime 19,Prime 17,Prime 3,Prime 13,Prime 11,Prime 7,Prime 5]
+Primes> Gauss> {x=2.0, y=1.0} []
+Gauss> {x=5.0, y=2.0} []
+Gauss> {x=2.0, y=2.0} []
+Gauss> {i=0.007692307692307692} []
+Gauss> {i=0.0384160756501182} []
+Gauss> Gauss CHR> Curry interface to CHR(Prolog) written to GAUSSCHR.curry
+Gauss CHR> GCDCHR> {x=2} success
+GCDCHR> FIBCHR> {x=10946} success
+FIBCHR> UFCHR> {x=1, y=5} success
+UFCHR> GAUSSCHR> GAUSSCHR Gauss> {x=2.0, y=1.0} success
+GAUSSCHR Gauss> 
