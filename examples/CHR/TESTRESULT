@@ -1,56 +1,90 @@
-  ______      __       _    _    ______   _______     
- |  __  |    /  \     | |  / /  |  ____| |  _____|   Portland Aachen Kiel
- | |  | |   / /\ \    | |_/ /   | |      | |_____    Curry System
- | |__| |  / /__\ \   |  _  |   | |      |_____  |   
- |  ____| / ______ \  | | \ \   | |____   _____| |   Version 1.11.5 (1)
- |_|     /_/      \_\ |_|  \_\  |______| |_______|   
-
-Curry2Prolog(sicstus 4.3) Compiler Environment (Version of 2015-02-17)
-(RWTH Aachen, CAU Kiel, Portland State University)
-
-Type ":h" for help (contact: pakcs@curry-language.org)
-Prelude> Leq> {x=1} []
-Leq> {x=x, y=x, z=x} []
-Leq> {x=x, y=y, z=z, z'=z'} [Leq z z',Leq x y]
-Leq> Bool> {x=True, y=True, z=True} []
-Bool> {a=True, b=True, s=False, c=True} []
-Bool> {a=a, b=b, s=s, c=False} [And a b False,Or a b s]
-Bool> GCD> [GCD 4]
-GCD> [GCD 2]
-GCD> GCD CHR> Curry interface to CHR(Prolog) written to GCDCHR.curry
-GCD CHR> Fib> {x=21} [Fib 7 21,Fib 4 5,Fib 2 2,Fib 3 3,Fib 5 8,Fib 6 13]
-Fib> Fib CHR> Curry interface to CHR(Prolog) written to FIBCHR.curry
-Fib CHR> FD> {x=1, y=1} []
-FD> {x=3} []
-FD> {x=2, y=2, z=2} []
-FD> {xs=[2,3,1]} []
+Loading program "Leq"...
+main10 x
+{x=1} []
+main11 x y z
+{x=x, y=x, z=x} []
+main12 x y z z'
+{x=x, y=y, z=z, z'=z'} [Leq z z',Leq x y]
+Loading program "Bool"...
+main20 x y z
+{x=True, y=True, z=True} []
+main21 a b s c
+{a=True, b=True, s=False, c=True} []
+main22 a b s c
+{a=a, b=b, s=s, c=False} [And a b False,Or a b s]
+Loading program "GCD"...
+runGCD $ ((gcd 16) /\ (gcd 28))
+[GCD 4]
+runGCD $ ((gcd 206) /\ (gcd 40))
+[GCD 2]
+compileCHR "GCDCHR" [gcda,gcd2]
+Curry interface to CHR(Prolog) written to GCDCHR.curry
+Loading program "GCDCHR"...
+solveCHR $ ((gcdanswer x) /\ ((gcd 206) /\ (gcd 40)))
+{x=2} success
+Loading program "Fib"...
+(runCHR [dup,fib1,fibn,addrule]) $ ((fib 7) x)
+{x=21} [Fib 7 21,Fib 4 5,Fib 2 2,Fib 3 3,Fib 5 8,Fib 6 13]
+compileCHR "FIBCHR" [fibo1,fibo2,fibo3,addrule]
+Curry interface to CHR(Prolog) written to FIBCHR.curry
+Loading program "FIBCHR"...
+solveCHR $ (fib 20 x)
+{x=10946} success
+Loading program "FD"...
+main50 x y
+{x=1, y=1} []
+main51 x
+{x=3} []
+main52 [x,y,z]
+{x=2, y=2, z=2} []
+main53 xs
+{xs=[2,3,1]} []
 {xs=[3,2,1]} []
 {xs=[1,3,2]} []
 {xs=[3,1,2]} []
 {xs=[1,2,3]} []
 {xs=[2,1,3]} []
-FD> {xs=[4,3,2,1]} []
+main55 xs
+{xs=[4,3,2,1]} []
 {xs=[2,3,4,1]} []
 {xs=[4,3,1,2]} []
 {xs=[1,3,4,2]} []
 {xs=[2,3,1,4]} []
 {xs=[1,3,2,4]} []
-FD> UnionFind> [Root 1,Arrow 2 1,Root 4,Root 3]
-UnionFind> {x=1} [Root 4,Root 3,Arrow 2 1,Root 1]
-UnionFind> {x=1, y=3} [Root 4,Arrow 2 1,Arrow 1 3,Root 3]
-UnionFind> [Root 5,Arrow 3 5,Arrow 4 3,Root 1,Arrow 2 1]
-UnionFind> {x=1, y=5} [Root 1,Arrow 2 1,Arrow 4 3,Arrow 3 5,Root 5]
-UnionFind> {x='a', y='e'} [Root 'a',Arrow 'b' 'a',Arrow 'd' 'c',Arrow 'c' 'e',Root 'e']
-UnionFind> UnionFind CHR> Curry interface to CHR(Prolog) written to UFCHR.curry
-UnionFind CHR> Primes> [Prime 2,Prime 19,Prime 17,Prime 3,Prime 13,Prime 11,Prime 7,Prime 5]
-Primes> Gauss> {x=2.0, y=1.0} []
-Gauss> {x=5.0, y=2.0} []
-Gauss> {x=2.0, y=2.0} []
-Gauss> {i=0.007692307692307692} []
-Gauss> {i=0.0384160756501182} []
-Gauss> Gauss CHR> Curry interface to CHR(Prolog) written to GAUSSCHR.curry
-Gauss CHR> GCDCHR> {x=2} success
-GCDCHR> FIBCHR> {x=10946} success
-FIBCHR> UFCHR> {x=1, y=5} success
-UFCHR> GAUSSCHR> GAUSSCHR Gauss> {x=2.0, y=1.0} success
-GAUSSCHR Gauss> 
+Loading program "UnionFind"...
+main60
+[Root 1,Arrow 2 1,Root 4,Root 3]
+main61 x
+{x=1} [Root 4,Root 3,Arrow 2 1,Root 1]
+main62 x y
+{x=1, y=3} [Root 4,Arrow 2 1,Arrow 1 3,Root 3]
+main63
+[Root 5,Arrow 3 5,Arrow 4 3,Root 1,Arrow 2 1]
+main64 x y
+{x=1, y=5} [Root 1,Arrow 2 1,Arrow 4 3,Arrow 3 5,Root 5]
+main65 x y
+{x='a', y='e'} [Root 'a',Arrow 'b' 'a',Arrow 'd' 'c',Arrow 'c' 'e',Root 'e']
+compileCHR "UFCHR" [makeI,unionI,findNode,findRoot,linkEq,linkTo]
+Curry interface to CHR(Prolog) written to UFCHR.curry
+Loading program "UFCHR"...
+solveCHR $ (andCHR [make 1,make 2,make 3,make 4,make 5,union 1 2,union 3 4,union 5 3,find 2 x,find 4 y])
+{x=1, y=5} success
+Loading program "Primes"...
+runPrime $ (prime 20)
+[Prime 2,Prime 19,Prime 17,Prime 3,Prime 13,Prime 11,Prime 7,Prime 5]
+Loading program "Gauss"...
+main80 x y
+{x=2.0, y=1.0} []
+main81 x y
+{x=5.0, y=2.0} []
+main82 x y
+{x=2.0, y=2.0} []
+main85 i
+{i=0.007692307692307692} []
+main86 i
+{i=0.0384160756501182} []
+compileCHR "GAUSSCHR" [arithrule,emptyP,constM,eliminate,bindVar]
+Curry interface to CHR(Prolog) written to GAUSSCHR.curry
+Loading program "GAUSSCHR"...
+solveCHR $ (((3.0 :*: x) :=: 6.0) /\ (((2.0 :*: x) :+: (6.0 :*: y)) :=: 10.0))
+{x=2.0, y=1.0} success

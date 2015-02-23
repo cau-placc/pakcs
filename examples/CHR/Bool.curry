@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): Boolean constraint solver
 ---
 --- @author Michael Hanus
 --- @version February 2015

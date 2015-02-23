@@ -1,5 +1,7 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): use CHR to compute prime numbers
+---
+--- Advantage compared to CHR(Prolog): natural functional notation
 ---
 --- @author Michael Hanus
 --- @version February 2015

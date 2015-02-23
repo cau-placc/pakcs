@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): use CHR to compute the greatest common divisor
 ---
 --- @author Michael Hanus
 --- @version February 2015

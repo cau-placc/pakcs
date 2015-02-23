@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): solving linear arithmetic equations with Gaussian elimination
 ---
 --- @author Michael Hanus
 --- @version February 2015
@@ -12,9 +12,9 @@ import Float
 import Sort(mergeSort)
 import Unsafe(compareAnyTerm)
 
-infix 7 :*: -- for polynoms
-infixr 6 :+: -- for polynoms
-infix 5 :=: -- for polynoms
+infix  7 :*:
+infixr 6 :+:
+infix  5 :=:
 
 ----------------------------------------------------------------------
 -- Gaussian elimination to solve linear equalities

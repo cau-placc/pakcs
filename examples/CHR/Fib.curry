@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): using CHR to compute Fibonacci numbers with tabling
 ---
 --- @author Michael Hanus
 --- @version February 2015
@@ -11,6 +11,8 @@ import CHR
 
 ----------------------------------------------------------------------
 -- Fibonacci constraints (from Duck et al, ICLP 2004)
+-- Note that we use an explicit addition constraint for adding
+-- the result when smaller Fibonacci numbers are computed.
 data Fib = Fib Int Int
          | Add Int Int Int -- for adding results when available
 

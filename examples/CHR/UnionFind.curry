@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): union-find algorithm in CHR
 ---
 --- @author Michael Hanus
 --- @version February 2015
@@ -10,7 +10,7 @@
 import CHR
 
 ----------------------------------------------------------------------
--- Naive union find algorithm (Schrijvers/Fruehwirth TPLP 2006)
+-- Naive union-find algorithm (according to Schrijvers/Fruehwirth TPLP 2006)
 -- Advantage to Prolog CHR: polymorphic type-safe rules!
 data UF a = Root a | Arrow a a -- data structure
           | Make a | Union a a | Find a a | Link a a -- operations

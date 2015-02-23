@@ -1,5 +1,8 @@
 ----------------------------------------------------------------------
---- Various examples for CHR rules and goals.
+--- CHR(Curry): finite domain constraints
+---
+--- This example also shows how operations defined in Curry can be used
+--- as primitive constraints in CHR(Curry)
 ---
 --- @author Michael Hanus
 --- @version February 2015
@@ -11,7 +14,7 @@ import CHR
 import qualified List
 
 ----------------------------------------------------------------------
--- Finite domain constraints (SWI-Prolog manual)
+-- Finite domain constraints in CHR (influence from SWI-Prolog manual)
 data FDom = Dom Int [Int] | Diff Int Int
 
 dom  = toGoal2 Dom
@@ -21,12 +24,14 @@ delete x ys zs = anyPrim $ \() -> zs =:= List.delete x ys
 member x xs = anyPrim $ \() -> contains x xs
  where contains z (y:ys) = z=:=y ? contains z ys
 
+-- Rules for `dom` constraint:
 dom1 [x]   = dom x [] <=> fail
 dom2 [x,y] = dom x [y] <=> x .=. y
 dom3 [x]   = dom x xs <=> nonvar x |> member x xs     where xs free
 dom4 [x]   = dom x d1 /\ dom x d2 <=> intersect d1 d2 d3 /\ dom x d3
   where d1,d2,d3 free
 
+-- Rules for `diff` constraint:
 diff1 [x]   = diff x x <=> fail
 diff2 [x,y] = diff x y <=> nonvar x /\ nonvar y |> x ./=. y
 diff3 [x,y] = diff x y /\ dom x d1 <=> nonvar y |> delete y d1 d2 /\ dom x d2
