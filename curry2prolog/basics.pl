@@ -3,7 +3,7 @@
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
 		  noLoadMessage/0, lastload/1, plprofiling/1,
-		  setVerbosity/1, verbosityQuiet/0,
+		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
 		  verbosemode/1, setVerboseMode/1, quietmode/1, rtArgs/1,
 		  compileWithSharing/1,
@@ -124,6 +124,9 @@ setVerbosity(N) :-
 
 % verbosity level = 0 (do not show warnings or messages)?
 verbosityQuiet :- verbosity(0).
+
+% verbosity level > 0?
+verbosityNotQuiet :- verbosity(N), N>0.
 
 % verbosity level >= 2 (show intermediate messages)?
 verbosityIntermediate :- verbosity(N), N>1.

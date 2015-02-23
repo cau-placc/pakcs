@@ -330,13 +330,15 @@ ioAdmissible.
 processExpression(Input,ExprGoal) :-
 	parseMainExpression(Input,Term,Type,Vs),
 	(isIoType(Type) -> ioAdmissible ; true),
-	(verbosemode(yes) -> write('Evaluating expression: '),
-	                     writeCurryTermWithFreeVarNames(Vs,Term),
-			     write(' :: '),
-	                     numbersmallvars(97,_,Type), writeType(Type), nl,
-			     % print free goal variables if present:
-			     writeFreeVars(Vs)
-		           ; true),
+	(verbosemode(yes) ->
+	    (verbosityQuiet -> writeCurryTermWithFreeVarNames(Vs,Term), nl
+	      ; write('Evaluating expression: '),
+	        writeCurryTermWithFreeVarNames(Vs,Term),
+		write(' :: '),
+		numbersmallvars(97,_,Type), writeType(Type), nl,
+		% print free goal variables if present:
+		writeFreeVars(Vs))
+	 ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
 
 parseMainExpression(Input,Term,Type,Vs) :-
@@ -734,6 +736,9 @@ processCommand("load",Arg) :- !,
 	isValidProgramName(Prog),
 	retract(lastload(OldLL)), asserta(lastload(Prog)),
 	retract(addImports(OldImps)), asserta(addImports([])),
+	(verbosemode(yes) -> write('Loading program "'),
+	                     atom_codes(ProgA,Prog), write(ProgA),
+	                     write('"...'), nl ; true),
         (processCommand("reload",[])
          -> true
           ; retract(lastload(_)), asserta(lastload(OldLL)),
@@ -1272,7 +1277,7 @@ printCurrentLoadPath :-
 	path2String(LP,SP),
 	atom_codes(ASP,SP), write(ASP), nl.
 
-% fork an expression (arg1 is the expression (string), arg2=verbose/quiet):
+% fork an expression where arg1 is the expression (string):
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),

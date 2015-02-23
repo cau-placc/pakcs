@@ -161,15 +161,15 @@ showStatistics(RTime1,ETime1) :-
 writeMainResult(Done,_,_,_) :- var(Done), !, % goal suspended
 	writeErr('*** Goal suspended!'), nlErr.
 writeMainResult(_,Suspended,Vs,Value) :- var(Value), !,
-	(verbosemode(yes) -> write('Result: ') ; true),
+	((verbosemode(yes), verbosityNotQuiet) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
 writeMainResult(_,Suspended,Vs,'$io'(Value)) :- !,
 	((nonvar(Value), Value='Prelude.()')
 	 -> true
-	  ; (verbosemode(yes) -> write('IO: ') ; true),
+	  ; ((verbosemode(yes), verbosityNotQuiet) -> write('IO: ') ; true),
 	    writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl).
 writeMainResult(_,Suspended,Vs,Value) :- !,
-	(verbosemode(yes) -> write('Result: ') ; true),
+	((verbosemode(yes), verbosityNotQuiet) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
 
 % ask for more solution (if necessary):
@@ -580,7 +580,7 @@ writeCurryTermWithFreeVarNames(Suspensions,Bindings,Term) :-
 % their name given in the list of bindings (if they do not occur in any
 % of the suspensions):
 writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
-	verbosemode(yes), !,
+	verbosemode(yes), verbosityNotQuiet, !,
 	write('Bindings: '),
 	\+ \+ (bindFreeVars(Suspensions,AllBindings), writeBindings(Bindings)),
 	nl, !.
