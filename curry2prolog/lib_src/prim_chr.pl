@@ -3,7 +3,12 @@
 % library CHRcompiled.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library('chr/chr_runtime')).
+:- use_module('../basics').
+:- use_module('../prologbasics').
+:- (prolog(swi) ; (prolog(sicstus),prologMajorVersion(4)))
+	-> use_module(library('chr/chr_runtime'))
+ 	 ; writeErr('CHR(Prolog) not available with this Prolog version!'),
+	   nlErr.
 
 warnSuspendedConstraints(ShowAll,R) :-
 	find_chr_constraint(C), !,
