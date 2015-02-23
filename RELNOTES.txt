@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.5 (December 23, 2014)
+Release notes for PAKCS Version 1.11.5 (February 23, 2015)
 ----------------------------------------------------------
 
 Changes to version 1.11.4:
@@ -9,6 +9,8 @@ Changes to version 1.11.4:
     libraries `Distribution` and `FlatCurry` adapted for
     this purpose.
   * Library `AbstractCurryGoodies` added.
+  * Libraries `CHR` and `CHRcompiled` to implement Constraint Handling Rules
+    in Curry added together with various examples in `examples/CHR`.
 
 
 Release notes for PAKCS Version 1.11.4 (October 16, 2014)
