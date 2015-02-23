@@ -1,4 +1,5 @@
 #!/bin/sh
+# Shell script to test the current set of CHR(Curry) examples
 PAKCS=../../bin/pakcs
 LOGFILE=xxx$$
 `dirname $PAKCS`/cleancurry
