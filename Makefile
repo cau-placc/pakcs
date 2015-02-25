@@ -266,15 +266,17 @@ cleanall: clean
 # Create distribution versions of the complete system as tar files pakcs*.tar.gz:
 
 # directory name of distribution
-FULLNAME=pakcs-$(VERSION)
+FULLNAME    = pakcs-$(VERSION)
 # temporary directory to create distribution version
-PAKCSDIST=$(FULLNAME)
+PAKCSDIST   = $(FULLNAME)
 # architecture name
-ARCH=`dpkg-architecture -qDEB_BUILD_ARCH`-`uname -s`
+ARCH        = $(shell dpkg-architecture -qDEB_BUILD_ARCH)-$(shell uname -s)
 # Files to be excluded for source distribution
 SRC_EXCLUDE = --exclude=bin
 # Files to be excluded for binary distribution
 BIN_EXCLUDE = --exclude=frontend
+# date of distribution
+DIST_DATE   = $(shell date +%Y%m%d)
 
 .PHONY: dist
 dist:
@@ -293,6 +295,11 @@ dist:
 	rm -rf $(PAKCSDIST)
 	@echo "----------------------------------------------------------------"
 	@echo "Distribution files pakcs*.tar.gz generated."
+
+.PHONY: distdated
+distdated: dist
+	mv $(FULLNAME)-src.tar.gz     $(FULLNAME)-$(DIST_DATE)-src.tar.gz
+	mv $(FULLNAME)-$(ARCH).tar.gz $(FULLNAME)-$(DIST_DATE)-$(ARCH).tar.gz
 
 # Clean all files that should not be included in a distribution
 .PHONY: cleandist
