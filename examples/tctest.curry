@@ -1,6 +1,8 @@
 -- This is a test of the type inferencer.
 -- To type this program, the dependence graph must be correctly built.
 
+{-# OPTIONS_CYMAKE -Wno-missing-signatures #-}
+
 f n = g n + h n
 
 g n = j n + f n
@@ -17,5 +19,5 @@ l _ = 5
 
 -- "Goals" in an interactive Curry environment:
 -- :t f       (should be  Int->Int)
--- :t i	      (should be  a->a)
+-- :t i       (should be  a->a)
 -- :t k       (should be  a->Int)

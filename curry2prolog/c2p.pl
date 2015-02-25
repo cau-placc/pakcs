@@ -242,9 +242,11 @@ expandCommand(AShortCmd,Cmd) :-
 	findall(FullCmd,prefixOf(ShortCmd,AllCmds,FullCmd),FullCmds),
 	(FullCmds=[Cmd] -> true ;
 	 (FullCmds=[]
-	  -> writeErr('ERROR: unknown command. Type :h for help'),
+	  -> writeErr('ERROR: unknown command: ":'),
+	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeErr('"'),
 	     nlErr, fail
-	   ; writeErr('ERROR: command not unique. Type :h for help'),
+	   ; writeErr('ERROR: ambiguous command: ":'),
+	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeErr('"'),
 	     nlErr, fail)).
 
 prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
@@ -335,13 +337,15 @@ processOrDefaultMainExpression(_Input,Term,Type,Vs,false,ExprGoal) :-
 	% we can directly process non-overloaded expressions:
 	!,
 	(isIoType(Type) -> ioAdmissible ; true),
-	(verbosemode(yes) -> write('Evaluating expression: '),
-	                     writeCurryTermWithFreeVarNames(Vs,Term),
-			     write(' :: '),
-	                     numbersmallvars(97,_,Type), writeType(Type), nl,
-			     % print free goal variables if present:
-			     writeFreeVars(Vs)
-		           ; true),
+	(verbosemode(yes) ->
+	    (verbosityQuiet -> writeCurryTermWithFreeVarNames(Vs,Term), nl
+	      ; write('Evaluating expression: '),
+	        writeCurryTermWithFreeVarNames(Vs,Term),
+		write(' :: '),
+		numbersmallvars(97,_,Type), writeType(Type), nl,
+		% print free goal variables if present:
+		writeFreeVars(Vs))
+	 ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
 processOrDefaultMainExpression(Input,_,Type,_,_,ExprGoal) :-
 	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl ; true),
@@ -477,13 +481,10 @@ parseExpressionWithFrontend(Input,MainExp,Type,Vs,Ovld) :-
 	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld).
 
 parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
+        getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
-	lastload(MainProgS),
-	findSourceProgPath(MainProgS,MainPath),
-	atom_codes(MainProg,MainProgS),
-	split2dirbase(MainProg,_,MainProgName),
 	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
@@ -524,6 +525,28 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
 	deleteMainExpFiles(MainExprDir).
 parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
+	!, fail.
+
+% get the name and path to the source code of the currently loaded main module
+% (or fail with an error message if there is no source code):
+getMainProgPath(MainProgName,MainPath) :-
+	lastload(MainProgS),
+	findSourceProgPath(MainProgS,MainPath), !,
+	atom_codes(MainProg,MainProgS),
+	split2dirbase(MainProg,_,MainProgName).
+getMainProgPath(CurrMod,MainPath) :-
+	currentModule(CurrMod), atom_codes(CurrMod,CurrModS),
+	findSourceProgPath(CurrModS,MainPath), !,
+	(verbosityQuiet -> true ;
+	    lastload(LoadProgS), atom_codes(LoadProg,LoadProgS),
+	    writeErr('*** Warning: module loaded from                : '),
+	    writeErr(LoadProg), nlErr,
+	    writeErr('    main expression parsed w.r.t. source module: '),
+	    writeErr(CurrMod), nlErr).
+getMainProgPath(_,_) :-
+	lastload(MainProgS), atom_codes(MainProg,MainProgS),
+	writeErr('Source program for module "'), writeErr(MainProg),
+	writeErr('" not found!'), nlErr,
 	!, fail.
 
 % delete all auxiliary files for storing main expression:
@@ -829,6 +852,9 @@ processCommand("load",Arg) :- !,
 	isValidProgramName(Prog),
 	retract(lastload(OldLL)), asserta(lastload(Prog)),
 	retract(addImports(OldImps)), asserta(addImports([])),
+	(verbosemode(yes) -> write('Loading program "'),
+	                     atom_codes(ProgA,Prog), write(ProgA),
+	                     write('"...'), nl ; true),
         (processCommand("reload",[])
          -> true
           ; retract(lastload(_)), asserta(lastload(OldLL)),
@@ -1368,7 +1394,7 @@ printCurrentLoadPath :-
 	path2String(LP,SP),
 	atom_codes(ASP,SP), write(ASP), nl.
 
-% fork an expression (arg1 is the expression (string), arg2=verbose/quiet):
+% fork an expression where arg1 is the expression (string):
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
