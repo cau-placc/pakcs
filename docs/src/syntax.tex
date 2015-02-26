@@ -310,24 +310,12 @@ assumed to start in column 0.
 
 % Type Synonym
 \production{TypeSynonymDecl}{
-  \term{type} SimpleType \term{=}
-  \extension{\group{{\normalcolor TypeExpr} \sor RecordType}}
+  \term{type} SimpleType \term{=} TypeExpr
 }
 \production{SimpleType}{
   TypeConstrID \seq{TypeVarID}{}{n} \margin{n \geq 0}
 }
 \lexicon{TypeConstrID}
-
-% Record type
-\extension{
-  \production{RecordType}{
-    \term{\{} \seq{LabelDecl}{,}{n} \term{\}} \margin{n > 0}
-  }
-  \production{LabelDecl}{
-    \seq{LabelID}{,}{n} \term{::} TypeExpr \margin{n > 0}
-  }
-  \lexicon{LabelID}
-}
 
 % Data type
 \production{DataDeclaration}{
@@ -339,7 +327,15 @@ assumed to start in column 0.
 \extension{
   \alt SimpleTypeExpr ConsOp TypeConsExpr
        \margtext{infix data constructor}
+  \alt \extension{DataConstr \term{\{} \seq{FieldDeclaration}{,}{n} \term{\}}}\margin{n \geq 0}%
 }
+}
+% Field labels
+\extension{
+\production{FieldDeclaration}{
+  \seq{LabelID}{,}{n} \term{::} TypeExpr \margin{n > 0}
+}
+\lexicon{LabelID}
 }
 
 
@@ -431,8 +427,8 @@ assumed to start in column 0.
        \margtext{infix functional pattern}
   \alt \term{(} QFunctionName \seq{SimplePat}{}{n} \term{)}
        \margcomb{functional pattern}{n > 0}
-  \alt \term{\{} \seq{FieldPat}{,}{n} \opt{\term{| _}} \term{\}}
-       \margtext{record pattern}
+  \alt QDataConstr \term{\{} \seq{FieldPat}{,}{n} \term{\}}
+       \margcomb{labeled pattern}{n \geq 0}
 }
 }
 \extension{\production{FieldPat}{LabelID \term = Pattern}}
@@ -487,9 +483,6 @@ assumed to start in column 0.
 }
 \production{FunctExpr}{
        \opt{FunctExpr} BasicExpr   \margtext{function application}%
-\extension{
-  \alt FunctExpr \term{:>} LabelID \margtext{record selection}
-}
 }
 \production{BasicExpr}{
        QVariableID
@@ -519,9 +512,9 @@ assumed to start in column 0.
   \alt \term{(} \extension{\without{QOp}{\term{-}, \term{-.}} InfixExpr} \term{)}
        \margtext{right section}%
 \extension{
-  \alt \term{\{} \seq{FBind}{,}{n} \term{\}}
-       \margcomb{labeled construction}{n > 0}
-  \alt \term{\{} \seq{FBind}{,}{n} \term{|} TypedExpr \term{\}}
+  \alt QDataConstr \term{\{} \seq{FBind}{,}{n} \term{\}}
+       \margcomb{labeled construction}{n \geq 0}
+  \alt \without{BasicExpr}{QDataConstr} \term{\{} \seq{FBind}{,}{n} \term{\}}
        \margcomb{labeled update}{n > 0}
   }
 }
@@ -536,7 +529,7 @@ assumed to start in column 0.
 
 \extension{
 \production{FBind}{
-  LabelID \term{:=} TypedExpr
+  LabelID \term{=} TypedExpr
 }
 }
 
@@ -607,3 +600,8 @@ assumed to start in column 0.
   }
 }
 \end{grammar}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

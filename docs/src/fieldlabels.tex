@@ -116,14 +116,14 @@ constraints:
 %
 The expression \code{C\{\}}, where \code{C} is a data constructor,
 is legal \emph{whether or not  \code{C} was declared with record syntax};
-it denotes \code{C (let x free in x)$_1$ \ldots{} (let x free in x)$_n$}
+it denotes \code{C Prelude.unknown$_1$ \ldots{} Prelude.unknown$_n$}
 where $n$ is the arity of \code{C}.
 Note that this will introduce the constructor \code{C} with
 $n$ \emph{different} free variables as arguments.
 
 \translation{In the binding $f = v$, the field $f$ labels $v$.\\
-\centerline{\code{$C$ \{ $bs$ \} = $C$ ($pick_1^C\ bs\ \code{(let x free in x)}$) \ldots{}
-($pick_k^C\ bs\ \code{(let x free in x)}$)}}
+\centerline{\code{$C$ \{ $bs$ \} = $C$ ($pick_1^C\ bs\ \code{Prelude.unknown}$) \ldots{}
+($pick_k^C\ bs\ \code{Prelude.unknown}$)}}
 where $k$ is the arity of $C$.\\
 The auxiliary function $pick_i^C\ bs\ d$ is defined as follows:
 
@@ -139,7 +139,7 @@ smith = Agent {lastName="Smith", firstName="Agent"}
 which is equivalent to the following agent, whose true identity
 might be any person:
 \begin{curry}
-smith = Agent "Agent" "Smith" (let x free in x)
+smith = Agent "Agent" "Smith" _
 \end{curry}
 
 \subsubsection{Updates Using Field Labels}\label{flab-upd}
