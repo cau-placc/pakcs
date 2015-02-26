@@ -1,0 +1,227 @@
+\subsection {Datatypes with Field Labels}\label{flab}
+
+A datatype declaration may optionally define data constructors
+with field labels.\footnote{Field labels are quite similar
+to Haskell \cite{PeytonJones03Haskell} so that we adopt most of
+the description of Haskell here.}
+These field labels can be used to
+construct, select from, and update fields in a manner that is
+independent of the overall structure of the datatype.
+
+\subsubsection{Declaration of Constructors with Labeled Fields}
+
+A data constructor of arity $n$ creates an object with $n$ components.
+These components are normally accessed positionally as arguments to
+the constructor in expressions or patterns.  For large datatypes it is
+useful to assign \emph{field labels}\index{label}\index{field label}
+to the components of a data
+object. This allows a specific field to be referenced independently of
+its location within the constructor.  A constructor definition in a
+data declaration may assign labels to the fields of the constructor,
+using the \emph{record syntax}\index{record syntax}\pindex{\{\ldots{}\}}
+\code{C\,\,\{}\ldots\code{\}}.
+Constructors using field labels
+may be freely mixed with constructors without them. A constructor with
+associated field labels may still be used as an ordinary constructor.
+The various use of labels (see below)
+are simply a shorthand for operations using an
+underlying positional constructor. The arguments to the positional
+constructor occur in the same order as the labeled fields.
+
+\newcommand{\trans}[1]{$[\![$#1$]\!]$}
+
+\translation{\\
+\trans{$C$ \{ $lts$ \}} $=$ $C$ \trans{$lts$}\\
+\trans{$lt$, $lts$} $=$ \trans{$lt$} \trans{$lts$}\\
+\trans{$l$, $ls$\,::\,$t$} $=$ $t$ \trans{$ls$\,::\,$t$}\\
+\trans{$l$\,::\,$t$} $=$ $t$
+}
+
+\noindent
+For example, the definition using field labels
+\begin{curry}
+data Person = Person {firstName, lastName :: String, age :: Int}
+            | Agent { firstName, lastName :: String, trueIdentity :: Person }
+\end{curry}
+is translated to
+\begin{curry}
+data Person = Person String String Int
+            | Agent String String Person
+\end{curry}
+%
+A data declaration may use the same field label in multiple
+constructors as long as the typing of the field is the same in all
+cases after type synonym expansion. A label cannot be shared by more
+than one type in scope. Field names share the top-level name space with
+ordinary definition of functions % and class methods
+and must not conflict with other top-level names in scope.
+
+Consider the following example:
+\begin{curry}
+data S = S1 { x :: Int } | S2 { x :: Int  } -- OK
+data T = T1 { y :: Int } | T2 { y :: Bool } -- BAD
+\end{curry}
+Here S is legal but T is not, because y is given inconsistent typings in the latter.
+
+\subsubsection{Field Selection}\label{flab-sel}
+Field labels are used as \emph{selector functions},\index{selector function}
+i.e., each field label serves as a function
+that extracts the field from an object. Selectors are top-level
+bindings and so they may be shadowed by local variables but cannot
+conflict with other top-level bindings of the same name.  This
+shadowing only affects selector functions; in record construction
+(Section \ref{flab-constr}) and update (Section \ref{flab-upd}), field
+labels cannot be confused with ordinary variables.
+
+\translation{A field label $lab$ introduces a selector function defined as:\\
+\code{$lab$ ($C_1$ $p_{11}$ \ldots $p_{1k_1}$) = x}\\
+\ldots\\
+\code{$lab$ ($C_n$ $p_{n1}$ \ldots $p_{nk_n}$) = x}\\
+where $C_1\ldots C_n$ are all the constructors of the datatype containing
+a field labeled with $lab$, $p_{ij}$ is \code{x} when $lab$ labels the $j$th
+component of $C_i$ or \code{\us} otherwise.}
+
+\noindent
+For example the definition of \code{Person} above introduces the selector functions
+\begin{curry}
+firstName :: Person -> String
+firstName (Person x _ _) = x
+firstName (Agent  x _ _) = x
+
+lastName :: Person -> String
+lastName (Person _ x _) = x
+lastName (Agent  _ x _) = x
+
+age :: Person -> Int
+age (Person _ _ x) = x
+
+trueIdentity :: Person -> Person
+trueIdentity (Agent  _ _ x) = x
+\end{curry}
+
+\subsubsection{Construction Using Field Labels}\label{flab-constr}
+
+A constructor with labeled fields may be used to construct a value in
+which the components are specified by name rather than by
+position. In this case, the components are enclosed by braces.
+Construction using field labels is subject to the following
+constraints:
+%
+\begin{itemize}
+\item Only field labels declared with the specified constructor may be
+  mentioned.
+\item A field label may not be mentioned more than once.
+\item Fields not mentioned are initialized to different free variables.
+\end{itemize}
+%
+The expression \code{C\{\}}, where \code{C} is a data constructor,
+is legal \emph{whether or not  \code{C} was declared with record syntax};
+it denotes \code{C (let x free in x)$_1$ \ldots{} (let x free in x)$_n$}
+where $n$ is the arity of \code{C}.
+Note that this will introduce the constructor \code{C} with
+$n$ \emph{different} free variables as arguments.
+
+\translation{In the binding $f = v$, the field $f$ labels $v$.\\
+\centerline{\code{$C$ \{ $bs$ \} = $C$ ($pick_1^C\ bs\ \code{(let x free in x)}$) \ldots{}
+($pick_k^C\ bs\ \code{(let x free in x)}$)}}
+where $k$ is the arity of $C$.\\
+The auxiliary function $pick_i^C\ bs\ d$ is defined as follows:
+
+If the $i$th component of a constructor $C$ has the field label $f$ and $f = v$
+appears in the binding list $bs$, then $pick_i^C\ bs\ d$ is $v$.
+Otherwise, $pick_i^C\ bs\ d$ is the default value $d$.}
+
+\noindent
+For example, a \code{Person} can be constructed by
+\begin{curry}
+smith = Agent {lastName="Smith", firstName="Agent"}
+\end{curry}
+which is equivalent to the following agent, whose true identity
+might be any person:
+\begin{curry}
+smith = Agent "Agent" "Smith" (let x free in x)
+\end{curry}
+
+\subsubsection{Updates Using Field Labels}\label{flab-upd}
+
+Values belonging to a datatype with field labels may be
+non-destructively updated. This creates a new value in which the
+specified field values replace those in the existing value. Updates
+are restricted in the following ways:
+
+\begin{itemize}
+\item All labels must be taken from the same datatype.
+\item No label may be mentioned more than once.
+\item The computation fails when the value being updated does not contain all of the specified
+labels.
+\end{itemize}
+
+\translation{Using the prior definition of $pick$,\\
+\code{$e$ \{ $bs$ \} $=$ let $upd$ ($C_1$ $v_1$\ldots{}$v_{k_1}$) = $C_1$ ($pick_1^{C_1}$ $bs$ $v_1$) \ldots{} ($pick_{k_1}^{C_1}$ $bs$ $v_{k_1}$)}\\
+\hspace*{2.7cm}\ldots\\
+\hspace*{2.7cm}\code{$upd$ ($C_j$ $v_1$\ldots{}$v_{k_j}$) = $C_j$ ($pick_1^{C_j}$ $bs$ $v_1$) \ldots{} ($pick_{k_j}^{C_j}$ $bs$ $v_{k_j}$)}\\
+\hspace*{2.23cm}\code{in $upd~e$}\\[1ex]
+where $\{C_1,\ldots,C_j\}$ is the set of constructors containing \emph{all} labels
+in $bs$, $k_i$ is the arity of $C_i$, and $upd$ is a new function name.}
+
+\noindent
+For example, after watching a few more movies, we might want to update
+our information about \code{smith}. We can do so by writing
+\code{smith\{trueIdentity=complement neo\}}, which is equivalent to
+\begin{curry}
+let upd (Agent fn ln ti) = Agent (fn) (ln) (complement neo)
+ in upd smith
+\end{curry}
+
+\subsubsection{Pattern Matching Using Field Labels}\label{flab-pat}
+
+A constructor with labeled fields may be used to specify a pattern in
+which the components are identified by name rather than by position.
+Matching against a constructor using labeled fields is the same as
+matching ordinary constructor patterns except that the fields are
+matched in the order they are named in the field list. All listed
+fields must be declared by the constructor; fields may not be named
+more than once. Fields not named by the pattern are ignored (matched
+against \code{\us}).
+
+\translation{Using the prior definition of $pick$,\\
+\code{$C$ \{ bs \} = ($C$ ($pick_1^C$ $bs$ _) \ldots{} ($pick_{k}^C$ $bs$ _))}\\
+where $k$ is the arity of $C$.}
+
+\noindent
+For example, we could define a Smith-tester by writing:
+\begin{curry}
+isSmith Agent{lastName="Smith"} = success
+\end{curry}
+which is equivalent to
+\begin{curry}
+isSmith (Agent _ "Smith" _) = success
+\end{curry}
+
+\subsubsection{Field Labels and Modules}
+
+As described in Curry report, there are two forms of
+exporting a data type $T$: The simple name $T$ exports only the types name
+without constructors, whereas $T$\code{(..)} also exports all
+constructors. Analogously, the form $T$ does not export any field labels,
+whereas $T$\code{(..)} exports all constructors and all field labels.
+
+There is the additional possibility of exporting the selector functions which
+are implicitly introduced by declaring a constructor with field labels,
+(see Section~\ref{flab-sel}).
+In contrast to \cite{PeytonJones03Haskell}, this does
+not enable the possibility of updating a value using the field label syntax
+(see Section~\ref{flab-upd}). This is prohibited mainly for two reasons:
+\begin{itemize}
+\item The translations given in this section are still valid in the context of modules.
+\item From a software engineering point of view, it can make sense to
+  export selectors for a certain type without allowing updates on it.
+  Changing a given value is more often constrained by integrity
+  properties than retrieving partial information from it.
+\end{itemize}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 
