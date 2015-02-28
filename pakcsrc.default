@@ -9,7 +9,7 @@
 #
 ############################################################################
 
-# Default parameters that are always passed as initial parameters to KiCS2
+# Default parameters that are always passed as initial parameters to PAKCS
 # (e.g., ":set +time :set +interactive")
 defaultparams=
 
