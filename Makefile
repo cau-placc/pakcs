@@ -55,7 +55,7 @@ export PKGDB         = $(LOCALPKG)/pakcs.conf.d
 # The REPL binary, used for building various tools
 export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
-export REPL_OPTS    = :set -time
+export REPL_OPTS    = --noreadline :set -time
 # The frontend binary
 export CYMAKE       = $(BINDIR)/cymake
 # The cleancurry binary
