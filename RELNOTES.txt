@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.5 (February 23, 2015)
+Release notes for PAKCS Version 1.11.5 (February 28, 2015)
 ----------------------------------------------------------
 
 Changes to version 1.11.4:
