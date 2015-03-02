@@ -1,6 +1,14 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.12.0 (March 2, 2015)
+------------------------------------------------------
+
+Changes to version 1.11.5:
+  * Extensible records removed and replaced by Haskell's record syntax
+  * Library `FunctionInversion` added.
+
+
 Release notes for PAKCS Version 1.11.5 (February 28, 2015)
 ----------------------------------------------------------
 
