@@ -40,13 +40,13 @@ constructor occur in the same order as the labeled fields.
 \noindent
 For example, the definition using field labels
 \begin{curry}
-data Person = Person {firstName, lastName :: String, age :: Int}
-            | Agent { firstName, lastName :: String, trueIdentity :: Person }
+data Person = Person { firstName, lastName :: String, age :: Int }
+            | Agent  { firstName, lastName :: String, trueIdentity :: Person }
 \end{curry}
 is translated to
 \begin{curry}
 data Person = Person String String Int
-            | Agent String String Person
+            | Agent  String String Person
 \end{curry}
 %
 A data declaration may use the same field label in multiple
@@ -134,7 +134,7 @@ Otherwise, $pick_i^C\ bs\ d$ is the default value $d$.}
 \noindent
 For example, a \code{Person} can be constructed by
 \begin{curry}
-smith = Agent {lastName="Smith", firstName="Agent"}
+smith = Agent { lastName = "Smith", firstName = "Agent" }
 \end{curry}
 which is equivalent to the following agent, whose true identity
 might be any person:
@@ -157,20 +157,23 @@ labels.
 \end{itemize}
 
 \translation{Using the prior definition of $pick$,\\
-\code{$e$ \{ $bs$ \} $=$ let $upd$ ($C_1$ $v_1$\ldots{}$v_{k_1}$) = $C_1$ ($pick_1^{C_1}$ $bs$ $v_1$) \ldots{} ($pick_{k_1}^{C_1}$ $bs$ $v_{k_1}$)}\\
+\code{$e$ \{ $bs$ \} $=$ fcase $e$ of}\\
+\hspace*{2.23cm}\code{$C_1$ $v_1$\ldots{}$v_{k_1}$ -> $C_1$ ($pick_1^{C_1}$ $bs$ $v_1$) \ldots{} ($pick_{k_1}^{C_1}$ $bs$ $v_{k_1}$)}\\
 \hspace*{2.7cm}\ldots\\
-\hspace*{2.7cm}\code{$upd$ ($C_j$ $v_1$\ldots{}$v_{k_j}$) = $C_j$ ($pick_1^{C_j}$ $bs$ $v_1$) \ldots{} ($pick_{k_j}^{C_j}$ $bs$ $v_{k_j}$)}\\
-\hspace*{2.23cm}\code{in $upd~e$}\\[1ex]
+\hspace*{2.23cm}\code{$C_j$ $v_1$\ldots{}$v_{k_j}$ -> $C_j$ ($pick_1^{C_j}$ $bs$ $v_1$) \ldots{} ($pick_{k_j}^{C_j}$ $bs$ $v_{k_j}$)}\\[1ex]
 where $\{C_1,\ldots,C_j\}$ is the set of constructors containing \emph{all} labels
-in $bs$, $k_i$ is the arity of $C_i$, and $upd$ is a new function name.}
+in $bs$, $k_i$ is the arity of $C_i$.}
 
 \noindent
 For example, after watching a few more movies, we might want to update
 our information about \code{smith}. We can do so by writing
-\code{smith\{trueIdentity=complement neo\}}, which is equivalent to
 \begin{curry}
-let upd (Agent fn ln ti) = Agent (fn) (ln) (complement neo)
- in upd smith
+smith { trueIdentity = complement neo }
+\end{curry}
+which is equivalent to
+\begin{curry}
+fcase smith of
+  Agent fn ln _ -> Agent fn ln (complement neo)
 \end{curry}
 
 \subsubsection{Pattern Matching Using Field Labels}\label{flab-pat}
@@ -191,7 +194,7 @@ where $k$ is the arity of $C$.}
 \noindent
 For example, we could define a Smith-tester by writing:
 \begin{curry}
-isSmith Agent{lastName="Smith"} = success
+isSmith Agent { lastName = "Smith" } = success
 \end{curry}
 which is equivalent to
 \begin{curry}
@@ -200,7 +203,7 @@ isSmith (Agent _ "Smith" _) = success
 
 \subsubsection{Field Labels and Modules}
 
-As described in Curry report, there are two forms of
+As described in the Curry report, there are two forms of
 exporting a data type $T$: The simple name $T$ exports only the types name
 without constructors, whereas $T$\code{(..)} also exports all
 constructors. Analogously, the form $T$ does not export any field labels,
@@ -209,17 +212,6 @@ whereas $T$\code{(..)} exports all constructors and all field labels.
 There is the additional possibility of exporting the selector functions which
 are implicitly introduced by declaring a constructor with field labels,
 (see Section~\ref{flab-sel}).
-In contrast to \cite{PeytonJones03Haskell}, this does
-not enable the possibility of updating a value using the field label syntax
-(see Section~\ref{flab-upd}). This is prohibited mainly for two reasons:
-\begin{itemize}
-\item The translations given in this section are still valid in the context of modules.
-\item From a software engineering point of view, it can make sense to
-  export selectors for a certain type without allowing updates on it.
-  Changing a given value is more often constrained by integrity
-  properties than retrieving partial information from it.
-\end{itemize}
-
 
 %%% Local Variables: 
 %%% mode: latex

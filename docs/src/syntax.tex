@@ -74,6 +74,9 @@ which puts no constraints on the case of identifiers.
 \production{QInfixOpID   }{\opt{ModuleID \term{.}} InfixOpID   }
 \production{QFunctionID  }{\opt{ModuleID \term{.}} FunctionID  }
 \production{QVariableID  }{\opt{ModuleID \term{.}} VariableID  }
+\extension{
+\production{QLabelID     }{\opt{ModuleID \term{.}} LabelID     }
+}
 \end{grammar}
 
 The following identifiers are recognized as keywords
@@ -93,7 +96,7 @@ and can be used as ordinary identifiers.
 The following symbols also have a special meaning and cannot
 be used as an infix operator identifier:
 \begin{lstlisting}[escapechar=',literate=]
-..    :     ::    =     \\     |     <-    ->    @     ~     '\extension{:>}'    '\extension{:=}'
+..    :     ::    =     \\     |     <-    ->    @     ~
 \end{lstlisting}
 
 \subsubsection{Comments}
@@ -125,6 +128,9 @@ The precise syntax for both kinds is given below.
 }
 
 \production{Decimal    }{Digit \opt{Decimal}    }
+\extension{
+\production{Binary     }{Binit \opt{Binary}     }
+}%
 \production{Octal      }{Octit \opt{Octal}      }
 \production{Hexadecimal}{Hexit \opt{Hexadecimal}}
 
@@ -132,6 +138,9 @@ The precise syntax for both kinds is given below.
  \term{0} \sor \term{1} \sor \term{2} \sor \term{3} \sor \term{4} \sor
  \term{5} \sor \term{6} \sor \term{7} \sor \term{8} \sor \term{9}
 }
+\extension{
+\production{Binit}{\term{0} \sor \term{1}}
+}%
 \production{Octit}{
  \term{0} \sor \term{1} \sor \term{2} \sor \term{3} \sor \term{4} \sor
  \term{5} \sor \term{6} \sor \term{7}
@@ -431,7 +440,10 @@ assumed to start in column 0.
        \margcomb{labeled pattern}{n \geq 0}
 }
 }
-\extension{\production{FieldPat}{LabelID \term = Pattern}}
+\extension{
+\production{FieldPat}{QLabelID \term = Pattern}
+\lexicon{QLabelID}
+}
 
 
 % Local Definitions
@@ -529,7 +541,7 @@ assumed to start in column 0.
 
 \extension{
 \production{FBind}{
-  LabelID \term{=} TypedExpr
+  QLabelID \term{=} TypedExpr
 }
 }
 
