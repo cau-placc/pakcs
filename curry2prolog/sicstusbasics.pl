@@ -491,7 +491,7 @@ isOutputStream(Stream) :-
 
 % is a stream connected to a terminal?
 isTerminalDeviceStream(Stream) :-
-	sicstus38orHigher
+	sicstus4
 	 -> stream_property(Stream,interactive)
 	  ; write(user_error,'IO.hIsTerminalDevice not implemented for this Prolog version'),
 	    nl(user_error).
