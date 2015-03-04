@@ -4,7 +4,7 @@
 :- module(prologbasics,
 	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
 	   verbosity/1, fileOpenOptions/1,
-       sicstus310orHigher/0,
+	   sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
@@ -26,7 +26,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
-	   isInputStream/1, isOutputStream/1,
+	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
 	   connect2socket/4, closeSocketStream/2,
@@ -339,6 +339,9 @@ isInputStream(Stream) :- stream_property(Stream,input).
 
 % is a stream a writable stream?
 isOutputStream(Stream) :- stream_property(Stream,output).
+
+% is a stream connected to a terminal?
+isTerminalDeviceStream(Stream) :- stream_property(Stream,tty(true)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

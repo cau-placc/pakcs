@@ -29,7 +29,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
-	   isInputStream/1, isOutputStream/1,
+	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
 	   connect2socket/4, closeSocketStream/2,
@@ -488,6 +488,13 @@ isInputStream(Stream) :-
 isOutputStream(Stream) :-
 	sicstus38orHigher -> stream_property(Stream,output)
 	                   ; current_stream(_,output,Stream).
+
+% is a stream connected to a terminal?
+isTerminalDeviceStream(Stream) :-
+	sicstus38orHigher
+	 -> stream_property(Stream,interactive)
+	  ; write(user_error,'IO.hIsTerminalDevice not implemented for this Prolog version'),
+	    nl(user_error).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

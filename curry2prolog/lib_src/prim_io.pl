@@ -14,7 +14,7 @@
 %	   prim_hWaitForInput/5,prim_hWaitForInputs/5,
 %          prim_hWaitForInputsOrMsg/5,
 %	   prim_hGetChar/2,prim_hPutChar/3,
-%          prim_hIsReadable/2,prim_hIsWritable/2]).
+%          prim_hIsReadable/2,prim_hIsWritable/2, prim_hIsTerminalDevice/2]).
 
 :- use_module('../prologbasics').
 :- use_module('../basics').
@@ -105,13 +105,19 @@ prim_hPutChar(Stream,C,'Prelude.()') :-
 
 
 prim_hIsReadable('$stream'('$inoutstream'(_,_)),'Prelude.True') :- !.
-exec_hIsReadable(Stream,B) :-
+prim_hIsReadable(Stream,B) :-
 	(isInputStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
 
 
 prim_hIsWritable('$stream'('$inoutstream'(_,_)),'Prelude.True') :- !.
 prim_hIsWritable(Stream,B) :-
 	(isOutputStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
+
+
+prim_hIsTerminalDevice('$stream'('$inoutstream'(_,S)),R) :- !,
+	prim_hIsTerminalDevice(S,R).
+prim_hIsTerminalDevice(Stream,B) :-
+	(isInputStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
