@@ -117,7 +117,8 @@ prim_hIsWritable(Stream,B) :-
 prim_hIsTerminalDevice('$stream'('$inoutstream'(_,S)),R) :- !,
 	prim_hIsTerminalDevice(S,R).
 prim_hIsTerminalDevice(Stream,B) :-
-	(isInputStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
+	(isTerminalDeviceStream(Stream) -> B='Prelude.True'
+	                                 ; B='Prelude.False').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
