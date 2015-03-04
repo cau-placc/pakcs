@@ -1,11 +1,25 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.12.0 (March 2, 2015)
+Release notes for PAKCS Version 1.12.0 (March 4, 2015)
 ------------------------------------------------------
 
 Changes to version 1.11.5:
-  * Extensible records removed and replaced by Haskell's record syntax
+  * The extension for records (with special Curry syntax) was removed.
+    Instead, PAKCS now supports Haskell's record syntax.
+    See the manual for a detailed description of the new record syntax.
+  * The Curry syntax is extended to also support binary integer literals.
+    For instance, `0b101010` or `0B101010` can now be lexed
+    and are converted to the integer value `42`.
+  * The definition of AbstractCurry has been changed to sync with the
+    changes of Curry done during the last years:
+    - AbstractCurry files now contain version information
+    - support for new record syntax
+    - support for newtype declarations
+    - evaluation annotations removed
+    - arity of constructor declarations removed
+    - simplified representation of function rules
+    - String literals added
   * Library `FunctionInversion` added.
 
 
