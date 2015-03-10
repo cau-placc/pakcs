@@ -561,7 +561,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
 	(verbosityIntermediate
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
-	open(ExprFile,write,S),
+	fileOpenOptions(FOptions),
+	open(ExprFile,write,S,FOptions),
 	% suppress parser warnings:
 	write(S,'{-# OPTIONS_CYMAKE -Wnone #-}'), nl(S),
 	(MainProg='Prelude' -> true
