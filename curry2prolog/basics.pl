@@ -933,13 +933,9 @@ printError(error(_,Error)) :-
         !,
         fail.
 printError(Error) :-
-	writeErr('ERROR: '), print_message(error,Error),
-        seen, told,
-        !,
-        fail.
-printError(Error) :-
-	prologTerm2Atom(Error,ErrorA),
-	writeErr('ERROR: '), writeErr(ErrorA), nlErr,
+	writeErr('ERROR: '),
+	(atomic(Error) -> ErrorA=Error ; prologTerm2Atom(Error,ErrorA)),
+	writeErr(ErrorA), nlErr,
         seen, told,
         !,
         fail.
