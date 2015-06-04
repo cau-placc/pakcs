@@ -40,7 +40,7 @@ tracemode.  % trace mode initially on in debug mode
 spypoints([]). % list of spy points
 %spymode. % initially no spy points
 %spyFail. % show fail ports in spy mode
-printDepth(11). % maximal print depth of terms +1 (or 0 for infinity)
+printDepth(0). % maximal print depth of terms +1 (or 0 for infinity)
 profiling(no). % show profiling statistics in debug mode
 suspendmode(no). % yes if suspended goals should be shown
 allsolutionmode(no). % yes if all solutions should be shown without asking
