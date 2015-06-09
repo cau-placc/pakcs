@@ -53,6 +53,7 @@ bin/currypp
 bin/data2xml
 bin/erd2curry
 bin/fcypp
+bin/runcurry
 bin/spiceup
 cpns/CPNSD
 curry2prolog/prologbasics.pl

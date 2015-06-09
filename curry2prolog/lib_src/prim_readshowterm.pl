@@ -262,13 +262,13 @@ readCharParseError(unchecked,S) :- % show always error in .fcy file reading
 	take(20,S,Line),
 	putChars(user_error,Line), writeErr('...'), nlErr,
 	writeErr('Hint: do not use UTF encoding but 8bit chars (check your locale settings)'), nlErr,
-	!, fail.
+	raise_exception('parse error').
 readCharParseError(_,S) :-
 	pakcsrc(readtermerrors,yes),
 	writeErr('ERROR in ReadShowTerm.readTerm: illegal character in remaining string:'),
 	nlErr,
 	putChars(user_error,S), nlErr,
-	!, fail.
+	raise_exception('parse error in ReadShowTerm.readTerm').
 
 readParseError(S) :-
 	pakcsrc(readtermerrors,yes),
@@ -358,6 +358,8 @@ readChar([92,N|S],T,C) :- N>=48, N<58, !, % read decimal numeric char
 readChar([92,N,39|T],T,C) :- !,
 	readStringChar(N,NS),
 	char_int(C,NS).
+readChar([92,69,83,67,39|T],T,C) :- !, char_int(C,27).  % '\ESC' character
+readChar([92,68,69,76,39|T],T,C) :- !, char_int(C,127). % '\DEL' character
 readChar([N,39|T],T,C) :- char_int(C,N).
 
 readDecimalChar(N,[39|T],T,C) :- !, char_int(C,N).
