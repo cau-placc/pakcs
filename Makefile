@@ -38,6 +38,8 @@ export ROOT=$(CURDIR)
 export BINDIR=$(ROOT)/bin
 # Directory where the libraries are located
 export LIBDIR        = $(ROOT)/lib
+# Directory where the libraries for meta-programming are located
+export METADIR        = $(LIBDIR)/meta
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
 # The version information file for Curry2Prolog:
