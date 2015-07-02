@@ -223,10 +223,13 @@ libdoc:
 	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
 	@echo "Make libdoc process logged in file $(MAKELOG)"
 
-# run the test suite to check the installation
+# run the test suites to check the installation
 .PHONY: runtest
-runtest: examples/doTest
-	cd examples && ./doTest --nogui
+runtest: testsuite/doTest
+	cd testsuite && ./doTest --nogui
+	cd currytools/currypp/SequentialRules/Examples && ./test.sh
+	cd currytools/currypp/DefaultRules/Examples && ./test.sh
+	cd examples/CHR && ./test.sh
 
 $(CLEANCURRY):
 	cd scripts && $(MAKE) $@
