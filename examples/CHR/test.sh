@@ -1,9 +1,19 @@
 #!/bin/sh
 # Shell script to test the current set of CHR(Curry) examples
-PAKCS=../../bin/pakcs
+
+CURRYHOME=../..
+CURRYBIN=$CURRYHOME/bin
+
+BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
+
+if [ "$BACKEND" != sicstus4 -a "$BACKEND" != swi6 ] ; then
+  echo "No appropriate Prolog back end, skip the CHR tests."
+  exit
+fi
+
 LOGFILE=xxx$$
-`dirname $PAKCS`/cleancurry
-cat << EOM | $PAKCS -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time | tee $LOGFILE
+$CURRYBIN/cleancurry
+cat << EOM | $CURRYBIN/curry -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time | tee $LOGFILE
 :load Leq
 main10 x        where x free
 main11 x y z    where x,y,z free
