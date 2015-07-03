@@ -361,7 +361,7 @@ fileSize(File,Size) :-
 existsFile(File) :- 
 	sicstus4
 	-> file_exists(File)
-	 ; file_exists(File), file_property(File,type(regular)).
+	 ; file_exists(File), \+ file_property(File,type(directory)).
 
 % does a directory exist?
 existsDirectory(Dir) :-
