@@ -1,8 +1,12 @@
 #!/bin/sh
-PAKCS="../bin/pakcs"
+# Shell script to test some Curry examples
+
+CURRYHOME=..
+CURRYBIN=$CURRYHOME/bin
+
 LOGFILE=xxx$$
-../bin/cleancurry -r
-cat << EOM | $PAKCS -q :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
+$CURRYBIN/cleancurry -r
+cat << EOM | $CURRYBIN/curry -q :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
 :l rev
 append [1,2] [3,4]
 rev [1,2,3,4,5,6,7,8,9,10]
@@ -139,11 +143,12 @@ SICSTUS=`pwd`/../bin/sicstusprolog
 # The SWI-Prolog interpreter:
 SWI=`pwd`/../bin/swiprolog
 
+# Check differences:
 DIFF=diff$$
-if [ -x "${SICSTUS}" ] ; then
-  diff CPTEST.sicstusresult $LOGFILE > $DIFF
-elif [ -x "${SWI}" ] ; then
-  diff CPTEST.swiresult $LOGFILE > $DIFF
+if [ -x "$SICSTUS" ] ; then
+  diff TESTRESULT.sicstus $LOGFILE > $DIFF
+elif [ -x "$SWI" ] ; then
+  diff TESTRESULT.swi     $LOGFILE > $DIFF
 fi
 if [ "`cat $DIFF`" = "" ] ; then
   echo
@@ -156,4 +161,5 @@ else
   /bin/rm -f $DIFF
   /bin/mv -f $LOGFILE LOGFILE
   echo "Test output saved in file 'LOGFILE'."
+  exit 1
 fi

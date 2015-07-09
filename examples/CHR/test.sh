@@ -78,7 +78,7 @@ EOM
 cleancurry GCDCHR FIBCHR UFCHR GAUSSCHR
 /bin/rm GCDCHR* FIBCHR* UFCHR* GAUSSCHR*
 ################ end of tests ####################
-# CHeck differences:
+# Check differences:
 DIFF=diff$$
 diff TESTRESULT $LOGFILE > $DIFF
 if [ "`cat $DIFF`" = "" ] ; then
