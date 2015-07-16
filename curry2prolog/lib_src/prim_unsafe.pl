@@ -66,8 +66,8 @@ prim_compareAnyTermHNF(X,Y,R,E0,E) :- isCharCons(X), !,
 	E0=E.
 prim_compareAnyTermHNF(X,Y,R,E0,E) :-
 	functor(X,FX,NX), functor(Y,FY,NY),
-	user:constructortype(FX,_,NX,_,IX,_),
-	user:constructortype(FY,_,NY,_,IY,_), !,
+	user:constructortype(FX,_,NX,_,IX,_,_),
+	user:constructortype(FY,_,NY,_,IY,_,_), !,
 	(IX<IY -> R='Prelude.LT', E0=E ; (IX>IY -> R='Prelude.GT', E0=E
           ; prim_compareAnyTermArgs(1,NX,X,Y,R,E0,E))).
 

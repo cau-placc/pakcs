@@ -334,6 +334,10 @@ writeSuspendedGoals(Suspended) :-
 	   map1M(evaluator:tryWriteSuspGoal,Suspended).
 
 % try to format suspended goals more nicely:
+tryWriteSuspGoal(_:normalizeAndCheckNF(_,_,_)) :- !. % don't print this
+tryWriteSuspGoal(prolog:when(_,Cond,Goal)) :- !,
+	write('when('), write(Cond), write('): '),
+	tryWriteSuspGoal(Goal).
 tryWriteSuspGoal(_:G) :-
 	G =.. [Pred|Args],
 	rev(Args,[_,_,Result|RArgs]),

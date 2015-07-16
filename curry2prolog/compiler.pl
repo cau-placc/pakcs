@@ -529,12 +529,13 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	writeClause((:- dynamic functiontype/6)),
 	map1partialM(compiler:writeFTypeClause(ExtFuncs,AllOps),CodeFuncsOISTotal), nl,
 	write('%%%%%%%%%%%% constructor types %%%%%%%%%%%%%%%%%%%'), nl,
-	writeClause((:- multifile constructortype/6)),
-	writeClause((:- dynamic constructortype/6)),
+	writeClause((:- multifile constructortype/7)),
+	writeClause((:- dynamic constructortype/7)),
 	(member("Prelude",Imports) -> true
 	 ; % generate type clause for partcall in the prelude:
 	   writeClause(constructortype(partcall,partcall,3,partcall,0,
-	    'FuncType'('TCons'('Int',[]),'FuncType'(_,'FuncType'('TCons'([],[_]),_)))))),
+	    'FuncType'('TCons'('Int',[]),
+		       'FuncType'(_,'FuncType'('TCons'([],[_]),_))))),[]),
 	map1M(compiler:writeDTypeClause,MainTypes), nl,
 
 	getConstructors(AllTypes,ConsList),
@@ -1561,21 +1562,31 @@ getUnqualifiedName(Name,UQName) :- atom_codes(UQName,Name).
 writeDTypeClause('Type'(TypeName,_Vis,TypeArgs,ConsExprs)) :-
 	map2M(compiler:index2tvar,TypeArgs,TypeArgExps),
 	ResultType = 'TCons'(TypeName,TypeArgExps),
-	writeDTypeClauses(ResultType,0,ConsExprs).
+	writeDTypeClauses(ResultType,0,ConsExprs,ConsExprs).
 
 index2tvar(I,'TVar'(I)). % transform tvar index into type expression
 
-writeDTypeClauses(_,_,[]).
-writeDTypeClauses(ResultType,Index,['Cons'(ConsName,Arity,Vis,ArgTypes)|Cs]) :-
+writeDTypeClauses(_,_,[],_).
+writeDTypeClauses(ResultType,Index,['Cons'(ConsName,Arity,Vis,ArgTypes)|Cs],
+		  AllConstrs) :-
 	flatName2Atom(ConsName,Cons),
 	append(ArgTypes,[ResultType],TypeL),
 	typelist2flattype(TypeL,CType),
 	replaceTVarByLVar([],CType,_,CTypeP),
 	getExternalNameFromVisibility(ConsName,Vis,EName),
 	getUnqualifiedName(ConsName,UQName),
-	writeClause(constructortype(Cons,EName,Arity,UQName,Index,CTypeP)),
+	getOtherConstructors(ConsName,AllConstrs,OtherConstrs),
+	writeClause(constructortype(Cons,EName,Arity,UQName,Index,CTypeP,
+				    OtherConstrs)),
 	Index1 is Index+1,
-	writeDTypeClauses(ResultType,Index1,Cs).
+	writeDTypeClauses(ResultType,Index1,Cs,AllConstrs).
+
+getOtherConstructors(_,[],[]).
+getOtherConstructors(ConsName,['Cons'(ConsName,_,_,_)|Cs],OCs) :- !,
+	getOtherConstructors(ConsName,Cs,OCs).
+getOtherConstructors(ConsName,['Cons'(CN,CA,_,_)|Cs],[CNA/CA|OCs]) :-
+	flatName2Atom(CN,CNA),
+	getOtherConstructors(ConsName,Cs,OCs).
 
 typelist2flattype([Type],Type) :- !.
 typelist2flattype([T1|T2L],'FuncType'(T1,T2)) :-
@@ -1832,7 +1843,7 @@ transConstrEq(Suffix) :-
 	writeClause((OccursNot_X_Y :- var(Y), !, X\==Y)),
 	OccursNotArgs_1_NY_X_Y =.. [OccursNotArgs,1,NY,X,Y],
 	writeClause((OccursNot_X_Y :- functor(Y,FY,NY),
-		                      constructortype(FY,_,NY,_,_,_),
+		                      constructortype(FY,_,NY,_,_,_,_),
 		                      !, OccursNotArgs_1_NY_X_Y)),
 	writeClause(OccursNot_X_Y),
 	nl.
@@ -1890,17 +1901,33 @@ transBoolEq(Suffix) :-
 	writeClause((BoolEq_A_B_R_E0_E :- hnf(A,HA,E0,E1),hnf(B,HB,E1,E2),
 	                                  BoolEqHnf_HA_HB_R_E2_E)),
 	nl,
-	genBlockDecl(BoolEqHnfOrg,5,[1,2,4],BoolEqHnf),
+	%genBlockDecl(BoolEqHnfOrg,5,[1,2,4],BoolEqHnf),
+	genBlockDecl(BoolEqHnfOrg,5,[4],BoolEqHnf),
+	BoolEqHnf_A_B_R_E0_E =.. [BoolEqHnf,A,B,R,E0,E],
+	BoolEqHnf_B_A_R_E0_E =.. [BoolEqHnf,B,A,R,E0,E],
+	% wait if both arguments are variables:
+	writeClause((BoolEqHnf_A_B_R_E0_E :- var(A), var(B), !,
+		       (when((nonvar(A);nonvar(B)),BoolEqHnf_A_B_R_E0_E)))),
+	writeClause((BoolEqHnf_A_B_R_E0_E :- var(A), !,
+		                             BoolEqHnf_B_A_R_E0_E)),
 	(printConsFailure(no) -> true
 	 ; BoolEqHnf_FAIL_X_E_E =.. [BoolEqHnf,'FAIL'(Src),X,'FAIL'(Src),E,E],
 	   writeClause((BoolEqHnf_FAIL_X_E_E :- !)),
 	   BoolEqHnf_X_FAIL_E_E =.. [BoolEqHnf,X,'FAIL'(Src),'FAIL'(Src),E,E],
 	   writeClause((BoolEqHnf_X_FAIL_E_E :- !))),
-	BoolEqHnf_A_B_R_E0_E =.. [BoolEqHnf,A,B,R,E0,E],
 	writeClause((BoolEqHnf_A_B_R_E0_E :-
-		       number(A), !, (A=B->R='Prelude.True';R='Prelude.False'), E0=E)),
+		% we cannot narrow numbers or characters, so we wait:
+		(number(A) ; basics:isCharCons(A)), !,
+		((A=B, R='Prelude.True', E0=E) ;
+		 when(nonvar(B),(A\=B, R='Prelude.False', E0=E))))),
 	appendAtom(genBoolEqHnfBody,Suffix,GenBoolEqHnfBody),
 	GenBoolEqHnfBody_1_NA =.. [GenBoolEqHnfBody,1,NA,A,B,SeqBody],
+	writeClause((BoolEqHnf_A_B_R_E0_E :- var(B), !, % bind variable
+	    functor(A,FA,NA),
+	    ((functor(B,FA,NA),GenBoolEqHnfBody_1_NA,hnf(SeqBody,R,E0,E))
+	     ; (constructortype(FA,_,NA,_,_,_,OtherCons),
+		member(OC/OCA,OtherCons),
+		functor(B,OC,OCA), R='Prelude.False',E0=E)))),
 	writeClause((BoolEqHnf_A_B_R_E0_E :-
 		       functor(A,FA,NA),
 		       ((functor(B,FA,NA),GenBoolEqHnfBody_1_NA)

@@ -304,13 +304,13 @@ readIdTerm(Id,_,S,_) :-
 % (used to avoid problems readQTerm if other Curry implementations,
 % like KiCS2, write them without qualifiers):
 tryAddQualifier(Id,QId) :-
-	user:constructortype(QId,_,_,Id,_,_),
-	user:constructortype(QJ,_,_,Id,_,_),
+	user:constructortype(QId,_,_,Id,_,_,_),
+	user:constructortype(QJ,_,_,Id,_,_,_),
 	\+ QId=QJ, !,
 	writeErr('WARNING: Unqualified symbol "'), writeErr(Id),
 	writeErr('" not unique due to multiple imports.'), nlErr.
 tryAddQualifier(Id,QId) :-
-	user:constructortype(QId,_,_,Id,_,_), !.
+	user:constructortype(QId,_,_,Id,_,_,_), !.
 
 addQualifier(any,Id,QId) :-
 	constructorOrFunctionType(QId,Id,_,_),

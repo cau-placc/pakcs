@@ -4,9 +4,9 @@
 
 -- auxiliary function:
 
--- negation of ==:
+-- negation of (==) which suspends on uninstantiated arguments:
 diff :: a -> a -> Success
-diff x y = (x == y) =:= False
+diff x y = (ensureNotFree x == ensureNotFree y) =:= False
 
 {-
  This is our actual map:

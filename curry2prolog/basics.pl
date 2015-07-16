@@ -462,7 +462,8 @@ isIoType('TCons'('Prelude.IO',_)) :- !.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Union of functiontype and constructortype:
 constructorOrFunctionType(QName,Name,Arity,Type) :-
-	user:constructortype(QName,Name,Arity,_UnqualifiedName,_Index,Type), !.
+	user:constructortype(QName,Name,Arity,_UnqualifiedName,_Index,Type,_),
+	!.
 constructorOrFunctionType(QName,Name,Arity,Type) :-
 	user:functiontype(QName,Name,Arity,_PrologName,_Fixity,Type).
 

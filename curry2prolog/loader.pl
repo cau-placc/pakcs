@@ -36,7 +36,7 @@ costCenters(CCs) :-
 initializeBeforeLoad :-
 	retractAllFacts(dynamicPredInfo/2),
 	retractAllFacts(functiontype/6),
-	retractAllFacts(constructortype/6),
+	retractAllFacts(constructortype/7),
 	retractAllFacts(evaluation/2),
 	retractAllFacts(loadedModule/2),
 	retractAllFacts(importedModule/1),
