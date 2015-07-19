@@ -1,8 +1,20 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.12.0 (June 3, 2015)
------------------------------------------------------
+Release notes for PAKCS Version 1.13.0 (July 19, 2015)
+------------------------------------------------------
+
+Changes to version 1.12.0:
+  * Operation `Prelude.==` is flexible (instead of rigid as before).
+    It still suspends when comparing two variables or
+    one variable with a number or character.
+    However, if `Prelude.==` is (positively) used in conditions of rules,
+    it is automatically transformed into a unification constraint
+    so that it does not suspend.
+
+
+Release notes for PAKCS Version 1.12.0 (July 15, 2015)
+------------------------------------------------------
 
 Changes to version 1.11.5:
   * The extension for records (with special Curry syntax) was removed.
