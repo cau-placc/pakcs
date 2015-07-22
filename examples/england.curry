@@ -1,4 +1,4 @@
-import Findall
+import Findall(allSolutions)
 
 -- Geographical database (from John Lloyd's Escher report):
 
@@ -15,57 +15,55 @@ data City = Bath | Bournemouth | Bristol | Cheltenham | Cirencester |
             Truro | Winchester
 
 
-neighbours :: County -> County -> Success
-       
-neighbours Devon           Cornwall          = success
-neighbours Devon           Dorset            = success
-neighbours Devon           Somerset          = success
-neighbours Avon            Somerset          = success
-neighbours Avon            Wiltshire         = success
-neighbours Avon            Gloucestershire   = success
-neighbours Dorset          Wiltshire         = success
-neighbours Somerset        Wiltshire         = success
-neighbours Gloucestershire Wiltshire         = success
-neighbours Dorset          Somerset          = success
-neighbours Dorset          Hampshire         = success
-neighbours Hampshire       Wiltshire         = success
-neighbours Hampshire       Berkshire         = success
-neighbours Hampshire       Sussex            = success
-neighbours Hampshire       Surrey            = success
-neighbours Sussex          Surrey            = success
-neighbours Sussex          Kent              = success
-neighbours London          Surrey            = success
-neighbours London          Kent              = success
-neighbours London          Essex             = success
-neighbours London          Hertfordshire     = success
-neighbours London          Buckinghamshire   = success
-neighbours Surrey          Buckinghamshire   = success
-neighbours Surrey          Kent              = success
-neighbours Surrey          Berkshire         = success
-neighbours Oxfordshire     Berkshire         = success
-neighbours Oxfordshire     Wiltshire         = success
-neighbours Oxfordshire     Gloucestershire   = success
-neighbours Oxfordshire     Warwickshire      = success
-neighbours Oxfordshire     Northamptonshire  = success
-neighbours Oxfordshire     Buckinghamshire   = success
-neighbours Berkshire       Wiltshire         = success
-neighbours Berkshire       Buckinghamshire   = success
-neighbours Gloucestershire Worcestershire    = success
-neighbours Worcestershire  Herefordshire     = success
-neighbours Worcestershire  Warwickshire      = success
-neighbours Bedfordshire    Buckinghamshire   = success
-neighbours Bedfordshire    Northamptonshire  = success
-neighbours Bedfordshire    Cambridgeshire    = success
-neighbours Bedfordshire    Hertfordshire     = success
-neighbours Hertfordshire   Essex             = success
-neighbours Hertfordshire   Cambridgeshire    = success
-neighbours Hertfordshire   Buckinghamshire   = success
-neighbours Buckinghamshire Northamptonshire  = success
+neighbours :: County -> County -> Bool
+neighbours Devon           Cornwall          = True
+neighbours Devon           Dorset            = True
+neighbours Devon           Somerset          = True
+neighbours Avon            Somerset          = True
+neighbours Avon            Wiltshire         = True
+neighbours Avon            Gloucestershire   = True
+neighbours Dorset          Wiltshire         = True
+neighbours Somerset        Wiltshire         = True
+neighbours Gloucestershire Wiltshire         = True
+neighbours Dorset          Somerset          = True
+neighbours Dorset          Hampshire         = True
+neighbours Hampshire       Wiltshire         = True
+neighbours Hampshire       Berkshire         = True
+neighbours Hampshire       Sussex            = True
+neighbours Hampshire       Surrey            = True
+neighbours Sussex          Surrey            = True
+neighbours Sussex          Kent              = True
+neighbours London          Surrey            = True
+neighbours London          Kent              = True
+neighbours London          Essex             = True
+neighbours London          Hertfordshire     = True
+neighbours London          Buckinghamshire   = True
+neighbours Surrey          Buckinghamshire   = True
+neighbours Surrey          Kent              = True
+neighbours Surrey          Berkshire         = True
+neighbours Oxfordshire     Berkshire         = True
+neighbours Oxfordshire     Wiltshire         = True
+neighbours Oxfordshire     Gloucestershire   = True
+neighbours Oxfordshire     Warwickshire      = True
+neighbours Oxfordshire     Northamptonshire  = True
+neighbours Oxfordshire     Buckinghamshire   = True
+neighbours Berkshire       Wiltshire         = True
+neighbours Berkshire       Buckinghamshire   = True
+neighbours Gloucestershire Worcestershire    = True
+neighbours Worcestershire  Herefordshire     = True
+neighbours Worcestershire  Warwickshire      = True
+neighbours Bedfordshire    Buckinghamshire   = True
+neighbours Bedfordshire    Northamptonshire  = True
+neighbours Bedfordshire    Cambridgeshire    = True
+neighbours Bedfordshire    Hertfordshire     = True
+neighbours Hertfordshire   Essex             = True
+neighbours Hertfordshire   Cambridgeshire    = True
+neighbours Hertfordshire   Buckinghamshire   = True
+neighbours Buckinghamshire Northamptonshire  = True
 
 
 
 distance1 :: City -> City -> Int
-
 distance1 Plymouth    Exeter       = 42
 distance1 Exeter      Bournemouth  = 82
 distance1 Bristol     Taunton      = 43
@@ -99,82 +97,76 @@ distance1 Exeter      Dorchester   = 53
 
 
 distance :: City -> City -> Int
-
-distance city1 city2 | distance1 city1 city2 =:= d  = d  where d free
-distance city1 city2 | distance1 city2 city1 =:= d  = d  where d free
+distance city1 city2 = distance1 city1 city2 ? distance1 city2 city1
 
 
-isin :: City -> County -> Success
-
-isin Bristol     Avon             = success
-isin Taunton     Somerset         = success
-isin Salisbury   Wiltshire        = success
-isin Bath        Avon             = success
-isin Bournemouth Dorset           = success
-isin Gloucester  Gloucestershire  = success
-isin Torquay     Devon            = success
-isin Penzance    Cornwall         = success
-isin Plymouth    Devon            = success
-isin Exeter      Devon            = success
-isin Winchester  Hampshire        = success
-isin Dorchester  Dorset           = success
-isin Cirencester Gloucestershire  = success
-isin Truro       Cornwall         = success
-isin Cheltenham  Gloucestershire  = success
-isin Shaftesbury Dorset           = success
-isin Sherbourne  Dorset           = success
-
-
--- list membership:
-member e xs = _ ++ (e:_) =:= xs
+isin :: City -> County -> Bool
+isin Bristol     Avon             = True
+isin Taunton     Somerset         = True
+isin Salisbury   Wiltshire        = True
+isin Bath        Avon             = True
+isin Bournemouth Dorset           = True
+isin Gloucester  Gloucestershire  = True
+isin Torquay     Devon            = True
+isin Penzance    Cornwall         = True
+isin Plymouth    Devon            = True
+isin Exeter      Devon            = True
+isin Winchester  Hampshire        = True
+isin Dorchester  Dorset           = True
+isin Cirencester Gloucestershire  = True
+isin Truro       Cornwall         = True
+isin Cheltenham  Gloucestershire  = True
+isin Shaftesbury Dorset           = True
+isin Sherbourne  Dorset           = True
 
 
 -- Some queries and their expected results:
-q1 x = (distance Bristol x < 40) =:= True
+q1 x = solve $ distance Bristol x < 40
 -- {x=Gloucester}  | {x=Bath} 
 
-q2 x y = (distance1 x y < 20) =:= True
--- {y=Bath,X=Bristol}  | {y=Shaftesbury,X=Sherbourne}  | {y=Sherbourne,X=Dorchester}  | {y=Cheltenham,X=Cirencester}  | {y=Gloucester,X=Cheltenham} 
+q2 x y = solve $ distance1 x y < 20
+-- {y=Bath,x=Bristol}  | {y=Shaftesbury,x=Sherbourne}  | {y=Sherbourne,x=Dorchester}  | {y=Cheltenham,x=Cirencester}  | {y=Gloucester,x=Cheltenham} 
 
 q3 x = (neighbours Oxfordshire x ? neighbours x Oxfordshire)
 -- {x=Berkshire}  | {x=Wiltshire}  | {x=Gloucestershire}  | {x=Warwickshire}  | {x=Northamptonshire}  | {x=Buckinghamshire} 
 
-q4 x = (isin x y & (y==Wiltshire)=:=False)  where y free
+q4 x = solve $ let y free in isin x y && y/=Wiltshire
 -- {x=Bristol}  | {x=Taunton}  | {x=Bath}  | {x=Bournemouth}  | {x=Gloucester}  | {x=Torquay}  | {x=Penzance}  | {x=Plymouth}  | {x=Exeter}  | {x=Winchester}  | {x=Dorchester}  | {x=Cirencester}  | {x=Truro}  | {x=Cheltenham}  | {x=Shaftesbury}  | {x=Sherbourne} 
 
-q4l = findall (\x -> let y free in (isin x y & (y==Wiltshire)=:=False))
+q4l = allSolutions (\x -> let y free in isin x y && y /= Wiltshire)
 -- [Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
 
-q5 x = ((neighbours Oxfordshire y ? neighbours y Oxfordshire)
-        & isin x y)  where y free
+q5 x = solve $ (neighbours Oxfordshire y ? neighbours y Oxfordshire)
+               && isin x y  where y free
 -- {x=Salisbury}  | {x=Gloucester}  | {x=Cirencester}  | {x=Cheltenham} 
 
-q5l = findall (\x-> let y free in
-                    ((neighbours Oxfordshire y ? neighbours y Oxfordshire)
-                     & isin x y))
+q5l = allSolutions
+       (\x -> let y free in
+             (neighbours Oxfordshire y ? neighbours y Oxfordshire) && isin x y)
 -- [Salisbury,Gloucester,Cirencester,Cheltenham]
 
-q6 x = member y [Devon,Cornwall,Somerset,Avon] & isin x y  where y free
+q6 x = solve $ let y free in y `elem` [Devon,Cornwall,Somerset,Avon] && isin x y
 -- {x=Torquay}  | {x=Plymouth}  | {x=Exeter}  | {x=Penzance}  | {x=Truro}  | {x=Taunton}  | {x=Bristol}  | {x=Bath} 
 
-q7 x = (distance Bristol y < 50)=:=True & isin y x  where y free
+q7 x = solve $ let y free in distance Bristol y < 50 && isin y x
 -- {x=Somerset}  | {x=Gloucestershire}  | {x=Avon} 
 
 -- the further queries require encapsulated search:
 
 -- implementation of Escher's forall-construct:
-forall :: (a->Success) -> (a->Success) -> Success
-forall domain cond = foldr (&) success (map cond (findall domain))
+forall :: (a->Bool) -> (a->Bool) -> Bool
+forall domain cond = all cond (allSolutions domain)
  
-q8 = forall (\x->(neighbours Avon x ? neighbours x Avon))
-            (\x->let y free in isin y x)
--- success | success | success
+q8 = forall (\x -> (neighbours Avon x ? neighbours x Avon))
+            (\x -> isin _ x)
+-- True | True | True
 
 q9 = let x free in
-     isin Bristol x &
-     forall (\z->(distance Bristol z < 40)=:=True)
-             (\z->(isin z x))
+     isin Bristol x &&
+     forall (\z -> distance Bristol z < 40)
+            (\z -> isin z x)
 -- No solution.
 
-q10 = length (findall (\x->(neighbours Oxfordshire x ? neighbours x Oxfordshire)))
+q10 = length
+       (allSolutions (\x->neighbours Oxfordshire x ? neighbours x Oxfordshire))
 -- 6

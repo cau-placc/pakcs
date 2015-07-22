@@ -188,22 +188,22 @@ Ihr Name?
 Hallo michael, rueckwaerts lautet Ihr Name: leahcim
 Loading program "england"...
 q1 x
-{x=Gloucester} success
-{x=Bath} success
+{x=Gloucester} True
+{x=Bath} True
 q2 x y
-{x=Bristol, y=Bath} success
-{x=Sherbourne, y=Shaftesbury} success
-{x=Dorchester, y=Sherbourne} success
-{x=Cirencester, y=Cheltenham} success
-{x=Cheltenham, y=Gloucester} success
+{x=Bristol, y=Bath} True
+{x=Sherbourne, y=Shaftesbury} True
+{x=Dorchester, y=Sherbourne} True
+{x=Cirencester, y=Cheltenham} True
+{x=Cheltenham, y=Gloucester} True
 q4l
 [Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
 q5l
 [Salisbury,Gloucester,Cirencester,Cheltenham]
 q7 x
-{x=Somerset} success
-{x=Gloucestershire} success
-{x=Avon} success
+{x=Somerset} True
+{x=Gloucestershire} True
+{x=Avon} True
 q10
 6
 Loading program "queens"...
