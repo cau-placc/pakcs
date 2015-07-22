@@ -458,13 +458,24 @@ prim_findall(RSG,Sols,E0,E) :-
 	prim_findall_exec(SG,Sols,E1,E).
 
 :- block prim_findall_exec(?,?,-,?).
-prim_findall_exec(SG,Sols,E0,E) :- 
+prim_findall_exec(SG,Sols,E0,E) :-
 	hasPrintedFailure
-	 -> findall(X,prim_apply(SG,X,'Prelude.success',E0,_),Sols),
-	    E0=E
+	 -> findall((X,E1),prim_apply(SG,X,'Prelude.success',E0,E1),SolEs),
+	    extractSolutions(SolEs,Sols,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    findall(X,prim_apply(SG,X,'Prelude.success',E0,_),Sols),
-	    retract(hasPrintedFailure), E0=E.
+	    findall((X,E1),prim_apply(SG,X,'Prelude.success',E0,E1),SolEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(SolEs,Sols,E0,E).
+
+% check whether all solutions of encapsulated search are not suspended:
+extractSolutions([],[],E0,E0).
+extractSolutions([(Sol,E)|SolEs],[Sol|Sols],E0,E1) :-
+	extractMoreSolutions(SolEs,Sols,E,E0,E1).
+
+:- block extractMoreSolutions(?,?,-,?,?).
+extractMoreSolutions(SolEs,Sols,_,E0,E) :-
+	extractSolutions(SolEs,Sols,E0,E).
+
 
 :- block waitUntilGround(-,?,?), waitUntilGround(?,-,?).
 waitUntilGround(share(M),E0,E) :-
@@ -492,16 +503,17 @@ prim_findfirst(RSG,Sol,E0,E) :-
 :- block prim_findfirst_exec(?,?,-,?).
 prim_findfirst_exec(SG,Sol,E0,E) :-
 	hasPrintedFailure
-	 -> prim_findfirstWithPF(SG,Sol,E0), E0=E
+	 -> prim_findfirstWithPF(SG,Sol,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    prim_findfirstWithoutPF(SG,Sol,E0), E0=E.
+	    prim_findfirstWithoutPF(SG,Sol,E0,E).
 
-prim_findfirstWithPF(SG,Sol,E) :-
-	prim_apply(SG,X,'Prelude.success',E,_), !, Sol=X.
+prim_findfirstWithPF(SG,Sol,E0,E) :-
+	prim_apply(SG,X,'Prelude.success',E0,E1), !, Sol=X, E1=E.
 
-prim_findfirstWithoutPF(SG,Sol,E) :-
-	prim_apply(SG,X,'Prelude.success',E,_), retract(hasPrintedFailure), !, Sol=X.
-prim_findfirstWithoutPF(_,_,_) :-
+prim_findfirstWithoutPF(SG,Sol,E0,E) :-
+	prim_apply(SG,X,'Prelude.success',E0,E1),
+	retract(hasPrintedFailure), !, Sol=X, E1=E.
+prim_findfirstWithoutPF(_,_,_,_) :-
 	retract(hasPrintedFailure), fail.
 
 
@@ -563,15 +575,16 @@ prim_rewriteAll(Exp,Vals,E0,E) :-
 :- block rewriteAllExec(?,?,?,-,?).
 rewriteAllExec(ExpVars,Exp,Vals,E0,E) :-
 	hasPrintedFailure
-	 -> findall(Val,
-		    (user:nf(Exp,Val,E0,_), allUnboundVariables(ExpVars)),
-		    Vals),
-	    E0=E
+	 -> findall((Val,E1),
+		    (user:nf(Exp,Val,E0,E1), allUnboundVariables(ExpVars)),
+		    ValEs),
+	    extractSolutions(ValEs,Vals,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    findall(Val,
-		    (user:nf(Exp,Val,E0,_), allUnboundVariables(ExpVars)),
-		    Vals),
-	    retract(hasPrintedFailure), E0=E.
+	    findall((Val,E1),
+		    (user:nf(Exp,Val,E0,E1), allUnboundVariables(ExpVars)),
+		    ValEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(ValEs,Vals,E0,E).
 
 % same as rewriteAll but computes only first value:
 :- block prim_rewriteSome(?,?,-,?).
