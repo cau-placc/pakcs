@@ -75,8 +75,10 @@ solveCHR $ 3.0:*:x GAUSSCHR.:=: 6.0 /\ 2.0:*:x :+: 6.0:*:y GAUSSCHR.:=: 10.0  wh
 
 EOM
 # clean up:
-cleancurry GCDCHR FIBCHR UFCHR GAUSSCHR
-/bin/rm GCDCHR* FIBCHR* UFCHR* GAUSSCHR*
+for p in GCDCHR FIBCHR UFCHR GAUSSCHR ; do
+    $CURRYBIN/cleancurry $p
+    /bin/rm -f $p*
+done
 ################ end of tests ####################
 # Check differences:
 DIFF=diff$$
