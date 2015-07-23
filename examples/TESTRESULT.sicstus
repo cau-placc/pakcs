@@ -39,10 +39,10 @@ Loading program "family_fun"...
 {child=Susan} success
 {child=Peter} success
 grandfather g c
-{g=Antony, c=Susan} success
-{g=Antony, c=Peter} success
-{g=Bill, c=Andrew} success
-{g=Antony, c=Andrew} success
+{g=Antony, c=Susan} True
+{g=Antony, c=Peter} True
+{g=Bill, c=Andrew} True
+{g=Antony, c=Andrew} True
 Loading program "horseman"...
 horseman m h (int2nat 8) (int2nat 20)
 {m=S (S (S (S (S (S O))))), h=S (S O)} success
@@ -169,7 +169,7 @@ Loading program "maxtree"...
 goal2
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
 Loading program "assembler"...
-goal
+main
 [9,4,9,0]
 Loading program "ralign"...
 goal1

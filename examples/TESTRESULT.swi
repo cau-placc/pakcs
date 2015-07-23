@@ -39,10 +39,10 @@ Loading program "family_fun"...
 {child=Susan} success
 {child=Peter} success
 grandfather g c
-{g=Antony, c=Susan} success
-{g=Antony, c=Peter} success
-{g=Bill, c=Andrew} success
-{g=Antony, c=Andrew} success
+{g=Antony, c=Susan} True
+{g=Antony, c=Peter} True
+{g=Bill, c=Andrew} True
+{g=Antony, c=Andrew} True
 Loading program "horseman"...
 horseman m h (int2nat 8) (int2nat 20)
 {m=S (S (S (S (S (S O))))), h=S (S O)} success
@@ -169,7 +169,7 @@ Loading program "maxtree"...
 goal2
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
 Loading program "assembler"...
-goal
+main
 [9,4,9,0]
 Loading program "ralign"...
 goal1
@@ -188,22 +188,22 @@ Ihr Name?
 Hallo michael, rueckwaerts lautet Ihr Name: leahcim
 Loading program "england"...
 q1 x
-{x=Gloucester} success
-{x=Bath} success
+{x=Gloucester} True
+{x=Bath} True
 q2 x y
-{x=Bristol, y=Bath} success
-{x=Sherbourne, y=Shaftesbury} success
-{x=Dorchester, y=Sherbourne} success
-{x=Cirencester, y=Cheltenham} success
-{x=Cheltenham, y=Gloucester} success
+{x=Bristol, y=Bath} True
+{x=Sherbourne, y=Shaftesbury} True
+{x=Dorchester, y=Sherbourne} True
+{x=Cirencester, y=Cheltenham} True
+{x=Cheltenham, y=Gloucester} True
 q4l
 [Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
 q5l
 [Salisbury,Gloucester,Cirencester,Cheltenham]
 q7 x
-{x=Somerset} success
-{x=Gloucestershire} success
-{x=Avon} success
+{x=Somerset} True
+{x=Gloucestershire} True
+{x=Avon} True
 q10
 6
 Loading program "queens"...

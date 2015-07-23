@@ -6,7 +6,7 @@ import SetFunctions
 queens x | y==permute x && isEmpty (set2 capture x y) = y  where y free
 
 permute []     = []
-permute (x:xs) | u ++ v =:= permute xs  = u ++ [x] ++ v
+permute (x:xs) | u ++ v == permute xs  = u ++ [x] ++ v
   where u,v free
 
 capture x y

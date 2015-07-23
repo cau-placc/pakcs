@@ -47,7 +47,7 @@ goal3 s  where s free
 :l maxtree
 goal2
 :l assembler
-goal
+main
 :l ralign
 goal1
 goal2
