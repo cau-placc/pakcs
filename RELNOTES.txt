@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.13.0 (July 19, 2015)
-------------------------------------------------------
+Release notes for PAKCS Version 1.13.0 (August 24, 2015)
+--------------------------------------------------------
 
 Changes to version 1.12.0:
   * Operation `Prelude.==` is flexible (instead of rigid as before).
@@ -11,6 +11,9 @@ Changes to version 1.12.0:
     However, if `Prelude.==` is (positively) used in conditions of rules,
     it is automatically transformed into a unification constraint
     so that it does not suspend.
+  * Library `Pretty`: code and interface updated, e.g., some combinators
+    renamed and new combinators added (e.g., to support ANSI formatting
+    and colorisation of documents)
 
 
 Release notes for PAKCS Version 1.12.0 (July 15, 2015)
