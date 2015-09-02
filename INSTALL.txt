@@ -14,7 +14,10 @@ on your computer, you need the following software:
 * [SWI-Prolog](http://www.swi-prolog.org)
   (if you do not have SICStus-Prolog, but then the execution is less
   efficient and some functionality (e.g., constraint solvers) is
-  not available)
+  not available).
+  Due to changes in SWI-Prolog Version 7 (that are not conform to the
+  ISO standard), PAKCS currently runs only with SWI-Prolog Version 6.x.
+
 
 How to generate and install the PAKCS kernel:
 ---------------------------------------------
