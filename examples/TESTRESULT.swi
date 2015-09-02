@@ -329,6 +329,9 @@ mortgage 100000.0 180.0 0.01 r 0.0
 Loading program "smm"...
 smm l
 {l=[9,5,6,7,1,0,8,2]} success
+Loading program "smm2"...
+smm
+[9,5,6,7,1,0,8,2]
 Loading program "accountport"...
 goal1 b
 {b=250} success

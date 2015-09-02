@@ -19,7 +19,7 @@ MAJORVERSION=1
 # The minor version number:
 MINORVERSION=13
 # The revision version number:
-REVISIONVERSION=0
+REVISIONVERSION=1
 # The build version number:
 BUILDVERSION=1
 # Complete version:

@@ -115,6 +115,8 @@ pali5
 mortgage 100000.0 180.0 0.01 r 0.0  where r free
 :l smm
 smm l  where l free
+:l smm2
+smm
 :cd ..
 :cd distcurry
 :l accountport
