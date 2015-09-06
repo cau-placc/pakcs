@@ -1,10 +1,29 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.13.1 (September 2, 2015)
+Release notes for PAKCS Version 1.13.1 (September 6, 2015)
 ----------------------------------------------------------
 
 Changes to version 1.13.0:
+
+  * Hierarchical libraries for AbstractCurry added and extended:
+    in order to to compatible with future versions, the following
+    imports should be adapted in programs working with AbstractCurry:
+
+    - replace `import AbstractCurry` by
+
+          import AbstractCurry.Types
+          import AbstractCurry.Files
+
+    - replace `import AbstractCurryGoodies` by
+
+          import AbstractCurry.Select
+          import AbstractCurry.Build
+
+    - replace `import PrettyAbstract` by
+
+          import AbstractCurry.Pretty
+
   * Library `CLP.FD` added: its functionality is similar to the old
     library `CLPFD`, but the interface is different so that other
     FD constraint solvers are easier to connect.
