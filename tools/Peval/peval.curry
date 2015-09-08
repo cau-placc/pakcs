@@ -8,6 +8,8 @@
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
+{-# OPTIONS_CYMAKE -Wno-incomplete-patterns -Wno-missing-signatures #-}
+
 import Flat
 import List
 import Flat2Fcy
@@ -150,7 +152,7 @@ main_aux p [] prog _ =
   do putStrLn "There are no calls to start partial evaluation..."
      putStrLn("\nWriting original program into \""++pefile++"\"...\n")
      writeFCY pefile prog
-  where pefile = inCurrySubdir (p++"_pe.fcy")
+  where pefile = inCurrySubdir (p++"_pe") ++ ".fcy"
 main_aux p (e:es) annprog prog =
   do putStrLn ("Annotated expressions to be partially evaluated:\n")
      putStrLn (concatMap (\ex->ppExpr 0 ex ++"\n") (e:es))
@@ -174,7 +176,7 @@ main_aux p (e:es) annprog prog =
     resultants = buildResultants prog exps exps2
     postResultants = postUnfolding resultants (concat (map (originalFunc prog exps2) (e:es)))
     specFuncs = map resultant2fundecl postResultants
-    pefile = inCurrySubdir (p++"_pe.fcy")
+    pefile = inCurrySubdir (p++"_pe") ++ ".fcy"
 
 -- transform a resultant into a function declaration:
 resultant2fundecl :: (Expr,Expr) -> FuncDecl
