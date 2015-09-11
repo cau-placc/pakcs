@@ -16,8 +16,9 @@ import Assertion
 
 --- Test for equality of a FlatCurry program with the same program
 --- after pretty printing the AbstractCurry program:
+readAndTestEqualFcy :: String -> IO Bool
 readAndTestEqualFcy mod = do
-  prog1 <- readFlatCurry mod
+  prog1 <- readFlatCurryStrict mod
   let modcurry = mod ++ ".curry"
       modbak   = mod ++ ".BAK"
   renameFile modcurry modbak
@@ -26,10 +27,17 @@ readAndTestEqualFcy mod = do
   readCurry mod >>= writeFile modpp . showCProg
   removeFile modcurry
   renameFile modpp modcurry
-  prog2 <- readFlatCurry mod
+  prog2 <- readFlatCurryStrict mod
   removeFile modcurry
   renameFile modbak modcurry
   return (prog1 == prog2)
+
+-- Strictly read a FlatCurry program in order to avoid race conditions
+-- due to copying/moving source files:
+readFlatCurryStrict :: String -> IO Prog
+readFlatCurryStrict mod = do
+  prog <- readFlatCurry mod
+  id $!! prog `seq` return prog
 
 test1  = assertIO "AbstractCurry.Pretty test for rev"
                   (readAndTestEqualFcy "rev") True
