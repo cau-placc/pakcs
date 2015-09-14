@@ -30,7 +30,11 @@ readAndTestEqualFcy mod = do
   prog2 <- readFlatCurryStrict mod
   removeFile modcurry
   renameFile modbak modcurry
-  return (prog1 == prog2)
+  let flatequal = prog1 == prog2
+  unless flatequal $ do
+    putStrLn ("Original flat program:        " ++ show prog1)
+    putStrLn ("Pretty printed  flat program: " ++ show prog2)
+  return flatequal
 
 -- Strictly read a FlatCurry program in order to avoid race conditions
 -- due to copying/moving source files:
@@ -41,6 +45,9 @@ readFlatCurryStrict mod = do
 
 test1  = assertIO "AbstractCurry.Pretty test for rev"
                   (readAndTestEqualFcy "rev") True
+                  
+test2  = assertIO "AbstractCurry.Pretty test for testSetFunctions"
+                  (readAndTestEqualFcy "testSetFunctions") True
 
-test2  = assertIO "AbstractCurry.Pretty test for testFuncPattern"
-                  (readAndTestEqualFcy "testFuncPattern") True
+--test3  = assertIO "AbstractCurry.Pretty test for testFuncPattern"
+--                  (readAndTestEqualFcy "testFuncPattern") True
