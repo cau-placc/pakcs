@@ -49,5 +49,5 @@ test1  = assertIO "AbstractCurry.Pretty test for rev"
 test2  = assertIO "AbstractCurry.Pretty test for testSetFunctions"
                   (readAndTestEqualFcy "testSetFunctions") True
 
---test3  = assertIO "AbstractCurry.Pretty test for testFuncPattern"
---                  (readAndTestEqualFcy "testFuncPattern") True
+test3  = assertIO "AbstractCurry.Pretty test for testFuncPattern"
+                  (readAndTestEqualFcy "testFuncPattern") True
