@@ -302,32 +302,31 @@ printed on the standard error stream.
 \index{AbstractCurry}
 \index{FlatCurry}
 To support meta-programming, i.e., the manipulation of Curry programs
-in Curry, there are system modules \code{FlatCurry} and \code{AbstractCurry}
-(stored in the directory \ccode{\cyshome/lib/meta})
+in Curry, there are system modules \code{AbstractCurry.Types}
+and \code{FlatCurry} %(stored in the directory \ccode{\cyshome/lib/meta})
 which define datatypes for the representation
 of Curry programs.
-\code{AbstractCurry} is a more direct representation of a Curry program,
+\code{AbstractCurry.Types} is a more direct representation of a Curry program,
 whereas \code{FlatCurry} is a simplified representation
 where local function definitions are replaced by global definitions
 (i.e., lambda lifting has been performed) and pattern matching
 is translated into explicit case/or expressions.
 Thus, \code{FlatCurry} can be used for more back-end oriented
 program manipulations (or, for writing new back ends for Curry),
-whereas \code{AbstractCurry} is intended for manipulations of
+whereas \code{AbstractCurry.Types} is intended for manipulations of
 programs that are more oriented towards the source program.
 
-Both modules contain predefined I/O actions to read programs
-in the \code{AbstractCurry} (\code{readCurry}\pindex{readCurry})
-or \code{FlatCurry}
-(\code{readFlatCurry}\pindex{readFlatCurry}) format.
+There are predefined I/O actions to read AbstractCurry and
+FlatCurry programs: \code{AbstractCurry.Files.readCurry}\pindex{readCurry})
+and \code{FlatCurry.readFlatCurry}\pindex{readFlatCurry}).
 These actions parse the corresponding source program and return
 a data term representing this program (according to the definitions
-in the modules \code{AbstractCurry} and \code{FlatCurry}).
+in the modules \code{AbstractCurry.Types} and \code{FlatCurry}).
 
 Since all datatypes are explained in detail in these modules,
 we refer to the online documentation\footnote{%
 \url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/FlatCurry.html} and
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/AbstractCurry.html}}
+\url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/AbstractCurry.Types.html}}
 of these modules.
 
 As an example, consider a program file \ccode{test.curry}
@@ -469,9 +468,11 @@ following term:
 
 \subsection{Libraries for Meta-Programming}
 
-\input{lib/AbstractCurry}
-\input{lib/AbstractCurryGoodies}
-\input{lib/AbstractCurryPrinter}
+\input{lib/AbstractCurry.Types}
+\input{lib/AbstractCurry.Files}
+\input{lib/AbstractCurry.Select}
+\input{lib/AbstractCurry.Build}
+\input{lib/AbstractCurry.Pretty}
 \input{lib/AnnotatedFlatCurry}
 \input{lib/AnnotatedFlatCurryGoodies}
 \input{lib/CompactFlatCurry}
@@ -482,7 +483,6 @@ following term:
 \input{lib/FlatCurryShow}
 \input{lib/FlatCurryXML}
 \input{lib/FlexRigid}
-\input{lib/PrettyAbstract}
 
 } % end setlength parindent
 
