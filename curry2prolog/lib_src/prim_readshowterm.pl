@@ -97,12 +97,15 @@ show_termstring([C|T],S,E) :-
 	show_termchar(N,S,ST),
 	show_termstring(T,ST,E).
 
+show_termchar( 7,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,97]).  % \a
+show_termchar( 8,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,98]).  % \b
+show_termchar( 9,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,116]). % \t
+show_termchar(10,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,110]). % \n
+show_termchar(11,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,118]). % \v
+show_termchar(12,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,102]). % \f
+show_termchar(13,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,114]). % \r
 show_termchar(34,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,34]). % 34="
 show_termchar(92,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,92]). % 92=\
-show_termchar(10,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,110]).
-show_termchar(13,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,114]).
-show_termchar(9,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,116]).
-show_termchar(8,[C1,C2|E],E) :- !, cp_string([C1,C2],[92,98]).
 show_termchar(N,[C1,C2,C3|E],E) :- N<32, !,
 	N1 is (N//10)+48, N2 is (N mod 10)+48,
 	cp_string([C1,C2,C3],[92,N1,N2]).
@@ -380,13 +383,20 @@ readString([N|Ns],T,[C|Str]) :-
 	char_int(C,N),
 	readString(Ns,T,Str).
 
-readStringChar(34,34) :- !.
-readStringChar(92,92) :- !.
-readStringChar(110,10) :- !.
-readStringChar(114,13) :- !.
-readStringChar(116,9) :- !.
+readStringChar(97,7) :- !.
 readStringChar(98,8) :- !.
-readStringChar(N,N).
+readStringChar(116,9) :- !.
+readStringChar(110,10) :- !.
+readStringChar(118,11) :- !.
+readStringChar(102,12) :- !.
+readStringChar(114,13) :- !.
+readStringChar(34,34) :- !.
+readStringChar(39,39) :- !.
+readStringChar(92,92) :- !.
+readStringChar(N,N) :-
+	writeErr('INTERNAL ERROR: unknown character string "'),
+	put_code(user_error,92), put_code(user_error,N),
+	writeErr('" in readStringChar'), nlErr.
 
 readQVarOpId([C|Cs],T,[C|Str]) :-
 	isOpIdChar(C) ->  readOpId(Cs,T,Str) ; readModOrVar(Cs,T,Str).
