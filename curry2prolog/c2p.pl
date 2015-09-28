@@ -722,15 +722,12 @@ processCommand("set",Option) :- !,
 
 processCommand("add",Arg) :- !,
 	split2words(Arg,Args),
-	map2M(user:extractProgName,Args,Progs),
-	map1M(user:isValidModuleName,Progs),
-	map2M(prologbasics:atomCodes,NewImps,Progs),
-	retract(addImports(OldAddImps)),
-	append(NewImps,OldAddImps,NewAddImps),
-	asserta(addImports(NewAddImps)),
-        (processCommand("reload",[])
-         -> true
-          ; retract(addImports(_)), asserta(addImports(OldAddImps))).
+	addImports(OldAddImps), !,
+	map1M(user:addImportModule,Args),
+	addImports(NewAddImps), !,
+	((OldAddImps=NewAddImps) -> true
+	 ; (processCommand("reload",[]) -> true
+             ; retract(addImports(_)), asserta(addImports(OldAddImps)))).
 
 processCommand("load",Arg) :- !,
 	extractProgName(Arg,Prog),
@@ -925,7 +922,7 @@ processCommand("show",ShTail) :- % show source of a module
 	shellCmdWithReport(Cmd).
 
 processCommand("show",_) :- !,
-	writeErr('ERROR: source file not found'), nlErr.
+	writeErr('ERROR: Source file not found'), nlErr.
 
 processCommand("source",Arg) :-
 	append(PModS,[46|FunS],Arg), !, % show source code of function in module
@@ -999,6 +996,21 @@ shellCmdWithCurryPathWithReport(Cmd) :-
 	shellCmdWithCurryPath(Cmd).
 
 
+% add a module to be imported in addition to the main module:
+addImportModule(Arg) :-
+	extractProgName(Arg,Prog),
+	isValidModuleName(Prog),
+	findSourceProg(Prog,_), !,
+	atomCodes(NewImp,Prog),
+	retract(addImports(OldAddImps)),
+	(member(NewImp,OldAddImps) -> NewAddImps = OldAddImps
+	  ; NewAddImps = [NewImp|OldAddImps]),
+	asserta(addImports(NewAddImps)).
+addImportModule(Arg) :-
+	writeErr('ERROR: Source file of module "'),
+	atomCodes(ArgA,Arg), writeErr(ArgA),
+	writeErr('" not found!'), nlErr.
+
 % show the Curry programs in a given directory:
 showProgramsInDirectory(Dir) :-
 	format('In directory "~w":~n',[Dir]),
@@ -1047,9 +1059,9 @@ processCompile(ProgS,PrologFile) :-
 	tryXml2Fcy(Prog),
 	(findFlatProgFileInLoadPath(Prog,PathProgName)
 	 -> true
-	  ; writeErr('ERROR: FlatCurry file for program '),
+	  ; writeErr('ERROR: FlatCurry file for program "'),
 	    writeErr(Prog),
-	    writeErr(' not found!'),
+	    writeErr('" not found!'),
 	    nlErr,
 	    deletePrologTarget(LocalPrologFile),!, failWithExitCode),
 	prog2PrologFile(PathProgName,PrologFile),
@@ -1065,9 +1077,9 @@ reloadMainProgram :-
 	atom_codes(Prog,ProgS),
 	(findFlatProgFileInLoadPath(Prog,PathProgName)
 	 -> true
-	  ; writeErr('ERROR: FlatCurry file for program '),
+	  ; writeErr('ERROR: FlatCurry file for program "'),
 	    writeErr(Prog),
-	    writeErr(' not found!'),
+	    writeErr('" not found!'),
 	    nlErr, !, fail),
 	prog2PrologFile(PathProgName,PrologFile),
 	loadMain(PrologFile),
