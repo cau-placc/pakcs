@@ -51,6 +51,7 @@ bin/currydoc
 bin/currybrowse
 bin/currypp
 bin/data2xml
+bin/erd2cdbi
 bin/erd2curry
 bin/fcypp
 bin/runcurry
