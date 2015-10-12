@@ -659,7 +659,7 @@ getConstructors([],Cs) :-
 	(includePrelude
           -> Cs=[partcall/3,'$stream'/1] % all standard constructors defined in prelude
            ; Cs=[partcall/3,'Prelude.True'/0,'Prelude.False'/0,
-		 'Prelude.success'/0,[]/0,'.'/2|TupleCons]).
+		 []/0,'.'/2|TupleCons]).
 getConstructors(['Type'(_,_,_,DataCons)|Types],AllCons) :-
 	getDataCons(DataCons,DCs),
 	getConstructors(Types,TCs),
@@ -1446,7 +1446,7 @@ genDerefCalls(_,[],[],LastGoal,LastGoal).
 % derefRoot for primitive types and derefAll for other types
 type2derefPred('TCons'(Name,_),derefRoot) :-
 	member(Name,["Prelude.Int","Prelude.Float","Prelude.Char","Prelude.Bool",
-		     "Prelude.Success","Prelude.Ordering",
+		     "Prelude.Ordering",
 		     "IO.Handle","IO.IOMode","IO.SeekMode",
 		     "PlProfileData.ProfileSelection","Ports.Port","Socket.Socket"]), !.
 type2derefPred('FuncType'(_,_),derefRoot) :-
@@ -1647,18 +1647,16 @@ genVariableShareHnfClause(HNF,Suffix) :-
 	appendAtom(propagateShare,Suffix,PropShare),
 	PropShare_HV_R =.. [PropShare,HV,R],
 	HnfLHS =.. [HNF,Share_M,R,E0,E],
+	ShareGoal = (PropShare_HV_R, update_mutable('$eval'(R),M)),
 	(printConsFailure(no)
-	 -> NoSharingCheck = functor(HV,'Prelude.success',0)
-	  ; NoSharingCheck =
-	             (functor(HV,'Prelude.success',0);functor(HV,'FAIL',_))),
+	 -> ShareHNF = ShareGoal
+	  ; ShareHNF = % no sharing for FAIL:
+	     ((nonvar(HV), functor(HV,'FAIL',_)) -> R=HV ; ShareGoal)),
 	writeClause((HnfLHS :- !, get_mutable(V,M),
                         (V='$eval'(Expr)
                          -> R=Expr, E0=E
                           ; hnf(V,HV,E0,E1),
-			    ((nonvar(HV),NoSharingCheck)
-			      -> R=HV % no sharing for constraints
-                               ; PropShare_HV_R,
-				 update_mutable('$eval'(R),M)),
+			    ShareHNF,
 			    E1=E))).
 
 genFunctionShareHnfClause(HNF,Suffix) :-
@@ -1673,11 +1671,6 @@ genFunctionShareHnfClause(HNF,Suffix) :-
 			    E1=E))).
 
 % generate hnf clause for a function:
-genHnfClause(_,('Prelude.success'/0,_)) :- !. % success is treated as a constructor
-genHnfClause(HNF,(FName/0,'Prelude.success')) :- !,
-	% if somebody defines FName as (External Prelude.success)
-	HnfLHS =.. [HNF,FName,'Prelude.success',E,E],
-	writeClause((HnfLHS :- !)).
 genHnfClause(HNF,(FName/FArity,PredName)) :-
 	length(Args,FArity),
 	LHS =.. [FName|Args],
@@ -1713,7 +1706,7 @@ transConstrEq(Suffix) :-
 	                                 hnf(A,HA,E0,E1), hnf(B,HB,E1,E2),
 	                                 ConstrEqHnf_HA_HB_R_E2_E,
 					 traceExit('Prelude.=:='(A,B),
-						   'Prelude.success',
+						   'Prelude.True',
 						   E,Skip)))
           ; writeClause((ConstrEq_A_B_R_E0_E :- hnf(A,HA,E0,E1),hnf(B,HB,E1,E2),
 	                                 ConstrEqHnf_HA_HB_R_E2_E))),
@@ -1725,7 +1718,7 @@ transConstrEq(Suffix) :-
 	BindTryNf_X_H_R_E0_E =.. [BindTryNf,X,H,R,E0,E],
 	writeClause((ConstrEqHnf_X_H_R_E0_E :- var(X),!,BindTryNf_X_H_R_E0_E)),
 	writeClause((ConstrEqHnf_H_X_R_E0_E :- var(X),!,BindTryNf_X_H_R_E0_E)),
-	ConstrEqHnf_T1_T2_E0_E =.. [ConstrEqHnf,T1,T2,'Prelude.success',E0,E],
+	ConstrEqHnf_T1_T2_E0_E =.. [ConstrEqHnf,T1,T2,'Prelude.True',E0,E],
 	ConstrEqHnf_A_B_R_E0_E =.. [ConstrEqHnf,A,B,R,E0,E],
 	(printConsFailure(no)
 	 -> writeClause((ConstrEqHnf_T1_T2_E0_E :- number(T1),!,T1=T2,E0=E))
@@ -1736,7 +1729,7 @@ transConstrEq(Suffix) :-
 					'FAIL'(Src),E,E],
 	    writeClause((ConstrEqHnf_X_FAIL_E_E :- !)),
 	    writeClause((ConstrEqHnf_A_B_R_E0_E :- number(A), !,
-             (A=B -> R='Prelude.success', E0=E
+             (A=B -> R='Prelude.True', E0=E
 	           ; prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E))))),
 	appendAtom(genConstrEqHnfBody,Suffix,GenConstrEqHnfBody),
 	GenConstrEqHnfBody_1_NA =.. [GenConstrEqHnfBody,1,NA,A,B,EqBody],
@@ -1750,7 +1743,7 @@ transConstrEq(Suffix) :-
 		          prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E)))),
 	nl,
 	GenConstrEqHnfBody_N_NA_Succ =..
-             [GenConstrEqHnfBody,N,NA,_,_,'Prelude.success'],
+             [GenConstrEqHnfBody,N,NA,_,_,'Prelude.True'],
 	writeClause((GenConstrEqHnfBody_N_NA_Succ :- N>NA,!)),
 	appendAtom('Prelude.=:=',Suffix,Eq),
 	Eq_ArgA_ArgB =.. [Eq,ArgA,ArgB],
@@ -1780,19 +1773,19 @@ transConstrEq(Suffix) :-
 	appendAtom(occursNot,Suffix,OccursNot),
 	OccursNot_X_T =.. [OccursNot,X,T],
 	writeClause((BindDirect_X_T_R_E0_E :- var(T), !, X=T,
-		                              R='Prelude.success', E0=E)),
+		                              R='Prelude.True', E0=E)),
 	(printConsFailure(no)
 	 -> writeClause((BindDirect_X_T_R_E0_E :-
-			     OccursNot_X_T, X=T, R='Prelude.success', E0=E))
+			     OccursNot_X_T, X=T, R='Prelude.True', E0=E))
 	  ; BindDirect_X_FAIL_E_E =..
 	                      [BindDirect,X,'FAIL'(Src),'FAIL'(Src),E,E],
 	    writeClause((BindDirect_X_FAIL_E_E :- !)),
 	    writeClause((BindDirect_X_T_R_E0_E :-
-			     OccursNot_X_T, !, X=T, R='Prelude.success', E0=E)),
+			     OccursNot_X_T, !, X=T, R='Prelude.True', E0=E)),
 	    writeClause((BindDirect_X_T_R_E0_E :-
 		       prim_failure(partcall(2,'Prelude.=:=',[]),[X,T],R,E0,E)))),
 	nl,
-	Bind_X_T_E0_E =.. [Bind,X,T,'Prelude.success',E0,E],
+	Bind_X_T_E0_E =.. [Bind,X,T,'Prelude.True',E0,E],
 	writeClause((Bind_X_T_E0_E :- var(T), !, X=T, E0=E)),
 	writeClause((Bind_X_T_E0_E :- number(T), !, X=T, E0=E)),
 	(printConsFailure(no) -> true
@@ -1821,7 +1814,7 @@ transConstrEq(Suffix) :-
 		        OccursNot_A_ArgB,
 		        N1 is N+1, OccursNotArgs_N1_NA_A_B)),
 	nl,
-	BindArgs_N_NA_A_B_E0_E =.. [BindArgs,N,NA,A,B,'Prelude.success',E0,E],
+	BindArgs_N_NA_A_B_E0_E =.. [BindArgs,N,NA,A,B,'Prelude.True',E0,E],
 	BindArgs_N_NA_A_B_R_E0_E =.. [BindArgs,N,NA,A,B,R,E0,E],
 	Bind_ArgA_HArgB_R_E1_E2 =.. [Bind,ArgA,HArgB,R,E1,E2],
 	Bind_ArgA_HArgB_R0_E1_E2 =.. [Bind,ArgA,HArgB,R0,E1,E2],
@@ -2203,8 +2196,6 @@ transExp(FName,_Aux,Patterns,Vars,Cut,Exp) :-
 	       TPCall =.. [TP|TArgsH],
                writeClauseWithInitGoals(LHS,CutUShares,TPCall) )).
 
-localFunCall(_,'Comb'('FuncCall',"Prelude.success",_)) :-
-	!. % since we implement "success" as a constructor, thus we don't need hnf for it
 localFunCall(DefFuncName,'Comb'('FuncCall',FName,_)) :-
 	atom_codes(DefFuncName,DefFuncNameS),
 	fromSameModule(DefFuncNameS,FName), !.
@@ -2217,8 +2208,6 @@ fromSameModule(F1,F2) :-
 
 isConstructorRooted('Lit'(_)).
 isConstructorRooted('Comb'('ConsCall',_,_)).
-% we implement "success" as a constructor of type "Success":
-isConstructorRooted('Comb'('FuncCall',"Prelude.success",[])).
 isConstructorRooted('Free'(_,Exp)) :- % since we ignore Constr in the code:
 	isConstructorRooted(Exp).
 

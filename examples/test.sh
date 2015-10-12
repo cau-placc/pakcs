@@ -6,7 +6,7 @@ CURRYBIN=$CURRYHOME/bin
 
 LOGFILE=xxx$$
 $CURRYBIN/cleancurry -r
-cat << EOM | $CURRYBIN/curry -q :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
+cat << EOM | $CURRYBIN/curry -q :set parser -W none :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
 :l rev
 append [1,2] [3,4]
 rev [1,2,3,4,5,6,7,8,9,10]

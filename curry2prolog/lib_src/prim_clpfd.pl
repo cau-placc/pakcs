@@ -9,25 +9,25 @@
 
 prim_FD_domain(L,A,B,R) :-
 	(prolog(sicstus) -> domain(L,A,B) ; ins(L,'..'(A,B))),
-	R='Prelude.success'.
+	R='Prelude.True'.
 
 prim_FD_sum(Vs,RelCall,V,R) :-
         checkSICStusAndWarn('CLPFD.sum'),
 	RelCall=partcall(2,FD_Rel,[]),
 	translateFD_Rel(FD_Rel,Rel),
-	sum(Vs,Rel,V), R='Prelude.success'.
+	sum(Vs,Rel,V), R='Prelude.True'.
 
 prim_FD_scalar_product(Cs,Vs,RelCall,V,R) :-
         checkSICStusAndWarn('CLPFD.scalar_product'),
 	RelCall=partcall(2,FD_Rel,[]),
 	translateFD_Rel(FD_Rel,Rel),
-	scalar_product(Cs,Vs,Rel,V), R='Prelude.success'.
+	scalar_product(Cs,Vs,Rel,V), R='Prelude.True'.
 
 prim_FD_count(Val,Vs,RelCall,C,R) :-
         checkSICStusAndWarn('CLPFD.count'),
 	RelCall=partcall(2,FD_Rel,[]),
 	translateFD_Rel(FD_Rel,Rel),
-	count(Val,Vs,Rel,C), R='Prelude.success'.
+	count(Val,Vs,Rel,C), R='Prelude.True'.
 
 translateFD_Rel('CLPFD.=#',#=) :- !.
 translateFD_Rel('CLPFD./=#',#\=) :- !.
@@ -38,16 +38,16 @@ translateFD_Rel('CLPFD.>=#',#>=) :- !.
 translateFD_Rel(FD_Rel,_) :- writeErr('ERROR: Illegal FD constraint: '),
 	writeErr(FD_Rel), nlErr, !, fail.
 
-prim_FD_all_different(L,R) :- all_different(L), R='Prelude.success'.
+prim_FD_all_different(L,R) :- all_different(L), R='Prelude.True'.
 
 prim_FD_indomain(Var,R) :-
 	(prolog(sicstus) -> indomain(Var) ; label([Var])),
-	R='Prelude.success'.
+	R='Prelude.True'.
 
 prim_FD_labeling(Options,L,R) :-
 	map2M(user:translateLabelingOption,Options,PlOptions),
 	labeling(PlOptions,L),
-	R='Prelude.success'.
+	R='Prelude.True'.
 
 translateLabelingOption('CLPFD.LeftMost',leftmost).
 translateLabelingOption('CLPFD.FirstFail',ff).
@@ -72,22 +72,22 @@ prim_FD_minus(Y,X,R) :- #=(R,X-Y).
 
 prim_FD_times(Y,X,R) :- #=(R,X*Y).
 
-prim_FD_equal(Y,X,'Prelude.success') :- #=(X,Y).
+prim_FD_equal(Y,X,'Prelude.True') :- #=(X,Y).
 
-prim_FD_notequal(Y,X,'Prelude.success') :- #\=(X,Y).
+prim_FD_notequal(Y,X,'Prelude.True') :- #\=(X,Y).
 
-prim_FD_le(Y,X,'Prelude.success') :- #<(X,Y).
+prim_FD_le(Y,X,'Prelude.True') :- #<(X,Y).
 
-prim_FD_leq(Y,X,'Prelude.success') :- #=<(X,Y).
+prim_FD_leq(Y,X,'Prelude.True') :- #=<(X,Y).
 
-prim_FD_ge(Y,X,'Prelude.success') :- #>(X,Y).
+prim_FD_ge(Y,X,'Prelude.True') :- #>(X,Y).
 
-prim_FD_geq(Y,X,'Prelude.success') :- #>=(X,Y).
+prim_FD_geq(Y,X,'Prelude.True') :- #>=(X,Y).
 
 prim_FD_solve_reify(Constraint,R) :-
 	translateConstraint(Constraint,PrologConstraint),
 	call(PrologConstraint),
-	R='Prelude.success'.
+	R='Prelude.True'.
 
 translateConstraint(V,V) :- var(V), !.
 translateConstraint(X,X) :- integer(X), !.

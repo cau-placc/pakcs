@@ -58,7 +58,7 @@ prim_getDynamicKnowledge(IsKnownAtTime) :-
 	 -> makeShare(IsKnownAtTime,Result)
 	  ; Result = IsKnownAtTime).
 
-prim_isKnownAtTime(DT,'Dynamic.Dynamic'(P),'Prelude.success') :-
+prim_isKnownAtTime(DT,'Dynamic.Dynamic'(P),'Prelude.True') :-
 	P =.. [Pred,_,_,_|Args],
 	NP =.. [Pred,Start,Stop|Args],
 	call(user:NP),
@@ -309,7 +309,6 @@ translateDynFactArg('Left','Prelude.Left') :- !.
 translateDynFactArg('Right','Prelude.Right') :- !.
 translateDynFactArg('Nothing','Prelude.Nothing') :- !.
 translateDynFactArg('Just','Prelude.Just') :- !.
-translateDynFactArg('success','Prelude.success') :- !.
 translateDynFactArg('LT','Prelude.LT') :- !.
 translateDynFactArg('GT','Prelude.GT') :- !.
 translateDynFactArg('EQ','Prelude.EQ') :- !.

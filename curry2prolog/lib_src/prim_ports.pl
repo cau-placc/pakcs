@@ -148,7 +148,7 @@ prim_openPort(_,S,_) :-
 	nonvar(S), !,
 	writeErr('ERROR: openPort: stream is not a free variable'), nlErr,
 	fail.
-prim_openPort('Ports.internalPort'([],0,0,S),S,'Prelude.success').
+prim_openPort('Ports.internalPort'([],0,0,S),S,'Prelude.True').
 
 
 prim_openPortOnSocket(NewSocketNr,NewPortNr,Result) :-
@@ -370,12 +370,12 @@ prim_sendPort(RMsg,RPort,R,E0,E) :-
 	prim_sendPortExec(Msg,Port,R,E0,E).
 
 prim_sendPortExec(Msg,'Ports.internalPort'(_,0,_,Stream),
-		  'Prelude.success',E0,E) :-
+		  'Prelude.True',E0,E) :-
 	% send to internal port
 	!,
 	add2Stream(Stream,Msg), E0=E.
 prim_sendPortExec('Ports.SP_Put'(Str),'Ports.internalPort'(_,-1,_,WIn),
-		  'Prelude.success',E0,E) :-
+		  'Prelude.True',E0,E) :-
 	% send to stream port
 	!,
 	user:waitUntilGround(Str,E0,E), % wait for string to become bound
@@ -384,7 +384,7 @@ prim_sendPortExec('Ports.SP_Put'(Str),'Ports.internalPort'(_,-1,_,WIn),
 		     writeChars(user_error,Str),
 		     nlErr)).
 prim_sendPortExec('Ports.SP_GetLine'(Str),'Ports.internalPort'(WOut,-1,_,_),
-		'Prelude.success',E0,E) :-
+		'Prelude.True',E0,E) :-
 	% send to stream port
 	!,
 	readStreamLine(WOut,WOLine),
@@ -394,7 +394,7 @@ prim_sendPortExec('Ports.SP_GetLine'(Str),'Ports.internalPort'(WOut,-1,_,_),
 		     nlErr)),
 	user:constrEq(SPOutLine,Str,_,E0,E). % unify SP_Get-Arg with read line
 prim_sendPortExec('Ports.SP_GetChar'(Chr),'Ports.internalPort'(WOut,-1,_,_),
-		'Prelude.success',E0,E) :-
+		'Prelude.True',E0,E) :-
 	% send to stream port
 	!,
 	get_code(WOut,NC), char_int(NC,C),
@@ -403,7 +403,7 @@ prim_sendPortExec('Ports.SP_GetChar'(Chr),'Ports.internalPort'(WOut,-1,_,_),
 		     nlErr)),
 	user:constrEq(C,Chr,_,E0,E). % unify SP_GetChar-Arg with read character
 prim_sendPortExec('Ports.SP_EOF'(Bool),'Ports.internalPort'(WOut,-1,_,_),
-		'Prelude.success',E0,E) :-
+		'Prelude.True',E0,E) :-
 	% send to stream port
 	!,
 	(atEndOfStream(WOut) -> EOF='Prelude.True' ; EOF='Prelude.False'),
@@ -412,17 +412,17 @@ prim_sendPortExec('Ports.SP_EOF'(Bool),'Ports.internalPort'(WOut,-1,_,_),
 		     nlErr)),
 	user:constrEq(Bool,EOF,_,E0,E).	% unify SP_EOF-Arg with current value
 prim_sendPortExec('Ports.SP_Close','Ports.internalPort'(WOut,-1,_,WIn),
-		'Prelude.success',E0,E) :-
+		'Prelude.True',E0,E) :-
 	% send to stream port
 	!,
 	close(WIn), close(WOut), % close input and output streams
 	E0=E.
-prim_sendPortExec(Msg,'Ports.internalPort'(_,-1,_,_),'Prelude.success',E0,E) :-
+prim_sendPortExec(Msg,'Ports.internalPort'(_,-1,_,_),'Prelude.True',E0,E) :-
 	% send to stream port
 	!,
 	writeErr('ERROR: wrong message received by stream port: '),
 	writeErr(Msg), nlErr, E0=E.
-prim_sendPortExec(Msg,'Ports.internalPort'(Host,SNr,PNr,_),'Prelude.success',E0,E) :-
+prim_sendPortExec(Msg,'Ports.internalPort'(Host,SNr,PNr,_),'Prelude.True',E0,E) :-
 	% send to external port
 	% catch connection errors:
         string2Atom(Host,AHost),

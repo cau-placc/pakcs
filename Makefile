@@ -17,9 +17,9 @@
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
-MINORVERSION=13
+MINORVERSION=14
 # The revision version number:
-REVISIONVERSION=1
+REVISIONVERSION=0
 # The build version number:
 BUILDVERSION=1
 # Complete version:

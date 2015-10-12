@@ -14,7 +14,7 @@
 
 ?- block 'prim_spawnConstraint'(?,?,?,-,?).
 'prim_spawnConstraint'(Guard,Exp,H,E0,E) :-
-        user:hnf(Guard,S,E0,_), % S='Prelude.success',
+        user:hnf(Guard,S,E0,_), % S='Prelude.True',
 	user:hnf(Exp,H,E0,E).
 
 prim_isVar(Term,H) :- var(Term), !, H='Prelude.True'.

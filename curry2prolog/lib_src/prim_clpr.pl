@@ -15,13 +15,13 @@ prim_CLPR_times(Y,X,R) :- {R = X*Y}.
 
 prim_CLPR_div(Y,X,R) :- {R = X/Y}.
 
-prim_CLPR_le(Y,X,'Prelude.success') :- {X < Y}.
+prim_CLPR_le(Y,X,'Prelude.True') :- {X < Y}.
 
-prim_CLPR_ge(Y,X,'Prelude.success') :- {X > Y}.
+prim_CLPR_ge(Y,X,'Prelude.True') :- {X > Y}.
 
-prim_CLPR_leq(Y,X,'Prelude.success') :- {X =< Y}.
+prim_CLPR_leq(Y,X,'Prelude.True') :- {X =< Y}.
 
-prim_CLPR_geq(Y,X,'Prelude.success') :- {X >= Y}.
+prim_CLPR_geq(Y,X,'Prelude.True') :- {X >= Y}.
 
 % transform an integer into a float:
 prim_CLPR_i2f(X,R) :- R is X*1.0.
@@ -33,7 +33,7 @@ prim_minimumFor(Guard,Fun,X,E0,E) :-
 
 ?- block exec_minimum(?,?,?,-,?).
 exec_minimum(Guard,Fun,X,E,E3) :-
-        prim_apply(Guard,X,'Prelude.success',E,E1),
+        prim_apply(Guard,X,'Prelude.True',E,E1),
         prim_apply(Fun,X,Z,E1,E2),
 	minimize(Z), E2=E3.
 
@@ -44,6 +44,6 @@ prim_maximumFor(Guard,Fun,X,E0,E) :-
 
 ?- block exec_maximum(?,?,?,-,?).
 exec_maximum(Guard,Fun,X,E,E3) :-
-        prim_apply(Guard,X,'Prelude.success',E,E1),
+        prim_apply(Guard,X,'Prelude.True',E,E1),
         prim_apply(Fun,X,Z,E1,E2),
 	maximize(Z), E2=E3.
