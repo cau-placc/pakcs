@@ -409,10 +409,17 @@ prim_compare(X,Y,R,E0,E) :-
 	user:hnf(Y,HY,E1,E2),
 	prim_compareHNF(HX,HY,R,E2,E).
 
-?- block prim_compareHNF(-,?,?,?,?), prim_compareHNF(?,-,?,?,?),
+?- block %prim_compareHNF(-,?,?,?,?), prim_compareHNF(?,-,?,?,?),
          prim_compareHNF(?,?,?,-,?).
+prim_compareHNF(X,Y,R,E0,E) :- var(X), var(Y), !,
+	when((nonvar(X);nonvar(Y)), prim_compareHNF(X,Y,R,E0,E)).
+prim_compareHNF(X,Y,R,E0,E) :- var(X), !,
+	prim_compareHNF(Y,X,R0,E0,E1),
+	switchOrdering(R0,R), E1=E.
 prim_compareHNF('FAIL'(Src),_,'FAIL'(Src),E,E) :- !.
-prim_compareHNF(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
+prim_compareHNF(_,Y,R,E0,E) :- nonvar(Y), Y='FAIL'(_), !, R=Y, E0=E.
+prim_compareHNF(X,Y,R,E0,E) :- var(Y), (number(X); isCharCons(X)), !,
+	when(nonvar(Y), prim_compareHNF(X,Y,R,E0,E)).
 prim_compareHNF(X,Y,R,E0,E) :- number(X), !,
 	(X=Y -> R='Prelude.EQ' ; (X<Y -> R='Prelude.LT' ; R='Prelude.GT')),
 	E0=E.
@@ -420,6 +427,15 @@ prim_compareHNF(X,Y,R,E0,E) :- isCharCons(X), !,
 	char_int(X,VX), char_int(Y,VY),
 	(VX=VY -> R='Prelude.EQ' ; (VX<VY -> R='Prelude.LT' ; R='Prelude.GT')),
 	E0=E.
+prim_compareHNF(X,Y,R,E0,E) :- var(Y), !,
+	functor(X,FX,NX),
+	( functor(Y,FX,NX), prim_compareArgs(1,NX,X,Y,R,E0,E)
+	; user:constructortype(FX,_,NX,_,IX,_,OtherCons),
+	  member(FY/NY,OtherCons),
+	  user:constructortype(FY,_,NY,_,IY,_,_),
+	  functor(Y,FY,NY),
+	  (IX<IY -> R='Prelude.LT', E0=E ; (IX>IY -> R='Prelude.GT', E0=E))
+	).
 prim_compareHNF(X,Y,R,E0,E) :-
 	functor(X,FX,NX), functor(Y,FY,NY),
 	user:constructortype(FX,_,NX,_,IX,_,_),
@@ -435,6 +451,9 @@ prim_compareArgs(I,N,X,Y,R,E0,E) :-
 	(ArgR='Prelude.EQ' -> I1 is I+1, prim_compareArgs(I1,N,X,Y,R,E1,E)
 	                    ; R=ArgR, E1=E).
 
+switchOrdering('Prelude.LT','Prelude.GT') :- !.
+switchOrdering('Prelude.GT','Prelude.LT') :- !.
+switchOrdering(X,X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % encapsulated search not yet implemented in Curry2Prolog:
