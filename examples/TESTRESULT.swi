@@ -36,8 +36,8 @@ grandfather g c
 {g=Antony, c=Andrew} True
 Loading program "family_fun"...
 (father child) =:= John
-{child=Susan} success
-{child=Peter} success
+{child=Susan} True
+{child=Peter} True
 grandfather g c
 {g=Antony, c=Susan} True
 {g=Antony, c=Peter} True
@@ -45,126 +45,126 @@ grandfather g c
 {g=Antony, c=Andrew} True
 Loading program "horseman"...
 horseman m h (int2nat 8) (int2nat 20)
-{m=S (S (S (S (S (S O))))), h=S (S O)} success
+{m=S (S (S (S (S (S O))))), h=S (S O)} True
 horseman m h (S (S O)) f
-{m=O, h=S (S O), f=S (S (S (S (S (S (S (S O)))))))} success
-{m=S O, h=S O, f=S (S (S (S (S (S O)))))} success
-{m=S (S O), h=O, f=S (S (S (S O)))} success
+{m=O, h=S (S O), f=S (S (S (S (S (S (S (S O)))))))} True
+{m=S O, h=S O, f=S (S (S (S (S (S O)))))} True
+{m=S (S O), h=O, f=S (S (S (S O)))} True
 Loading program "first"...
 goal1
 [O,S O]
 goal2 x y
-{x=S O, y=O} success
+{x=S O, y=O} True
 Loading program "member"...
 goal2 x
 {x=2} True
 {x=3} True
 Loading program "colormap"...
 goal1 l1 l2 l3 l4
-{l1=Red, l2=Yellow, l3=Green, l4=Red} success
-{l1=Red, l2=Yellow, l3=Green, l4=Blue} success
-{l1=Red, l2=Yellow, l3=Blue, l4=Red} success
-{l1=Red, l2=Yellow, l3=Blue, l4=Green} success
-{l1=Red, l2=Green, l3=Yellow, l4=Red} success
-{l1=Red, l2=Green, l3=Yellow, l4=Blue} success
-{l1=Red, l2=Green, l3=Blue, l4=Red} success
-{l1=Red, l2=Green, l3=Blue, l4=Yellow} success
-{l1=Red, l2=Blue, l3=Yellow, l4=Red} success
-{l1=Red, l2=Blue, l3=Yellow, l4=Green} success
-{l1=Red, l2=Blue, l3=Green, l4=Red} success
-{l1=Red, l2=Blue, l3=Green, l4=Yellow} success
-{l1=Yellow, l2=Red, l3=Green, l4=Yellow} success
-{l1=Yellow, l2=Red, l3=Green, l4=Blue} success
-{l1=Yellow, l2=Red, l3=Blue, l4=Yellow} success
-{l1=Yellow, l2=Red, l3=Blue, l4=Green} success
-{l1=Yellow, l2=Green, l3=Red, l4=Yellow} success
-{l1=Yellow, l2=Green, l3=Red, l4=Blue} success
-{l1=Yellow, l2=Green, l3=Blue, l4=Red} success
-{l1=Yellow, l2=Green, l3=Blue, l4=Yellow} success
-{l1=Yellow, l2=Blue, l3=Red, l4=Yellow} success
-{l1=Yellow, l2=Blue, l3=Red, l4=Green} success
-{l1=Yellow, l2=Blue, l3=Green, l4=Red} success
-{l1=Yellow, l2=Blue, l3=Green, l4=Yellow} success
-{l1=Green, l2=Red, l3=Yellow, l4=Green} success
-{l1=Green, l2=Red, l3=Yellow, l4=Blue} success
-{l1=Green, l2=Red, l3=Blue, l4=Yellow} success
-{l1=Green, l2=Red, l3=Blue, l4=Green} success
-{l1=Green, l2=Yellow, l3=Red, l4=Green} success
-{l1=Green, l2=Yellow, l3=Red, l4=Blue} success
-{l1=Green, l2=Yellow, l3=Blue, l4=Red} success
-{l1=Green, l2=Yellow, l3=Blue, l4=Green} success
-{l1=Green, l2=Blue, l3=Red, l4=Yellow} success
-{l1=Green, l2=Blue, l3=Red, l4=Green} success
-{l1=Green, l2=Blue, l3=Yellow, l4=Red} success
-{l1=Green, l2=Blue, l3=Yellow, l4=Green} success
-{l1=Blue, l2=Red, l3=Yellow, l4=Green} success
-{l1=Blue, l2=Red, l3=Yellow, l4=Blue} success
-{l1=Blue, l2=Red, l3=Green, l4=Yellow} success
-{l1=Blue, l2=Red, l3=Green, l4=Blue} success
-{l1=Blue, l2=Yellow, l3=Red, l4=Green} success
-{l1=Blue, l2=Yellow, l3=Red, l4=Blue} success
-{l1=Blue, l2=Yellow, l3=Green, l4=Red} success
-{l1=Blue, l2=Yellow, l3=Green, l4=Blue} success
-{l1=Blue, l2=Green, l3=Red, l4=Yellow} success
-{l1=Blue, l2=Green, l3=Red, l4=Blue} success
-{l1=Blue, l2=Green, l3=Yellow, l4=Red} success
-{l1=Blue, l2=Green, l3=Yellow, l4=Blue} success
+{l1=Red, l2=Yellow, l3=Green, l4=Red} True
+{l1=Red, l2=Yellow, l3=Green, l4=Blue} True
+{l1=Red, l2=Yellow, l3=Blue, l4=Red} True
+{l1=Red, l2=Yellow, l3=Blue, l4=Green} True
+{l1=Red, l2=Green, l3=Yellow, l4=Red} True
+{l1=Red, l2=Green, l3=Yellow, l4=Blue} True
+{l1=Red, l2=Green, l3=Blue, l4=Red} True
+{l1=Red, l2=Green, l3=Blue, l4=Yellow} True
+{l1=Red, l2=Blue, l3=Yellow, l4=Red} True
+{l1=Red, l2=Blue, l3=Yellow, l4=Green} True
+{l1=Red, l2=Blue, l3=Green, l4=Red} True
+{l1=Red, l2=Blue, l3=Green, l4=Yellow} True
+{l1=Yellow, l2=Red, l3=Green, l4=Yellow} True
+{l1=Yellow, l2=Red, l3=Green, l4=Blue} True
+{l1=Yellow, l2=Red, l3=Blue, l4=Yellow} True
+{l1=Yellow, l2=Red, l3=Blue, l4=Green} True
+{l1=Yellow, l2=Green, l3=Red, l4=Yellow} True
+{l1=Yellow, l2=Green, l3=Red, l4=Blue} True
+{l1=Yellow, l2=Green, l3=Blue, l4=Red} True
+{l1=Yellow, l2=Green, l3=Blue, l4=Yellow} True
+{l1=Yellow, l2=Blue, l3=Red, l4=Yellow} True
+{l1=Yellow, l2=Blue, l3=Red, l4=Green} True
+{l1=Yellow, l2=Blue, l3=Green, l4=Red} True
+{l1=Yellow, l2=Blue, l3=Green, l4=Yellow} True
+{l1=Green, l2=Red, l3=Yellow, l4=Green} True
+{l1=Green, l2=Red, l3=Yellow, l4=Blue} True
+{l1=Green, l2=Red, l3=Blue, l4=Yellow} True
+{l1=Green, l2=Red, l3=Blue, l4=Green} True
+{l1=Green, l2=Yellow, l3=Red, l4=Green} True
+{l1=Green, l2=Yellow, l3=Red, l4=Blue} True
+{l1=Green, l2=Yellow, l3=Blue, l4=Red} True
+{l1=Green, l2=Yellow, l3=Blue, l4=Green} True
+{l1=Green, l2=Blue, l3=Red, l4=Yellow} True
+{l1=Green, l2=Blue, l3=Red, l4=Green} True
+{l1=Green, l2=Blue, l3=Yellow, l4=Red} True
+{l1=Green, l2=Blue, l3=Yellow, l4=Green} True
+{l1=Blue, l2=Red, l3=Yellow, l4=Green} True
+{l1=Blue, l2=Red, l3=Yellow, l4=Blue} True
+{l1=Blue, l2=Red, l3=Green, l4=Yellow} True
+{l1=Blue, l2=Red, l3=Green, l4=Blue} True
+{l1=Blue, l2=Yellow, l3=Red, l4=Green} True
+{l1=Blue, l2=Yellow, l3=Red, l4=Blue} True
+{l1=Blue, l2=Yellow, l3=Green, l4=Red} True
+{l1=Blue, l2=Yellow, l3=Green, l4=Blue} True
+{l1=Blue, l2=Green, l3=Red, l4=Yellow} True
+{l1=Blue, l2=Green, l3=Red, l4=Blue} True
+{l1=Blue, l2=Green, l3=Yellow, l4=Red} True
+{l1=Blue, l2=Green, l3=Yellow, l4=Blue} True
 goal2 l1 l2 l3 l4
-{l1=Red, l2=Yellow, l3=Green, l4=Red} success
-{l1=Red, l2=Yellow, l3=Green, l4=Blue} success
-{l1=Red, l2=Yellow, l3=Blue, l4=Red} success
-{l1=Red, l2=Yellow, l3=Blue, l4=Green} success
-{l1=Red, l2=Green, l3=Yellow, l4=Red} success
-{l1=Red, l2=Green, l3=Yellow, l4=Blue} success
-{l1=Red, l2=Green, l3=Blue, l4=Red} success
-{l1=Red, l2=Green, l3=Blue, l4=Yellow} success
-{l1=Red, l2=Blue, l3=Yellow, l4=Red} success
-{l1=Red, l2=Blue, l3=Yellow, l4=Green} success
-{l1=Red, l2=Blue, l3=Green, l4=Red} success
-{l1=Red, l2=Blue, l3=Green, l4=Yellow} success
-{l1=Yellow, l2=Red, l3=Green, l4=Yellow} success
-{l1=Yellow, l2=Red, l3=Green, l4=Blue} success
-{l1=Yellow, l2=Red, l3=Blue, l4=Yellow} success
-{l1=Yellow, l2=Red, l3=Blue, l4=Green} success
-{l1=Yellow, l2=Green, l3=Red, l4=Yellow} success
-{l1=Yellow, l2=Green, l3=Red, l4=Blue} success
-{l1=Yellow, l2=Green, l3=Blue, l4=Red} success
-{l1=Yellow, l2=Green, l3=Blue, l4=Yellow} success
-{l1=Yellow, l2=Blue, l3=Red, l4=Yellow} success
-{l1=Yellow, l2=Blue, l3=Red, l4=Green} success
-{l1=Yellow, l2=Blue, l3=Green, l4=Red} success
-{l1=Yellow, l2=Blue, l3=Green, l4=Yellow} success
-{l1=Green, l2=Red, l3=Yellow, l4=Green} success
-{l1=Green, l2=Red, l3=Yellow, l4=Blue} success
-{l1=Green, l2=Red, l3=Blue, l4=Yellow} success
-{l1=Green, l2=Red, l3=Blue, l4=Green} success
-{l1=Green, l2=Yellow, l3=Red, l4=Green} success
-{l1=Green, l2=Yellow, l3=Red, l4=Blue} success
-{l1=Green, l2=Yellow, l3=Blue, l4=Red} success
-{l1=Green, l2=Yellow, l3=Blue, l4=Green} success
-{l1=Green, l2=Blue, l3=Red, l4=Yellow} success
-{l1=Green, l2=Blue, l3=Red, l4=Green} success
-{l1=Green, l2=Blue, l3=Yellow, l4=Red} success
-{l1=Green, l2=Blue, l3=Yellow, l4=Green} success
-{l1=Blue, l2=Red, l3=Yellow, l4=Green} success
-{l1=Blue, l2=Red, l3=Yellow, l4=Blue} success
-{l1=Blue, l2=Red, l3=Green, l4=Yellow} success
-{l1=Blue, l2=Red, l3=Green, l4=Blue} success
-{l1=Blue, l2=Yellow, l3=Red, l4=Green} success
-{l1=Blue, l2=Yellow, l3=Red, l4=Blue} success
-{l1=Blue, l2=Yellow, l3=Green, l4=Red} success
-{l1=Blue, l2=Yellow, l3=Green, l4=Blue} success
-{l1=Blue, l2=Green, l3=Red, l4=Yellow} success
-{l1=Blue, l2=Green, l3=Red, l4=Blue} success
-{l1=Blue, l2=Green, l3=Yellow, l4=Red} success
-{l1=Blue, l2=Green, l3=Yellow, l4=Blue} success
+{l1=Red, l2=Yellow, l3=Green, l4=Red} True
+{l1=Red, l2=Yellow, l3=Green, l4=Blue} True
+{l1=Red, l2=Yellow, l3=Blue, l4=Red} True
+{l1=Red, l2=Yellow, l3=Blue, l4=Green} True
+{l1=Red, l2=Green, l3=Yellow, l4=Red} True
+{l1=Red, l2=Green, l3=Yellow, l4=Blue} True
+{l1=Red, l2=Green, l3=Blue, l4=Red} True
+{l1=Red, l2=Green, l3=Blue, l4=Yellow} True
+{l1=Red, l2=Blue, l3=Yellow, l4=Red} True
+{l1=Red, l2=Blue, l3=Yellow, l4=Green} True
+{l1=Red, l2=Blue, l3=Green, l4=Red} True
+{l1=Red, l2=Blue, l3=Green, l4=Yellow} True
+{l1=Yellow, l2=Red, l3=Green, l4=Yellow} True
+{l1=Yellow, l2=Red, l3=Green, l4=Blue} True
+{l1=Yellow, l2=Red, l3=Blue, l4=Yellow} True
+{l1=Yellow, l2=Red, l3=Blue, l4=Green} True
+{l1=Yellow, l2=Green, l3=Red, l4=Yellow} True
+{l1=Yellow, l2=Green, l3=Red, l4=Blue} True
+{l1=Yellow, l2=Green, l3=Blue, l4=Red} True
+{l1=Yellow, l2=Green, l3=Blue, l4=Yellow} True
+{l1=Yellow, l2=Blue, l3=Red, l4=Yellow} True
+{l1=Yellow, l2=Blue, l3=Red, l4=Green} True
+{l1=Yellow, l2=Blue, l3=Green, l4=Red} True
+{l1=Yellow, l2=Blue, l3=Green, l4=Yellow} True
+{l1=Green, l2=Red, l3=Yellow, l4=Green} True
+{l1=Green, l2=Red, l3=Yellow, l4=Blue} True
+{l1=Green, l2=Red, l3=Blue, l4=Yellow} True
+{l1=Green, l2=Red, l3=Blue, l4=Green} True
+{l1=Green, l2=Yellow, l3=Red, l4=Green} True
+{l1=Green, l2=Yellow, l3=Red, l4=Blue} True
+{l1=Green, l2=Yellow, l3=Blue, l4=Red} True
+{l1=Green, l2=Yellow, l3=Blue, l4=Green} True
+{l1=Green, l2=Blue, l3=Red, l4=Yellow} True
+{l1=Green, l2=Blue, l3=Red, l4=Green} True
+{l1=Green, l2=Blue, l3=Yellow, l4=Red} True
+{l1=Green, l2=Blue, l3=Yellow, l4=Green} True
+{l1=Blue, l2=Red, l3=Yellow, l4=Green} True
+{l1=Blue, l2=Red, l3=Yellow, l4=Blue} True
+{l1=Blue, l2=Red, l3=Green, l4=Yellow} True
+{l1=Blue, l2=Red, l3=Green, l4=Blue} True
+{l1=Blue, l2=Yellow, l3=Red, l4=Green} True
+{l1=Blue, l2=Yellow, l3=Red, l4=Blue} True
+{l1=Blue, l2=Yellow, l3=Green, l4=Red} True
+{l1=Blue, l2=Yellow, l3=Green, l4=Blue} True
+{l1=Blue, l2=Green, l3=Red, l4=Yellow} True
+{l1=Blue, l2=Green, l3=Red, l4=Blue} True
+{l1=Blue, l2=Green, l3=Yellow, l4=Red} True
+{l1=Blue, l2=Green, l3=Yellow, l4=Blue} True
 Loading program "account"...
 goal1 b
-{b=250} success
+{b=250} True
 goal2 b
-{b=150} success
+{b=150} True
 goal3 s
-{s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]} success
+{s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]} True
 Loading program "maxtree"...
 goal2
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
@@ -317,26 +317,26 @@ h [2,div 1 0]
 False
 Loading program "expr_parser"...
 ((expression val) "(10+5*2)/4") =:= []
-{val=5} success
+{val=5} True
 Loading program "palindrome"...
 (pali "abaaba") =:= []
-success
+True
 pali5
 ["aaaaa","aabaa","ababa","abbba","baaab","babab","bbabb","bbbbb"]
 Loading program "mortgage"...
 mortgage 100000.0 180.0 0.01 r 0.0
-{r=1200.1680620915145} success
+{r=1200.1680620915145} True
 Loading program "smm"...
 smm l
-{l=[9,5,6,7,1,0,8,2]} success
+{l=[9,5,6,7,1,0,8,2]} True
 Loading program "smm2"...
 smm
 [9,5,6,7,1,0,8,2]
 Loading program "accountport"...
 goal1 b
-{b=250} success
+{b=250} True
 goal2 b
-{b=[Deposit 100,Withdraw 30,Withdraw 30,Deposit 70,Withdraw 30,Withdraw 30]} success
+{b=[Deposit 100,Withdraw 30,Withdraw 30,Deposit 70,Withdraw 30,Withdraw 30]} True
 Loading program "nameserver"...
 gn1
 Answer: 0
