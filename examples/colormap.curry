@@ -42,10 +42,6 @@ correct l1 l2 l3 l4 = l1 /= l2 & l1 /= l3 & l2 /= l3 & l2 /= l4 & l3 /= l4
 
 
 -- generate+test solution:
-goal1 l1 l2 l3 l4 = coloring l1 l2 l3 l4 & correct l1 l2 l3 l4
-
-
--- test+generate solution:
-goal2 l1 l2 l3 l4 = correct l1 l2 l3 l4 & coloring l1 l2 l3 l4
+goal l1 l2 l3 l4 = coloring l1 l2 l3 l4 & correct l1 l2 l3 l4
 
 

@@ -14,40 +14,40 @@
 data Person = Christine | Maria | Monica | Alice | Susan |
               Antony | Bill | John | Frank | Peter | Andrew
 
-female Christine  = success
-female Maria      = success
-female Monica     = success
-female Alice      = success
-female Susan      = success
+female Christine  = True
+female Maria      = True
+female Monica     = True
+female Alice      = True
+female Susan      = True
 
 
-male Antony  = success
-male Bill    = success
-male John    = success
-male Frank   = success
-male Peter   = success
-male Andrew  = success
+male Antony  = True
+male Bill    = True
+male John    = True
+male Frank   = True
+male Peter   = True
+male Andrew  = True
 
 
-married Christine Antony  = success
-married Maria Bill        = success
-married Monica John       = success
-married Alice Frank       = success
+married Christine Antony  = True
+married Maria Bill        = True
+married Monica John       = True
+married Alice Frank       = True
 
 
-mother Christine John   = success
-mother Christine Alice  = success
-mother Maria Frank      = success
-mother Monica Susan     = success
-mother Monica Peter     = success
-mother Alice Andrew     = success
+mother Christine John   = True
+mother Christine Alice  = True
+mother Maria Frank      = True
+mother Monica Susan     = True
+mother Monica Peter     = True
+mother Alice Andrew     = True
 
 
-father f c = let m free in married m f & mother m c
+father f c | married m f & mother m c = True  where m free
 
 
-grandfather g c = let f free in father g f & father f c
-grandfather g c = let m free in father g m & mother m c
+grandfather g c | father g f & father f c = True  where f free
+grandfather g c | father g m & mother m c = True  where m free
 
 
 -- goals: 

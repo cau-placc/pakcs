@@ -38,8 +38,7 @@ goal2 x y  where x,y free
 :l member
 goal2 x    where x free
 :l colormap
-goal1 l1 l2 l3 l4   where l1,l2,l3,l4 free
-goal2 l1 l2 l3 l4   where l1,l2,l3,l4 free
+goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 :l account
 goal1 b  where b free
 goal2 b  where b free

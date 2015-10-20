@@ -10,11 +10,6 @@ import Char
 import Parse
 import ReadShowTerm
 
-infixr 0 &&>
-
-(&&>) :: Bool -> a -> a
-b &&> c | b = c
-
 data Json
   = Object [(String, Json)]
   | Array [Json]

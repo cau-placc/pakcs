@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (October 13, 2015)
+Release notes for PAKCS Version 1.14.0 (October 20, 2015)
 ---------------------------------------------------------
 
 Changes to version 1.13.0:
@@ -12,6 +12,8 @@ Changes to version 1.13.0:
     are flexible (instead of rigid as before) on user-defined datatypes.
     It still suspends when comparing two variables or
     one variable with a number or character.
+  * Prelude: operations `(===)` and `(&&>)` removed
+  * Libraries `meta/AbstractCurry...` removed
 
 
 Release notes for PAKCS Version 1.13.1 (October 2, 2015)
