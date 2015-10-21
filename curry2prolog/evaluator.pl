@@ -4,6 +4,7 @@
 :- module(evaluator,
 	  [currentprogram/1, numberOfCalls/1, numberOfExits/1,
 	   singlestep/0, tracemode/0, spymode/0, spypoints/1,
+	   addSuspensionReason/1,
 	   printDepth/1, printAllFailures/0,
 	   profiling/1, suspendmode/1, interactiveMode/1,
 	   firstSolutionMode/1, timemode/1,
@@ -49,6 +50,32 @@ firstSolutionMode(no). % first solution printing mode?
 timemode(no).	 % yes if execution times should be shown
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Auxiliaries for showing suspension reasons:
+% The reasons for suspensions will be collected during run-time
+% and will be shown at the end, if the main expression is suspended.
+
+:- dynamic suspensionReasons/1.
+suspensionReasons([]).
+
+resetSuspensionReasons :-
+	retract(suspensionReasons(_)),
+	asserta(suspensionReasons([])), !.
+
+% add a potential reason why a computation is suspended
+addSuspensionReason(Reason) :-
+	suspensionReasons(Reasons),
+	\+ member(Reason,Reasons), !,
+	retract(suspensionReasons(Reasons)),
+	asserta(suspensionReasons([Reason|Reasons])), !.
+addSuspensionReason(_).
+
+showSuspensionReasons :- suspensionReasons([]), !.
+showSuspensionReasons :-
+	suspensionReasons(Reasons),
+	writeLnErr('*** Possible reasons for the suspension:'),
+	map1M(basics:writeLnErr,Reasons).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % evaluate a goal and exit (used in saved states):
 evaluateGoalAndExit(Goal) :-
@@ -59,6 +86,7 @@ evaluateGoalAndExit(Goal) :-
 % evaluate an expression with a given type and a given list of free variables:
 evaluateMainExpression(Exp,Type,Vs) :-
 	setExitCode(2), % exit code = 2 if value cannot be computed
+	resetSuspensionReasons,
 	retract(allsolutionmode(_)),
 	((interactiveMode(no), firstSolutionMode(no))
            -> asserta(allsolutionmode(yes))
@@ -106,8 +134,7 @@ evaluateMainExp(E,Vs,RTime1,ETime1) :-
          ; ((nonvar(V), V='$io'(_))
 	    -> (nextIOproof
                 -> retract(nextIOproof),
-                   writeErr('ERROR: non-determinism in I/O actions occurred!'),
-                   nlErr,
+                   writeLnErr('ERROR: non-determinism in I/O actions occurred!'),
 	           showProfileData,
 	           !, fail
 	         ; (profiling(yes) % no IO ND checking during profiling
@@ -136,7 +163,7 @@ evaluateMainExp(_,_,RTime1,ETime1) :- % ignore proof attempt for IO ND
 	!, fail.
 evaluateMainExp(_,_,_,_) :-
 	exitCode(2), % we still try to find the first value
-	writeErr('*** No value found!'), nlErr,
+	writeLnErr('*** No value found!'),
 	!, fail.
 evaluateMainExp(_,_,RTime1,ETime1) :-
         (interactiveMode(yes)
@@ -159,7 +186,7 @@ showStatistics(RTime1,ETime1) :-
                ; true).
 
 writeMainResult(Done,_,_,_) :- var(Done), !, % goal suspended
-	writeErr('*** Goal suspended!'), nlErr.
+	writeLnErr('*** Goal suspended!').
 writeMainResult(_,Suspended,Vs,Value) :- var(Value), !,
 	((verbosemode(yes), verbosityNotQuiet) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.
@@ -328,8 +355,8 @@ writeFunctionFailureList(Stream,FTLen,[FCall|FailSrc]) :- !,
 % Write suspended goals if necessary:
 writeSuspendedGoals(Suspended) :-
 	suspendmode(no)
-	-> writeErr('*** Warning: there are suspended constraints (for details: ":set +suspend")'),
-	   nlErr
+	-> writeLnErr('*** Warning: there are suspended constraints (for details: ":set +suspend")'),
+	   showSuspensionReasons
 	 ; write('Suspended goals (in internal representation):'), nl,
 	   map1M(evaluator:tryWriteSuspGoal,Suspended).
 

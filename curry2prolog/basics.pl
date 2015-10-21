@@ -10,8 +10,10 @@
 		  compileWithDebug/0, compileWithFailPrint/0,
 		  hasPrintedFailure/0, printConsFailure/1,
 		  evalToken/1, worldToken/1,
-		  writeNQ/1, nlNQ/0, writeErr/1, nlErr/0,
-		  writeErrNQ/1, nlErrNQ/0, writeBlanks/1,
+		  writeNQ/1, nlNQ/0, writeLnNQ/1,
+		  writeErr/1, nlErr/0, writeLnErr/1,
+		  writeErrNQ/1, nlErrNQ/0, writeLnErrNQ/1,
+		  writeBlanks/1,
 		  onlySICStusMessage/1, checkSICStusAndWarn/1,
 		  putChars/2, writeChars/2,
 		  assertPakcsrc/1, writeRCvalues/0,
@@ -140,14 +142,17 @@ verbosityDetailed :- verbosity(N), N>2.
 % write on standard out if not in quiet mode:
 writeNQ(T) :- quietmode(no) -> write(T); true.
 nlNQ :- quietmode(no) -> nl; true.
+writeLnNQ(T) :- writeNQ(T), nlNQ.
 
 % write on user error:
 writeErr(T) :- write(user_error,T).
 nlErr :- nl(user_error), flush_output(user_error).
+writeLnErr(T) :- writeErr(T), nlErr.
 
 % write on user error if not in quiet mode:
 writeErrNQ(T) :- quietmode(no) -> write(user_error,T); true.
 nlErrNQ :- quietmode(no) -> nl(user_error); true.
+writeLnErrNQ(T) :- writeErrNQ(T), nlErrNQ.
 
 
 % write n blanks on standard out:

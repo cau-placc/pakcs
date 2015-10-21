@@ -33,7 +33,7 @@ nrevLIPS n = do
   -- LIPS = (n+1)*(n+2)/2/exec.time
   putStrLn $ "LIPS: " ++ show ((n+1)*(n+2)*1000 `div` (2*rtime))
 
-main = nrevLIPS 1000
+main = nrevLIPS 4000
 
 -- Result on a Sun Ultra-10 (chevalblanc, with Sicstus/Fast code):
 -- 2.5 MLIPS for (nrev 1000)
@@ -47,8 +47,11 @@ main = nrevLIPS 1000
 -- Result on a Linux-PC AMD Athlon/1.300Mhz (with Sicstus/Emulated code):
 -- 1.43 MLIPS for (nrev 1000)
 
--- Result on a Linux-PC AMD Athlon XP 2600+/2.000Mhz (petrus, with Sicstus/Emulated code):
+-- Result on a Linux-PC AMD Athlon XP 2600+/2.000Mhz (petrus, Sicstus/Emulated):
 -- 2.95 MLIPS for (nrev 1000)
+
+-- Result on a Linux-PC Intel Core i7-4790 / 3.6Ghz (belair, Sicstus 4.3/JIT):
+-- 13.45 MLIPS for (nrev 4000)
 
 
 -- as nrev but double evaluation

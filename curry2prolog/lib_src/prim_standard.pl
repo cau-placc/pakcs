@@ -26,6 +26,7 @@
 
 :- use_module('../prologbasics').
 :- use_module('../basics').
+:- use_module('../evaluator').
 
 % dereference a function's argument, i.e., remove all top-level sharing structures:
 %derefRoot(R,V) :- var(R), !, V=R.
@@ -374,8 +375,10 @@ prim_ensureNotFree(Arg,Result,E0,E) :-
 
 ?- block prim_ensureNotFreeHNF(?,?,-,?).
 prim_ensureNotFreeHNF(Val,Result,E0,E) :-
-	isFail(Val) -> Result=Val, E0=E
-	             ; prim_ensureHnfNotFree(Val,Result,E0,E).
+	isFail(Val)
+	 -> Result=Val, E0=E
+	  ; (var(Val) -> addSuspensionReason('Applying a primitive (rigid) operation to a free variable') ; true),
+	    prim_ensureHnfNotFree(Val,Result,E0,E).
 
 ?- block prim_ensureHnfNotFree(-,?,?,?), prim_ensureHnfNotFree(?,?,-,?).
 prim_ensureHnfNotFree(Val,Val,E,E).
@@ -409,9 +412,9 @@ prim_compare(X,Y,R,E0,E) :-
 	user:hnf(Y,HY,E1,E2),
 	prim_compareHNF(HX,HY,R,E2,E).
 
-?- block %prim_compareHNF(-,?,?,?,?), prim_compareHNF(?,-,?,?,?),
-         prim_compareHNF(?,?,?,-,?).
+?- block prim_compareHNF(?,?,?,-,?).
 prim_compareHNF(X,Y,R,E0,E) :- var(X), var(Y), !,
+	addSuspensionReason('Comparing (with <, >,...) two free variables'),
 	when((nonvar(X);nonvar(Y)), prim_compareHNF(X,Y,R,E0,E)).
 prim_compareHNF(X,Y,R,E0,E) :- var(X), !,
 	prim_compareHNF(Y,X,R0,E0,E1),
@@ -419,6 +422,7 @@ prim_compareHNF(X,Y,R,E0,E) :- var(X), !,
 prim_compareHNF('FAIL'(Src),_,'FAIL'(Src),E,E) :- !.
 prim_compareHNF(_,Y,R,E0,E) :- nonvar(Y), Y='FAIL'(_), !, R=Y, E0=E.
 prim_compareHNF(X,Y,R,E0,E) :- var(Y), (number(X); isCharCons(X)), !,
+	addSuspensionReason('Comparing (with <, >,...) a free variable with a number or character'),
 	when(nonvar(Y), prim_compareHNF(X,Y,R,E0,E)).
 prim_compareHNF(X,Y,R,E0,E) :- number(X), !,
 	(X=Y -> R='Prelude.EQ' ; (X<Y -> R='Prelude.LT' ; R='Prelude.GT')),

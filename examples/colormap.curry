@@ -1,13 +1,6 @@
 -- constraint solving (simple generate and test) in Curry:
 -- graph coloring
 
-
--- auxiliary function:
-
--- negation of (==) which suspends on uninstantiated arguments:
-diff :: a -> a -> Success
-diff x y = (ensureNotFree x == ensureNotFree y) =:= False
-
 {-
  This is our actual map:
 

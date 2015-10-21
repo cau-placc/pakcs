@@ -194,11 +194,11 @@ where $k$ is the arity of $C$.}
 \noindent
 For example, we could define a Smith-tester by writing:
 \begin{curry}
-isSmith Agent { lastName = "Smith" } = success
+isSmith Agent { lastName = "Smith" } = True
 \end{curry}
 which is equivalent to
 \begin{curry}
-isSmith (Agent _ "Smith" _) = success
+isSmith (Agent _ "Smith" _) = True
 \end{curry}
 
 \subsubsection{Field Labels and Modules}

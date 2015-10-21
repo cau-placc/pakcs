@@ -17,7 +17,7 @@ together with the following operations:
 assertTrue      :: String -> Bool -> Assertion ()
 assertEqual     :: String -> a -> a -> Assertion a
 assertValues    :: String -> a -> [a] -> Assertion a
-assertSolutions :: String -> (a->Success) -> [a] -> Assertion a
+assertSolutions :: String -> (a->Bool) -> [a] -> Assertion a
 assertIO        :: String -> IO a -> a -> Assertion a
 assertEqualIO   :: String -> IO a -> IO a -> Assertion a
 \end{curry}

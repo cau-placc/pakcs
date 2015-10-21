@@ -88,15 +88,15 @@ crev (x:xs) ys = let rs free in crev xs rs & cappend rs [x] ys
 
 dotimesrev n l len =
    if n>0 then length (rev l) =:= len & dotimesrev (n-1) l len
-          else success
+          else True
 
 dotimesid n l len =
    if n>0 then length l =:= len & dotimesid (n-1) l len
-          else success
+          else True
 
 dotimescrev n l len =
    if n>0 then let rs free in crev l rs & dotimescrev (n-1) l len
-          else success
+          else True
 
 goal1 n = dotimesrev n (enumFromTo 1 500) 500
 

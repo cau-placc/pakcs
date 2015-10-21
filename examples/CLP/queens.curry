@@ -8,11 +8,11 @@ queens options n l =
        all_safe l &
        labeling options l
 
-all_safe [] = success
+all_safe [] = True
 all_safe (q:qs) = safe q qs 1 & all_safe qs
 
-safe :: Int -> [Int] -> Int -> Success
-safe _ [] _ = success
+safe :: Int -> [Int] -> Int -> Bool
+safe _ [] _ = True
 safe q (q1:qs) p = no_attack q q1 p & safe q qs (p+#1)
 
 no_attack q1 q2 p = q1 /=# q2 & q1 /=# q2+#p & q1 /=# q2-#p

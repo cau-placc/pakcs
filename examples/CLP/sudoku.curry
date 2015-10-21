@@ -11,7 +11,7 @@ import Constraint(allC)
 
 -- Solving a Su Doku puzzle represented as a matrix of numbers (possibly free
 -- variables):
-sudoku :: [[Int]] -> Success
+sudoku :: [[Int]] -> Bool
 sudoku m =
  domain (concat m) 1 9 &             -- define domain of all digits
  allC allDifferent m  &              -- all rows contain different digits

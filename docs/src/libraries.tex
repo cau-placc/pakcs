@@ -44,13 +44,13 @@ Subtraction on floating point numbers.
 Multiplication on floating point numbers.
 \item[\code{(/.)   :: Float -> Float -> Float}]~\\
 Division on floating point numbers.
-\item[\code{(<.)   :: Float -> Float -> Success}]~\\
+\item[\code{(<.)   :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``less than'' relation.
-\item[\code{(>.)   :: Float -> Float -> Success}]~\\
+\item[\code{(>.)   :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``greater than'' relation.
-\item[\code{(<=.)  :: Float -> Float -> Success}]~\\
+\item[\code{(<=.)  :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``less than or equal'' relation.
-\item[\code{(>=.)  :: Float -> Float -> Success}]~\\
+\item[\code{(>=.)  :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``greater than or equal''
 relation.
 \item[\code{i2f    :: Int -> Float}]~\\
@@ -104,7 +104,7 @@ Appendix~\ref{sec-external-functions}), it is relatively
 easy to provide the complete functionality.}
 
 \begin{description}
-\item[\code{domain :: [Int] -> Int -> Int -> Success}]~\\
+\item[\code{domain :: [Int] -> Int -> Int -> Bool}]~\\
 The constraint \ccode{domain [$x_1,\ldots,x_n$] $l$ $u$}
 is satisfied if the domain of all variables $x_i$ is the interval $[l,u]$.
 \item[\code{(+\#)   :: Int -> Int -> Int}]~\\
@@ -113,36 +113,36 @@ Addition on finite domain values.
 Subtraction on finite domain values.
 \item[\code{(*\#)   :: Int -> Int -> Int}]~\\
 Multiplication on finite domain values.
-\item[\code{(=\#)   :: Int -> Int -> Success}]~\\
+\item[\code{(=\#)   :: Int -> Int -> Bool}]~\\
 Equality of finite domain values.
-\item[\code{(/=\#)  :: Int -> Int -> Success}]~\\
+\item[\code{(/=\#)  :: Int -> Int -> Bool}]~\\
 Disequality of finite domain values.
-\item[\code{(<\#)   :: Int -> Int -> Success}]~\\
+\item[\code{(<\#)   :: Int -> Int -> Bool}]~\\
 ``less than'' relation on finite domain values.
-\item[\code{(<=\#)  :: Int -> Int -> Success}]~\\
+\item[\code{(<=\#)  :: Int -> Int -> Bool}]~\\
 ``less than or equal'' relation on finite domain values.
-\item[\code{(>\#)   :: Int -> Int -> Success}]~\\
+\item[\code{(>\#)   :: Int -> Int -> Bool}]~\\
 ``greater than'' relation on finite domain values.
-\item[\code{(>=\#)  :: Int -> Int -> Success}]~\\
+\item[\code{(>=\#)  :: Int -> Int -> Bool}]~\\
 ``greater than or equal'' relation on finite domain values.
-\item[\code{sum :: [Int] -> (Int -> Int -> Success) -> Int -> Success}]~\\
+\item[\code{sum :: [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
 The constraint \ccode{sum [$x_1,\ldots,x_n$] $op$ $x$}
 is satisfied if all $x_1+\cdots + x_n \mathrel{op} x$ is satisfied,
 where $op$ is one of the above finite domain constraint relations
 (e.g., \ccode{=\#}).
-\item[\code{scalar_product :: [Int] -> [Int] -> (Int -> Int -> Success) -> Int -> Success}]~\\
+\item[\code{scalar_product :: [Int] -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
 The constraint \ccode{scalar_product [$c_1,\ldots,c_n$] [$x_1,\ldots,x_n$] $op$ $x$}
 is satisfied if all $c_1 x_1+\cdots + c_n x_n \mathrel{op} x$ is satisfied,
 where $op$ is one of the above finite domain constraint relations.
-\item[\code{count :: Int -> [Int] -> (Int -> Int -> Success) -> Int -> Success}]~\\
+\item[\code{count :: Int -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
 The constraint \ccode{count $k$ [$x_1,\ldots,x_n$] $op$ $x$}
 is satisfied if all $k \mathrel{op} x$ is satisfied,
 where $n$ is the number of the $x_i$ that are equal to $k$ and
 $op$ is one of the above finite domain constraint relations.
-\item[\code{all_different :: [Int] -> Success}]~\\
-The constraint \ccode{all_different [$x_1,\ldots,x_n$]}
+\item[\code{allDifferent :: [Int] -> Bool}]~\\
+The constraint \ccode{allDifferent [$x_1,\ldots,x_n$]}
 is satisfied if all $x_i$ have pairwise different values.
-\item[\code{labeling :: [LabelingOption] -> [Int] -> Success}]~\\
+\item[\code{labeling :: [LabelingOption] -> [Int] -> Bool}]~\\
 The constraint \ccode{labeling $os$ [$x_1,\ldots,x_n$]}
 non-deterministically instantiates all $x_i$ to the values
 of their domain according to the options $os$ (see the module documentation
@@ -170,7 +170,7 @@ smm l =
         domain l 0 9 &
         s ># 0 &
         m ># 0 &
-        all_different l  &
+        allDifferent l  &
                          1000 *# s +# 100 *# e +# 10 *# n +# d
         +#               1000 *# m +# 100 *# o +# 10 *# r +# e
         =# 10000 *# m +# 1000 *# o +# 100 *# n +# 10 *# e +# y &
@@ -204,14 +204,14 @@ This declaration includes the following entities in the program:
 \item[\code{Port a}\pindex{Port}]~\\
 This is the datatype of a port to which one can send messages of type \code{a}.
 
-\item[\code{openPort :: Port a -> [a] -> Success}]~\\
+\item[\code{openPort :: Port a -> [a] -> Bool}]~\\
 The constraint \ccode{openPort p s}\pindex{openPort}
 establishes a new \emph{internal port}
 \code{p} with an associated message stream \code{s}. \code{p} and \code{s} must be
 unbound variables,
 otherwise the constraint fails (and causes a runtime error).
 
-\item[\code{send :: a -> Port a -> Success}]~\\
+\item[\code{send :: a -> Port a -> Bool}]~\\
 The constraint \ccode{send m p}\pindex{send}
 is satisfied if \code{p} is constrained
 to contain the message \code{m}, i.e., \code{m} will be sent to the port

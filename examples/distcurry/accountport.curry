@@ -6,9 +6,9 @@ import Ports
 
 data Message = Deposit Int | Withdraw Int | Balance Int | Exit
 
-account :: Int -> [Message] -> Success
-account _ []                 =  success
-account _ (Exit       : _ )  =  success
+account :: Int -> [Message] -> Bool
+account _ []                 =  True
+account _ (Exit       : _ )  =  True
 account n (Deposit  a : ms)  =  account (n+a) ms
 account n (Withdraw a : ms)  =  account (n-a) ms
 account n (Balance  b : ms)  =  b=:=n & account n ms

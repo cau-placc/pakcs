@@ -8,7 +8,7 @@ conc xs ys = append xs ys                  --> finite search space
 append []     ys = ys
 append (x:xs) ys = x : append xs ys
 
-rev [] []     = success
+rev [] []     = True
 rev l  (x:xs) = let lx free in conc lx [x] =:= l & rev lx xs
 
 goal l = rev [0] l
