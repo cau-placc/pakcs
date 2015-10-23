@@ -162,7 +162,13 @@ isShowableArg(_).
 removeQualifier(N,Dot,UT) :- removeQualifier(N,Dot,N,UT).
 removeQualifier([],_,N,N). % no qualifier in name, keep original name
 removeQualifier([C|Cs],Dot,N,UN) :-
-	C=Dot -> UN=Cs ; removeQualifier(Cs,Dot,N,UN).
+	C=Dot
+	 -> removeQualifier(Cs,Dot,Cs,UN)
+	  ; (isModIdChar(C) -> removeQualifier(Cs,Dot,N,UN)
+	                     ; UN=Cs).
+
+isModIdChar(C) :- char_int(C,N),
+	(65=<N, N=<90 ; 97=<N, N=<122 ; 48=<N, N=<57 ; N=95).
 
 % convert list (arg 1) into difference list (arg 2+3):
 diffList([],E,E).
