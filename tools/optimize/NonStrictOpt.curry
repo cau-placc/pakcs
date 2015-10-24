@@ -8,9 +8,8 @@
 --- @version January 2006
 ------------------------------------------------------------------------
 
-import FlatCurry.Types
-import FlatCurry.Files
-import FlatCurry.Read
+import FlatCurry
+import FlatCurryRead
 import Linearity
 import Dependency
 import FileGoodies
