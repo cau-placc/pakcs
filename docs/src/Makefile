@@ -5,7 +5,7 @@ PAKCS=../../bin/pakcs
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: $(wildcard *.tex) markdown_syntax.tex lib/LAST
+manual.pdf: $(wildcard *.tex lib/*.tex) markdown_syntax.tex
 	pdflatex manual
 	bibtex manual
 	pdflatex manual
@@ -35,9 +35,6 @@ markdown_syntax.tex: markdown_syntax.txt
 # format release notes as HTML page
 ../RELNOTES.html: ../../RELNOTES.txt
 	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
-
-../../lib/TEXDOC/LAST:
-	$(MAKE) libdoc
 
 # generate documentation for all libraries
 .PHONY: libdoc

@@ -49,8 +49,7 @@ show_term('VAR',_,S,E) :-
 show_term(T,Q,S,E) :-
 	atom(T), !,
 	atom2String(T,ST),
-	(Q=qualified -> ShowT=ST
-	              ; char_int(Dot,46), removeQualifier(ST,Dot,ShowT)),
+	(Q=qualified -> ShowT=ST ; removeQualifier(ST,ShowT)),
 	(isId(T) -> diffList(ShowT,S,E)
 	          ; % enclose in parentheses:
 	            char_int(Op,40), char_int(Cl,41),
@@ -159,13 +158,20 @@ isShowableArg('Ports.internalPort'(_,SNr,_,_)) :-
 isShowableArg(_).
 
 % remove module qualifier from internal name:
-removeQualifier(N,Dot,UT) :- removeQualifier(N,Dot,N,UT).
-removeQualifier([],_,N,N). % no qualifier in name, keep original name
+removeQualifier(N,UT) :- char_int(Dot,46), removeQualifier(N,Dot,N,UT).
+removeQualifier(N,Dot,UT) :-
+	startWithModId(N)
+	-> removeQualifier(N,Dot,N,UT)
+	 ; UT=N.
+
+removeQualifier([],_,N,N).  % no qualifier in name, keep original name
 removeQualifier([C|Cs],Dot,N,UN) :-
 	C=Dot
-	 -> removeQualifier(Cs,Dot,Cs,UN)
+	 -> removeQualifier(Cs,Dot,UN)
 	  ; (isModIdChar(C) -> removeQualifier(Cs,Dot,N,UN)
 	                     ; UN=Cs).
+
+startWithModId([C|_]) :- isModIdChar(C).
 
 isModIdChar(C) :- char_int(C,N),
 	(65=<N, N=<90 ; 97=<N, N=<122 ; 48=<N, N=<57 ; N=95).

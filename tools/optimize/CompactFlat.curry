@@ -9,8 +9,9 @@
 
 import List(intersperse)
 import System
-import FlatCurry
-import CompactFlatCurry
+import FlatCurry.Types
+import FlatCurry.Files
+import FlatCurry.Compact
 
 -- Check arguments and call main function:
 main = do

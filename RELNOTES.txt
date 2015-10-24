@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (October 20, 2015)
+Release notes for PAKCS Version 1.14.0 (October 24, 2015)
 ---------------------------------------------------------
 
 Changes to version 1.13.0:
@@ -14,6 +14,55 @@ Changes to version 1.13.0:
     one variable with a number or character.
   * Prelude: operations `(===)` and `(&&>)` removed
   * Libraries `meta/AbstractCurry...` removed
+  * Hierarchical libraries for FlatCurry added and extended:
+    in order to to compatible with future versions, the following
+    imports should be adapted in programs working with AbstractCurry:
+
+    - replace `import FlatCurry` by
+
+          import FlatCurry.Types
+          import FlatCurry.Files
+
+    - replace `import FlatCurryGoodies` by
+
+          import FlatCurry.Goodies
+
+    - replace `import FlatCurryPretty` by
+
+          import FlatCurry.Pretty
+
+    - replace `import FlatCurryRead` by
+
+          import FlatCurry.Read
+
+    - replace `import FlatCurryShow` by
+
+          import FlatCurry.Show
+
+    - replace `import FlatCurryXML` by
+
+          import FlatCurry.XML
+
+    - replace `import CompactFlatCurry` by
+
+          import FlatCurry.Compact
+
+    - replace `import AnnotatedFlatCurry` by
+
+          import FlatCurry.Annotated.Types
+
+    - replace `import AnnotatedFlatGoodies` by
+
+          import FlatCurry.Annotated.Select
+
+    - replace `import AnnotatedFlatCurryPretty` by
+
+          import FlatCurry.Annotated.Pretty
+
+    - replace `import FlexRigid` by
+
+          import FlatCurry.FlexRigid
+
 
 
 Release notes for PAKCS Version 1.13.1 (October 2, 2015)
