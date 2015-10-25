@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (October 24, 2015)
+Release notes for PAKCS Version 1.14.0 (October 25, 2015)
 ---------------------------------------------------------
 
 Changes to version 1.13.0:
@@ -53,7 +53,7 @@ Changes to version 1.13.0:
 
     - replace `import AnnotatedFlatGoodies` by
 
-          import FlatCurry.Annotated.Select
+          import FlatCurry.Annotated.Goodies
 
     - replace `import AnnotatedFlatCurryPretty` by
 
