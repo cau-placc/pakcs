@@ -303,30 +303,30 @@ printed on the standard error stream.
 \index{FlatCurry}
 To support meta-programming, i.e., the manipulation of Curry programs
 in Curry, there are system modules \code{AbstractCurry.Types}
-and \code{FlatCurry} %(stored in the directory \ccode{\cyshome/lib/meta})
+and \code{FlatCurry.Types}
 which define datatypes for the representation
 of Curry programs.
 \code{AbstractCurry.Types} is a more direct representation of a Curry program,
-whereas \code{FlatCurry} is a simplified representation
+whereas \code{FlatCurry.Types} is a simplified representation
 where local function definitions are replaced by global definitions
 (i.e., lambda lifting has been performed) and pattern matching
 is translated into explicit case/or expressions.
-Thus, \code{FlatCurry} can be used for more back-end oriented
+Thus, \code{FlatCurry.Types} can be used for more back-end oriented
 program manipulations (or, for writing new back ends for Curry),
 whereas \code{AbstractCurry.Types} is intended for manipulations of
 programs that are more oriented towards the source program.
 
 There are predefined I/O actions to read AbstractCurry and
 FlatCurry programs: \code{AbstractCurry.Files.readCurry}\pindex{readCurry})
-and \code{FlatCurry.readFlatCurry}\pindex{readFlatCurry}).
+and \code{FlatCurry.Files.readFlatCurry}\pindex{readFlatCurry}).
 These actions parse the corresponding source program and return
 a data term representing this program (according to the definitions
-in the modules \code{AbstractCurry.Types} and \code{FlatCurry}).
+in the modules \code{AbstractCurry.Types} and \code{FlatCurry.Types}).
 
 Since all datatypes are explained in detail in these modules,
 we refer to the online documentation\footnote{%
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/FlatCurry.html} and
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/AbstractCurry.Types.html}}
+\url{http://www.informatik.uni-kiel.de/~pakcs/lib/FlatCurry.Types.html} and
+\url{http://www.informatik.uni-kiel.de/~pakcs/lib/AbstractCurry.Types.html}}
 of these modules.
 
 As an example, consider a program file \ccode{test.curry}
@@ -335,7 +335,7 @@ containing the following two lines:
 rev []     = []
 rev (x:xs) = (rev xs) ++ [x]
 \end{curry}
-Then the I/O action \code{(FlatCurry.readFlatCurry "test")} returns the
+Then the I/O action \code{(FlatCurry.Files.readFlatCurry "test")} returns the
 following term:
 \begin{curry}
  (Prog "test"
@@ -473,16 +473,19 @@ following term:
 \input{lib/AbstractCurry.Select}
 \input{lib/AbstractCurry.Build}
 \input{lib/AbstractCurry.Pretty}
-\input{lib/AnnotatedFlatCurry}
-\input{lib/AnnotatedFlatCurryGoodies}
-\input{lib/CompactFlatCurry}
+\input{lib/FlatCurry.Types}
+\input{lib/FlatCurry.Files}
+\input{lib/FlatCurry.Goodies}
+\input{lib/FlatCurry.Pretty}
+\input{lib/FlatCurry.Read}
+\input{lib/FlatCurry.Show}
+\input{lib/FlatCurry.XML}
+\input{lib/FlatCurry.FlexRigid}
+\input{lib/FlatCurry.Compact}
+\input{lib/FlatCurry.Annotated.Types}
+\input{lib/FlatCurry.Annotated.Pretty}
+\input{lib/FlatCurry.Annotated.Goodies}
 \input{lib/CurryStringClassifier}
-\input{lib/FlatCurry}
-\input{lib/FlatCurryGoodies}
-\input{lib/FlatCurryRead}
-\input{lib/FlatCurryShow}
-\input{lib/FlatCurryXML}
-\input{lib/FlexRigid}
 
 } % end setlength parindent
 

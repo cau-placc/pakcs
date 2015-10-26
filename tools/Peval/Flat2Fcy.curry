@@ -8,7 +8,8 @@
 module Flat2Fcy(writeFCY,flc2fcy) where
 
 import Flat
-import qualified FlatCurry as FCY
+import qualified FlatCurry.Types as FCY
+import qualified FlatCurry.Files
 import ReadShowTerm
 import Unsafe(trace)
 
@@ -34,7 +35,7 @@ flc2fcy (Prog modname imports types funcs ops transtable) = do
 
 --- Read function arities of a module:
 readModArities modname = do
-  (FCY.Prog _ _ _ funcs _) <- FCY.readFlatCurryInt modname
+  (FCY.Prog _ _ _ funcs _) <- FlatCurry.Files.readFlatCurryInt modname
   return $ map (\(FCY.Func name ar _ _ _) -> (name,ar)) funcs
   
 flc2fcyVis pubnames name =

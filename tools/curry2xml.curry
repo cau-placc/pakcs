@@ -3,9 +3,10 @@
 -- XML representation (the corresponding DTD can be found in
 -- http://www.informatik.uni-kiel.de/~curry/flatcurry.dtd)
 --
--- Michael Hanus, March 2001
+-- Michael Hanus, October 2015
 ------------------------------------------------------------------------------
 
+import Distribution(stripCurrySuffix)
 import Flat
 import FlatTools
 import FlatXML
@@ -13,7 +14,7 @@ import Flat2Fcy
 import XML
 import List
 import System
-import FlatCurry(flatCurryFileName)
+import FlatCurry.Files(flatCurryFileName)
 
 -- Check arguments and call main function:
 main = do
@@ -31,11 +32,6 @@ printArgError args =  putStrLn $
   "Parameters:\n" ++
   "-fcy  : translate FlatCurry XML file into FCY file\n" ++
   "-print: print only on standard out instead of writing into file\n"
-
-
-stripCurrySuffix n = let rn = reverse n in
-  if take 6 rn == "yrruc." then reverse (drop 6 rn) else
-  if take 7 rn == "yrrucl." then reverse (drop 7 rn) else n
 
 
 -- translate Curry program into XML/FlatCurry and print this on stdout:
