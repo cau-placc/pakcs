@@ -11,7 +11,8 @@
 import AbstractCurry.Files
 import AbstractCurry.Pretty
 import Directory
-import FlatCurry
+import FlatCurry.Types
+import FlatCurry.Files
 import Assertion
 
 --- Test for equality of a FlatCurry program with the same program

@@ -8,8 +8,8 @@
 --- @version April 2005
 ------------------------------------------------------------------------------
 
-import FlatCurry
-import FlatCurryXML
+import FlatCurry.Files
+import FlatCurry.XML
 import XML
 import Assertion
 

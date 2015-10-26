@@ -5,8 +5,8 @@
 -- > data2xml FlatCurry
 -- > <REPL> :load testData2XmlProg :eval main :quit
 
-import FlatCurry
-import FlatCurryDataToXml
+import FlatCurry.Files
+import FlatCurry_TypesDataToXml
 import XML
 import System
 

@@ -6,8 +6,9 @@
 --- @author Sebastian Fischer
 --- @version December 2005
 
-import FlatCurry
-import FlatCurryGoodies
+import FlatCurry.Types
+import FlatCurry.Files
+import FlatCurry.Goodies
 import Assertion
 
 test = assertIO "identity transformation" identity True
