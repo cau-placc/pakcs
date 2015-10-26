@@ -924,7 +924,11 @@ processCommand("show",_) :- !,
 	writeLnErr('ERROR: Source file not found').
 
 processCommand("source",Arg) :-
-	append(PModS,[46|FunS],Arg), !, % show source code of function in module
+	append(PModS,[46|FunS],Arg),
+	append(_,[LM],PModS), isLetterDigitCode(LM),
+	(\+ member(46,FunS) ; isOperatorName(FunS)),
+	!,
+	% show source code of function in module
 	extractProgName(PModS,ModS),
 	showSourceCodeOfFunction(ModS,FunS).
 
