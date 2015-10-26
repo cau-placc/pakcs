@@ -11,9 +11,11 @@
 
 module Flat where
 
-import Directory
 import Char
+import Directory
 import Distribution
+import FilePath        ((<.>))
+import Maybe           (isNothing)
 
 ------------------------------------------------------------------------------
 -- Definition of data types for representing FlatCurry programs:
@@ -259,16 +261,27 @@ readFlatCurry progfile =
 
 readFlatCurryWithParseOptions :: String -> FrontendParams -> IO Prog
 readFlatCurryWithParseOptions progname options = do
-  existsCurry <- doesFileExist (progname++".curry")
-  existsLCurry <- doesFileExist (progname++".lcurry")
-  if existsCurry || existsLCurry
-   then callFrontendWithParams FCY options progname
-   else done
-  filename <- findFileInLoadPath (progname++".fcy")
+  mbmoddir <- lookupModuleSourceInLoadPath progname
+                >>= return . maybe Nothing (Just . fst)
+  unless (isNothing mbmoddir) $
+    callFrontendWithParams FCY options progname
+  filename <- findFileInLoadPath (flatCurryFileName progname)
   readFlatCurryFile filename
 
+--- Transforms a name of a Curry program (with or without suffix ".curry"
+--- or ".lcurry") into the name of the file containing the
+--- corresponding FlatCurry program.
+flatCurryFileName :: String -> String
+flatCurryFileName prog = inCurrySubdir (stripCurrySuffix prog) <.> "fcy"
+
+--- Transforms a name of a Curry program (with or without suffix ".curry"
+--- or ".lcurry") into the name of the file containing the
+--- corresponding FlatCurry program.
+flatCurryIntName :: String -> String
+flatCurryIntName prog = inCurrySubdir (stripCurrySuffix prog) <.> "fint"
+
 --- I/O action which reads a FlatCurry program from a file in ".fcy" format.
---- In contrast to <CODE>readFlatCurry</CODE>, this action does not parse
+--- In contrast to `readFlatCurry`, this action does not parse
 --- a source program. Thus, the argument must be the name of an existing
 --- file (with suffix ".fcy") containing a FlatCurry program in ".fcy"
 --- format and the result is a FlatCurry term representing this program.

@@ -14,9 +14,9 @@ import Flat2Fcy
 import XML
 import List
 import System
-import FlatCurry.Files(flatCurryFileName)
 
 -- Check arguments and call main function:
+main :: IO ()
 main = do
   args <- getArgs
   case args of
@@ -25,6 +25,7 @@ main = do
     ["-fcy",mod]   -> xml2fcyfile (stripCurrySuffix mod)
     _ -> printArgError args
 
+printArgError :: [String] -> IO ()
 printArgError args =  putStrLn $
   "ERROR: Illegal arguments for curry2xml: " ++
   concat (intersperse " " args) ++ "\n" ++
