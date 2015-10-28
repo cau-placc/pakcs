@@ -13,7 +13,8 @@ Changes to version 1.13.0:
     It still suspends when comparing two variables or
     one variable with a number or character.
   * Prelude: operations `(===)` and `(&&>)` removed
-  * Libraries `meta/AbstractCurry...` removed
+  * Libraries `meta/*` removed (since they have been replaced
+    by libraries with hierachical names, see below)
   * Hierarchical libraries for FlatCurry added and extended:
     in order to to compatible with future versions, the following
     imports should be adapted in programs working with AbstractCurry:
