@@ -359,8 +359,7 @@ getLocalLibPath([]).
 getSysLibPath(LP) :-
 	installDir(Root),
 	appendAtom(Root,'/lib',Lib),
-	appendAtom(Root,'/lib/meta',LibMeta),
-	LP = [Lib,LibMeta].
+	LP = [Lib].
 
 % findFilePropertyInPath(Path,Pred,F,PF): find a file name w.r.t. to path
 %                                         satisfying a given predicate
