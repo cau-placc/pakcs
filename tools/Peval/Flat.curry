@@ -14,7 +14,8 @@ module Flat where
 import Char
 import Directory
 import Distribution
-import FilePath        ((<.>))
+import FileGoodies     (getFileInPath)
+import FilePath        (takeFileName, (</>), (<.>))
 import Maybe           (isNothing)
 
 ------------------------------------------------------------------------------
@@ -262,12 +263,16 @@ readFlatCurry progfile =
 
 readFlatCurryWithParseOptions :: String -> FrontendParams -> IO Prog
 readFlatCurryWithParseOptions progname options = do
-  mbmoddir <- lookupModuleSourceInLoadPath progname
-                >>= return . maybe Nothing (Just . fst)
-  unless (isNothing mbmoddir) $
-    callFrontendWithParams FCY options progname
-  filename <- findFileInLoadPath (flatCurryFileName progname)
-  readFlatCurryFile filename
+  mbsrc <- lookupModuleSourceInLoadPath progname
+  case mbsrc of
+    Nothing -> do -- no source file, try to find FlatCurry file in load path:
+      loadpath <- getLoadPathForModule progname
+      filename <- getFileInPath (flatCurryFileName (takeFileName progname)) [""]
+                                loadpath
+      readFlatCurryFile filename
+    Just (dir,_) -> do
+      callFrontendWithParams FCY options progname
+      readFlatCurryFile (flatCurryFileName (dir </> takeFileName progname))
 
 --- Transforms a name of a Curry program (with or without suffix ".curry"
 --- or ".lcurry") into the name of the file containing the

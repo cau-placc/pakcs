@@ -13,6 +13,12 @@ Changes to version 1.13.0:
     It still suspends when comparing two variables or
     one variable with a number or character.
   * Prelude: operations `(===)` and `(&&>)` removed
+  * Library Distribution: some load path handling operations
+    (`findFileInLoadPath`, `lookupFileInLoadPath`, `readFirstFileInLoadPath`,
+    `getLoadPath`, `getLoadPathForFile`) removed since they are deprecated
+    (use operations like `getLoadPathForModule` and
+    `lookupModuleSourceInLoadPath` instead of the deprecated operations
+    since they handle hierarchical module names better)
   * Libraries `meta/*` removed (since they have been replaced
     by libraries with hierachical names, see below)
   * Hierarchical libraries for FlatCurry added and extended:
