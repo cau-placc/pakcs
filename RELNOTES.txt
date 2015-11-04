@@ -13,6 +13,8 @@ Changes to version 1.13.0:
     It still suspends when comparing two variables or
     one variable with a number or character.
   * Prelude: operations `(===)` and `(&&>)` removed
+  * Libraries CLPFD and CLP.FD: labeling option  `RandomVariable` added
+    (currently only supported by SWI-Prolog)
   * Library Distribution: some load path handling operations
     (`findFileInLoadPath`, `lookupFileInLoadPath`, `readFirstFileInLoadPath`,
     `getLoadPath`, `getLoadPathForFile`) removed since they are deprecated
