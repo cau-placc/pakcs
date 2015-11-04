@@ -6,6 +6,10 @@
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
+# Add PAKCS bin directory to path so that currypp can be found:
+PATH=$PATH:$PAKCSHOME/bin
+export PATH
+
 REPL="$PAKCSHOME/curry2prolog/pakcs"
 if [ ! -x "$REPL" ] ; then
   echo "ERROR: executable '$REPL' not found!" >&2
