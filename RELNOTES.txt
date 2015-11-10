@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (October 25, 2015)
----------------------------------------------------------
+Release notes for PAKCS Version 1.14.0 (November 10, 2015)
+----------------------------------------------------------
 
 Changes to version 1.13.0:
 
@@ -13,7 +13,8 @@ Changes to version 1.13.0:
     It still suspends when comparing two variables or
     one variable with a number or character.
   * Prelude: operations `(===)` and `(&&>)` removed
-  * Libraries CLPFD and CLP.FD: labeling option  `RandomVariable` added
+  * Libraries CLPFD and CLP.FD: labeling options  `RandomVariable` and
+    `RandomValue` added
     (currently only supported by SWI-Prolog)
   * Library Distribution: some load path handling operations
     (`findFileInLoadPath`, `lookupFileInLoadPath`, `readFirstFileInLoadPath`,
