@@ -12,7 +12,7 @@ SICSTUS=`pwd`/../bin/sicstusprolog
 SWI=`pwd`/../bin/swiprolog
 
 # Standard options for SWI-Prolog
-SWIOPTIONS=-q -L0 -G0 -T0 -O
+SWIOPTIONS=--traditional -q -L0 -G0 -T0 -O
 
 # standard name in bin dirctory:
 INSTALLBIN = ../bin/curry

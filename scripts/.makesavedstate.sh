@@ -74,6 +74,12 @@ else
   TMPSTATE=$STATE
 fi
 
+if [ -z "$SICSTURDIR" ] ; then
+  # patch option "--traditional" into SWI-Prolog saved states:
+  sed "3s/-x/--traditional -x/" < $TMPSTATE > $TMPSTATE$$
+  mv $TMPSTATE$$ $TMPSTATE
+fi
+
 TMPFILE=TMPSAVEDSTATE$$
 echo "#!/bin/sh" > $TMPFILE
 if test -n "$LANG" ; then
