@@ -15,6 +15,7 @@
 		  writeErrNQ/1, nlErrNQ/0, writeLnErrNQ/1,
 		  writeBlanks/1,
 		  onlySICStusMessage/1, checkSICStusAndWarn/1,
+		  onlySWIMessage/1, checkSWIAndWarn/1,
 		  putChars/2, writeChars/2,
 		  assertPakcsrc/1, writeRCvalues/0,
 		  evaluateDynamicPredInfo/3, checkDynamicAccessMethod/2,
@@ -177,10 +178,22 @@ checkSICStusAndWarn(Feature) :-
 	prolog(sicstus) -> true ; onlySICStusMessage(Feature).
 
 onlySICStusMessage(Feature) :-
-	writeErr('WARNING: "'), writeErr(Feature),
-	writeErr('" not available!'), nlErr,
-	writeErr('(only available in a PAKCS implementation based on SICStus-Prolog)'),
-	nlErr.
+	appendAtoms(['"',Feature,'" not available ',
+		     '(only available in a PAKCS implementation based on SICStus-Prolog)!'],
+		    Message),
+	raise_exception(Message).
+
+
+% check whether this is a SICStus-based implementation and provide warning
+% if this is not the case:
+checkSWIAndWarn(Feature) :-
+	prolog(swi) -> true ; onlySWIMessage(Feature).
+
+onlySWIMessage(Feature) :-
+	appendAtoms(['"',Feature,'" not available ',
+		     '(only available in a PAKCS implementation based on SWI-Prolog)!'],
+		    Message),
+	raise_exception(Message).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

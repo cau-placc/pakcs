@@ -65,6 +65,16 @@ prologMinorVersion(MV) :-
 	current_prolog_flag(version,VN),
 	MV is (VN mod 10000)//100.
 
+% Check SWI version since version >=7.x is not a real Prolog system...
+:- prologMajorVersion(7)
+	-> nl(user_error),
+	   write(user_error,'CANNOT INSTALL PAKCS WITH SWI VERSION 7.x!!!'),
+	   nl(user_error),
+	   write(user_error,'See http://www.informatik.uni-kiel.de/~pakcs/download.html for further infos.'),
+	   nl(user_error),
+	   nl(user_error),
+	   halt(1)
+	; true.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- multifile pakcsrc/2. % relevant for createSavedState

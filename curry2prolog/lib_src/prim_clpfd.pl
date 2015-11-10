@@ -63,10 +63,12 @@ translateLabelingOption('CLPFD.All',all) :- sicsLabel.
 translateLabelingOption('CLPFD.Minimize'(DomVar),minimize(DomVar)) :- sicsLabel.
 translateLabelingOption('CLPFD.Maximize'(DomVar),maximize(DomVar)) :- sicsLabel.
 translateLabelingOption('CLPFD.Assumptions'(Var),assumptions(Var)) :- sicsLabel.
-translateLabelingOption('CLPFD.RandomVariable'(Seed),random_variable(Seed)).
-translateLabelingOption('CLPFD.RandomValue'(Seed),random_value(Seed)).
+translateLabelingOption('CLPFD.RandomVariable'(Seed),random_variable(Seed)) :- swiLabel.
+translateLabelingOption('CLPFD.RandomValue'(Seed),random_value(Seed)) :- swiLabel.
 
 sicsLabel :- checkSICStusAndWarn('CLPFD.labeling: labeling options').
+
+swiLabel :- checkSWIAndWarn('CLPFD.labeling: labeling options RandomVariable/RandomValue').
 
 prim_FD_plus(Y,X,R) :- #=(R,X+Y).
 
