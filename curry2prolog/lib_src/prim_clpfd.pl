@@ -64,6 +64,7 @@ translateLabelingOption('CLPFD.Minimize'(DomVar),minimize(DomVar)) :- sicsLabel.
 translateLabelingOption('CLPFD.Maximize'(DomVar),maximize(DomVar)) :- sicsLabel.
 translateLabelingOption('CLPFD.Assumptions'(Var),assumptions(Var)) :- sicsLabel.
 translateLabelingOption('CLPFD.RandomVariable'(Seed),random_variable(Seed)).
+translateLabelingOption('CLPFD.RandomValue'(Seed),random_value(Seed)).
 
 sicsLabel :- checkSICStusAndWarn('CLPFD.labeling: labeling options').
 
