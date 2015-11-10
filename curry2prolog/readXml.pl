@@ -131,6 +131,6 @@ xmlUnquoteSpecial("quot",Cs,[34|UCs]) :- !, xmlUnquoteSpecials(Cs,UCs).
 xmlUnquoteSpecial("apos",Cs,[39|UCs]) :- !, xmlUnquoteSpecials(Cs,UCs).
 xmlUnquoteSpecial(Special,Cs,AllUCs) :-
 	append([38],Special,AmpSpecial),
-	append(AmpSpecial,59,QuoteSpecial),
+	append(AmpSpecial,[59],QuoteSpecial),
 	xmlUnquoteSpecials(Cs,UCs),
 	append(QuoteSpecial,UCs,AllUCs).

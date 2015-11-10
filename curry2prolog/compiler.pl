@@ -526,7 +526,7 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	 ; % generate type clause for partcall in the prelude:
 	   writeClause(constructortype(partcall,partcall,3,partcall,0,
 	    'FuncType'('TCons'('Int',[]),
-		       'FuncType'(_,'FuncType'('TCons'([],[_]),_))))),[]),
+		       'FuncType'(_,'FuncType'('TCons'([],[_]),_)))))),
 	map1M(compiler:writeDTypeClause,MainTypes), nl,
 
 	getConstructors(AllTypes,ConsList),
