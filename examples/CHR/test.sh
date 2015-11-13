@@ -6,7 +6,7 @@ CURRYBIN=$CURRYHOME/bin
 
 BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
 
-if [ "$BACKEND" != sicstus4 -a "$BACKEND" != swi6 ] ; then
+if [ "$BACKEND" != sicstus4 -a "$BACKEND" != swi6 -a "$BACKEND" != swi7 ] ; then
   echo "No appropriate Prolog back end, skip the CHR tests."
   exit
 fi
