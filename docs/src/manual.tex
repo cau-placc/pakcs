@@ -9,6 +9,9 @@
 
 \input{version}
 
+% define home dir of the Curry system in order to locate tool manuals:
+\newcommand{\curryhome}{../..}
+
 %%% ------------------------------------------------------------------
 
 \usepackage[colorlinks,linkcolor=blue]{hyperref}
@@ -129,11 +132,16 @@ Frank Steiner$^{10}$ \\[4ex]
 \include{usage}
 \include{extensions}
 \include{syntax}
-\include{currydoc}
-\include{currybrowser}
-\include{currytest}
-\include{erd2curry}
-\include{spicey}
+\clearpage
+\input{\curryhome/currytools/currydoc/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/browser/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/currytest/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/erd2curry/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/spicey/Docs/manual}
 \include{ui}
 \include{preprocessing}
 \include{problems}

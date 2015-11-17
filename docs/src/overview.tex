@@ -137,8 +137,8 @@ solvers for arithmetic and finite domain constraints
 
 \CYS searches for imported modules in various directories.
 By default, imported modules are searched in the directory
-of the main program and the system module directories
-\ccode{\cyshome/lib} and \ccode{\cyshome/lib/meta}.
+of the main program and the system module directory
+\ccode{\cyshome/lib}.
 This search path can be extended
 by setting the environment variable \code{CURRYPATH}\pindex{CURRYPATH}
 (which can be also set in a \CYS session by the option
@@ -158,7 +158,7 @@ if one loads the Curry program \ccode{/home/joe/curryprogs/main}).
 \item The directories enumerated in the environment variable \code{CURRYPATH}.
 \item The directories enumerated in the \ccode{.pakcsrc} variable
       \ccode{libraries}.
-\item The directories \ccode{\cyshome/lib} and \ccode{\cyshome/lib/meta}.
+\item The directory \ccode{\cyshome/lib}.
 \end{enumerate}
 The same strategy also applies to modules with a hierarchical
 module name with the only difference that the hierarchy prefix

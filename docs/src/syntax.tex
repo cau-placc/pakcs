@@ -1,7 +1,7 @@
 \section{Recognized Syntax of Curry}
 
 The \CYS Curry compiler accepts a slightly extended version
-of the grammar specified in the Curry Report \cite{Hanus12Curry}.
+of the grammar specified in the Curry Report \cite{Hanus15Curry}.
 Furthermore, the syntax recognized by \CYS differs
 from that specified in the Curry Report
 regarding numeric or character literals.
@@ -65,18 +65,14 @@ which puts no constraints on the case of identifiers.
 \production{InfixOpID   }{\without{\group{Symbol~\many{Symbol}}}{Dashes}}
 \production{FunctionID  }{Ident}
 \production{VariableID  }{Ident}
-\extension{
 \production{LabelID     }{Ident}
-}
 
 \production{QTypeConstrID}{\opt{ModuleID \term{.}} TypeConstrID}
 \production{QDataConstrID}{\opt{ModuleID \term{.}} DataConstrID}
 \production{QInfixOpID   }{\opt{ModuleID \term{.}} InfixOpID   }
 \production{QFunctionID  }{\opt{ModuleID \term{.}} FunctionID  }
 \production{QVariableID  }{\opt{ModuleID \term{.}} VariableID  }
-\extension{
 \production{QLabelID     }{\opt{ModuleID \term{.}} LabelID     }
-}
 \end{grammar}
 
 The following identifiers are recognized as keywords
@@ -96,7 +92,7 @@ and can be used as ordinary identifiers.
 The following symbols also have a special meaning and cannot
 be used as an infix operator identifier:
 \begin{lstlisting}[escapechar=',literate=]
-..    :     ::    =     \\     |     <-    ->    @     ~
+..    :     ::    =     \     |     <-    ->    @     ~
 \end{lstlisting}
 
 \subsubsection{Comments}
@@ -115,6 +111,9 @@ The precise syntax for both kinds is given below.
 \begin{grammar}
 \production{Int}{
        Decimal
+\extension{
+  \alt \term{0b} Binary      \sor \term{0B} Binary
+}
   \alt \term{0o} Octal       \sor \term{0O} Octal
   \alt \term{0x} Hexadecimal \sor \term{0X} Hexadecimal
 }
@@ -156,16 +155,16 @@ The precise syntax for both kinds is given below.
 \production{Char}{
   \term{'}%
   \group{
-    \without{Graphic}{\term{\bs}}
+    \without{\nonterm{Graphic}}{\term{\bs}}
     \sor Space
-    \sor \without{Escape}{\term{{\tt \bs \&}}}
+    \sor \without{\nonterm{Escape}}{\term{{\tt \bs \&}}}
   }%
   \term{'}
 }
 \production{String}{
   \term{"}%
   \many{
-    \without{Graphic}{\term{"}\sor\term{\bs}}
+    \without{\nonterm{Graphic}}{\term{"} \sor \term{\bs}}
     \sor Space
     \sor Escape
     \sor Gap
@@ -274,6 +273,7 @@ assumed to start in column 0.
   \alt QTypeConstrID \term{(..)}
   \alt \term{module} ModuleID
 }
+
 \extension{
 \production{ConsLabelName}{LabelID \sor DataConstr}
 }
@@ -321,43 +321,48 @@ assumed to start in column 0.
 \production{TypeSynonymDecl}{
   \term{type} SimpleType \term{=} TypeExpr
 }
+
 \production{SimpleType}{
   TypeConstrID \seq{TypeVarID}{}{n} \margin{n \geq 0}
 }
+
 \lexicon{TypeConstrID}
 
 % Data type
 \production{DataDeclaration}{
-     \extension{\term{data} SimpleType \margtext{external data type}}%
+     \term{data} SimpleType \margtext{external data type}%
 \alt \term{data} SimpleType \term{=} \seq{ConstrDecl}{|}{n} \margin{n > 0}
 }
+
 \production{ConstrDecl}{
        \extension{DataConstr} \seq{SimpleTypeExpr}{}{n} \margin{n \geq 0}%
 \extension{
   \alt SimpleTypeExpr ConsOp TypeConsExpr
        \margtext{infix data constructor}
-  \alt \extension{DataConstr \term{\{} \seq{FieldDeclaration}{,}{n} \term{\}}}\margin{n \geq 0}%
+  \alt \extension{DataConstr} \term{\{} \seq{FieldDeclaration}{,}{n} \term{\}}\margin{n \geq 0}%
 }
 }
+
 % Field labels
-\extension{
 \production{FieldDeclaration}{
   \seq{LabelID}{,}{n} \term{::} TypeExpr \margin{n > 0}
 }
+
 \lexicon{LabelID}
-}
 
 
 % Type expression
 \production{TypeExpr}{
   \extension{TypeConsExpr} \opt{\term{->} TypeExpr}
 }
+
 \extension{
 \production{TypeConsExpr}{
   QTypeConstrID \seq{SimpleTypeExpr}{}{n} \margin{n > 0}
   \alt SimpleTypeExpr
 }
 }
+
 \production{SimpleTypeExpr}{
        TypeVarID
   \extension{\alt QTypeConstrID}
@@ -366,6 +371,7 @@ assumed to start in column 0.
   \alt \term{[} TypeExpr \term{]} \margtext{list type}
   \alt \term{(} TypeExpr \term{)} \margtext{parenthesized type}
 }
+
 \lexicon{TypeVarID}
 
 
@@ -373,6 +379,7 @@ assumed to start in column 0.
 \production{FixityDeclaration}{
   FixityKeyword Digit \seq{InfixOpID}{,}{n} \margin{n>0}
 }
+
 \production{FixityKeyword}{\term{infixl} \sor \term{infixr} \sor \term{infix}}
 \lexicon{InfixOpID}
 
@@ -381,22 +388,28 @@ assumed to start in column 0.
 \production{FunctionDeclaration}{
   Signature \sor \extension{External} \sor Equat
 }
+
 \extension{
 \production{External}{
   FunctionNames \term{external} \margtext{externally defined functions}
 }}%
+
 \production{Signature}{FunctionNames \term{::} TypeExpr}
+
 \production{FunctionNames}{\seq{FunctionName}{,}{n} \margin{n > 0}}
+
 \production{Equat}{
-  FunLHS \term{=} \extension{TypedExpr} \opt{\term{where} LocalDefs}
+  FunLHS \term{=} Expr \opt{\term{where} LocalDefs}
   \alt FunLHS CondExprs \opt{\term{where} LocalDefs}
 }
+
 \production{FunLHS}{
   FunctionName \seq{SimplePat}{}{n} \margin{n \geq 0}
   \alt SimplePat InfixOpID SimplePat
 }
+
 \production{CondExprs}{
-  \term{|} \extension{InfixExpr} \term{=} \extension{TypedExpr} \opt{CondExprs}
+  \term{|} InfixExpr \term{=} Expr \opt{CondExprs}
 }
 
 % Pattern
@@ -404,10 +417,12 @@ assumed to start in column 0.
   ConsPattern \opt{\extension{QConsOp} Pattern}
   \margtext{infix constructor pattern}
 }
+
 \production{ConsPattern}{
   \extension{GDataConstr} \seq{SimplePat}{}{n} \margtext{constructor pattern}
   \alt SimplePat
 }
+
 \production{SimplePat}{
   \extension{Variable}
   \alt \term{\us} \margtext{wildcard}
@@ -436,20 +451,21 @@ assumed to start in column 0.
        \margtext{infix functional pattern}
   \alt \term{(} QFunctionName \seq{SimplePat}{}{n} \term{)}
        \margcomb{functional pattern}{n > 0}
-  \alt QDataConstr \term{\{} \seq{FieldPat}{,}{n} \term{\}}
+}
+  \alt \extension{QDataConstr} \term{\{} \seq{FieldPat}{,}{n} \term{\}}
        \margcomb{labeled pattern}{n \geq 0}
 }
-}
-\extension{
+
 \production{FieldPat}{QLabelID \term = Pattern}
+
 \lexicon{QLabelID}
-}
 
 
 % Local Definitions
 \production{LocalDefs}{
   \offside{ValueDeclaration}{;}{n} \margin{n > 0}
 }
+
 \production{ValueDeclaration}{
   FunctionDeclaration
   \alt PatternDeclaration
@@ -459,37 +475,38 @@ assumed to start in column 0.
 %   \alt ForeignDeclaration
 }
 }
+
 \production{PatternDeclaration}{
-  Pattern \term{=} \extension{TypedExpr} \opt{\term{where} LocalDefs}
+  Pattern \term{=} Expr \opt{\term{where} LocalDefs}
 }
 
 
 % Expressions
-\extension{
-\production{TypedExpr}{
+\production{Expr}{
   InfixExpr \term{::} TypeExpr \margtext{expression type signature}
   \alt InfixExpr
 }
+
 \production{InfixExpr}{
-       Expr QOp  InfixExpr \margtext{infix operator application}
+       NoOpExpr QOp  InfixExpr \margtext{infix operator application}
   \alt \term{-}  InfixExpr \margtext{unary int minus}
   \alt \term{-.} InfixExpr \margtext{unary float minus}
-  \alt Expr
+  \alt NoOpExpr
 }
-}
-\production{Expr}{
-       \term{\bs} \seq{SimplePat}{}{n} \term{->} \extension{TypedExpr}
+
+\production{NoOpExpr}{
+       \term{\bs} \seq{SimplePat}{}{n} \term{->} Expr
        \margcomb{lambda expression}{n > 0}
-  \alt \term{let} LocalDefs \term{in} \extension{TypedExpr}
+  \alt \term{let} LocalDefs \term{in} Expr
        \margtext{let expression}
-  \alt \term{if} \extension{TypedExpr} \term{then} \extension{TypedExpr}
-                                       \term{else} \extension{TypedExpr}
+  \alt \term{if} Expr \term{then} Expr
+                                       \term{else} Expr
        \margtext{conditional}
-  \alt \term{case} \extension{TypedExpr} \term{of} \offside{Alt}{;}{n}
+  \alt \term{case} Expr \term{of} \offside{Alt}{;}{n}
        \margcomb{case expression}{n \geq 0}
-  \alt \term{fcase} \extension{TypedExpr} \term{of} \offside{Alt}{;}{n}
+  \alt \term{fcase} Expr \term{of} \offside{Alt}{;}{n}
        \margcomb{fcase expression}{n \geq 0}
-  \alt \term{do} \term{\{} \seq{Stmt}{;}{n} \term{;} \extension{TypedExpr} \term{\}}
+  \alt \term{do} \term{\{} \seq{Stmt}{;}{n} \term{;} Expr \term{\}}
        \margcomb{do expression}{n \geq 0}
   \alt FunctExpr
 }
@@ -508,53 +525,50 @@ assumed to start in column 0.
        \margtext{general constructor}
 }
   \alt Literal
-  \alt \term{(} \extension{TypedExpr} \term{)}
+  \alt \term{(} Expr \term{)}
        \margtext{parenthesized expression}
-  \alt \term{(} \seq{\extension{TypedExpr}}{,}{n} \term{)}
+  \alt \term{(} \seq{Expr}{,}{n} \term{)}
        \margcomb{tuple}{n > 1}
-  \alt \term{[} \seq{\extension{TypedExpr}}{,}{n} \term{]}
+  \alt \term{[} \seq{Expr}{,}{n} \term{]}
        \margcomb{finite list}{\extension{n > 0}}
-  \alt \term{[} \extension{TypedExpr} \opt{\term{,} \extension{TypedExpr}}
-       \term{..} \opt{\extension{TypedExpr}} \term{]}
+  \alt \term{[} Expr \opt{\term{,} Expr}
+       \term{..} \opt{Expr} \term{]}
        \margtext{arithmetic sequence}
-  \alt \term{[} \extension{TypedExpr} \term{|} \seq{Qual}{,}{n} \term{]}
+  \alt \term{[} Expr \term{|} \seq{Qual}{,}{n} \term{]}
        \margcomb{list comprehension}{n\geq 1}
   \alt \term{(} \extension{InfixExpr QOp} \term{)}
        \margtext{left section}
-  \alt \term{(} \extension{\without{QOp}{\term{-}, \term{-.}} InfixExpr} \term{)}
+  \alt \term{(} \extension{\without{\nonterm{QOp}}{\term{-}, \term{-.}} InfixExpr} \term{)}
        \margtext{right section}%
-\extension{
-  \alt QDataConstr \term{\{} \seq{FBind}{,}{n} \term{\}}
+  \alt \extension{QDataConstr} \term{\{} \seq{FBind}{,}{n} \term{\}}
        \margcomb{labeled construction}{n \geq 0}
-  \alt \without{BasicExpr}{QDataConstr} \term{\{} \seq{FBind}{,}{n} \term{\}}
+  \alt \without{BasicExpr}{\extension{QDataConstr}} \term{\{} \seq{FBind}{,}{n} \term{\}}
        \margcomb{labeled update}{n > 0}
-  }
 }
 
 \production{Alt}{
-       Pattern \term{->} \extension{TypedExpr} \opt{\term{where} LocalDefs}
+       Pattern \term{->} Expr \opt{\term{where} LocalDefs}
   \alt Pattern GdAlts                          \opt{\term{where} LocalDefs}
 }
+
 \production{GdAlts}{
-  \term{|} \extension{TypedExpr} \term{->} \extension{TypedExpr} \opt{GdAlts}
+  \term{|} InfixExpr \term{->} Expr \opt{GdAlts}
 }
 
-\extension{
 \production{FBind}{
-  QLabelID \term{=} TypedExpr
-}
+  QLabelID \term{=} Expr
 }
 
 \production{Qual}{
-       \extension{TypedExpr}
+       Expr
   \alt \term{let} LocalDefs
-  \alt Pattern \term{<-} \extension{TypedExpr}
+  \alt Pattern \term{<-} Expr
 }
 
 \production{Stmt}{
-       \extension{TypedExpr}
+       Expr
   \alt \term{let} LocalDefs
-  \alt Pattern \term{<-} \extension{TypedExpr}
+  \alt Pattern \term{<-} Expr
 }
 
 \production{Literal}{
