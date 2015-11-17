@@ -103,7 +103,7 @@ pakcsMain :-
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
 
-% extract all run-time arguments of the form "-Dname=value" as a property list:
+% extract the initial arguments of the form "-Dname=value" as a property list:
 processDArgs([],[],[]).
 processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Arg,[45,68|Def]), !, % [45,68] = "-D"
@@ -111,8 +111,7 @@ processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Name,NameS),
 	atom_codes(Val,ValS),
 	processDArgs(DArgs,Props,Args).
-processDArgs([Arg|DArgs],Props,[Arg|Args]) :-
-	processDArgs(DArgs,Props,Args).
+processDArgs(Args,Props,Args).
 
 % process the remaining run-time arguments:
 processArgs([]).
