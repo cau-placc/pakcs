@@ -228,8 +228,7 @@ libdoc:
 runtest: testsuite/doTest
 	cd testsuite && ./doTest --nogui
 	cd currytools/optimize/binding_optimization/Examples && ./test.sh
-	cd currytools/currypp/SequentialRules/Examples && ./test.sh
-	cd currytools/currypp/DefaultRules/Examples && ./test.sh
+	cd currytools/currypp && $(MAKE) runtest
 	cd examples/CHR && ./test.sh
 
 $(CLEANCURRY):

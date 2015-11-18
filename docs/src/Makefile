@@ -5,7 +5,8 @@ PAKCS=../../bin/pakcs
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: $(wildcard *.tex lib/*.tex) markdown_syntax.tex
+manual.pdf: $(wildcard *.tex lib/*.tex ../../currytools/*/Docs/*.tex) \
+	    markdown_syntax.tex
 	pdflatex manual
 	bibtex manual
 	pdflatex manual
