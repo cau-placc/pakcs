@@ -111,7 +111,7 @@ processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Name,NameS),
 	atom_codes(Val,ValS),
 	processDArgs(DArgs,Props,Args).
-processDArgs(Args,Props,Args).
+processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
 processArgs([]).
@@ -141,8 +141,8 @@ processArgs([Arg|Args]) :- % command option as in KiCS2
 processArgs([Arg|Args]) :-
 	atom_codes(Arg,[45|_]), !, % 45='-'
 	writeErr('ERROR: Illegal or no longer supported option: '),
-	writeErrLn([Arg|Args]),
-	writeErrLn('Hint: use command options (like "pakcs :load rev")'),
+	writeLnErr([Arg|Args]),
+	writeLnErr('Hint: use command options (like "pakcs :load rev")'),
 	halt(1).
 processArgs([Arg|Args]) :-
 	retract(rtArgs(RTA)),
