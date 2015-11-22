@@ -974,7 +974,9 @@ processCommand("save",Exp) :- !,
 	  ; CMD2=CMD1),
 	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
 	shellCmdWithReport(Cmd),
-	write('Executable saved in: '), write(ProgName), nl,
+	(verbosityNotQuiet
+	  -> write('Executable saved in: '), write(ProgName), nl
+	   ; true),
 	call(ProgInits).
 
 processCommand("fork",STail) :- !, processFork(STail).

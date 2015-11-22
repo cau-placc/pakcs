@@ -228,7 +228,8 @@ libdoc:
 runtest: testsuite/doTest
 	cd testsuite && ./doTest --nogui
 	cd currytools/optimize/binding_optimization/Examples && ./test.sh
-	cd currytools/currypp && $(MAKE) runtest
+	cd currytools/currypp  && $(MAKE) runtest
+	cd currytools/runcurry/Examples && ./test.sh
 	cd examples/CHR && ./test.sh
 
 $(CLEANCURRY):
