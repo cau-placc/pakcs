@@ -227,9 +227,7 @@ libdoc:
 .PHONY: runtest
 runtest: testsuite/doTest
 	cd testsuite && ./doTest --nogui
-	cd currytools/optimize/binding_optimization/Examples && ./test.sh
-	cd currytools/currypp  && $(MAKE) runtest
-	cd currytools/runcurry/Examples && ./test.sh
+	cd currytools && $(MAKE) runtest
 	cd examples/CHR && ./test.sh
 
 $(CLEANCURRY):
