@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (November 10, 2015)
+Release notes for PAKCS Version 1.14.0 (November 27, 2015)
 ----------------------------------------------------------
 
 Changes to version 1.13.0:
@@ -73,6 +73,8 @@ Changes to version 1.13.0:
 
           import FlatCurry.FlexRigid
 
+  * New libraries added: ErrorState, SCC, Rewriting.*,
+    FlatCurry.Annotated.TypeInference
 
 
 Release notes for PAKCS Version 1.13.1 (October 2, 2015)
