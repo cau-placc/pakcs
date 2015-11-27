@@ -75,7 +75,9 @@ Changes to version 1.13.0:
 
   * New libraries added: ErrorState, SCC, Rewriting.*,
     FlatCurry.Annotated.TypeInference
-
+  * currytools: typeinference removed since it is now contained
+    in the standard system libraries
+    
 
 Release notes for PAKCS Version 1.13.1 (October 2, 2015)
 --------------------------------------------------------
