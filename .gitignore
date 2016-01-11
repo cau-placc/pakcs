@@ -50,6 +50,7 @@ bin/currycreatemake
 bin/currydoc
 bin/currybrowse
 bin/currypp
+bin/cusage
 bin/data2xml
 bin/erd2cdbi
 bin/erd2curry
