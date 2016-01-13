@@ -73,7 +73,7 @@ Changes to version 1.13.0:
 
           import FlatCurry.FlexRigid
 
-  * New libraries added: ErrorState, SCC, Rewriting.*,
+  * New libraries added: Bootstrap3Style, ErrorState, SCC, Rewriting.*,
     FlatCurry.Annotated.TypeInference
   * currytools: typeinference removed since it is now contained
     in the standard system libraries
