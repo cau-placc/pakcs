@@ -49,7 +49,7 @@
 		  prog2ICurryFile/2, hierarchical2dirs/2,
 		  readLine/1, readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
-		  printError/1,prologError2Atom/2]).
+		  printError/1, prologError2Atom/2]).
 
 :- use_module(prologbasics).
 :- use_module(pakcsversion).
@@ -951,13 +951,8 @@ printError(error(_,Error)) :-
         seen, told,
         !,
         fail.
-printError(Error) :-
-	writeErr('ERROR: '),
-	(atomic(Error) -> ErrorA=Error ; prologTerm2Atom(Error,ErrorA)),
-	writeErr(ErrorA), nlErr,
-        seen, told,
-        !,
-        fail.
+printError(_) :- % this clause should not be reached...
+        writeErr('Internal error in printError/1'), nlErr, halt(1).
 
 prologError2Atom(existence_error(Goal,_,_,_,Message),ErrA) :-
 	nonvar(Message), Message = past_end_of_stream, !,
@@ -971,6 +966,10 @@ prologError2Atom(existence_error(_Goal,_,ObjType,Culprit,_),ErrA) :-
 prologError2Atom(permission_error(_Goal,_,ObjType,Culprit,Msg),ErrA) :-
 	atom(ObjType), atom(Culprit), atom(Msg), !,
 	appendAtoms(['PERMISSION ERROR: ',ObjType,' "',Culprit,'" ',Msg],ErrA).
+prologError2Atom(Error,ErrA) :-
+	(atomic(Error) -> ErrorTermA=Error
+                        ; prologTerm2Atom(Error,ErrorTermA)),
+	appendAtoms(['ERROR: ',ErrorTermA],ErrA).
 
 prologTerm2Atom(V,'_') :- var(V), !.
 prologTerm2Atom(A,A) :- atom(A), !.
