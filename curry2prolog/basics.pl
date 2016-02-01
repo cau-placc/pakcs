@@ -945,14 +945,13 @@ isCompleteList([X|Xs],[X|L]) :- isCompleteList(Xs,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print an error message:
-printError(error(_,Error)) :-
+printError(Err) :-
+        (Err=error(_,Error) ; Err=Error), !,
 	prologError2Atom(Error,ErrorA),
 	writeErr(ErrorA), nlErr,
         seen, told,
         !,
         fail.
-printError(_) :- % this clause should not be reached...
-        writeErr('Internal error in printError/1'), nlErr, halt(1).
 
 prologError2Atom(existence_error(Goal,_,_,_,Message),ErrA) :-
 	nonvar(Message), Message = past_end_of_stream, !,
