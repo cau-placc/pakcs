@@ -45,6 +45,7 @@ bin/addtypes
 bin/cass
 bin/cymake
 bin/curry
+bin/currycheck
 bin/currytest
 bin/currycreatemake
 bin/currydoc
