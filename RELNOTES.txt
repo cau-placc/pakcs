@@ -1,13 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (November 27, 2015)
+Release notes for PAKCS Version 1.14.0 (February 10, 2016)
 ----------------------------------------------------------
 
 Changes to version 1.13.0:
 
   * Type `Success` is now a type synonym for `Bool` and
     `success` is defined as `True` in the prelude.
+  * Library Constraints removed since it is no longer necessary
+    due to the equivalence of `Success` and `Bool`.
   * Operation `Prelude.compare` and related comparison operations
     are flexible (instead of rigid as before) on user-defined datatypes.
     It still suspends when comparing two variables or
