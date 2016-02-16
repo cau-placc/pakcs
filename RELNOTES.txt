@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (February 10, 2016)
+Release notes for PAKCS Version 1.14.0 (February 16, 2016)
 ----------------------------------------------------------
 
 Changes to version 1.13.0:
@@ -24,6 +24,7 @@ Changes to version 1.13.0:
     (use operations like `getLoadPathForModule` and
     `lookupModuleSourceInLoadPath` instead of the deprecated operations
     since they handle hierarchical module names better)
+  * Libraries `List`: `diagonal` added
   * Libraries `meta/*` removed (since they have been replaced
     by libraries with hierachical names, see below)
   * Hierarchical libraries for FlatCurry added and extended:
@@ -79,7 +80,8 @@ Changes to version 1.13.0:
     FlatCurry.Annotated.TypeInference
   * currytools: typeinference removed since it is now contained
     in the standard system libraries
-    
+  * currytools: new tool `currycheck` for automated test execution added
+
 
 Release notes for PAKCS Version 1.13.1 (October 2, 2015)
 --------------------------------------------------------
