@@ -186,7 +186,7 @@ showStatistics(RTime1,ETime1) :-
                ; true).
 
 writeMainResult(Done,_,_,_) :- var(Done), !, % goal suspended
-	writeLnErr('*** Goal suspended!').
+	writeLnErr('*** Evaluation suspended!').
 writeMainResult(_,Suspended,Vs,Value) :- var(Value), !,
 	((verbosemode(yes), verbosityNotQuiet) -> write('Result: ') ; true),
 	writeCurryTermWithFreeVarNames(Suspended,Vs,Value), nl.

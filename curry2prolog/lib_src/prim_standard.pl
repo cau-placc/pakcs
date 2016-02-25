@@ -15,7 +15,7 @@
 %	   prim_Monad_bind/5, prim_Monad_seq/5, prim_putChar/2, prim_getChar/1,
 %	   prim_return/4, prim_readFile/2, prim_readFileContents/4,
 %	   prim_writeFile/5, prim_appendFile/5,
-%	   prim_catch/5, prim_catchFail/5,
+%	   prim_catch/5,
 %	   prim_apply/5, prim_applySeq/5, prim_applyNormalForm/5,
 %	   prim_applyNotFree/5, prim_applyGroundNormalForm/5,
 %	   prim_seq/5, prim_ensureNotFree/4,
@@ -246,32 +246,25 @@ prim_catch(A1,A2,partcall(1,prim_catchWorld,[A2,A1]),E,E).
 ?- block prim_catchWorld(?,?,?,?,-,?).
 prim_catchWorld(Action,ErrFunction,W,R,E0,E) :-
 	on_exception(ErrorMsg,
-		     prim_apply(Action,W,R,E0,E),
+		     (prim_apply(Action,W,R0,E0,E),
+                         (nonvar(E) -> R=R0
+                         ; ErrAtom = 'Computation suspended',
+                           returnIOError(ErrAtom,ErrFunction,W,R,E0,E))),
 		     (prologError2Atom(ErrorMsg,ErrAtom),
-		      atom2String(ErrAtom,ErrString),
-		      ErrValue = 'Prelude.IOError'(ErrString),
-		      applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E))),
+		      returnIOError(ErrAtom,ErrFunction,W,R,E0,E))),
 	!.
 prim_catchWorld(_,ErrFunction,W,R,E0,E) :-
 	atom2String('IO action failed',FailMsg),
 	applyErrorFunction(ErrFunction,'Prelude.FailError'(FailMsg),W,R,E0,E).
 
+returnIOError(ErrAtom,ErrFunction,W,R,E0,E) :-
+        atom2String(ErrAtom,ErrString),
+        ErrValue = 'Prelude.IOError'(ErrString),
+        applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E).
+
 applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E) :-
 	prim_apply(ErrFunction,ErrValue,ErrAction,E0,E1),
 	prim_apply(ErrAction,W,R,E1,E).
-
-
-?- block prim_catchFail(?,?,?,-,?).
-prim_catchFail(A1,A2,partcall(1,prim_catchFailWorld,[A2,A1]),E,E).
-
-?- block prim_catchFailWorld(?,?,?,?,-,?).
-prim_catchFailWorld(Action,_,W,R,E0,E) :-
-	on_exception(ErrorMsg,
-		     prim_apply(Action,W,R,E0,E),
-		     (printError(ErrorMsg), fail)),
-	!.
-prim_catchFailWorld(_,ErrAction,W,R,E0,E) :-
-	prim_apply(ErrAction,W,R,E0,E).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
