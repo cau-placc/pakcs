@@ -24,10 +24,7 @@ elif [ -x "$CURRYBIN/kics2" ] ; then
     TESTKICS2="testExpTypeInference testPolySubExp testUnification testUnsafeSearchTree"
 fi
 
-# test tools
-TESTTOOLS="testData2Xml"
-
-ALLTESTS="$TESTLANG $TESTLIBS $TESTPAKCS $TESTKICS2 $TESTTOOLS"
+ALLTESTS="$TESTLANG $TESTLIBS $TESTPAKCS $TESTKICS2"
 
 VERBOSE=no
 if [ "$1" = "-v" ] ; then

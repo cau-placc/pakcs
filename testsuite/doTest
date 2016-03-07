@@ -28,10 +28,7 @@ case "$BACKEND" in
   swi5     ) TESTLIBSBACKEND="testIO " ;;
 esac
 
-# test tools
-TESTTOOLS="testData2Xml"
-
-ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND $TESTTOOLS"
+ALLTESTS="$TESTLANG $TESTLIBS $TESTLIBSBACKEND"
 
 # clean up before
 $CURRYBIN/cleancurry
