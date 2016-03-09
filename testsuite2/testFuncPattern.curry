@@ -1,16 +1,17 @@
 ---------------------------------------------------------------------------------
--- Test the extension of PAKCS for function patterns as described in:
+-- Test the extension of Curry for functionak patterns as described in:
 -- Sergio Antoy, Michael Hanus:
 -- Declarative Programming with Function Patterns
 -- Proceedings of the International Symposium on Logic-based Program Synthesis
 -- and Transformation (LOPSTR'05), appeared in Springer LNCS 3901, 2006
--- http://www-ps.informatik.uni-kiel.de/~mh/papers/LOPSTR05.html
+-- http://www.informatik.uni-kiel.de/~mh/papers/LOPSTR05.html
 --
 -- Note: this requires the setting "curryextensions=yes" in
 --  ~/.kics2rc or ~/.pakcsrc
 --------------------------------------------------------------------------------
 
 import AllSolutions
+import Maybe
 import SetFunctions
 import Test.EasyCheck
 
@@ -94,3 +95,59 @@ testDutchFlag =
    -=- [Red,Red,White,White,White,Blue,Blue]
 
 --------------------------------------------------------------------------------
+-- Some more specific tests:
+
+mkSamePair x = (x,x)
+
+fpair (mkSamePair x) = x
+
+gpair (mkSamePair x) y = y
+
+-- This yields (Just 0):
+justZero   = let y,z free in fpair (y, gpair (y, Just 0) z)
+testJustZero = isJust justZero -=- True
+
+-- However, this does not yield (Just failed) due to strict unification
+-- of non-linear patterns:
+justFailed = let y,z free in fpair (y, gpair (y, Just failed) z)
+testJustFailed = failing (isJust justFailed)
+
+
+data Nat = O | S Nat
+
+g x y = (x,y)
+
+pair (g y y) = True
+
+testPair00 = (pair (0,0)) -=- True
+
+testPair01 = failing (pair (0,1))
+
+
+-- This call should fail due to an occur check.
+pairCyclic = let x free in pair (x, S x)
+-- However, an occur check is not yet implemented in KiCS2.
+--testPairCyclic = failing pairCyclic
+
+-- This should fail due to strict unification of non-linear patterns:
+testPairFailed = failing (pair (_,failed))
+
+f (g (const 0 y) y) = True
+
+-- This should not fail since the non-linearity does not occur in the
+-- actually evaluated pattern:
+testF = f (_,failed) -=- True
+
+h (g (id y) y) = True
+
+-- This should fail since the actually evaluated pattern is non-linear:
+testH = failing (h (_,failed))
+
+
+-- This call tests whether the implementation is too lazy:
+
+singletonFail _ = [failed]
+
+failingPattern (singletonFail x) = True
+
+testFailingPattern = failing (failingPattern _)

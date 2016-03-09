@@ -6,6 +6,11 @@ CURRYBIN=$CURRYHOME/bin
 
 BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
 
+VERBOSE=no
+if [ "$1" = "-v" ] ; then
+  VERBOSE=yes
+fi
+
 if [ "$BACKEND" != sicstus4 -a "$BACKEND" != swi6 -a "$BACKEND" != swi7 ] ; then
   echo "No appropriate Prolog back end, skip the CHR tests."
   exit
@@ -13,7 +18,7 @@ fi
 
 LOGFILE=xxx$$
 $CURRYBIN/cleancurry
-cat << EOM | $CURRYBIN/curry -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time | tee $LOGFILE
+cat << EOM | $CURRYBIN/curry -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time > $LOGFILE
 :load Leq
 main10 x        where x free
 main11 x y z    where x,y,z free
@@ -80,6 +85,9 @@ for p in GCDCHR FIBCHR UFCHR GAUSSCHR ; do
     /bin/rm -f $p*
 done
 ################ end of tests ####################
+if [ $VERBOSE = yes ] ; then
+    cat $LOGFILE
+fi
 # Check differences:
 DIFF=diff$$
 diff TESTRESULT $LOGFILE > $DIFF
