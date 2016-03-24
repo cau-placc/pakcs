@@ -99,6 +99,9 @@ pakcsMain :-
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
 	printPakcsHeader,
+        nlNQ,
+	writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'), nlNQ,
+	flush_output,
 	main.
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
@@ -117,6 +120,10 @@ processDArgs(Args,[],Args).
 processArgs([]).
 processArgs(['--noreadline'|Args]) :-
 	processArgs(Args).            % ignore since already processed
+processArgs([Arg|_]) :-
+	(Arg='--version' ; Arg='-V'), !, % show version and quit:
+	printPakcsHeader,
+	halt(0).
 processArgs([Arg|_]) :-
 	(Arg='--help' ; Arg='-help' ; Arg='-h' ; Arg='-?'),
 	writeMainHelp,
@@ -194,6 +201,7 @@ writeMainHelp :-
 	nlErr,
 	writeLnErr('Options:'),
 	writeLnErr('-h|--help|-?  : show this message and quit'),
+	writeLnErr('-V|--version  : show version and quit'),
 	writeLnErr('-q|--quiet    : work silently'),
 	writeLnErr('--noreadline  : do not use input line editing via command "rlwrap"'),
 	writeLnErr('-Dname=val    : define pakcsrc property "name" as "val"'),

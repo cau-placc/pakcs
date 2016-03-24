@@ -52,7 +52,4 @@ printPakcsHeader :-
 	writeNQ(' '), writeNQ(MajV), writeNQ('.'), writeNQ(MinV),
 	writeNQ(') Compiler Environment (Version of '),
 	buildDate(BD), writeNQ(BD), writeNQ(')'), nlNQ,
-	writeNQ('(RWTH Aachen, CAU Kiel, Portland State University)'), nlNQ,
-	nlNQ,
-	writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'), nlNQ,
-	flush_output.
+	writeNQ('(RWTH Aachen, CAU Kiel, Portland State University)'), nlNQ.
