@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (February 16, 2016)
-----------------------------------------------------------
+Release notes for PAKCS Version 1.14.0 (April 4, 2016)
+------------------------------------------------------
 
 Changes to version 1.13.0:
 
@@ -81,6 +81,8 @@ Changes to version 1.13.0:
   * currytools: typeinference removed since it is now contained
     in the standard system libraries
   * currytools: new tool `currycheck` for automated test execution added
+  * PAKCS option "-c" removed and replaced by REPL command ":compile"
+    (the old option was only internally used for building the libraries)
 
 
 Release notes for PAKCS Version 1.13.1 (October 2, 2015)
