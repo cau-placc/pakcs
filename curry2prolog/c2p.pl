@@ -134,11 +134,6 @@ processArgs([Arg|Args]) :-
 	asserta(quietmode(yes)), !,
 	setVerbosity(0),
 	processArgs(Args).
-processArgs(['-c',Prog|Args]) :- !,
-	(Args=[] -> true
-	  ; writeErr('ERROR: Illegal arguments after "-c": '),
-	    writeLnErr(Args), fail),
-	processCompileOption(Prog).
 processArgs([Arg|Args]) :- % command option as in KiCS2
 	atom_codes(Arg,[58|CmdS]), !, % 58=':'
 	expandCommand(CmdS,FullCmd),
@@ -156,20 +151,6 @@ processArgs([Arg|Args]) :-
 	append(RTA,[Arg],RTAs),
 	assertz(rtArgs(RTAs)),
 	processArgs(Args).
-
-% process compile option "-c":
-processCompileOption(ProgOption) :-
-	atom_codes(ProgOption,ProgOptionS),
-	extractProgName(ProgOptionS,ProgString),
-	isValidProgramName(ProgString),
-	atom_codes(ProgAtom,ProgString),
-	split2dirbase(ProgAtom,DirName,ProgName),
-	(setWorkingDirectory(DirName) -> true ; halt(1)),
-	atom_codes(ProgName,ProgNameS),
-	(processCompile(ProgNameS,PrologFile) -> true ; halt(1)),
-	(existsFile(PrologFile)
-          -> loadAndCompile(PrologFile,[],create), halt(0)
-           ; halt(1)).
 
 % extract REPL command parameters (i.e., everything until next REPL command):
 extractReplCmdParameters([],[],[]).
@@ -260,7 +241,8 @@ prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
 prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
-allCommands(["add","browse","cd","coosy","define","edit","eval","fork","help",
+allCommands(["add","browse","cd","compile","coosy","define",
+             "edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
 	     "save","set","show","source","type","usedimports","xml"]).
 
@@ -316,7 +298,9 @@ process([58|Cs]) :- !, % 58=':'
 	(append(ShortCmd,[32|Rest],Cs) -> true ; ShortCmd=Cs, Rest=[]),
 	expandCommand(ShortCmd,Cmd),
 	removeBlanks(Rest,Params),
-	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
+	(member(Cmd,["load","reload","compile","quit","eval"])
+          -> true
+           ; ioAdmissible),
 	processCommand(Cmd,Params),
 	!,
 	Cmd="quit".
@@ -607,6 +591,7 @@ processCommand("help",[]) :- !,
 	write(':load <prog>      - compile and load program "<prog>.curry" and all imports'),nl,
 	write(':add <m1> .. <mn> - add modules <m1> to <mn> to currently loaded modules'),nl,
 	write(':reload           - recompile currently loaded modules'),nl,
+	write(':compile <prog>   - alias for ":load <prog>"'),nl,
 	write(':eval <expr>      - evaluate expression <expr>'), nl,
 	write(':define <v>=<exp> - define variable binding for subsequent expressions'), nl,
 	write(':type <expr>      - show the type of <expression>'),nl,
@@ -735,6 +720,9 @@ processCommand("add",Arg) :- !,
 	((OldAddImps=NewAddImps) -> true
 	 ; (processCommand("reload",[]) -> true
              ; retract(addImports(_)), asserta(addImports(OldAddImps)))).
+
+processCommand("compile",Arg) :- !,
+        processCommand("load",Arg).
 
 processCommand("load",Arg) :- !,
 	extractProgName(Arg,Prog),
@@ -1961,7 +1949,7 @@ isValidModuleString([C|Cs]) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-% convert an expression (of Flat-Curry) into a Prolog term and return
+% convert an expression (of FlatCurry) into a Prolog term and return
 % list of assignments (variable -> Prolog variable):
 
 exp2Term(var(V),Vs,V1,Vs1) :- !, addVar(V,Vs,V1,Vs1).
@@ -2001,7 +1989,7 @@ addVar(V,[(X=NX)|Vs],NV,[(X=NX)|Vs1]) :- addVar(V,Vs,NV,Vs1).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% type check an expression (of Flat-Curry):
+% type check an expression (of FlatCurry):
 
 typecheck(Exp,Type) :-	typecheck(Exp,[],Type,_).
 

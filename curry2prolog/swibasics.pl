@@ -529,13 +529,12 @@ runtime_entry :-
 	call(Entry).
 
 
-% try to save a user predicate in a .po file if it is supported by this
-% Sicstus version:
+% try to save a user predicate in a .po file (only supported by Sicstus-Prolog):
 try_save_predicates(_,_).
 
 
-% try to save an already compiled Prolog program in a .po file if it is supported by this
-% Sicstus version:
+% try to save an already compiled Prolog program in a .po file
+% (only supported by Sicstus-Prolog):
 try_save_program(_).
 
 
