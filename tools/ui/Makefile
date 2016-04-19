@@ -19,7 +19,7 @@ pl:
 
 # generate all Prolog translations:
 .curry/pakcs/%.pl: %.curry
-	rm -f $@ && "${PAKCS}" -q -c $*
+	rm -f $@ && "${PAKCS}" --quiet :compile $* :quit
 
 # clean all generated files
 .PHONY: clean
