@@ -76,6 +76,7 @@ export CABAL    = cabal
 # GHC 7.6 renamed the option "package-conf" to "package-db".
 
 # extract GHC version
+ifdef GHC
 GHC_MAJOR := $(shell "$(GHC)" --numeric-version | cut -d. -f1)
 GHC_MINOR := $(shell "$(GHC)" --numeric-version | cut -d. -f2)
 # Is the GHC version >= 7.6 ?
@@ -86,6 +87,7 @@ ifeq ($(GHC_GEQ_76),0)
 GHC_PKG_OPT = package-db
 else
 GHC_PKG_OPT = package-conf
+endif
 endif
 
 # Command to unregister a package
@@ -118,7 +120,8 @@ all:
 install: installscripts copylibs
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
-	$(MAKE) frontend
+	# install front end (if sources are present):
+	@if [ -d frontend ] ; then $(MAKE) frontend ; fi
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
@@ -169,7 +172,13 @@ $(PKGDB):
 # install front end (if sources are present):
 .PHONY: frontend
 frontend:
-	@if [ -d frontend ] ; then $(MAKE) $(PKGDB) && cd frontend && $(MAKE) ; fi
+ifdef GHC
+	$(MAKE) $(PKGDB)
+	cd frontend && $(MAKE)
+else
+	@echo "GHC missing, cannot build front end!"
+	@exit 1
+endif
 
 # compile the tools:
 .PHONY: tools
