@@ -1,7 +1,17 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.0 (April 4, 2016)
+Release notes for PAKCS Version 1.14.1 (April 21, 2016)
+------------------------------------------------------
+
+Changes to version 1.14.0:
+
+  * Library `Test.EasyCheck` split into two modules to have less
+    import dependencies when putting properties into a module.
+  * CurryDoc puts properties in source files into HTML documentation
+
+
+Release notes for PAKCS Version 1.14.0 (April 19, 2016)
 ------------------------------------------------------
 
 Changes to version 1.13.0:
