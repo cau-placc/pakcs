@@ -6,7 +6,7 @@
 import Combinatorial
 import Integer
 import List(nub)
-import Sort(mergeSort)
+import Sort(mergeSortBy)
 import Assertion -- to assert test cases
 import AllSolutions
 
@@ -54,7 +54,7 @@ testPartition = assertEqualIO "partition" (return True)
             && nub output == output                 -- checkDistinct
             && all (\x -> length x == length input) -- checkMemberLength
                    (map concat output)
-            && all (\x -> mergeSort (<) x == input) -- checkMemberContent
+            && all (\x -> mergeSortBy (<) x == input) -- checkMemberContent
                    (map concat output))
     where input = [1,2,3,4] 
 

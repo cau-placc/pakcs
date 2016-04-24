@@ -10,7 +10,7 @@ fms f = map fst . fmToList . fm f
 
 fms' f = map snd . fmToList . fm f
 
-so f = spnub . mergeSort (<) . f 
+so f = spnub . mergeSortBy (<) . f 
 
 testAddToFM = eq (fms (\x-> addToFM x 73 73)) (so (73:))
 

@@ -9,7 +9,7 @@
 
 import CHR
 import Float
-import Sort(mergeSort)
+import Sort(mergeSortBy)
 import Unsafe(compareAnyTerm)
 
 infix  7 :*:
@@ -49,8 +49,8 @@ polyMult c p q = anyPrim $ \() -> q =:= map (\ (a,x) -> (a*.c,x)) p
 
 -- Add two polynomials
 polyAdd ps qs rs = anyPrim $ \() ->
- let ops = mergeSort (\ (_,x) (_,y) -> compareAnyTerm x y /= GT) ps
-     oqs = mergeSort (\ (_,x) (_,y) -> compareAnyTerm x y /= GT) qs
+ let ops = mergeSortBy (\ (_,x) (_,y) -> compareAnyTerm x y /= GT) ps
+     oqs = mergeSortBy (\ (_,x) (_,y) -> compareAnyTerm x y /= GT) qs
   in rs =:= addP ops oqs
  where
   addP [] ys = ys

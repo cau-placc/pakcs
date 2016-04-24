@@ -6,7 +6,7 @@
 import Combinatorial
 import Integer
 import List(nub)
-import Sort(mergeSort)
+import Sort(mergeSortBy)
 import AllSolutions
 import Test.EasyCheck
 
@@ -58,7 +58,7 @@ testPartition =
             && nub output == output                 -- checkDistinct
             && all (\x -> length x == length input) -- checkMemberLength
                    (map concat output)
-            && all (\x -> mergeSort (<) x == input) -- checkMemberContent
+            && all (\x -> mergeSortBy (<) x == input) -- checkMemberContent
                    (map concat output))
   `returns` True
  where
