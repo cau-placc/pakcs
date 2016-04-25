@@ -7,7 +7,7 @@ Release notes for PAKCS Version 1.14.1 (April 25, 2016)
 Changes to version 1.14.0:
 
   * Library `Sort`: ...Sort operations renamed to ...SortBy and
-    ...*Sort operations with standard ordering added.
+    ...Sort operations with standard ordering added.
   * Library `Test.EasyCheck` split into two modules to have less
     import dependencies when putting properties into a module.
   * Library `Test.Prop` added as a clone of `Test.EasyCheck` which defines
