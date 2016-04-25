@@ -235,6 +235,7 @@ libdoc:
 runtest: testsuite/doTest
 	#cd testsuite && ./doTest --nogui
 	cd testsuite2 && ./test.sh
+	cd lib && ./test.sh
 	cd currytools && $(MAKE) runtest
 	cd examples/CHR && ./test.sh
 
