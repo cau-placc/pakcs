@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (April 25, 2016)
+Release notes for PAKCS Version 1.14.1 (May 5, 2016)
 -------------------------------------------------------
 
 Changes to version 1.14.0:
@@ -16,6 +16,9 @@ Changes to version 1.14.0:
     import dependencies when putting properties into a module.
   * CurryDoc shows properties and contracts, if they are present
     in source files, in the HTML documentation.
+  * The Curry Preprocessor supports a new option `contracts`
+    to transform contracts (specifications, pre/postconditions)
+    into run-time assertions.
 
 
 Release notes for PAKCS Version 1.14.0 (April 19, 2016)
