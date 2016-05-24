@@ -8,4 +8,5 @@
 import qualified CPNS
 
 -- Everything is implemented in the library CPNS:
+main :: IO ()
 main = CPNS.main

@@ -6,6 +6,7 @@ Release notes for PAKCS Version 1.14.1 (May 5, 2016)
 
 Changes to version 1.14.0:
 
+  * Library `Nat` for Peano numbers added.
   * Library `Sort`: ...Sort operations renamed to ...SortBy and
     ...Sort operations with standard ordering added.
   * Library `Test.EasyCheck` split into two modules to have less

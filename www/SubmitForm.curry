@@ -9,4 +9,5 @@
 import HtmlCgi
 
 -- Everything is implemented in the library HtmlCgi:
+main :: IO ()
 main = submitForm
