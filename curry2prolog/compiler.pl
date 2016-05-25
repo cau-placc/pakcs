@@ -939,9 +939,9 @@ computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,_,'Rule'(Args,RHS))|Funs],
 	map2M(compiler:var2vartype,Args,TEnv),
 	%writeErr(TEnv), nlErr,
 	%writeErr(RHS), nlErr,
-	typeExpr(RHS,AllFunData,TEnv,EType),
+        typeExpr(RHS,AllFunData,TEnv,EType),
 	%writeErr(EType), nlErr,
-	%writeErr(TEnv), nlErr,
+ 	%writeErr(TEnv), nlErr,
 	tenvtype2funtype(TEnv,EType,Type),
 	freevars2tvars(Type,0,_),
 	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)),
@@ -970,6 +970,23 @@ var2vartype(V,type(V,_)).
 getTypeFromTypeEnv([type(V,T)|_],V,T) :- !.
 getTypeFromTypeEnv([_|TEnv],V,T) :- getTypeFromTypeEnv(TEnv,V,T).
 
+% transform list of ASCII values into atom in a term:
+ascii2atom(T,T) :- var(T), !.
+ascii2atom([],[]).
+ascii2atom([X|Xs],A) :- isListOfASCII([X|Xs]), !, atom_codes(A,[X|Xs]).
+ascii2atom(T,TA) :-
+        T =.. [F|Args],
+        ascii2atoms(Args,ArgsA),
+        TA =.. [F|ArgsA].
+
+ascii2atoms([],[]).
+ascii2atoms([T|Ts],[TA,TAs]) :- ascii2atom(T,TA), ascii2atoms(Ts,TAs).
+
+isListOfASCII(T) :- var(T), fail.
+isListOfASCII([]).
+isListOfASCII([A|As]) :- integer(A), A>31, A<255, isListOfASCII(As).
+
+        
 typeExpr('Var'(V),_,TEnv,Type) :- getTypeFromTypeEnv(TEnv,V,Type), !.
 typeExpr('Lit'('Intc'(_)),_,_,'TCons'("Prelude.Int",[])) :- !.
 typeExpr('Lit'('Floatc'(_)),_,_,'TCons'("Prelude.Float",[])) :- !.
@@ -995,6 +1012,9 @@ typeExpr('Or'(E1,E2),Funs,TE,T) :-
 typeExpr('Case'(_,CE,Branches),Funs,TE,T) :-
 	typeExpr(CE,Funs,TE,CT),
 	typeBranches(Branches,CT,Funs,TE,T), !.
+typeExpr(Expr,_,_,_) :-
+        writeLnErr('*** Internal error: cannot type expression'),
+        ascii2atom(Expr,ExprA), writeLnErr(ExprA), !, fail.
 % TODO: add Let case
 
 typeExprs([],_,_,Type,Type).
@@ -1028,11 +1048,12 @@ typeBranches(['Branch'('Pattern'(Cons,Vs),Exp)|Bs],CT,Funs,TE,T) :-
 unifyBranchTypes(_,T1,T2,T) :- unifyWithOccursCheck(T1,T2), !, T=T1.
 unifyBranchTypes(Branches,T1,T2,_) :-
 	writeLnErr('*** Illegal FlatCurry file: Type error (Case):'),
-	writeLnErr('*** Branches: '), writeErr(Branches),
+	writeLnErr('*** Branches: '),
+        ascii2atom(Branches,Bs), writeLnErr(Bs),
 	writeErr('*** Inferred type of first branch:  '),
-	writeLnErr(T1),
+	ascii2atom(T1,T1A), writeLnErr(T1A),
 	writeErr('*** Inferred type of second branch: '),
-	writeLnErr(T2),
+	ascii2atom(T2,T2A), writeLnErr(T2A),
 	!, fail.
 
 getTypeOfFunction([],Name,_) :- % usually, this case should not occur!
