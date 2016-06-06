@@ -87,8 +87,8 @@ solve flag | isDutchFlag flag = flag
  where
   isDutchFlag (uni Red ++ uni White ++ uni Blue) = success
 
-  uni _ = []
-  uni color = color : uni color
+uni _ = []
+uni color = color : uni color
 
 testDutchFlag =
   selectValue (set1 solve [White,Red,White,Blue,Red,Blue,White])
