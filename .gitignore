@@ -51,7 +51,7 @@ bin/currycreatemake
 bin/currydoc
 bin/currybrowse
 bin/currypp
-bin/cusage
+bin/curry2verify
 bin/data2xml
 bin/erd2cdbi
 bin/erd2curry
