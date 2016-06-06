@@ -31,7 +31,7 @@ so that the expression \code{(onetwo 6)} evaluates to \code{[1,2,1,2,1,2]}.
 \subsection{Functional Patterns}
 
 Functional patterns \cite{AntoyHanus05LOPSTR} are a useful extension
-to code operations in a more readable way. Furthermore,
+to implement operations in a more readable way. Furthermore,
 defining operations with functional patterns avoids problems
 caused by strict equality (\ccode{=:=}) and leads to programs
 that are potentially more efficient.
@@ -68,10 +68,67 @@ $\ldots$
 which shows that the evaluation of the list elements is not demanded
 by the functional pattern.
 
-In general, a pattern of the form \code{($f$ $t_1$\ldots$t_n$)} ($n>0$)
+In general, a pattern of the form \code{($f$ $t_1$\ldots$t_n$)} for $n>0$
+(or of the qualified form \code{($M.f$ $t_1$\ldots$t_n$)} for $n \geq 0$)
 is interpreted as a functional pattern if $f$ is not a visible constructor
 but a defined function that is visible in the scope of the pattern.
+Furthermore, for a functional pattern to be well defined,
+there are two additional requirements to be satisfied:
 
+\begin{enumerate}
+
+\item
+If a function $f$ is defined by means of a functional pattern $fp$,
+then the evaluation of $fp$ must not depend on $f$, i.e.,
+the semantics of a function defined using functional patterns
+must not (transitively) depend on its own definition.
+This excludes definitions such as
+\begin{curry}
+(xs ++ ys) ++ zs = xs ++ (ys ++ zs)
+\end{curry}
+and is necessary to assign a semantics to funtions employing functional patterns
+(see \cite{AntoyHanus05LOPSTR} for more details).
+
+\item
+Only functions that are globally defined may occur inside a functional pattern.
+This restriction ensures that no local variable
+might occur in the value of a functional pattern,
+which might lead to an non-intuitive semantics.
+Consider, for instance, the following (complicated) equality operation
+\begin{curry}
+eq :: a -> a -> Bool
+eq x y = h y
+ where
+  g True  = x
+  h (g a) = a
+\end{curry}
+where the locally defined function \code{g} occurs in the functional
+pattern \code{(g a)} of \code{h}.
+Since \code{(g a)} evaluates to the value of \code{x} whereas \code{a}
+is instantiated to \code{True}, the call \code{h y} now evaluates to \code{True}
+if the value of \code{y} equals the value of \code{x}.
+In order to check this equality condition,
+a strict unification between \code{x} and \code{y} is required
+so that an equivalent definition without functional patterns would be:
+\begin{curry}
+eq :: a -> a -> Bool
+eq x y = h y
+ where
+  h x1 | x =:= x1 = True
+\end{curry}
+However, this implies that variables occuring in the value
+of a functional pattern imply a strict unification
+if they are defined in an outer scope,
+whereas variables defined \emph{inside} a functional pattern
+behave like pattern variables.
+In consequence, the occurrence of variables from an outer scope
+inside a functional pattern might lead to an non-intuitive behavior.
+To avoid such problems, locally defined functions are excluded
+as functional patterns.
+Note that this does not exclude a functional pattern inside a local function,
+which is still perfectly reasonable.
+\end{enumerate}
+%
 It is also possible to combine functional patterns with
 as-patterns.\index{as-pattern}\pindex{"@}
 Similarly to the meaning of as-patterns
@@ -173,7 +230,7 @@ of the order of pattern matching. Note that other orders of pattern matching
 can be obtained using auxiliary operations.
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "manual"
-%%% End: 
+%%% End:
