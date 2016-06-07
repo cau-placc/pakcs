@@ -14,8 +14,8 @@
 module GUI(GuiPort,Widget(..),Button,ConfigButton,
            TextEditScroll,ListBoxScroll,CanvasScroll,EntryScroll,
            ConfItem(..),ReconfigureItem(..),
-           Cmd,Command,	   
-	   Event(..),ConfCollection(..),MenuItem(..),
+           Cmd,Command,   
+           Event(..),ConfCollection(..),MenuItem(..),
            CanvasItem(..),WidgetRef, Style(..), Color(..),
            col,row,matrix,
            runGUI,runGUIwithParams,runInitGUI,runInitGUIwithParams,
@@ -28,7 +28,7 @@ module GUI(GuiPort,Widget(..),Button,ConfigButton,
            focusInput,addCanvas,setConfig,
            getOpenFile,getOpenFileWithTypes,getSaveFile,getSaveFileWithTypes,
            chooseColor,popup_message,debugTcl,
-	   cmd,command,button)  where
+           cmd,command,button)  where
 
 import Read
 import Unsafe(trace)
@@ -88,10 +88,10 @@ data Widget = PlainButton            [ConfItem]
             | ScrollH WidgetRef      [ConfItem]
             | ScrollV WidgetRef      [ConfItem]
             | TextEdit               [ConfItem]
-	    | Row    [ConfCollection] [Widget]
+            | Row    [ConfCollection] [Widget]
             | Col    [ConfCollection] [Widget]
             | Matrix [ConfCollection] [[Widget]]
-	    -- 
+            -- 
             | RowC   [ConfCollection] [ConfItem] [Widget]
             | ColC    [ConfCollection] [ConfItem] [Widget]            
 
@@ -508,7 +508,7 @@ widget2tcl wp label (RowC confs confitems ws) =
    conf_evs ++ wsevs)
   where (wstcl,wsevs) = widgets2tcl wp label 97 ws
         (conf_tcl,conf_evs) = configs2tcl "row" wp label confitems
-	wsGridInfo = widgets2gridinfo ws
+        wsGridInfo = widgets2gridinfo ws
         
 
 widget2tcl wp label (ColC confs confitems ws) =
@@ -525,7 +525,7 @@ widget2tcl wp label (ColC confs confitems ws) =
   where (wstcl,wsevs) = widgets2tcl wp label 97 ws
         (conf_tcl,conf_evs) = configs2tcl "col" wp label confitems  
         wsGridInfo = widgets2gridinfo ws
-	
+        
 
 -- actual translation function of the list of lists of widgets in a matrix
 matrix2tcl :: Int -> Int -> GuiPort -> String -> [ConfCollection] 
