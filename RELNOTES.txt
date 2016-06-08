@@ -1,11 +1,12 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (May 5, 2016)
+Release notes for PAKCS Version 1.14.1 (June 8, 2016)
 -------------------------------------------------------
 
 Changes to version 1.14.0:
 
+  * Library `Database.ERD...` added (formerly part of ER currytools).
   * Library `Nat` for Peano numbers added.
   * Library `Sort`: ...Sort operations renamed to ...SortBy and
     ...Sort operations with standard ordering added.
