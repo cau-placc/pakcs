@@ -76,9 +76,9 @@ ui2guievent event = case event of
 -- So such actions are collected in IORef value and 
 -- are returned as list of ReconfigureItem values
 ui2guicmd cmd gp = do stateref <- newIORef (State (gp,[])) 
-	              cmd (UIEnv stateref) 
-	              State (_,reconfigs) <- readIORef stateref
-	              return reconfigs
+                      cmd (UIEnv stateref) 
+                      State (_,reconfigs) <- readIORef stateref
+                      return reconfigs
 
 -- converts text, reference and handlers of an ui widget
 -- to corresponding values of type ConfItem
@@ -92,15 +92,15 @@ lrh2confitems mblabel mbref handlers =
     wref = case mbref of 
       Just ref -> [GUI.WRef (foo ref)]
         where 
-	  foo r | r =:= UI.Ref cr = cr
-            where cr free	
+          foo r | r =:= UI.Ref cr = cr
+            where cr free       
       Nothing  -> []
 
     guihandlers = foo handlers
       where 
         foo []     = []
         foo ((UI.Handler event (UI.Cmd cmd)):handlers1) =           
-	  GUI.Handler (ui2guievent event) (ui2guicmd cmd): foo handlers1
+          GUI.Handler (ui2guievent event) (ui2guicmd cmd): foo handlers1
 
 -- converts an UI widget to a GUI widget 
 widgetUI2GUI :: UIWidget -> GUI.Widget
@@ -121,8 +121,8 @@ widgetUI2GUI (UI.Widget name mblabel mbref handlers styleclasses widgets) =
             foo (UI.Widget name1 mblabel1 _ _ _ widgets1:_) = 
               case name1 of 
                 UI.Menu -> [(fromJust mblabel1,widgets1)]  
-		_       -> [("UI.Menu expected in UI2GUI.widgetUI2GUI",[])]
-		
+                _       -> [("UI.Menu expected in UI2GUI.widgetUI2GUI",[])]
+                
     UI.Canvas w h -> GUI.Canvas ([GUI.Width w, GUI.Height h] ++ confitems)
     UI.CheckButton checked -> GUI.CheckButton ((GUI.CheckInit init):confitems)           
       where init = if checked then "1" else "0"
@@ -173,8 +173,8 @@ getdisplayconf (UI.Widget name _ mbref _ styleclasses widgets) =
       foo []             = []
       foo (style:styles') = case style of
         (UI.Display b) -> case mbref of 
-          Just (UI.Ref ref) -> [(ref,GUI.Display b)] ++ foo styles'	            
-	  _                 -> foo styles'
+          Just (UI.Ref ref) -> [(ref,GUI.Display b)] ++ foo styles'                 
+          _                 -> foo styles'
         _ -> foo styles'  
 ------------------------------------------------------------------------------
 
@@ -206,8 +206,8 @@ classes2guiconfitems (UI.Class styles:cs) =
       UI.TextColor color -> [GUI.Foreground $ UI.showColor color]
       UI.Bg color -> 
         case color of 
-	  Default -> [GUI.TclOption "-background $defaultBgColor"]
-	  _       -> [GUI.Background $ UI.showColor color]
+          Default -> [GUI.TclOption "-background $defaultBgColor"]
+          _       -> [GUI.Background $ UI.showColor color]
       --UI.Height n -> [GUI.Height n]
       --UI.Width  n -> [GUI.Width n]
       UI.Display b -> [GUI.Display b]
@@ -252,12 +252,12 @@ canvasui2canvasgui canvasitems = map conv canvasitems
 setValue :: UIRef -> String -> UIEnv -> IO ()
 setValue (UI.Ref ref) val (UIEnv p) = do State (gp,_) <- readIORef p
                                          GUI.setValue ref val gp
-					 
+                                         
 --- Gets the String value of a variable in an UI.
 getValue :: UIRef -> UIEnv -> IO (String)
 getValue (UI.Ref ref) (UIEnv p) = do State (gp,_) <- readIORef p
                                      GUI.getValue ref gp
-				     
+                                     
 --- Updates the (String) value of a variable 
 --- w.r.t. to an update function.
 updateValue :: (String -> String) -> UIRef -> UIEnv -> IO ()

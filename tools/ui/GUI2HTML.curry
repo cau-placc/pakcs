@@ -34,8 +34,8 @@ module GUI2HTML (
 
 import UI2HTML 
 import qualified UI
+import FunctionInversion(invf1)
 import Maybe
-import Utils
 import qualified HTML
 import IOExts
 import Read
@@ -219,9 +219,9 @@ gui2ui widget = case widget of
     where      
       menu2ui menuitem = case menuitem of   
         MButton (cmnd) label       -> UI.menuItem cmd2 label
-	  where 
-	    cmd2 x = do wconfs <- cmnd x
-	                widgetconf2cmd wconfs x
+          where 
+            cmd2 x = do wconfs <- cmnd x
+                        widgetconf2cmd wconfs x
 
         MMenuButton label items   -> UI.menu label (map menu2ui items) 
         MSeparator                -> UI.menuSeparator
@@ -258,13 +258,13 @@ gui2ui widget = case widget of
          Text label -> c2lrh' ((Just label),mbref,handlers) confs 
          WRef ref   -> c2lrh' (mblabel,(Just (foo ref)),handlers) confs
 
-	 Handler event cmnd -> c2lrh' 
+         Handler event cmnd -> c2lrh' 
             (mblabel,mbref,
-	     ((UI.Handler
-	         (gui2uievent event) (UI.Cmd cmd2)):handlers)) 
-	    confs   
-	   where cmd2 x = do wconfs <- cmnd x
-	                     widgetconf2cmd wconfs x  
+             ((UI.Handler
+                 (gui2uievent event) (UI.Cmd cmd2)):handlers)) 
+            confs   
+           where cmd2 x = do wconfs <- cmnd x
+                             widgetconf2cmd wconfs x  
          _          -> c2lrh' (mblabel,mbref,handlers) confs
 
     confitems2styleclass confitems = c2s' confitems 
@@ -272,7 +272,7 @@ gui2ui widget = case widget of
         c2s' []           = []
         c2s' (conf:confs) = case conf of
           Active b         -> UI.Active b:c2s' confs
-	  Background color -> UI.Bg (string2Color color):c2s' confs
+          Background color -> UI.Bg (string2Color color):c2s' confs
           Foreground color -> UI.Fg (string2Color color):c2s' confs
           Fill             -> UI.Fill UI.Both:c2s' confs
           FillX            -> UI.Fill UI.X:c2s' confs
@@ -366,9 +366,9 @@ widgetconf2cmd ((WidgetConf ref confItem):items) x = do
     Handler event cmnd -> setHandler ref (gui2uievent event) cmd2 x 
       where 
         cmd2 env' = do
-	  wconfs <- cmnd env'
-	  widgetconf2cmd wconfs env'  
-	  done
+          wconfs <- cmnd env'
+          widgetconf2cmd wconfs env'  
+          done
 
     Height n -> changeStyles ref [UI.Class [UI.Height n]] x
     --CheckInit -> 
@@ -387,7 +387,7 @@ widgetconf2cmd ((WidgetConf ref confItem):items) x = do
 -------------------------------------------------------------------------------
 
 string2Color :: String -> UI.Color
-string2Color = invert UI.showColor
+string2Color = invf1 UI.showColor
 
 ListBoxScroll :: [ConfItem] -> Widget
 ListBoxScroll = ListBox

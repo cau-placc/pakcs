@@ -120,8 +120,8 @@ state2json (xs,_) = Array (map toJson xs)
       Object [("id",String (idOfRef  ref)),
               ("changes", Object ((map conf2str confs) ++ 
                 (maybe [] 
-		       (\val -> [("value",String val)]) 
-		       mbval)))]
+                       (\val -> [("value",String val)]) 
+                       mbval)))]
 
 execCmdAndRespond :: (UIEnv -> IO()) -> IORef State -> IO HtmlForm
 execCmdAndRespond cmd stateref = do
@@ -291,25 +291,25 @@ widget2hexp mbstateref (UI.Widget kind mbcontent mbref handlers styles widgets) 
     hexp1 = 
       HtmlStruct 
         (showWidgetKind kind)                -- tag name
-	-- set the tag attributes 
-	((name2attrs kind)                   -- type attribute
-	 ++ (content2attrs mbcontent kind)   -- value attribute
-	 ++ case mbref of                    -- name and id attribute
+        -- set the tag attributes 
+        ((name2attrs kind)                   -- type attribute
+         ++ (content2attrs mbcontent kind)   -- value attribute
+         ++ case mbref of                    -- name and id attribute
               Nothing -> []
               Just ref1 -> case kind of 
-	        -- span has no name attribute
-		Label         -> [("id",rid)]
-		Link          -> [("id",rid)]
-		Row           -> [("id",rid)]
-		Col           -> [("id",rid)]		
-		-- id attr is unique, 
-		-- so groups of radio buttons cannot have same id
-		RadioButton _ -> [("name",rid)]
-		_             -> [("id",rid),("name",rid)]
-	       where rid = idOfRef ref1
-	 ++ if null styles                   -- style attribute
+                -- span has no name attribute
+                Label         -> [("id",rid)]
+                Link          -> [("id",rid)]
+                Row           -> [("id",rid)]
+                Col           -> [("id",rid)]           
+                -- id attr is unique, 
+                -- so groups of radio buttons cannot have same id
+                RadioButton _ -> [("name",rid)]
+                _             -> [("id",rid),("name",rid)]
+               where rid = idOfRef ref1
+         ++ if null styles                   -- style attribute
               then [] else styleClasses2Attrs styles)
-	childhexps                           -- child html expressions
+        childhexps                           -- child html expressions
 
     xs = case kind of 
       --Col -> map (\ w -> block (widget2hexp mbstateref w)) widgets
@@ -341,27 +341,27 @@ widget2hexp mbstateref (UI.Widget kind mbcontent mbref handlers styles widgets) 
     hexp = handler2hexp handlers hexp1
       where 
         handler2hexp [] ahexp = ahexp
-	handler2hexp (h:hs) ahexp = case h of 
-	  Handler event cmd -> case cmd of
-	    Cmd c ->
+        handler2hexp (h:hs) ahexp = case h of 
+          Handler event cmd -> case cmd of
+            Cmd c ->
               handler2hexp hs 
                (case kind of
-	         MenuItem -> (AjaxEvent2 ahexp handler "value" "")
-	         _   -> AjaxEvent2 ahexp handler (event2str kind event) 
-	                           (event2jsfctname kind event))
+                 MenuItem -> (AjaxEvent2 ahexp handler "value" "")
+                 _   -> AjaxEvent2 ahexp handler (event2str kind event) 
+                                   (event2jsfctname kind event))
 
                where
                  handler env =
                    case mbstateref of 
-                     Just stateref -> do 		
-		       State (_,state) <- readIORef stateref
-		       writeIORef stateref (State (env,state))
+                     Just stateref -> do                
+                       State (_,state) <- readIORef stateref
+                       writeIORef stateref (State (env,state))
                        execCmdAndRespond c stateref
-		     Nothing -> do 
-		      stateref2 <- newIORef (State (env,([],[])))
+                     Nothing -> do 
+                      stateref2 <- newIORef (State (env,([],[])))
                       execCmdAndRespond c stateref2   
  
-	    SpicyDoc _ -> handler2hexp hs ahexp
+            SpicyDoc _ -> handler2hexp hs ahexp
 
 
 -- there are problems with instantiation when you use this code 
@@ -369,32 +369,32 @@ widget2hexp mbstateref (UI.Widget kind mbcontent mbref handlers styles widgets) 
     (hexp,handlerhexps) = handler2hexp handlers hexp1 []
       where 
         handler2hexp [] nhexp nhandlerhexp = (nhexp,nhandlerhexp)
-	handler2hexp (h:hs) nhexp nhandlerhexp = case h of 
-	  Handler event cmd -> case cmd of
-	    Cmd c -> case kind of
-	         MenuItem -> handler2hexp hs 
-		     (nhexp `addAttr` ("value","EVENT_" ++ string2urlencoded id))	     
-		     (AjaxEvent id handler:nhandlerhexp)
-		     
-	         _ -> handler2hexp hs 
-		        (nhexp `addAttr` 
-		          (event2str kind event,
-		           event2jsfctname kind event ++ 
-			   "(event,window,'EVENT_" ++ string2urlencoded id ++ "');"))
-                        (AjaxEvent id handler:nhandlerhexp)		
+        handler2hexp (h:hs) nhexp nhandlerhexp = case h of 
+          Handler event cmd -> case cmd of
+            Cmd c -> case kind of
+                 MenuItem -> handler2hexp hs 
+                     (nhexp `addAttr` ("value","EVENT_" ++ string2urlencoded id))            
+                     (AjaxEvent id handler:nhandlerhexp)
+                     
+                 _ -> handler2hexp hs 
+                        (nhexp `addAttr` 
+                          (event2str kind event,
+                           event2jsfctname kind event ++ 
+                           "(event,window,'EVENT_" ++ string2urlencoded id ++ "');"))
+                        (AjaxEvent id handler:nhandlerhexp)             
                where
                  id free
-		 handler env =
+                 handler env =
                    case mbstateref of 
-                     Just stateref -> do 		
-		       State (_,state) <- readIORef stateref
-		       writeIORef stateref (State (env,state))
+                     Just stateref -> do                
+                       State (_,state) <- readIORef stateref
+                       writeIORef stateref (State (env,state))
                        execCmdAndRespond c stateref
-		     Nothing -> do 
-		      stateref2 <- newIORef (State (env,([],[])))
+                     Nothing -> do 
+                      stateref2 <- newIORef (State (env,([],[])))
                       execCmdAndRespond c stateref2   
  
-	    Cmd2 _ -> handler2hexp hs nhexp nhandlerhexp
+            Cmd2 _ -> handler2hexp hs nhexp nhandlerhexp
 -}
 
 ------------------------------------------------------------------------------
@@ -478,7 +478,7 @@ styles2css (style:styles) = case style of
       case dir of 
         X    -> "width: 100%"
         Y    -> "height: 100%"
-        Both -> "width: 100%; height: 100%"	
+        Both -> "width: 100%; height: 100%"     
         _      -> ""
     NameValue name value -> (name ++ ": " ++ value)    
     _         -> ""
@@ -599,7 +599,7 @@ setHandler cref event cmd (UIEnv stateref) = do
               where 
                 handler env1 = do
                   State (_,state) <- readIORef stateref
-                  writeIORef stateref (State (env1,state))	
+                  writeIORef stateref (State (env1,state))      
                   execCmdAndRespond cmd stateref
 
      writeIORef stateref (State (env,newstate))  
@@ -690,11 +690,11 @@ changeConfig (xs,ps) ref nconf = (change xs,ps)
               _ -> (c:change' oconfs)
             Pos _ -> case c of 
               Pos _ -> (nconf:oconfs)
-              _ -> (c:change' oconfs)  	
+              _ -> (c:change' oconfs)   
             Style n -> case c of 
               Style o -> (Style (o++n):oconfs)
               _ -> (c:change' oconfs)
-	    ErrorBg _ -> case c of 
+            ErrorBg _ -> case c of 
               ErrorBg _ -> (nconf:oconfs)
               _ -> (c:change' oconfs)  
 
@@ -705,7 +705,7 @@ table' :: [[[HtmlExp]]] -> HtmlExp
 table' items = HtmlStruct "table" [] --[("style","width: 100%;")]
  (map (\row->HtmlStruct "tr" []
          (map (\item -> 
-	   HtmlStruct "td" [("style","vertical-align: top;")] item) row)) items)
+           HtmlStruct "td" [("style","vertical-align: top;")] item) row)) items)
 
 ------------------------------------------------------------------------------
 -- for spicy web
