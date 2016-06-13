@@ -24,8 +24,6 @@ elif [ -x "$CURRYBIN/kics2" ] ; then
     TESTKICS2="testExpTypeInference testPolySubExp testUnification testUnsafeSearchTree"
 fi
 
-ALLTESTS="$TESTLANG $TESTLIBS $TESTPAKCS $TESTKICS2"
-
 VERBOSE=no
 if [ "$1" = "-v" ] ; then
   VERBOSE=yes
@@ -40,13 +38,15 @@ $CURRYBIN/cleancurry
 
 LOGFILE=xxx$$
 
+# Note: the calls to currycheck are split into several separate calls
+#       in order to avoid memory overflow problems with PAKCS/SWI-Prolog!
 if [ $VERBOSE = yes ] ; then
-  $CURRYBIN/currycheck $ALLTESTS
-  if [ $? -gt 0 ] ; then
-    exit 1
-  fi
+  $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTLIBS \
+    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS
+  if [ $? -gt 0 ] ; then exit 1 ; fi
 else
-  $CURRYBIN/currycheck $ALLTESTS > $LOGFILE 2>&1
+  ( $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTLIBS \
+    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS ) > $LOGFILE 2>&1
   if [ $? -gt 0 ] ; then
     echo "ERROR in currycheck:"
     cat $LOGFILE
