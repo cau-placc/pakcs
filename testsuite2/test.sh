@@ -42,11 +42,11 @@ LOGFILE=xxx$$
 #       in order to avoid memory overflow problems with PAKCS/SWI-Prolog!
 if [ $VERBOSE = yes ] ; then
   $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTLIBS \
-    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS
+    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS2
   if [ $? -gt 0 ] ; then exit 1 ; fi
 else
   ( $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTLIBS \
-    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS ) > $LOGFILE 2>&1
+    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS2 ) > $LOGFILE 2>&1
   if [ $? -gt 0 ] ; then
     echo "ERROR in currycheck:"
     cat $LOGFILE
