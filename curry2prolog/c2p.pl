@@ -808,7 +808,7 @@ processCommand("interface",IFTail) :- !,
 	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
         installDir(PH),
-	appendAtoms(['"',PH,'/currytools/genint/GenInt" -int ',ProgA],
+	appendAtoms(['"',PH,'/currytools/browser/GenInt" -int ',ProgA],
 		    GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
