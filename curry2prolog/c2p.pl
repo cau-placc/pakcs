@@ -903,7 +903,7 @@ processCommand("show",[]) :- !, % show source code of current module
 	  ; write('No source program file available, generating source from FlatCurry...'),
 	    nl, nl,
 	    installDir(PH), atom_codes(ProgA,Prog),
-	    appendAtoms(['"',PH,'/currytools/genint/GenInt" -mod ',ProgA],
+	    appendAtoms(['"',PH,'/currytools/browser/GenInt" -mod ',ProgA],
 			ShowProgCmd),
 	    shellCmdWithCurryPathWithReport(ShowProgCmd)).
 

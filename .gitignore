@@ -42,6 +42,7 @@ bin/swiprolog
 bin/parsecurry
 bin/pakcs
 bin/addtypes
+bin/casc
 bin/cass
 bin/cymake
 bin/curry
