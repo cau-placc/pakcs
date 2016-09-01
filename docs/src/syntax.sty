@@ -1,45 +1,71 @@
-% This style file contains environments and commands for type setting
-% context free grammars.
-\usepackage{amssymb}
+% This style file contains an environment and commands for type setting
+% context-free grammars in EBNF notation.
+
+% \usepackage{amssymb}
 \usepackage[dvipsnames,usenames]{color}
+
+% Removal of leading and trailing white space
+\newcommand{\trim}[1]{\ignorespaces#1\unskip}
 
 % Syntax extension
 % This annotates the new/changed parts of the syntax.
-\definecolor{extend}{named}{DarkOrchid}
-\newcommand{\extension}[1]{\color{extend}\trim{#1}\normalcolor}
+\definecolor{extensioncolor}{named}{DarkOrchid}
+\newcommand{\extension}[1]{\color{extensioncolor}\trim{#1}\normalcolor}%
 
 \newcommand{\removelinebreaks}[1]{\begingroup\def\\{ }#1\endgroup}
-\newcommand{\trim}[1]{\ignorespaces#1\unskip}
 
 % Grammar environment
-\newenvironment{grammar}{\bigskip \parindent=0pt \small \parskip=-.5\baselineskip}{}
+\newenvironment{grammar}%
+{\parindent=0pt \small \itshape \parskip=.5\baselineskip plus1mm minus1mm}%
+{\par\medskip}
+% Head of a rule
+\newcommand{\head}[2]{\makebox[1.0in][r]{#1}\makebox[2em][c]{#2}}
+% Production rule, takes Nonterminal (#1) and rule (#2)
+\newcommand{\production}[2]{\head{\nonterm{#1}}{\gmeta{::=}}\trim{#2}} %TODO: \\ at the end?
+% Alternative
+\newcommand{\alt}{\\\head{}{\sor}}
+% meta symbol
+\newcommand{\gmeta}[1]{{\normalfont\textrm{#1}}}
 
-\newcommand{\production}[2]{\head{\nonterm{#1}}\makebox[3em]{\rm ::=}%
-{\it \trim{#2}}\\}
-\newcommand{\nonterm}[1]{\textit{\trim{#1}}}
-\newcommand{\term}[1]{{\rm {\texttt{#1}}}}
-\newcommand{\alt}{\\\head{}\makebox[3em][c]{\sor}}
+% Nonterminal
+\newcommand{\nonterm}[1]{{\normalfont\textit{\trim{#1}}}}
+% Terminal
+\newcommand{\term}[1]{{\normalfont\texttt{#1}}}
+% Inline alternative (no linebreak)
+\newcommand{\sor}{\ensuremath{\vert}}
+% Optional
+\newcommand{\opt}[1]{\gmeta{[}#1\gmeta{]}}
+% Grouping
+\newcommand{\group}[1]{\gmeta{(}#1\gmeta{)}}
+% Repetition
+\newcommand{\many}[1]{\gmeta{\{}#1\gmeta{\}}}
+% Removal
+\newcommand{\without}[2]{\ensuremath{\text{#1}_{\langle \text{#2} \rangle}}}
+% Sequence
+\newcommand{\gseq}[3]{#1$_1$ \term{#2} $\ldots$ \term{#2} #1$_#3$}
+% Offside rule
+\newcommand{\offside}[3]{\term{\{} \gseq{#1}{#2}{#3} \term{\}}}
 
-% inline alternative (no linebreak)
-\newcommand{\sor}{\ensuremath{|} }
-\newcommand{\opt}[1]{{\rm [}\trim{#1}{\rm ]}}
-\newcommand{\group}[1]{{\rm (}\trim{#1}{\rm )}}
-\newcommand{\many}[1]{{\rm \{}\trim{#1}{\rm \}}}
-\newcommand{\without}[2]{\ensuremath{#1_{\langle\trim{#2}\rangle}}}
-\newcommand{\seq}[3]{{\it #1$_1$ \term{#2} $\ldots$ \term{#2} #1$_#3$}}
-\newcommand{\text}[1]{{\rm #1}}
-
-\newcommand{\offside}[3]{\term{\{}\seq{#1}{#2}{#3} \term{\}}}
-\newcommand{\head}[1]{\makebox[1.3in][r]{\it #1}}
-\newcommand{\nextline}{\\\head{}\makebox[3em]{}}
+\newcommand{\nextline}{\\\head{}{}}
 
 % Comment in right margin
 \newcommand{\margin}[1]{\hfill\ensuremath{(#1)}}
-\newcommand{\margtext}[1]{\margin{\mbox{\it#1}}}
-\newcommand{\margcomb}[2]{\margin{\mbox{\it#1},~#2}}
+% Margin text
+\newcommand{\margtext}[1]{\margin{\textit{#1}}}
+% Margin text + specification
+\newcommand{\margcomb}[2]{\margin{\textit{#1},~#2}}
+% parenthesized entity
+\newcommand{\gparen}[1]{\term{(} #1 \term{)}}
+% backquoted entity
+\newcommand{\gbackquote}[1]{\term{\textasciigrave} #1 \term{\textasciigrave}}
+% reference to lexicon
 \newcommand{\lexicon}[1]{\production{#1}{\text{see lexicon}}}
 
-\newcommand{\comment}[1]{} % ignore the argument
-\newcommand{\bs}{\mbox{\char92}}
-\newcommand{\caret}{\mbox{\char94}}
-\newcommand{\us}{\mbox{\char95}}
+% backspace \
+\newcommand{\bs}{\textbackslash}
+ % caret ^
+\newcommand{\caret}{\textasciicircum}
+% underscore _
+\newcommand{\us}{\_{}}
+% backtick
+\newcommand{\bt}{\textasciigrave}
