@@ -933,13 +933,18 @@ addAuxFunction(AF) :-
 computeCorrectType(_,[],[]).
 computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,_,'Rule'(Args,RHS))|Funs],
 		   [NewFun|NewFuns]) :-
-	%writeErr('Compute type of '),
-	%atom_codes(NameA,Name), writeErr(NameA), nlErr,
+	atom_codes(NameA,Name),
+	%writeErr('Compute type of '), writeLnErr(NameA),
 	%writeFunTypes(AllFunData), nlErr,
 	map2M(compiler:var2vartype,Args,TEnv),
 	%writeErr(TEnv), nlErr,
 	%writeErr(RHS), nlErr,
-        typeExpr(RHS,AllFunData,TEnv,EType),
+        (typeExpr(RHS,AllFunData,TEnv,EType) -> true
+          ; % an internal type error occurred: set new type to error type:
+            (verbosityIntermediate
+            -> writeErr('*** Internal type inference for auxiliary function "'),
+               writeErr(NameA), writeLnErr('" failed') ; true),
+            EType = 'TCons'("ERRORTYPE",[])),
 	%writeErr(EType), nlErr,
  	%writeErr(TEnv), nlErr,
 	tenvtype2funtype(TEnv,EType,Type),
@@ -986,7 +991,6 @@ isListOfASCII(T) :- var(T), fail.
 isListOfASCII([]).
 isListOfASCII([A|As]) :- integer(A), A>31, A<255, isListOfASCII(As).
 
-        
 typeExpr('Var'(V),_,TEnv,Type) :- getTypeFromTypeEnv(TEnv,V,Type), !.
 typeExpr('Lit'('Intc'(_)),_,_,'TCons'("Prelude.Int",[])) :- !.
 typeExpr('Lit'('Floatc'(_)),_,_,'TCons'("Prelude.Float",[])) :- !.
@@ -1002,12 +1006,13 @@ typeExpr('Or'(E1,E2),Funs,TE,T) :-
 	typeExpr(E1,Funs,TE,T1),
 	typeExpr(E2,Funs,TE,T2),
 	(unifyWithOccursCheck(T1,T2) -> T=T1 ;
-	   writeLnErr('*** Illegal FlatCurry file: Type error (Or):'),
-	   writeLnErr('*** Term: '), writeErr('Or'(E1,E2)),
-	   writeErr('*** Inferred type of first argument:  '),
-	   writeLnErr(T1),
-	   writeErr('*** Inferred type of second argument: '),
-	   writeLnErr(T2),
+           (verbosityIntermediate ->
+	     writeLnErr('*** Illegal FlatCurry file: Type error (Or):'),
+             writeLnErr('*** Term: '), writeErr('Or'(E1,E2)),
+	     writeErr('*** Inferred type of first argument:  '),
+	     writeLnErr(T1),
+	     writeErr('*** Inferred type of second argument: '),
+	     writeLnErr(T2) ; true),
 	   !, fail), !.
 typeExpr('Case'(_,CE,Branches),Funs,TE,T) :-
 	typeExpr(CE,Funs,TE,CT),
@@ -1021,12 +1026,13 @@ typeExprs([],_,_,Type,Type).
 typeExprs([E|Es],Funs,TE,'FuncType'(T1,T2),ResultType) :-
 	typeExpr(E,Funs,TE,TA1),
 	(unifyWithOccursCheck(TA1,T1) -> true ;
-	   writeLnErr('*** Illegal FlatCurry file: Type error (FunArgs):'),
-	   writeLnErr('*** Term: '), writeErr(E),
-	   writeErr('*** Inferred type: '),
-	   writeLnErr(TA1),
-	   writeErr('*** Expected type: '),
-	   writeLnErr(T1),
+           (verbosityIntermediate ->
+	     writeLnErr('*** Illegal FlatCurry file: Type error (FunArgs):'),
+	     writeLnErr('*** Term: '), writeErr(E),
+	     writeErr('*** Inferred type: '),
+	     writeLnErr(TA1),
+	     writeErr('*** Expected type: '),
+	     writeLnErr(T1) ; true),
 	   !, fail),
 	typeExprs(Es,Funs,TE,T2,ResultType).
 
@@ -1047,13 +1053,14 @@ typeBranches(['Branch'('Pattern'(Cons,Vs),Exp)|Bs],CT,Funs,TE,T) :-
 
 unifyBranchTypes(_,T1,T2,T) :- unifyWithOccursCheck(T1,T2), !, T=T1.
 unifyBranchTypes(Branches,T1,T2,_) :-
-	writeLnErr('*** Illegal FlatCurry file: Type error (Case):'),
-	writeLnErr('*** Branches: '),
-        ascii2atom(Branches,Bs), writeLnErr(Bs),
-	writeErr('*** Inferred type of first branch:  '),
-	ascii2atom(T1,T1A), writeLnErr(T1A),
-	writeErr('*** Inferred type of second branch: '),
-	ascii2atom(T2,T2A), writeLnErr(T2A),
+        (verbosityIntermediate ->
+	  writeLnErr('*** Illegal FlatCurry file: Type error (Case):'),
+	  writeLnErr('*** Branches: '),
+          ascii2atom(Branches,Bs), writeLnErr(Bs),
+	  writeErr('*** Inferred type of first branch:  '),
+	  ascii2atom(T1,T1A), writeLnErr(T1A),
+	  writeErr('*** Inferred type of second branch: '),
+	  ascii2atom(T2,T2A), writeLnErr(T2A) ; true),
 	!, fail.
 
 getTypeOfFunction([],Name,_) :- % usually, this case should not occur!
@@ -1527,7 +1534,8 @@ writeFTypeClause(ExtFuncs,Ops,'Func'(Name,_FArity,Vis,FlatType,_)) :-
 	getFuncArity(FName,Arity),
 	getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName),
 	getFixityFromOpList(FName,Ops,Fixity),
-	writeClause(functiontype(FName,EName,Arity,PrologName,Fixity,FlatTypeP)).
+	writeClause(functiontype(FName,EName,Arity,PrologName,
+                                 Fixity,FlatTypeP)).
 
 getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName) :-
 	member((FName/Arity,PName),ExtFuncs), !,
