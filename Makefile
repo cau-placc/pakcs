@@ -130,11 +130,11 @@ install: installscripts copylibs
 	# compile all libraries:
 	@cd lib && $(MAKE) acy
 	# compile optimization tools:
-	@cd currytools/optimize && $(MAKE)
+	#@cd currytools/optimize && $(MAKE)
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
 	$(MAKE) tools
-	$(MAKE) docs
+	#$(MAKE) docs
 	chmod -R go+rX .
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
@@ -188,7 +188,7 @@ tools:
 	# compile the event handler demon for dynamic web pages:
 	@if [ -r bin/pakcs ] ; then cd www        && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
-	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
+	#@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
 # compile CASS analysis environment:
 .PHONY: cass
