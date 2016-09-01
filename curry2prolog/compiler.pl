@@ -949,12 +949,17 @@ computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,_,'Rule'(Args,RHS))|Funs],
  	%writeErr(TEnv), nlErr,
 	tenvtype2funtype(TEnv,EType,Type),
 	freevars2tvars(Type,0,_),
-	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)),
+	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)), !,
 	computeCorrectType([NewFun|AllFunData],Funs,NewFuns).
 computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,Type,'External'(EName))|Funs],
 		   [NewFun|NewFuns]) :-
-	NewFun='Func'(Name,Arity,Vis,Type,'External'(EName)),
+	NewFun='Func'(Name,Arity,Vis,Type,'External'(EName)), !,
 	computeCorrectType([NewFun|AllFunData],Funs,NewFuns).
+computeCorrectType(AllFunData,[FunDecl|Funs],[FunDecl|NewFuns]) :-
+        FunDecl = 'Func'(Name,_,_,_,_),
+        writeErr('*** Internal error during compilation of operation: '),
+	atom_codes(NameA,Name), writeLnErr(NameA),
+	computeCorrectType([FunDecl|AllFunData],Funs,NewFuns).
 
 % for testing:
 writeFunTypes([]).
@@ -1018,8 +1023,9 @@ typeExpr('Case'(_,CE,Branches),Funs,TE,T) :-
 	typeExpr(CE,Funs,TE,CT),
 	typeBranches(Branches,CT,Funs,TE,T), !.
 typeExpr(Expr,_,_,_) :-
-        writeLnErr('*** Internal error: cannot type expression'),
-        ascii2atom(Expr,ExprA), writeLnErr(ExprA), !, fail.
+        (verbosityIntermediate ->
+	   writeLnErr('*** Internal error: cannot type expression'),
+           ascii2atom(Expr,ExprA), writeLnErr(ExprA) ; true), !, fail.
 % TODO: add Let case
 
 typeExprs([],_,_,Type,Type).
