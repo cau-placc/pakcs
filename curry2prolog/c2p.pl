@@ -379,15 +379,20 @@ defaultMainExp(Input,ExpType,ExprGoal) :-
 	processExpression(TypedInput,ExprGoal).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Internal (FlatCurry) representations of some type contexts:
-
-% the internal representation of the class dictionary: Num a
-classDict('TCons'('Prelude._Dict\'23Num',[A]),A,"Num").
-classDict('TCons'('Prelude._Dict\'23Fractional',[A]),A,"Fractional").
-classDict('TCons'('Prelude._Dict\'23Eq',[A]),A,"Eq").
-classDict('TCons'('Prelude._Dict\'23Ord',[A]),A,"Ord").
-classDict('TCons'('Prelude._Dict\'23Show',[A]),A,"Show").
-classDict('TCons'('Prelude._Dict\'23Read',[A]),A,"Read").
+% Check whether the first argument is the (FlatCurry) representation
+% of some class contexts and return the context type in the second
+% argument and the class name (string) in the third argument:
+classDict('TCons'(FCDictA,[A]),A,Dict) :-
+        atom_codes(FCDictA,FCDictS),
+        atom_codes('._Dict\'23',FCDictPrefixS),
+        append(ModFCDictPrefixS,DictS,FCDictS),
+        append(ModS,FCDictPrefixS,ModFCDictPrefixS), !,
+        atom_codes(ModA,ModS),
+        currentModule(CurrMod),
+        ((ModA='Prelude' ; ModA=CurrMod)
+          -> Dict = DictS
+           ; append(ModS,[46|DictS],Dict)),
+        !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1538,11 +1543,21 @@ writeType('TCons'(TC,[Type|Types]),_) :-
 	!,
 	write('('), writeType(Type,top), writeTupleType(Types), write(')').
 writeType('TCons'(TC,[]),_) :- writeTypeCons(TC), !.
+writeType('TCons'(TC,[T1,T2]),top) :- isTypeApplyCons(TC), !,
+	writeType(T1,nested), write(' '), writeType(T2,nested), !.
+writeType('TCons'(TC,[T1,T2]),nested) :- isTypeApplyCons(TC), !,
+	write('('),
+        writeType(T1,nested), write(' '), writeType(T2,nested),
+        write(')'), !.
 writeType('TCons'(TC,Ts),top) :-
 	writeTypeCons(TC), writeTypes(Ts), !.
 writeType('TCons'(TC,Ts),nested) :-
 	write('('), writeTypeCons(TC),
 	writeTypes(Ts), write(')'), !.
+
+isTypeApplyCons(TC) :-
+        atom_codes(TC,TCS),
+        append(_,[46,64],TCS), !. % 64 = @
 
 writeTypeCons(TC) :-
 	atom_codes(TC,TCS),
