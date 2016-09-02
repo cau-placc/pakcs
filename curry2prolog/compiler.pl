@@ -1983,6 +1983,10 @@ transNf(Suffix) :-
 	NfHnf_IORefA_IORefA_E0_E =..
                            [NfHnf,'IOExts.IORef'(A),'IOExts.IORef'(A),E0,E],
         writeClause((NfHnf_IORefA_IORefA_E0_E :- !, E0=E)),
+	% do not normalize partcall arguments:
+	NfHnf_partcall_partcall_E0_E =..
+                           [NfHnf,partcall(A,B,C),partcall(A,B,C),E0,E],
+        writeClause((NfHnf_partcall_partcall_E0_E :- !, E0=E)),
 	(printConsFailure(no) -> true
 	 ; NfHnf_FailA_FailA_E0_E =.. [NfHnf,'FAIL'(A),'FAIL'(A),E0,E],
 	   writeClause((NfHnf_FailA_FailA_E0_E :- !, E0=E))),

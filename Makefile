@@ -130,7 +130,7 @@ install: installscripts copylibs
 	# compile all libraries:
 	@cd lib && $(MAKE) acy
 	# compile optimization tools:
-	#@cd currytools/optimize && $(MAKE)
+	@cd currytools/optimize && $(MAKE)
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
 	$(MAKE) tools
