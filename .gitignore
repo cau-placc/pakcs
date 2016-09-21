@@ -57,6 +57,7 @@ bin/data2xml
 bin/erd2cdbi
 bin/erd2curry
 bin/fcypp
+bin/peval
 bin/runcurry
 bin/spiceup
 cpns/CPNSD

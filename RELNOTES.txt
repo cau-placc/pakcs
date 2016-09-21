@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (June 8, 2016)
--------------------------------------------------------
+Release notes for PAKCS Version 1.14.1 (September 21, 2016)
+-----------------------------------------------------------
 
 Changes to version 1.14.0:
 
@@ -21,6 +21,7 @@ Changes to version 1.14.0:
   * The Curry Preprocessor supports a new option `contracts`
     to transform contracts (specifications, pre/postconditions)
     into run-time assertions.
+  * New partial evaluator (command "peval") added to `currytools`.
 
 
 Release notes for PAKCS Version 1.14.0 (April 19, 2016)
