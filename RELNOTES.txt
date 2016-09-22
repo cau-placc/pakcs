@@ -1,15 +1,19 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (September 21, 2016)
+Release notes for PAKCS Version 1.14.1 (September 22, 2016)
 -----------------------------------------------------------
 
 Changes to version 1.14.0:
 
   * Library `Database.ERD...` added (formerly part of ER currytools).
   * Library `Nat` for Peano numbers added.
+  * Libraries `Rewriting.*` for term rewriting in Curry extended
+    to deal with rewriting strategies, narrowing strategies,
+    critical pairs, definitional trees.
   * Library `Sort`: ...Sort operations renamed to ...SortBy and
     ...Sort operations with standard ordering added.
+  * Library `State` implementation the state monad added.
   * Library `Test.EasyCheck` split into two modules to have less
     import dependencies when putting properties into a module.
   * Library `Test.Prop` added as a clone of `Test.EasyCheck` which defines
