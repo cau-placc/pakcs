@@ -383,10 +383,8 @@ readDecimalChar(N,[M|S],T,C) :- M>=48, M<58, !,
 	readDecimalChar(NM,S,T,C).
 
 readString([34|T],T,[]) :- !.
-readString([92,N1,N2,N3|Ns],T,[C|Str]) :- N1>=48, N1<52, !,
-	N is (N1-48)*100+(N2-48)*10+N3-48,
-	char_int(C,N),
-	readString(Ns,T,Str).
+readString([92,N|Ns],T,Str) :- N>=48, N<58, !,
+        V is N-48, readDecimalCharInString(V,Ns,T,Str).
 readString([92,N|Ns],T,[C|Str]) :- !,
 	readStringChar(N,NS),
 	char_int(C,NS),
@@ -394,6 +392,14 @@ readString([92,N|Ns],T,[C|Str]) :- !,
 readString([N|Ns],T,[C|Str]) :-
 	char_int(C,N),
 	readString(Ns,T,Str).
+
+% read a character with decimal number representation, e.g., '\243'
+readDecimalCharInString(V,[N|Ns],T,Str) :- N>=48, N<58, !,
+        V1 is V*10+N-48,
+        readDecimalCharInString(V1,Ns,T,Str).
+readDecimalCharInString(V,Ns,T,[C|Str]) :-
+        char_int(C,V),
+        readString(Ns,T,Str).
 
 readStringChar(97,7) :- !.
 readStringChar(98,8) :- !.
