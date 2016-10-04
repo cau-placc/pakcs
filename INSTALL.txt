@@ -27,26 +27,23 @@ How to generate and install the PAKCS kernel:
    is the name of this directory.
 2. If you have the executables `sicstus` (for SICStus-Prolog)
    or `swipl` (for SWI-Prolog) in your path,
-   execute "`make`" which installs PAKCS
-   (after asking you to confirm the values for the
-   environment variables `SICSTUSDIR` or `SWIPROLOG`).
-   These values are stored in the home directory in file
-   `.pakcsinitrc` so that they are available for future installations
-   of new versions of PAKCS.
+   execute "`make`" which installs PAKCS.
+   The environment variables `SICSTUSDIR` or `SWIPROLOG` are automatically
+   set to appropriate values. These values are also stored in the
+   home directory in file `.pakcsinitrc` so that they are available
+   for future installations of new versions of PAKCS.
 3. Otherwise, modify in the shell script "`pakcshome/pakcsinitrc`"
    the definition of the variables `SICSTUSDIR` or `SWIPROLOG`
-   according to your local installation.
+   according to your local installation or pass the values to `make`, e.g.,
+
+       make SWIPROLOG=/usr/bin/swipl
+
    If both variables are undefined, the PAKCS compiler system
-   is not installed (i.e., only the front-end is installed).
+   cannot be installed.
 4. If you install PAKCS from the source code distribution, you need also the
    [Glasgow Haskell Compiler](http://www.haskell.org/ghc/)
    (i.e., the executable "`ghc`" must be in your path)
    to compile the front end of PAKCS.
-   If you do this for the first time, you need to install
-   some Haskell packages via Cabal, i.e., run the command
-
-       make installhaskell
-
 5. Now, install PAKCS by "`make`" (if you have already an older
    installation of PAKCS, do "`make clean`" before).
 6. Add the directory "`pakcshome/bin`" to your path, e.g., by the command

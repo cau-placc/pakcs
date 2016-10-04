@@ -1,6 +1,9 @@
 #!/bin/sh
 #
 # Configure PAKCSHOME/pakcsinitrc with correct environment variables
+# and define the appropriate symbolic links
+# PAKCSHOME/bin/sicstusprolog  (if SICStus-Prolog is available)
+# PAKCSHOME/bin/swiprolog      (if SWI-Prolog is available)
 #
 
 # Compute home of PAKCS installation:
@@ -12,207 +15,89 @@ PAKCSINITRC=$PAKCSHOME/pakcsinitrc
 # Initial repository version of the pakcsinitrc file:
 REPOSINITRC=$PAKCSHOME/scripts/pakcsinitrc.sh
 
-# check for HOME variable
-if [ "$HOME" = "" ] ; then
-  echo "Cannot configure PAKCS since environment variable HOME not set!"
-  exit 1
+# Name of user-local pakcsinitrc file (if HOME is present):
+if [ -n "$HOME" ] ; then
+  HOMEINITRC=$HOME/.pakcsinitrc
+else
+  HOMEINITRC=
 fi
 
-# Local version of the pakcsinitrc file:
-HOMEINITRC=$HOME/.pakcsinitrc
-
-if [ -f "$PAKCSINITRC" ] ; then
-  # Save old installed version of pakcsinitrc:
-  cp -p "$PAKCSINITRC" "$PAKCSINITRC.bak"
-elif [ -f "$REPOSINITRC" ] ; then
+# Generate installation-local pakcsinitrc file (if not present):
+if [ ! -f "$PAKCSINITRC" -a -f "$REPOSINITRC" ] ; then
   # The following is only relevant for repository checkouts:
   cp "$REPOSINITRC" "$PAKCSINITRC"
-  cp "$REPOSINITRC" "$PAKCSINITRC.bak"
 elif [ ! -f "$PAKCSINITRC" ] ; then
   echo "ERROR: Incomplete distribution: $PAKCSINITRC is missing!"
   exit 1
 fi
 
-# override definition of SICSTUS etc with values of last install, if possible:
-if [ -f "$HOMEINITRC" ] ; then
-  cp -p "$HOMEINITRC" "$HOMEINITRC.bak"
-  # Update $PAKCSINITRC with values of last installation:
-  for i in `sed -n '/^[A-Za-z]*=/p' < "$HOMEINITRC.bak"`
-  do 
-    VAR=`expr $i : '\(.*\)=.*'`
-    VALUE=`expr $i : '.*=\(.*\)'`
-    OLDENTRY=`sed -n '/^'$VAR'=/p' < "$PAKCSINITRC.bak"`
-    OLDVALUE=`expr "$OLDENTRY" : '.*=\(.*\)'`
-    #echo VAR=$VAR \| VALUE=$VALUE \| OLDVALUE=$OLDVALUE
-    if [ "$VALUE" = "$OLDVALUE" ] ; then
-      mv "$PAKCSINITRC" "$PAKCSINITRC.sav"
-      cat "$PAKCSINITRC.sav" | sed 's|^'$VAR'=.*$|'$VAR=$VALUE'|' > "$PAKCSINITRC"
-    else
-      if [ -n "$OLDVALUE" ] ; then
-        SUGGEST=$OLDVALUE
-      else
-        SUGGEST=$VALUE
-      fi
-      echo -n "Initial value for $VAR: [$SUGGEST] "
-      read NEWVALUE
-      if [ "$NEWVALUE" = "" ] ; then
-        NEWVALUE=$SUGGEST
-      fi
-      mv "$PAKCSINITRC" "$PAKCSINITRC.sav"
-      cat "$PAKCSINITRC.sav" | sed 's|^'$VAR'=.*$|'$VAR=$NEWVALUE'|' > "$PAKCSINITRC"
-    fi
-  done
-  rm -f "$PAKCSINITRC.sav"
-else
-  cp "$PAKCSINITRC" "$HOMEINITRC"
+# if both SICSTUSDIR and SWIPROLOG are undefined, try to define them
+# from installation-local or user-local pakcsinitrc file:
+if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
+  echo "Try to use definitions from $PAKCSINITRC..."
+  . "$PAKCSINITRC"
+fi
+if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" -a -f "$HOMEINITRC" ] ; then
+  echo "Try to use definitions from $HOMEINITRC..."
+  . "$HOMEINITRC"
 fi
 
-# Load the definition of SICSTUSDIR and SWIPROLOG:
-. "$HOMEINITRC" # to get possibly old definition of SICSTUSDIR etc
-. "$PAKCSINITRC"
-
-# try to define SICSTUSDIR if it is not defined:
-rm -f bin/sicstusprolog # delete possible old definition
-if [ -z "$SICSTUSDIR" ] ; then
-  if [ -n "$SICSTUS" -a -x "$SICSTUS" ] ; then
-    SICSTUSBIN=$SICSTUS
-  else
-    SICSTUSBIN=`which sicstus 2> /dev/null`
-  fi
+# if both SICSTUSDIR and SWIPROLOG are still undefined, try find a system:
+if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
+  # try to define SICSTUSDIR if it is not defined:
+  echo "Try to find SICStus-Prolog..."
+  SICSTUSBIN=`which sicstus 2> /dev/null`
   if [ -n "$SICSTUSBIN" ] ; then
     SICSTUSDIR=`expr $SICSTUSBIN : '\(.*\)/bin/sicstus'`
-  else
-    SICSTUSDIR=
   fi
   if [ -x "$SICSTUSDIR/bin/sicstus" ] ; then
-    echo "halt." | $SICSTUS > /tmp/sicstusout$$ 2>&1
-    if [ $? -eq 0 ]; then
-      rm /tmp/sicstusout$$
-      echo "SICSTUSDIR not defined $HOMEINITRC, but I have found:"
-      echo $SICSTUSDIR
-      echo -n "Should I use this for PAKCS? (y/n) "
-      read ANSWER
-      if [ xx$ANSWER = xxy ] ; then
-        cd bin
-        mv "$PAKCSINITRC" "$PAKCSINITRC.sav"
-	cat "$PAKCSINITRC.sav" | sed 's|^SICSTUSDIR=.*$|SICSTUSDIR='$SICSTUSDIR'|' > "$PAKCSINITRC"
-        rm -f "$PAKCSINITRC.sav"
-        echo "Definition of SICSTUSDIR changed in $PAKCSINITRC"
-        cd "$PAKCSHOME"
-        export SICSTUSDIR
-      else
-        SICSTUSDIR=
-        if [ -z "$SWIPROLOG" ] ; then
-          echo "Please put a correct definition for SICSTUS in $HOMEINITRC"
-          echo "if you want to use the PAKCS/Curry2Prolog compiler."
-        fi
-      fi
-    else
-      rm /tmp/sicstusout$$
+    echo "halt." | $SICSTUSDIR/bin/sicstus > /tmp/sicstusout$$ 2>&1
+    if [ $? -ne 0 ]; then
       SICSTUSDIR=
     fi
+    rm /tmp/sicstusout$$
   else
     SICSTUSDIR=
   fi
-fi
-
-# Create symbolic link bin/sicstusprolog if SICSTUSDIR is defined:
-cd bin
-if [ -n "$SICSTUSDIR" ] ; then
-  # test SICStus Prolog:
-  SICSTUS=$SICSTUSDIR/bin/sicstus
-  echo "halt." | $SICSTUS > /tmp/sicstusout$$ 2>&1
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Cannot execute SICStus-Prolog ($SICSTUS):"
-    cat /tmp/sicstusout$$
-    echo "Please put a correct definition for SICSTUSDIR in $HOMEINITRC !"
-    rm /tmp/sicstusout$$
-    exit 1
-  else
-    ln -s "$SICSTUSDIR/bin/sicstus" sicstusprolog
-    # store the value of SICSTUSDIR in script ../bin/.makesavedstate :
-    MAKESTATE=../bin/.makesavedstate
-    mv $MAKESTATE $MAKESTATE.bak
-    sed "s|^SICSTUSDIR=.*$|SICSTUSDIR=$SICSTUSDIR|" < $MAKESTATE.bak > $MAKESTATE
-    chmod 755 $MAKESTATE
-    rm /tmp/sicstusout$$
-  fi
-fi
-cd "$PAKCSHOME"
-
-# try to define SWIPROLOG if SICSTUS and SWIPROLOG are not defined:
-rm -f bin/swiprolog # delete possible old definition
-if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
-  echo "No SICStus-Prolog defined or found, looking for SWI-Prolog..."
-  SWIPROLOG=`which swipl 2> /dev/null`
-  if [ ! -x "$SWIPROLOG" ] ; then
-    SWIPROLOG=`which pl 2> /dev/null`
-  fi
-  if [ -x "$SWIPROLOG" ] ; then
-    echo "halt." | $SWIPROLOG > /tmp/swiprologout$$ 2>&1
-    if [ $? -eq 0 -a `grep -c SWI-Prolog /tmp/swiprologout$$` -gt 0 ]; then
-      rm /tmp/swiprologout$$
-      echo "SWIPROLOG not defined $HOMEINITRC, but I have found:"
-      echo $SWIPROLOG
-      echo -n "Should I use this for PAKCS? (y/n) "
-      read ANSWER
-      if [ xx$ANSWER = xxy ] ; then
-        cd bin
-        mv "$PAKCSINITRC" "$PAKCSINITRC.sav"
-	cat "$PAKCSINITRC.sav" | sed 's|^SWIPROLOG=.*$|SWIPROLOG='$SWIPROLOG'|' > "$PAKCSINITRC"
-        rm -f "$PAKCSINITRC.sav"
-        echo "Definition of SWIPROLOG changed in $PAKCSINITRC"
-        cd "$PAKCSHOME"
-        export SWIPROLOG
-      else
+  # try to define SWIPROLOG if SICSTUSDIR is still undefined:
+  if [ -z "$SICSTUSDIR" ] ; then
+    echo "No SICStus-Prolog defined or found, looking for SWI-Prolog..."
+    SWIPROLOG=`which swipl 2> /dev/null`
+    if [ -x "$SWIPROLOG" ] ; then
+      echo "halt." | $SWIPROLOG > /tmp/swiprologout$$ 2>&1
+      if [ $? -ne 0 -o `grep -c SWI-Prolog /tmp/swiprologout$$` -eq 0 ]; then
         SWIPROLOG=
       fi
-    else
       rm /tmp/swiprologout$$
-      SWIPROLOG=
     fi
-  else
-    SWIPROLOG=
   fi
 fi
 
-# Test whether we have found some Prolog system:
+# if both SICSTUSDIR and SWIPROLOG are still undefined, give up:
 if [ -z "$SICSTUSDIR" -a -z "$SWIPROLOG" ] ; then
-  echo "Please put a correct definition for SICSTUSDIR or SWIPROLOG in"
-  echo "  $HOMEINITRC"
-  echo "if you want to use the PAKCS/Curry2Prolog compiler."
+  echo "Please provide a correct definition for SICSTUSDIR or SWIPROLOG"
+  echo "as a parameter for 'make'!"
   exit 1
 fi
 
-cd "$PAKCSHOME"
+# store current definitions of SICSTUSDIR and SWIPROLOG in pakcsinitrc files:
+mv "$PAKCSINITRC" "$PAKCSINITRC.bak"
+cat "$PAKCSINITRC.bak" | sed 's|^SICSTUSDIR=.*$|SICSTUSDIR='$SICSTUSDIR'|' \
+                       | sed 's|^SWIPROLOG=.*$|SWIPROLOG='$SWIPROLOG'|' \
+                       > "$PAKCSINITRC"
+rm "$PAKCSINITRC.bak"
+if [ -n "$HOME" ] ; then
+  cp "$PAKCSINITRC" "$HOMEINITRC"
+fi
 
-# Create symbolic link bin/swiprolog if SWIPROLOG is correctly defined:
-cd bin
+# Create symbolic links bin/sicstusprolog and bin/swiprolog:
+rm -f bin/sicstusprolog bin/swiprolog # delete possible old definitions
+if [ -n "$SICSTUSDIR" ] ; then
+  ln -s "$SICSTUSDIR/bin/sicstus" bin/sicstusprolog
+fi
 if [ -n "$SWIPROLOG" ] ; then
-  # test SWIPROLOG:
-  echo "halt." | $SWIPROLOG > /tmp/swiprologout$$ 2>&1
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Cannot execute SWI-Prolog ($SWIPROLOG):"
-    cat /tmp/swiprologout$$
-    echo "Please put a correct definition for SWIPROLOG in $HOMEINITRC !"
-    rm /tmp/swiprologout$$
-    exit 1
-  else
-    ln -s "$SWIPROLOG" swiprolog
-    rm /tmp/swiprologout$$
-  fi
+  ln -s "$SWIPROLOG" bin/swiprolog
 fi
-cd "$PAKCSHOME"
-
-# check whether $PAKCSINITRC was changed and, if not, keep old version:
-cmp -s "$PAKCSINITRC" "$PAKCSINITRC.bak"
-if [ $? -eq 0 ]; then
-  mv -f "$PAKCSINITRC.bak" "$PAKCSINITRC"
-fi
-
-# Save current values for future installations:
-cp "$PAKCSINITRC" "$HOMEINITRC"
-chmod 644 "$PAKCSINITRC"
 
 # Report current values:
 echo '======================================================================'
