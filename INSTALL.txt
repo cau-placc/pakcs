@@ -34,7 +34,12 @@ How to generate and install the PAKCS kernel:
    for future installations of new versions of PAKCS.
 3. Otherwise, modify in the shell script "`pakcshome/pakcsinitrc`"
    the definition of the variables `SICSTUSDIR` or `SWIPROLOG`
-   according to your local installation or pass the values to `make`, e.g.,
+   according to your local installation, or pass these values to `make`,
+   e.g., by
+
+       make SICSTUSDIR=/opt/sicstus
+
+   or
 
        make SWIPROLOG=/usr/bin/swipl
 

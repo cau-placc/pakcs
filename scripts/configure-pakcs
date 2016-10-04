@@ -90,10 +90,16 @@ if [ -n "$HOME" ] ; then
   cp "$PAKCSINITRC" "$HOMEINITRC"
 fi
 
-# Create symbolic links bin/sicstusprolog and bin/swiprolog:
+# Create symbolic links in PAKCSHOME/bin and update bin/.makesavedstate:
 rm -f bin/sicstusprolog bin/swiprolog # delete possible old definitions
 if [ -n "$SICSTUSDIR" ] ; then
   ln -s "$SICSTUSDIR/bin/sicstus" bin/sicstusprolog
+  # store the value of SICSTUSDIR in script ../bin/.makesavedstate :
+  MAKESTATE=bin/.makesavedstate
+  mv $MAKESTATE $MAKESTATE.bak
+  sed "s|^SICSTUSDIR=.*$|SICSTUSDIR=$SICSTUSDIR|" < $MAKESTATE.bak > $MAKESTATE
+  rm $MAKESTATE.bak
+  chmod 755 $MAKESTATE
 fi
 if [ -n "$SWIPROLOG" ] ; then
   ln -s "$SWIPROLOG" bin/swiprolog
