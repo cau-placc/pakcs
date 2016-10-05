@@ -29,7 +29,7 @@ safeMode(no). % safe execution without IO actions at top level?
 readRcFile(ArgProps) :-
 	installDir(PH),
         appendAtom(PH,'/pakcsrc.default',ConfigFile),
-        getEnv('HOME',Home),
+        getHomeDirectory(Home),
 	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
 	% first, try to install local .pakcsrc file:
         (existsFile(HomeConfigFile)
@@ -55,8 +55,6 @@ readRcFile(ArgProps) :-
 	nlNQ,
 	writeNQ('Current configurations: '), nlNQ,
 	writeRCvalues.
-readRcFile(_) :-
-	getEnv('HOME',_), !.
 readRcFile(ArgProps) :-
 	% maybe the environment variable HOME is not set since the system
 	% is not started by a regular user:
@@ -1918,7 +1916,7 @@ extractProgName(S,ProgName) :-
 	removeBlanks(S,S1),
 	(append(P,".curry",S1) -> true ;
 	 append(P,".lcurry",S1) -> true ; P=S1),
-	((P=[126|P1], getEnv('HOME',HomeDir))
+	((P=[126|P1], getHomeDirectory(HomeDir))
            -> atom_codes(HomeDir,HomeDirS), append(HomeDirS,P1,PH)
             ; PH=P),
 	workingDirectory(Dir),

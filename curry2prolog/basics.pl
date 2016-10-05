@@ -36,6 +36,7 @@
 		  flatName2Atom/2, decodePrologName/2,
 		  isTupleCons/1, isLetterDigitCode/1,
 		  isOperatorName/1, isOpIdChar/1,
+                  getHomeDirectory/1,
 		  rev/2, concat/2, take/3, drop/3, splitAt/4,
 		  memberEq/2, deleteFirst/3, replaceEq/4,
 		  union/3, diff/3,
@@ -443,10 +444,10 @@ toAbsPath(Path,AbsPath) :-
         atom_codes(Path,[126,47|RPathS]), % home dir path ~/...?
 	!,
 	atom_codes(RPath,RPathS),
-	(getEnv('HOME',HomeDir) -> true ; HomeDir='~'),
+	(getHomeDirectory(HomeDir) -> true ; HomeDir='~'),
 	appendAtoms([HomeDir,'/',RPath],AbsPath).
 toAbsPath('~',HomeDir) :- !,
-	(getEnv('HOME',HomeDir) -> true ; HomeDir='~').
+	(getHomeDirectory(HomeDir) -> true ; HomeDir='~').
 toAbsPath('.',CurDir) :- !,workingDirectory(CurDir).
 toAbsPath(Path,AbsPath) :-
         workingDirectory(CurDir),
@@ -487,6 +488,10 @@ constructorOrFunctionType(QName,Name,Arity,Type) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Further auxiliaries:
+
+% get home directory (fail if it does no exist):
+getHomeDirectory(Home) :-
+        getEnv('HOME',Home), atom_codes(Home,[_|_]).
 
 % linear reverse:
 rev(Xs,Ys) :- rev_acc(Xs,Ys,[]).
