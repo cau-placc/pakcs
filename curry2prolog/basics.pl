@@ -66,6 +66,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % hook predicates to influence message printing from Prolog:
 
+noLoadMessage :- \+ pakcsrc(_,_), !. % no messages for initial state creation
+noLoadMessage :- \+ verbosityIntermediate.
+
 :- multifile user:portray_message/2.
 :- dynamic user:portray_message/2.
 
@@ -77,7 +80,7 @@ user:portray_message(informational,loaded(_,_,_,_,_,_)) :- !,noLoadMessage.
 user:portray_message(informational,created(File,_)) :- !,
 	noLoadMessage,
 	atom_codes(File,FileS),
-	append(_,".po",FileS). % don't show creation message for .po files
+	append(_,".po",FileS). % do not show creation message for .po files
 user:portray_message(warning,import(_,_,_,_)) :- !, noLoadMessage.
 user:portray_message(informational,imported(_,_,_)) :- !, noLoadMessage.
 user:portray_message(informational,foreign_resource(_,_,_,_)) :- !, noLoadMessage.
@@ -86,9 +89,6 @@ user:portray_message(informational,loading(_,restoring,_)) :- !.
 user:portray_message(informational,restored(_,_,_)) :- !.
 % do not show saved state creation messages:
 user:portray_message(informational,created(_,_)) :- !.
-
-noLoadMessage :- \+ pakcsrc(_,_), !. % no messages for initial state creation
-noLoadMessage :- \+ verbosityIntermediate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

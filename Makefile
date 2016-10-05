@@ -253,7 +253,7 @@ clean: $(CLEANCURRY)
 	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
 	cd scripts && $(MAKE) clean
-	-cd frontend && $(MAKE) clean
+	if [ -d frontend ] ; then cd frontend && $(MAKE) clean ; fi
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
