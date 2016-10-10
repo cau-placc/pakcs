@@ -14,6 +14,10 @@
 # Some information about this installation
 # ----------------------------------------
 
+# Is this an installation for a distribution (yes|no)?
+# If yes, nothing will be stored in the home directory.
+export DISTINSTALL = no
+
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
@@ -21,7 +25,7 @@ MINORVERSION=14
 # The revision version number:
 REVISIONVERSION=1
 # The build version number:
-BUILDVERSION=1
+BUILDVERSION=2
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -38,7 +42,9 @@ export ROOT=$(CURDIR)
 export BINDIR=$(ROOT)/bin
 # Directory where the front end is located
 export FRONTENDDIR   = $(ROOT)/frontend
-# Directory where the libraries are located
+# Directory where the sources of the standard libraries are located
+export LIBSRCDIR     = $(ROOT)/lib-trunk
+# Directory where the actual libraries are located
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
@@ -127,7 +133,7 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: copylibs
 copylibs:
-	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
+	@if [ -d $(LIBSRCDIR) ] ; then cd $(LIBSRCDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
 # install front end (if sources are present):
 .PHONY: frontend
@@ -145,11 +151,6 @@ tools:
 	@if [ -r bin/pakcs ] ; then cd www        && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
-
-# compile CASS analysis environment:
-.PHONY: cass
-cass:
-	@if [ -r bin/pakcs ] ; then cd currytools/CASS && $(MAKE) ; fi
 
 # compile documentation, if necessary:
 .PHONY: docs
@@ -273,7 +274,7 @@ distdated: dist
 .PHONY: cleandist
 cleandist:
 	rm -rf .git .gitmodules .gitignore
-	rm -rf lib-trunk
+	rm -rf $(LIBSRCDIR)
 	rm -rf currytools/.git currytools/.gitignore
 	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
 	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist

@@ -16,7 +16,7 @@ PAKCSINITRC=$PAKCSHOME/pakcsinitrc
 REPOSINITRC=$PAKCSHOME/scripts/pakcsinitrc.sh
 
 # Name of user-local pakcsinitrc file (if HOME is present):
-if [ -n "$HOME" ] ; then
+if [ -n "$HOME" -a "$DISTINSTALL" = "no" ] ; then
   HOMEINITRC=$HOME/.pakcsinitrc
 else
   HOMEINITRC=
@@ -86,7 +86,7 @@ cat "$PAKCSINITRC.bak" | sed 's|^SICSTUSDIR=.*$|SICSTUSDIR='$SICSTUSDIR'|' \
                        | sed 's|^SWIPROLOG=.*$|SWIPROLOG='$SWIPROLOG'|' \
                        > "$PAKCSINITRC"
 rm "$PAKCSINITRC.bak"
-if [ -n "$HOME" ] ; then
+if [ -n "$HOME" -a "$DISTINSTALL" = "no" ] ; then
   cp "$PAKCSINITRC" "$HOMEINITRC"
 fi
 
@@ -107,7 +107,11 @@ fi
 
 # Report current values:
 echo '======================================================================'
-echo 'PAKCS installation configured with (saved in '$HOME'/.pakcsinitrc):'
+if [ -f "$HOMEINITRC" ] ; then
+  echo 'PAKCS installation configured with (saved in '$HOMEINITRC'):'
+else
+  echo 'PAKCS installation configured with:'
+fi
 echo "SICSTUSDIR=$SICSTUSDIR"
 echo "SWIPROLOG=$SWIPROLOG"
 echo '======================================================================'
