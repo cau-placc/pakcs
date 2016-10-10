@@ -1,0 +1,6 @@
+# intermediate files
+*~
+*.bak
+
+# binaries
+bin/
