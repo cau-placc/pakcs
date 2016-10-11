@@ -257,7 +257,7 @@ dist:
 	cd $(PAKCSDIST) && $(MAKE) cleandist # delete unnessary files
 	mkdir -p $(PAKCSDIST)/bin && cp -p $(CYMAKE) $(PAKCSDIST)/bin
 	cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs
-	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d"
+	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	tar cfvz $(FULLNAME)-src.tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
