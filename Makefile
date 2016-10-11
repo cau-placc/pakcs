@@ -231,8 +231,9 @@ cleanall: clean
 	rm -f pakcsinitrc pakcsinitrc.bak
 
 
-#################################################################################
-# Create distribution versions of the complete system as tar files pakcs*.tar.gz:
+################################DISTRIBUTION##################################
+# Create distribution versions of the complete system as tar files
+# pakcs*.tar.gz:
 
 # directory name of distribution
 FULLNAME    = pakcs-$(VERSION)
@@ -256,7 +257,7 @@ dist:
 	cd $(PAKCSDIST) && $(MAKE) cleandist # delete unnessary files
 	mkdir -p $(PAKCSDIST)/bin && cp -p $(CYMAKE) $(PAKCSDIST)/bin
 	cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs
-	cat Makefile | sed -e "/distribution/,\$$d" \
+	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d"
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	tar cfvz $(FULLNAME)-src.tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
