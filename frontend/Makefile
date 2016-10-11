@@ -97,3 +97,4 @@ cleanall:
 	cd curry-base     && rm -rf dist/
 	cd curry-frontend && rm -rf dist/
 	rm -rf $(LOCALPKG)
+	rm -f $(CYMAKE)   && rm -rf bin
