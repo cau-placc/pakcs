@@ -16,7 +16,7 @@ PAKCSINITRC=$PAKCSHOME/pakcsinitrc
 REPOSINITRC=$PAKCSHOME/scripts/pakcsinitrc.sh
 
 # Name of user-local pakcsinitrc file (if HOME is present):
-if [ -n "$HOME" -a "$DISTINSTALL" = "no" ] ; then
+if [ -n "$HOME" -a "$DISTPKGINSTALL" = "no" ] ; then
   HOMEINITRC=$HOME/.pakcsinitrc
 else
   HOMEINITRC=
@@ -86,7 +86,7 @@ cat "$PAKCSINITRC.bak" | sed 's|^SICSTUSDIR=.*$|SICSTUSDIR='$SICSTUSDIR'|' \
                        | sed 's|^SWIPROLOG=.*$|SWIPROLOG='$SWIPROLOG'|' \
                        > "$PAKCSINITRC"
 rm "$PAKCSINITRC.bak"
-if [ -n "$HOME" -a "$DISTINSTALL" = "no" ] ; then
+if [ -n "$HOME" -a "$DISTPKGINSTALL" = "no" ] ; then
   cp "$PAKCSINITRC" "$HOMEINITRC"
 fi
 

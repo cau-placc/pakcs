@@ -14,9 +14,11 @@
 # Some information about this installation
 # ----------------------------------------
 
-# Is this an installation for a distribution (yes|no)?
-# If yes, nothing will be stored in the home directory.
-export DISTINSTALL = no
+# Is this an installation for a distribution (Debian) package (yes|no)?
+# In case of "yes":
+# - nothing will be stored during the installation in the home directory
+# - the documentation will be not built (since this takes a lot of time)
+export DISTPKGINSTALL = no
 
 # The major version numbers:
 MAJORVERSION=1
@@ -152,10 +154,11 @@ tools:
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
-# compile documentation, if necessary:
+# compile documentation if sources are available and it is not a
+# separate package distribution:
 .PHONY: docs
 docs:
-	@if [ -d $(DOCDIR)/src ] ; \
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; \
 	 then $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # Create file with version information for Curry2Prolog:
