@@ -11,13 +11,18 @@
 # (contact: pakcs@curry-language.org)
 #****************************************************************************
 
-# Some information about this installation
-# ----------------------------------------
+# Some parameters for this installation
+# --------------------------------------
+#
+# If the parameter CURRYFRONTEND is set to an executable,
+# this executable will be used as the front end for PAKCS.
+# Otherwise, the front end will be compiled from the sources
+# in subdir "frontend" (if it exists).
 
 # Is this an installation for a distribution (Debian) package (yes|no)?
 # In case of "yes":
 # - nothing will be stored during the installation in the home directory
-# - the documentation will be not built (since this takes a lot of time)
+# - the documentation will not be built (since this takes a lot of time)
 export DISTPKGINSTALL = no
 
 # The major version numbers:
@@ -93,8 +98,8 @@ all:
 install: installscripts copylibs
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
-	# install front end (if sources are present):
-	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) frontend ; fi
+	# install front end:
+	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
@@ -137,10 +142,18 @@ cleanscripts:
 copylibs:
 	@if [ -d $(LIBSRCDIR) ] ; then cd $(LIBSRCDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
-# install front end (if sources are present):
+# install front end (from environment variable or sources):
 .PHONY: frontend
 frontend:
 	rm -f $(CYMAKE)
+ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
+	ln -s $(CURRYFRONTEND) $(CYMAKE)
+else
+	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
+endif
+
+.PHONY: compilefrontend
+compilefrontend:
 	cd $(FRONTENDDIR) && $(MAKE)
 	ln -s $(FRONTENDDIR)/bin/cymake $(CYMAKE)
 
