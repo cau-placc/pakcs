@@ -145,8 +145,8 @@ copylibs:
 # install front end (from environment variable or sources):
 .PHONY: frontend
 frontend:
-	rm -f $(CYMAKE)
 ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
+	rm -f $(CYMAKE)
 	ln -s $(CURRYFRONTEND) $(CYMAKE)
 else
 	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
@@ -154,6 +154,7 @@ endif
 
 .PHONY: compilefrontend
 compilefrontend:
+	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
 	ln -s $(FRONTENDDIR)/bin/cymake $(CYMAKE)
 
