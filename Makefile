@@ -11,8 +11,19 @@
 # (contact: pakcs@curry-language.org)
 #****************************************************************************
 
-# Some information about this installation
-# ----------------------------------------
+# Some parameters for this installation
+# --------------------------------------
+#
+# If the parameter CURRYFRONTEND is set to an executable,
+# this executable will be used as the front end for PAKCS.
+# Otherwise, the front end will be compiled from the sources
+# in subdir "frontend" (if it exists).
+
+# Is this an installation for a distribution (Debian) package (yes|no)?
+# In case of "yes":
+# - nothing will be stored during the installation in the home directory
+# - the documentation will not be built (since this takes a lot of time)
+export DISTPKGINSTALL = no
 
 # The major version numbers:
 MAJORVERSION=1
@@ -21,7 +32,7 @@ MINORVERSION=14
 # The revision version number:
 REVISIONVERSION=1
 # The build version number:
-BUILDVERSION=1
+BUILDVERSION=2
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -36,7 +47,11 @@ export CURRYSYSTEM=pakcs
 export ROOT=$(CURDIR)
 # binary directory and executables
 export BINDIR=$(ROOT)/bin
-# Directory where the libraries are located
+# Directory where the front end is located
+export FRONTENDDIR   = $(ROOT)/frontend
+# Directory where the sources of the standard libraries are located
+export LIBSRCDIR     = $(ROOT)/lib-trunk
+# Directory where the actual libraries are located
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
@@ -44,10 +59,6 @@ export DOCDIR        = $(ROOT)/docs
 C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
 MANUALVERSION=$(DOCDIR)/src/version.tex
-# Directory where local package installations are stored
-export LOCALPKG      = $(ROOT)/pkg
-# The path to the package database
-export PKGDB         = $(LOCALPKG)/pakcs.conf.d
 
 # Various executables used in the installation
 # --------------------------------------------
@@ -56,46 +67,13 @@ export PKGDB         = $(LOCALPKG)/pakcs.conf.d
 export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
 export REPL_OPTS    = --noreadline :set -time
-# The frontend binary
+# The front end binary
 export CYMAKE       = $(BINDIR)/cymake
 # The cleancurry binary
 export CLEANCURRY   = $(BINDIR)/cleancurry
 
 # Logfile for make:
 MAKELOG=make.log
-
-# GHC and CABAL configuration (for installing the front end)
-# ----------------------------------------------------------
-# The path to the Glasgow Haskell Compiler and Cabal
-export GHC     := $(shell which ghc)
-export GHC-PKG := $(shell dirname "$(GHC)")/ghc-pkg
-export CABAL    = cabal
-
-# Because of an API change in GHC 7.6,
-# we need to distinguish GHC < 7.6 and GHC >= 7.6.
-# GHC 7.6 renamed the option "package-conf" to "package-db".
-
-# extract GHC version
-ifdef GHC
-GHC_MAJOR := $(shell "$(GHC)" --numeric-version | cut -d. -f1)
-GHC_MINOR := $(shell "$(GHC)" --numeric-version | cut -d. -f2)
-# Is the GHC version >= 7.6 ?
-GHC_GEQ_76 = $(shell test $(GHC_MAJOR) -gt 7 -o \( $(GHC_MAJOR) -eq 7 \
-              -a $(GHC_MINOR) -ge 6 \) ; echo $$?)
-# package-db (>= 7.6) or package-conf (< 7.6)?
-ifeq ($(GHC_GEQ_76),0)
-GHC_PKG_OPT = package-db
-else
-GHC_PKG_OPT = package-conf
-endif
-endif
-
-# Command to unregister a package
-export GHC_UNREGISTER = "$(GHC-PKG)" unregister --$(GHC_PKG_OPT)="$(PKGDB)"
-# Command to install missing packages using cabal
-export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)"       \
-                        --with-hc-pkg="$(GHC-PKG)" --prefix="$(LOCALPKG)" \
-                        --global --package-db="$(PKGDB)" -O2
 
 ########################################################################
 # The targets
@@ -120,8 +98,8 @@ all:
 install: installscripts copylibs
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
-	# install front end (if sources are present):
-	@if [ -d frontend ] ; then $(MAKE) frontend ; fi
+	# install front end:
+	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
 	# install the Curry2Prolog compiler as a saved system:
@@ -134,7 +112,7 @@ install: installscripts copylibs
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
 	$(MAKE) tools
-	#$(MAKE) docs
+	$(MAKE) docs
 	chmod -R go+rX .
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
@@ -162,23 +140,23 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: copylibs
 copylibs:
-	@if [ -d lib-trunk ] ; then cd lib-trunk && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
+	@if [ -d $(LIBSRCDIR) ] ; then cd $(LIBSRCDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
-# create package database
-$(PKGDB):
-	"$(GHC-PKG)" init $@
-	$(CABAL) update
-
-# install front end (if sources are present):
+# install front end (from environment variable or sources):
 .PHONY: frontend
 frontend:
-ifdef GHC
-	$(MAKE) $(PKGDB)
-	cd frontend && $(MAKE)
+ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
+	rm -f $(CYMAKE)
+	ln -s $(CURRYFRONTEND) $(CYMAKE)
 else
-	@echo "GHC missing, cannot build front end!"
-	@exit 1
+	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
 endif
+
+.PHONY: compilefrontend
+compilefrontend:
+	rm -f $(CYMAKE)
+	cd $(FRONTENDDIR) && $(MAKE)
+	ln -s $(FRONTENDDIR)/bin/cymake $(CYMAKE)
 
 # compile the tools:
 .PHONY: tools
@@ -188,17 +166,13 @@ tools:
 	# compile the event handler demon for dynamic web pages:
 	@if [ -r bin/pakcs ] ; then cd www        && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
-	#@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
+	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
-# compile CASS analysis environment:
-.PHONY: cass
-cass:
-	@if [ -r bin/pakcs ] ; then cd currytools/CASS && $(MAKE) ; fi
-
-# compile documentation, if necessary:
+# compile documentation if sources are available and it is not a
+# separate package distribution:
 .PHONY: docs
 docs:
-	@if [ -d $(DOCDIR)/src ] ; \
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; \
 	 then $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # Create file with version information for Curry2Prolog:
@@ -253,7 +227,7 @@ clean: $(CLEANCURRY)
 	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
 	cd bin && rm -f sicstusprolog swiprolog
 	cd scripts && $(MAKE) clean
-	-cd frontend && $(MAKE) clean
+	if [ -d $(FRONTENDDIR) ] ; then cd $(FRONTENDDIR) && $(MAKE) clean ; fi
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
@@ -269,14 +243,14 @@ cleantools: $(CLEANCURRY)
 .PHONY: cleanall
 cleanall: clean
 	rm -rf $(LIBDIR)
-	rm -rf $(LOCALPKG)
-	-cd frontend && $(MAKE) cleanall
-	if [ -d frontend ]; then rm -rf $(BINDIR); fi
+	-cd $(FRONTENDDIR) && $(MAKE) cleanall
+	if [ -d $(FRONTENDDIR) ]; then rm -rf $(BINDIR); fi
 	rm -f pakcsinitrc pakcsinitrc.bak
 
 
-#################################################################################
-# Create distribution versions of the complete system as tar files pakcs*.tar.gz:
+################################DISTRIBUTION##################################
+# Create distribution versions of the complete system as tar files
+# pakcs*.tar.gz:
 
 # directory name of distribution
 FULLNAME    = pakcs-$(VERSION)
@@ -300,7 +274,7 @@ dist:
 	cd $(PAKCSDIST) && $(MAKE) cleandist # delete unnessary files
 	mkdir -p $(PAKCSDIST)/bin && cp -p $(CYMAKE) $(PAKCSDIST)/bin
 	cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs
-	cat Makefile | sed -e "/distribution/,\$$d" \
+	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	tar cfvz $(FULLNAME)-src.tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
@@ -318,9 +292,9 @@ distdated: dist
 .PHONY: cleandist
 cleandist:
 	rm -rf .git .gitmodules .gitignore
-	rm -rf lib-trunk
+	rm -rf $(LIBSRCDIR)
 	rm -rf currytools/.git currytools/.gitignore
-	cd frontend/curry-base     && rm -rf .git .gitignore dist
-	cd frontend/curry-frontend && rm -rf .git .gitignore dist
+	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
+	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
 	rm -f KNOWN_BUGS CHANGELOG.html
