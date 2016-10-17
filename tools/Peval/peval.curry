@@ -921,8 +921,8 @@ msgT e f = (w:(subTerms sigma))++(subTerms theta)
 computeMsg :: Expr -> Expr -> (Expr,Subst,Subst)
 computeMsg e1 e2 = (w, sub1, sub2)
   where (w,_) = msg e1 e2 (max (maxVarIndex e1) (maxVarIndex e2))
-        sub1 = instance e1 w
-        sub2 = instance e2 w
+        sub1 = instanceOf e1 w
+        sub2 = instanceOf e2 w
 
 -- msg e1 e2 i = (w,i')
 -- w is the msg of e1 and e2 and i' is the last number used in the 
@@ -2189,15 +2189,15 @@ existsRen :: [Expr] -> Expr -> Bool
 
 existsRen [] _ = False
 existsRen (e1:es) e = 
-  if  not (instance e1 e == FSub) &&  
-      not (instance e e1 == FSub)
+  if  not (instanceOf e1 e == FSub) &&  
+      not (instanceOf e e1 == FSub)
                       then True
                       else existsRen es e
 
 -- check whether one expression is an instance of another and compute
 -- the corresponding substitution:
-instance :: Expr -> Expr -> Subst
-instance a b =
+instanceOf :: Expr -> Expr -> Subst
+instanceOf a b =
   if a==b then Sub [] []
           else if isVar b 
                   then instanceVar a b
@@ -2216,10 +2216,10 @@ instanceS (Comb c1 f1 e1) (Comb c2 f2 e2) =
   if c1==c2 && f1==f2 then instanceL e1 e2 (Sub [] [])
                       else FSub
 instanceS (Case c1 e1 ces1) (Case c2 e2 ces2) =
-  if c1==c2 then instanceCase ces1 ces2 (instance e1 e2)
+  if c1==c2 then instanceCase ces1 ces2 (instanceOf e1 e2)
             else FSub
-instanceS (Constr _ e1) (Constr _ e2) = instance e1 e2
-instanceS (Choice e1) (Choice e2) = instance e1 e2
+instanceS (Constr _ e1) (Constr _ e2) = instanceOf e1 e2
+instanceS (Choice e1) (Choice e2) = instanceOf e1 e2
 instanceS (GuardedExpr _ c1 e1) (GuardedExpr _ c2 e2) =
   instanceL [c1,e1] [c2,e2] (Sub [] [])
 instanceS (Or e1 e2) (Or f1 f2) = instanceL [e1,e2] [f1,f2] (Sub [] [])
@@ -2231,7 +2231,7 @@ instanceL (e1:es1) (e2:es2) subs
   | newsub == FSub    =  FSub
   | clash newsub subs =  FSub
   | otherwise         =  instanceL es1 es2 (composeSubs subs newsub)
-  where newsub = instance e1 e2
+  where newsub = instanceOf e1 e2
 
 --
 clash (Sub vs es) sub2 = clash_ vs es sub2
@@ -2261,10 +2261,10 @@ instanceCaseL (e1:es1) (e2:es2) subs
 
 instanceCaseBranch :: BranchExpr -> BranchExpr -> Subst
 instanceCaseBranch (Branch (Pattern c1 _) e1) (Branch (Pattern c2 _) e2) = 
-  if c1 == c2 then instance e1 e2
+  if c1 == c2 then instanceOf e1 e2
               else FSub
 instanceCaseBranch (Branch (LPattern c1) e1) (Branch (LPattern c2) e2) = 
-  if c1 == c2 then instance e1 e2
+  if c1 == c2 then instanceOf e1 e2
               else FSub
 
 -- composition of substitutions:
@@ -2307,7 +2307,7 @@ search_instance _ [] = (FSub, Var (-1))
 search_instance e (e1:es) = 
   if sub==FSub then search_instance e es
                else (sub,e)
-  where sub = instance e e1
+  where sub = instanceOf e e1
 
 --printSubs FSub = "FSub"
 --printSubs (Sub vars exps) =
@@ -2321,13 +2321,13 @@ searchInstance _ [] = (FSub, Var (-1))
 searchInstance e ((e1,e2):es) =
   if sub /= FSub then (sub, e2)
                  else searchInstance e es
-  where sub = instance e e1
+  where sub = instanceOf e e1
 --searchInstance e (_:es) = searchInstance e es
 --deterministic version follows:
 --  if sub==FSub 
 --     then searchInstance funs e es 
 --     else (sub,e2)
---  where sub = instance e e1
+--  where sub = instanceOf e e1
 
 
 --checks whether a term is a constructor instance of the renaming set.. 
@@ -2339,7 +2339,7 @@ searchConstrInstance funs e ((e1,e2):es) =
   if (sub /= FSub) && (isConstructor funs sub)
                          then (sub,e2)
                          else searchConstrInstance funs e es
-  where sub = instance e e1
+  where sub = instanceOf e e1
 
 --used to pretty print a list of expressions:
 concatBlank [] = []

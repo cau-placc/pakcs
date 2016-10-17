@@ -77,7 +77,7 @@ data ConsDecl = Cons String Int [TypeExpr]
 data TypeExpr = TVar TVarIndex              -- type variable
               | FuncType TypeExpr TypeExpr  -- function type t1->t2
               | TCons String [TypeExpr]     -- type constructor application
-
+  deriving Eq
 
 --- Data type for operator declarations.
 --- An operator declaration "fix p n" in Curry corresponds to the
@@ -87,7 +87,7 @@ data OpDecl = Op String Fixity Int
 
 --- Data types for the different choices for the fixity of an operator.
 data Fixity = InfixOp | InfixlOp | InfixrOp
-
+  deriving Show
 
 --- Data types for representing object variables.
 --- Object variables occurring in expressions are represented by (Var i)
@@ -131,6 +131,7 @@ data Rule = Rule [VarIndex] Expr
 --- Case expressions can be either flexible or rigid in Curry.
 
 data CaseType = Rigid | Flex       -- type of a case expression
+  deriving (Eq, Show)
 
 --- Data type for classifying combinations
 --- (i.e., a function/constructor applied to some arguments).
@@ -139,6 +140,7 @@ data CombType = FuncCall     -- a call to a function
               | ConsCall     -- a call with a constructor at the top
               | PartCall     -- a partial application (i.e., FuncCall or
                              -- ConsCall with some arguments missing)
+  deriving Show
 
 --- Data types for representing expressions.
 
