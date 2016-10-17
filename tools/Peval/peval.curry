@@ -58,6 +58,7 @@ getPevalAnnotExpr (Comb _ _ args) = head args
 
 -- data type for substitutions:
 data Subst = Sub [Int] [Expr] | FSub
+  deriving Eq
 
 -- encapsulating the state during the peval process:
 -- the state contains:
@@ -2170,7 +2171,7 @@ ppRule fname (External ename) =
 ------------------------------------------------------------------------------
 
 -- delete all occurrences of an element in a list:
-deleteAll          :: a -> [a] -> [a]
+deleteAll :: Eq a => a -> [a] -> [a]
 deleteAll _ []     = []
 deleteAll x (y:ys) = if x==y then deleteAll x ys else y : deleteAll x ys
 

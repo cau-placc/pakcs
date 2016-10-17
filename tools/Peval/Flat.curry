@@ -58,13 +58,13 @@ type TVarIndex = Int
 --- </PRE>
 
 data TypeDecl = Type String [TVarIndex] [ConsDecl]
-
+  deriving Eq
 
 --- A constructor declaration consists of the name and arity of the
 --- constructor and a list of the argument types of the constructor.
 
 data ConsDecl = Cons String Int [TypeExpr]
-
+  deriving Eq
 
 --- Data type for type expressions.
 --- A type expression is either a type variable, a function type,
@@ -77,17 +77,18 @@ data ConsDecl = Cons String Int [TypeExpr]
 data TypeExpr = TVar TVarIndex              -- type variable
               | FuncType TypeExpr TypeExpr  -- function type t1->t2
               | TCons String [TypeExpr]     -- type constructor application
-
+  deriving Eq
 
 --- Data type for operator declarations.
 --- An operator declaration "fix p n" in Curry corresponds to the
 --- FlatCurry term (Op n fix p).
 
 data OpDecl = Op String Fixity Int
+  deriving Eq
 
 --- Data types for the different choices for the fixity of an operator.
 data Fixity = InfixOp | InfixlOp | InfixrOp
-
+  deriving (Eq, Show)
 
 --- Data types for representing object variables.
 --- Object variables occurring in expressions are represented by (Var i)
@@ -119,6 +120,7 @@ type VarIndex = Int
 --- </PRE>
 
 data FuncDecl = Func String Int TypeExpr Rule
+  deriving Eq
 
 
 --- A rule is either a list of formal parameters together with an expression
@@ -126,11 +128,13 @@ data FuncDecl = Func String Int TypeExpr Rule
 
 data Rule = Rule [VarIndex] Expr
           | External String
+  deriving Eq
 
 --- Data type for classifying case expressions.
 --- Case expressions can be either flexible or rigid in Curry.
 
 data CaseType = Rigid | Flex       -- type of a case expression
+  deriving (Eq, Show)
 
 --- Data type for classifying combinations
 --- (i.e., a function/constructor applied to some arguments).
@@ -139,6 +143,7 @@ data CombType = FuncCall     -- a call to a function
               | ConsCall     -- a call with a constructor at the top
               | PartCall     -- a partial application (i.e., FuncCall or
                              -- ConsCall with some arguments missing)
+  deriving (Eq, Show)
 
 --- Data types for representing expressions.
 
@@ -155,6 +160,7 @@ data Expr =
  | GuardedExpr [VarIndex] Expr Expr -- guarded expression
  | SQ Expr
  | Prog String [String] [TypeDecl] [FuncDecl] [OpDecl] [Translation]
+  deriving Eq
 
 {-
 The latter guarded expression represents conditional right-hand sides,
@@ -218,11 +224,13 @@ Remarks:
 --- </PRE>
 
 data BranchExpr = Branch Pattern Expr
+  deriving Eq
 
 --- Data type for representing patterns in case expressions.
 
 data Pattern = Pattern String [VarIndex]
              | LPattern Literal
+  deriving Eq
 
 --- Data type for representing literals occurring in an expression
 --- or case branch. It is either an integer, a float, or a character constant.
@@ -230,7 +238,7 @@ data Pattern = Pattern String [VarIndex]
 data Literal = Intc   Int
              | Floatc Float
              | Charc  Char
-
+  deriving Eq
 
 --- Data type for translating external into internal names.
 --- Each module contains a translation table to translate the
@@ -241,7 +249,7 @@ data Literal = Intc   Int
 --- <CODE>(Trans name internal_name)</CODE>.
 
 data Translation = Trans String String
-
+  deriving Eq
 
 ------------------------------------------------------------------------------
 --- I/O action which parses a Curry program and returns the corresponding
