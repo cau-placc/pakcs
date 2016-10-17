@@ -353,8 +353,8 @@ tryDefaultType(Input,'FuncType'(AType,RType),ExprGoal) :-
 	  ; TVar = 'TCons'('Prelude.Float',[]),
 	    tryDefaultType(Input,RType,ExprGoal)).
 tryDefaultType(Input,Type,ExprGoal) :-
-	\+ (nonvar(RType), RType='FuncType'(_,_)), % can't default functions
-	\+ append(_,[119,104,101,114,101|_],Input), % can't handler ...where...
+	\+ (nonvar(Type), Type='FuncType'(_,_)), % can't default functions
+	\+ append(_,[119,104,101,114,101|_],Input), % can't handle ...where...
 	defaultMainExp(Input,Type,ExprGoal).
 
 % default the main expression to some given type:
