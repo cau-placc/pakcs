@@ -1018,8 +1018,9 @@ typeExpr('Case'(_,CE,Branches),Funs,TE,T) :-
 	typeExpr(CE,Funs,TE,CT),
 	typeBranches(Branches,CT,Funs,TE,T), !.
 typeExpr(Expr,_,_,_) :-
-        writeLnErr('*** Internal error: cannot type expression'),
-        ascii2atom(Expr,ExprA), writeLnErr(ExprA), !, fail.
+        (verbosityIntermediate ->
+	   writeLnErr('*** Internal error: cannot type expression'),
+           ascii2atom(Expr,ExprA), writeLnErr(ExprA) ; true), !, fail.
 % TODO: add Let case
 
 typeExprs([],_,_,Type,Type).
