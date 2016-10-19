@@ -133,8 +133,8 @@ widgetUI2GUI (UI.Widget name mblabel mbref handlers styleclasses widgets) =
     UI.Scale min max -> GUI.Scale min max confitems
     UI.TextEdit rows cols -> 
       GUI.TextEdit ([GUI.Height rows, GUI.Width cols] ++ confitems)
-    x -> GUI.Label
-            [GUI.Text (show x ++ " not implemented in UI2GUI.widgetUI2GUI")] 
+    _ -> GUI.Label
+           [GUI.Text "Specific UIWidget not implemented in UI2GUI.widgetUI2GUI"]
 
   where
     collconfs = classes2guicollconfs styleclasses  
@@ -188,8 +188,9 @@ runUI title widget =
   GUI.runInitGUI title (widgetUI2GUI widget) initcmd
   where
     d = getdisplayconf widget
-    initcmd gp = 
+    initcmd gp = do
       mapIO_ (\ (ref,confitem) -> GUI.setConfig ref confitem gp) d
+      return []
 
 ------------------------------------------------------------------------------
 

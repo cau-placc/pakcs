@@ -41,7 +41,7 @@ satisfy _ [] = []
 satisfy p (t:ts) = if p t then [(t,ts)] else []
 
 --- A parser recognizing a particular terminal symbol.
-terminal :: t -> Parser t t
+terminal :: Eq t => t -> Parser t t
 terminal s = satisfy (s==)
 
 --- A star combinator for parsers. The returned parser

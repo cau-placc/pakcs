@@ -1,36 +1,38 @@
 ------------------------------------------------------------------------------
 --- Library for HTML and CGI programming.
---- <a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL01.html">
---- This paper</a> contains a description of the basic ideas
---- behind this library.
+--- [This paper](http://www.informatik.uni-kiel.de/~mh/papers/PADL01.html)
+--- contains a description of the basic ideas behind this library.
 ---
 --- The installation of a cgi script written with this library
 --- can be done by the command
---- 
---- <code>makecurrycgi -m initialForm -o /home/joe/public_html/prog.cgi prog</code>
 ---
---- where <code>prog</code> is the name of the Curry program with
---- the cgi script, <code>/home/joe/public_html/prog.cgi</code> is
+---     makecurrycgi -m initialForm -o /home/joe/public_html/prog.cgi prog
+---
+--- where `prog` is the name of the Curry program with
+--- the cgi script, `/home/joe/public_html/prog.cgi` is
 --- the desired location of the
---- compiled cgi script, and <code>initialForm</code> is the Curry expression
+--- compiled cgi script, and `initialForm` is the Curry expression
 --- (of type IO HtmlForm) computing the HTML form (where makecurrycgi
---- is a shell script stored in <i>pakcshome</i>/bin).
---- 
+--- is a shell script stored in *pakcshome*/bin).
+---
 --- @author Michael Hanus (with extensions by Bernd Brassel and Marco Comini)
---- @version July 2013
+--- @version October 2016
+--- @category web
 ------------------------------------------------------------------------------
 
-module HTML(HtmlExp(..),HtmlPage(..),PageParam(..), 
+{-# OPTIONS_CYMAKE -Wno-incomplete-patterns #-}
+
+module HTML(HtmlExp(..),HtmlPage(..),PageParam(..),
             HtmlForm(..),FormParam(..),CookieParam(..),
             CgiRef(..),idOfCgiRef,CgiEnv,HtmlHandler,
-            HtmlElem,Form, -- for backward compatibility
-            defaultEncoding, defaultBackground,
-            form,standardForm,answerText,
+            defaultEncoding,
+            form,standardForm,answerText,answerEncText,
             cookieForm,getCookies,
-            page,standardPage,pageEnc,pageCSS,addPageParam,
-            formEnc,formCSS,addFormParam,
+            page,standardPage,
+            pageEnc,pageCSS,pageMetaInfo,pageLinkInfo,pageBodyAttr,addPageParam,
+            formEnc,formCSS,formMetaInfo,formBodyAttr,addFormParam,
             htxt,htxts,hempty,nbsp,h1,h2,h3,h4,h5,
-            par,emphasize,bold,italic,code,
+            par,section,header,footer,emphasize,strong,bold,italic,nav,code,
             center,blink,teletype,pre,verbatim,address,href,anchor,
             ulist,olist,litem,dlist,table,headedTable,addHeadings,
             hrule,breakline,image,
@@ -40,48 +42,50 @@ module HTML(HtmlExp(..),HtmlPage(..),PageParam(..),
             textfield,password,textarea,checkbox,checkedbox,
             radio_main,radio_main_off,radio_other,
             selection,selectionInitial,multipleSelection,
-            hiddenfield,htmlQuote,addAttr,addAttrs,
+            hiddenfield,htmlQuote,htmlIsoUmlauts,addAttr,addAttrs,addClass,
             showHtmlExps,showHtmlExp,showHtmlPage,
-            showHtmlDoc,showHtmlDocCSS,
             runFormServerWithKey,runFormServerWithKeyAndFormParams,
             intForm,intFormMain,
             getUrlParameter,urlencoded2string,string2urlencoded,
             showLatexExps,showLatexExp,showLatexDoc,showLatexDocs,
             showLatexDocsWithPackages,showLatexDocWithPackages,
-            germanLatexDoc,addSound,addCookies) where
+            germanLatexDoc,htmlSpecialChars2tex,
+            addSound,addCookies) where
 
-import System
 import Char
-import List
-import Time
+import Directory    (getHomeDirectory)
+import Distribution (installDir)
 import HtmlCgi
-import NamedSocket
-import ReadNumeric(readNat,readHex)
-import ReadShowTerm(showQTerm,readsQTerm)
-import Unsafe(showAnyQExpression) -- to show status of cgi server
-import Distribution(installDir)
 import IO
+import NamedSocket
+import List
 import Profile
+import Random       (getRandomSeed, nextInt)
+import ReadNumeric  (readNat, readHex)
+import ReadShowTerm (showQTerm, readsQTerm)
+import System
+import Time
+import Unsafe(showAnyQExpression) -- to show status of cgi server
 
 import Json
 
 
 infixl 0 `addAttr`
 infixl 0 `addAttrs`
+infixl 0 `addClass`
 infixl 0 `addPageParam`
 infixl 0 `addFormParam`
 
 ------------------------------------------------------------------------------
 --- The default encoding used in generated web pages.
-defaultEncoding = "iso-8859-1"
-
---- The default background for generated web pages.
-defaultBackground = ("bgcolor","#ffffff")
+defaultEncoding :: String
+defaultEncoding = "utf-8" --"iso-8859-1"
 
 ------------------------------------------------------------------------------
 --- The (abstract) data type for representing references to input elements
 --- in HTML forms.
 data CgiRef = CgiRef String
+ deriving Eq
 
 --- Internal identifier of a CgiRef (intended only for internal use in other
 --- libraries!).
@@ -110,13 +114,21 @@ data HtmlExp =
  | HtmlCRef   HtmlExp CgiRef
  | HtmlEvent  HtmlExp HtmlHandler
  | AjaxEvent  String HtmlHandler
- | AjaxEvent2  HtmlExp HtmlHandler String String
+ | AjaxEvent2 HtmlExp HtmlHandler String String
 
-
---- A single HTML element with a tag, attributes, but no contents
---- (deprecated, included only for backward compatibility).
-HtmlElem :: String -> [(String,String)] -> HtmlExp
-HtmlElem tag attrs = HtmlStruct tag attrs []
+--- Extracts the textual contents of a list of HTML expressions.
+---
+--- For instance,
+--- <code>textOf [HtmlText "xy", HtmlStruct "a" [] [HtmlText "bc"]] == "xy bc"</code>
+textOf :: [HtmlExp] -> String
+textOf = unwords . filter (not . null) . map textOfHtmlExp
+ where
+   textOfHtmlExp (HtmlText s) = s
+   textOfHtmlExp (HtmlStruct _ _ hs) = textOf hs
+   textOfHtmlExp (HtmlCRef   hexp _) = textOf [hexp]
+   textOfHtmlExp (HtmlEvent  hexp _) = textOf [hexp]
+   textOfHtmlExp (AjaxEvent _ _) = ""
+   textOfHtmlExp (AjaxEvent2 hexp _ _ _) = textOf [hexp]
 
 
 ------------------------------------------------------------------------------
@@ -147,6 +159,7 @@ data HtmlForm =
 ---                      script should be represented (should only be used
 ---                      for scripts running in a frame)
 --- @cons FormEnc - the encoding scheme of this form
+--- @cons FormMeta as - meta information (in form of attributes) for this form
 --- @cons HeadInclude he - HTML expression to be included in form header
 --- @cons MultipleHandlers - indicates that the event handlers of the form
 ---   can be multiply used (i.e., are not deleted if the form is submitted
@@ -164,6 +177,7 @@ data FormParam = FormCookie   String String [CookieParam]
                | FormOnSubmit String
                | FormTarget   String
                | FormEnc      String
+               | FormMeta     [(String,String)]
                | HeadInclude  HtmlExp
                | MultipleHandlers
                | BodyAttr     (String,String)
@@ -175,6 +189,17 @@ formEnc enc = FormEnc enc
 --- A URL for a CSS file for a HTML form.
 formCSS :: String -> FormParam
 formCSS css = FormCSS css
+
+--- Meta information for a HTML form. The argument is a list of
+--- attributes included in the `meta`-tag in the header for this form.
+formMetaInfo :: [(String,String)] -> FormParam
+formMetaInfo attrs = FormMeta attrs
+
+--- Optional attribute for the body element of the HTML form.
+--- More than one occurrence is allowed, i.e., all such attributes are
+--- collected.
+formBodyAttr :: (String,String) -> FormParam
+formBodyAttr attr = BodyAttr attr
 
 --- A cookie to be sent to the client's browser when a HTML form is
 --- requested.
@@ -193,15 +218,7 @@ data CookieParam = CookieExpire ClockTime
 --- @param hexps - the form's body (list of HTML expressions)
 --- @return an HTML form
 form :: String -> [HtmlExp] -> HtmlForm
-form title hexps = HtmlForm title [BodyAttr defaultBackground] hexps
-
---- A basic HTML form for active web pages
---- (deprecated, included only for backward compatibility).
---- @param title - the title of the form
---- @param hexps - the form's body (list of HTML expressions)
---- @return an HTML form
-Form :: String -> [HtmlExp] -> HtmlForm
-Form = form
+form title hexps = HtmlForm title [] hexps
 
 --- A standard HTML form for active web pages where the title is included
 --- in the body as the first header.
@@ -226,12 +243,13 @@ cookieForm t cs he = HtmlForm t (map (\(n,v)->FormCookie n v []) cs) he
 --- @param form - the form to add cookies to
 --- @return a new HTML form
 addCookies :: [(String,String)] -> HtmlForm -> HtmlForm
-addCookies cs (HtmlForm t as hs) =
-  HtmlForm t (map (\ (n,v) -> FormCookie n v []) cs++as) hs
+addCookies cs (HtmlForm t fas hs) =
+  HtmlForm t (map (\ (n,v) -> FormCookie n v []) cs ++ fas) hs
 addCookies _ (HtmlAnswer _ _) =
   error "addCookies: cannot add cookie to Html answer"
 
 -- Shows the cookie in standard syntax:
+formatCookie :: (String,String,[CookieParam]) -> String
 formatCookie (name,value,params) =
   "Set-Cookie: " ++ name ++ "=" ++ string2urlencoded value ++
   concatMap (\p->"; "++formatCookieParam p) params
@@ -259,6 +277,14 @@ toCookieDateString time =
 answerText :: String -> HtmlForm
 answerText = HtmlAnswer "text/plain"
 
+--- A textual result instead of an HTML form as a result for active web pages
+--- where the encoding is given as the first parameter.
+--- @param enc - the encoding of the text(e.g., "utf-8" or "iso-8859-1")
+--- @param txt - the contents of the result page
+--- @return an HTML answer form
+answerEncText :: String -> String -> HtmlForm
+answerEncText enc = HtmlAnswer ("text/plain; charset="++enc)
+
 --- Adds a parameter to an HTML form.
 --- @param form - a form
 --- @param param - a form's parameter
@@ -266,8 +292,7 @@ answerText = HtmlAnswer "text/plain"
 addFormParam :: HtmlForm -> FormParam -> HtmlForm
 addFormParam (HtmlForm title params hexps) param =
               HtmlForm title (param:params) hexps
-addFormParam (HtmlAnswer _ _) _ =
-  error "HTML.addFormParam: unable to add form parameter to general HTML Answer"
+addFormParam hexp@(HtmlAnswer _ _) _ = hexp
 
 addFormParams :: HtmlForm -> [FormParam] -> HtmlForm
 addFormParams hform [] = hform
@@ -276,7 +301,7 @@ addFormParams hform (fp:fps) = addFormParams (hform `addFormParam` fp) fps
 --- Adds redirection to given HTML form.
 --- @param secs - Number of seconds to wait before executing autromatic redirection
 --- @param url - The URL whereto redirect to
---- @param form - The form to add the header information to 
+--- @param form - The form to add the header information to
 redirect :: Int -> String -> HtmlForm -> HtmlForm
 redirect secs url hform =
   hform `addFormParam`
@@ -285,7 +310,7 @@ redirect secs url hform =
 
 --- Adds expire time to given HTML form.
 --- @param secs - Number of seconds before document expires
---- @param form - The form to add the header information to 
+--- @param form - The form to add the header information to
 expires :: Int -> HtmlForm -> HtmlForm
 expires secs hform =
   hform `addFormParam`
@@ -294,22 +319,22 @@ expires secs hform =
 
 --- Adds sound to given HTML form. The functions adds two different declarations
 --- for sound, one invented by Microsoft for the internet explorer, one introduced
---- for netscape. As neither is an official part of HTML, addsound might not work 
---- on all systems and browsers. The greatest chance is by using sound files 
+--- for netscape. As neither is an official part of HTML, addsound might not work
+--- on all systems and browsers. The greatest chance is by using sound files
 --- in MID-format.
 --- @param soundfile - Name of file containing the sound to be played
 --- @param loop - Should sound go on infinitely? Use with care.
---- @param form - The form to add sound to 
+--- @param form - The form to add sound to
 addSound :: String -> Bool -> HtmlForm -> HtmlForm
 addSound soundfile loop (HtmlForm title params conts) =
   HtmlForm title
-           (HeadInclude 
-             (HtmlStruct "bgsound" 
+           (HeadInclude
+             (HtmlStruct "bgsound"
                          [("src",soundfile),
-                         ("loop",if loop then "infinite" else "1")] []):params) 
-           (HtmlStruct "embed" 
+                         ("loop",if loop then "infinite" else "1")] []):params)
+           (HtmlStruct "embed"
              ((if loop then [("loop","true")] else []) ++
-              [("src",soundfile),("autostart","true"), ("hidden","true"), 
+              [("src",soundfile),("autostart","true"), ("hidden","true"),
                ("height","0"), ("width","0")]) []:
               conts)
 addSound _ _ (HtmlAnswer _ _)
@@ -326,9 +351,16 @@ data HtmlPage = HtmlPage String [PageParam] [HtmlExp]
 --- @cons PageEnc - the encoding scheme of this page
 --- @cons PageCSS s - a URL for a CSS file for this page
 --- @cons PageJScript s - a URL for a Javascript file for this page
-data PageParam = PageEnc     String
-               | PageCSS     String
-               | PageJScript String
+--- @cons PageMeta as - meta information (in form of attributes) for this page
+--- @cons PageLink as - link information (in form of attributes) for this page
+--- @cons PageBodyAttr attr - optional attribute for the body element of the
+---                           page (more than one occurrence is allowed)
+data PageParam = PageEnc      String
+               | PageCSS      String
+               | PageJScript  String
+               | PageMeta     [(String,String)]
+               | PageLink     [(String,String)]
+               | PageBodyAttr (String,String)
 
 --- An encoding scheme for a HTML page.
 pageEnc :: String -> PageParam
@@ -337,6 +369,22 @@ pageEnc enc = PageEnc enc
 --- A URL for a CSS file for a HTML page.
 pageCSS :: String -> PageParam
 pageCSS css = PageCSS css
+
+--- Meta information for a HTML page. The argument is a list of
+--- attributes included in the `meta`-tag in the header for this page.
+pageMetaInfo :: [(String,String)] -> PageParam
+pageMetaInfo attrs = PageMeta attrs
+
+--- Link information for a HTML page. The argument is a list of
+--- attributes included in the `link`-tag in the header for this page.
+pageLinkInfo :: [(String,String)] -> PageParam
+pageLinkInfo attrs = PageLink attrs
+
+--- Optional attribute for the body element of the web page.
+--- More than one occurrence is allowed, i.e., all such attributes are
+--- collected.
+pageBodyAttr :: (String,String) -> PageParam
+pageBodyAttr attr = PageBodyAttr attr
 
 --- A basic HTML web page with the default encoding.
 --- @param title - the title of the page
@@ -408,9 +456,25 @@ h5 hexps = HtmlStruct "h5" [] hexps
 par      :: [HtmlExp] -> HtmlExp
 par hexps = HtmlStruct "p" [] hexps
 
+--- Section
+section :: [HtmlExp] -> HtmlExp
+section hexps = HtmlStruct "section" [] hexps
+
+--- Header
+header :: [HtmlExp] -> HtmlExp
+header hexps = HtmlStruct "header" [] hexps
+
+--- Footer
+footer :: [HtmlExp] -> HtmlExp
+footer hexps = HtmlStruct "footer" [] hexps
+
 --- Emphasize
 emphasize      :: [HtmlExp] -> HtmlExp
 emphasize hexps = HtmlStruct "em" [] hexps
+
+--- Strong (more emphasized) text.
+strong      :: [HtmlExp] -> HtmlExp
+strong hexps = HtmlStruct "strong" [] hexps
 
 --- Boldface
 bold      :: [HtmlExp] -> HtmlExp
@@ -419,6 +483,10 @@ bold hexps = HtmlStruct "b" [] hexps
 --- Italic
 italic      :: [HtmlExp] -> HtmlExp
 italic hexps = HtmlStruct "i" [] hexps
+
+--- Navigation
+nav :: [HtmlExp] -> HtmlExp
+nav doc = HtmlStruct "nav" [] doc
 
 --- Program code
 code      :: [HtmlExp] -> HtmlExp
@@ -454,9 +522,9 @@ address hexps = HtmlStruct "address" [] hexps
 href           :: String -> [HtmlExp] -> HtmlExp
 href ref hexps = HtmlStruct "a" [("href",ref)] hexps
 
---- An anchor for hypertext reference inside a document
+--- An anchored text with a hypertext reference inside a document.
 anchor           :: String -> [HtmlExp] -> HtmlExp
-anchor anc hexps = HtmlStruct "a" [("name",anc)] hexps
+anchor anc hexps = HtmlStruct "span" [("id",anc)] hexps
 
 --- Unordered list
 --- @param items - the list items where each item is a list of HTML expressions
@@ -469,6 +537,7 @@ olist :: [[HtmlExp]] -> HtmlExp
 olist items = HtmlStruct "ol" [] (map litem items)
 
 --- A single list item (usually not explicitly used)
+litem :: [HtmlExp] -> HtmlExp
 litem hexps = HtmlStruct "li" [] hexps
 
 --- Description list
@@ -490,12 +559,12 @@ headedTable :: [[[HtmlExp]]] -> HtmlExp
 headedTable = withinTable . table
  where
   withinTable (HtmlStruct "table" attrs (HtmlStruct "tr" rowAttrs row:rows)) =
-      HtmlStruct "table" attrs 
+      HtmlStruct "table" attrs
         (HtmlStruct "tr" rowAttrs (map addTh row):rows)
   addTh x = case x of
              (HtmlStruct "td" attrs conts) -> HtmlStruct "th" attrs conts
              other -> other
-  
+
 --- Add a row of items (where each item is a list of HTML expressions)
 --- as headings to a table. If the first argument is not a table,
 --- the headings are ignored.
@@ -599,7 +668,7 @@ textfield cref contents
   | cref =:= CgiRef ref -- instantiate cref argument
   = HtmlCRef
        (HtmlStruct "input" [("type","text"),("name",ref),
-                            ("value",contents)] [])
+                            ("value",htmlQuote contents)] [])
        cref
  where ref free
 
@@ -724,19 +793,19 @@ selectionInitial cref sellist sel
    selOption [] _ = []
    selOption ((n,v):nvs) i =
       HtmlStruct "option"
-                 ([("value",v)] ++ if i==0 then [("selected","yes")] else [])
-                 [htxt n] : selOption nvs (i-1)
+        ([("value",v)] ++ if i==0 then [("selected","selected")] else [])
+        [htxt n] : selOption nvs (i-1)
 
 --- A selection button with a reference and a list of name/value/flag pairs.
 --- The names are shown in the selection and the value is returned
 --- if the corresponding name is selected. If flag is True, the
 --- corresonding name is initially selected. If more than one name
 --- has been selected, all values are returned in one string
---- where the values are separated by '\n' characters.
+--- where the values are separated by newline (`'\n'`) characters.
 multipleSelection :: CgiRef -> [(String,String,Bool)] -> HtmlExp
 multipleSelection cref sellist
   | cref =:= CgiRef ref -- instantiate cref argument
-  = HtmlCRef (HtmlStruct "select" [("name",ref),("multiple","yes")]
+  = HtmlCRef (HtmlStruct "select" [("name",ref),("multiple","multiple")]
                                   (map selOption sellist))
             cref
  where
@@ -744,8 +813,8 @@ multipleSelection cref sellist
 
    selOption (n,v,flag) =
       HtmlStruct "option"
-                 ([("value",v)] ++ if flag then [("selected","yes")] else [])
-                 [htxt n]
+        ([("value",v)] ++ if flag then [("selected","selected")] else [])
+        [htxt n]
 
 --- A hidden field to pass a value referenced by a fixed name.
 --- This function should be used with care since it may cause
@@ -756,23 +825,31 @@ hiddenfield name value =
 
 
 ------------------------------------------------------------------------------
---- Quotes special characters (<,>,&,", umlauts) in a string
+--- Quotes special characters (`<`,`>`,`&`,`"`, umlauts) in a string
 --- as HTML special characters.
-
 htmlQuote :: String -> String
 htmlQuote [] = []
 htmlQuote (c:cs) | c=='<' = "&lt;"   ++ htmlQuote cs
                  | c=='>' = "&gt;"   ++ htmlQuote cs
                  | c=='&' = "&amp;"  ++ htmlQuote cs
                  | c=='"' = "&quot;" ++ htmlQuote cs
-                 | oc==228 = "&auml;" ++ htmlQuote cs
-                 | oc==246 = "&ouml;" ++ htmlQuote cs
-                 | oc==252 = "&uuml;" ++ htmlQuote cs
-                 | oc==196 = "&Auml;" ++ htmlQuote cs
-                 | oc==214 = "&Ouml;" ++ htmlQuote cs
-                 | oc==220 = "&Uuml;" ++ htmlQuote cs
-                 | oc==223 = "&szlig;"++ htmlQuote cs
-                 | otherwise = c : htmlQuote cs
+                 | otherwise = htmlIsoUmlauts [c] ++ htmlQuote cs
+
+--- Translates umlauts in iso-8859-1 encoding into HTML special characters.
+htmlIsoUmlauts :: String -> String
+htmlIsoUmlauts [] = []
+htmlIsoUmlauts (c:cs) | oc==228 = "&auml;"  ++ htmlIsoUmlauts cs
+                      | oc==246 = "&ouml;"  ++ htmlIsoUmlauts cs
+                      | oc==252 = "&uuml;"  ++ htmlIsoUmlauts cs
+                      | oc==196 = "&Auml;"  ++ htmlIsoUmlauts cs
+                      | oc==214 = "&Ouml;"  ++ htmlIsoUmlauts cs
+                      | oc==220 = "&Uuml;"  ++ htmlIsoUmlauts cs
+                      | oc==223 = "&szlig;" ++ htmlIsoUmlauts cs
+                      | oc==197 = "&Aring;" ++ htmlIsoUmlauts cs
+                      | oc==250 = "&uacute;"++ htmlIsoUmlauts cs
+                      | oc==237 = "&iacute;"++ htmlIsoUmlauts cs
+                      | oc==225 = "&aacute;"++ htmlIsoUmlauts cs
+                      | otherwise = c : htmlIsoUmlauts cs
   where oc = ord c
 
 ------------------------------------------------------------------------------
@@ -794,31 +871,32 @@ addAttrs (AjaxEvent id handler) _ = AjaxEvent id handler
 addAttrs (AjaxEvent2 hexp handler str1 str2) attrs =
     AjaxEvent2 (addAttrs hexp attrs) handler str1 str2  
 
+--- Adds a class attribute to an HTML element.
+addClass :: HtmlExp -> String -> HtmlExp
+addClass hexp cls = addAttr hexp ("class",cls)
+
 ------------------------------------------------------------------------------
 -- Auxiliaries for faster show (could be later put into a standard library)
 
 type ShowS = String -> String
 
+showString :: String -> String -> String
 showString s = (s++)
-showChar   c = (c:)
-nl    = showChar '\n' 
 
+showChar :: Char -> String -> String
+showChar c = (c:)
+
+nl :: String -> String
+nl = showChar '\n'
+
+concatS :: [a -> a] -> a -> a
 concatS [] = id
 concatS xs@(_:_) = foldr1 (\ f g -> f . g) xs
 
 ------------------------------------------------------------------------------
 --- Transforms a list of HTML expressions into string representation.
 showHtmlExps :: [HtmlExp] -> String
-showHtmlExps hexps = showsHtmlExps hexps ""
-
-showsHtmlExps :: [HtmlExp] -> ShowS
-showsHtmlExps [] = id
-showsHtmlExps (he:hes) = showsWithLnPrefix he . showsHtmlExps hes
- where
-   showsWithLnPrefix hexp = let s = getText hexp
-                            in if s/="" && isSpace (head s)
-                               then nl . showString (tail s)
-                               else showsHtmlExp hexp
+showHtmlExps hexps = showsHtmlExps 0 hexps ""
 
 -- get the string contents of an HTML expression:
 getText :: HtmlExp -> String
@@ -843,35 +921,53 @@ getTag (AjaxEvent2 _ _ _ _) = ""
 
 
 -- is this a tag where a line break can be safely added?
+tagWithLn :: String -> Bool
 tagWithLn t = t/="" &&
               t `elem` ["br","p","li","ul","ol","dl","dt","dd","hr",
-                        "h1","h2","h3","h4","h5","h6",
-                        "html","title","head","body","form","table","tr","td"]
+                        "h1","h2","h3","h4","h5","h6","div",
+                        "html","title","head","body","link","meta","script",
+                        "form","table","tr","td"]
 
 
 --- Transforms a single HTML expression into string representation.
 showHtmlExp :: HtmlExp -> String
-showHtmlExp hexp = showsHtmlExp hexp ""
+showHtmlExp hexp = showsHtmlExp 0 hexp ""
 
-showsHtmlExp :: HtmlExp -> ShowS
-showsHtmlExp (HtmlText s) = showString s
-showsHtmlExp (HtmlStruct tag attrs hexps) =
-  let maybeLn = if tagWithLn tag then nl else id
-   in maybeLn .
-      (if null hexps && tag/="script" -- due to problems with older browsers
+--- HTML tags that have no end tag in HTML:
+noEndTags :: [String]
+noEndTags = ["img","input","link","meta"]
+
+showsHtmlExp :: Int -> HtmlExp -> ShowS
+showsHtmlExp _ (HtmlText s) = showString s
+showsHtmlExp i (HtmlStruct tag attrs hexps) =
+  let maybeLn j = if tagWithLn tag then nl . showTab j else id
+   in maybeLn i .
+      (if null hexps && (null attrs || tag `elem` noEndTags)
        then showsHtmlOpenTag tag attrs "/>"
-       else showsHtmlOpenTag tag attrs ">" . maybeLn . showExps hexps .
-            maybeLn . showString "</" . showString tag . showChar '>'
-      ) . maybeLn
+       else showsHtmlOpenTag tag attrs ">" . maybeLn (i+2) . showExps hexps .
+            maybeLn i . showString "</" . showString tag . showChar '>'
+      ) . maybeLn i
  where
-  showExps = if tag=="pre" then concatS . map showsHtmlExp else showsHtmlExps
-showsHtmlExp (HtmlEvent hexp _) = showsHtmlExp hexp
-showsHtmlExp (HtmlCRef  hexp _) = showsHtmlExp hexp
+  showExps = if tag=="pre"
+             then concatS . map (showsHtmlExp 0) else showsHtmlExps (i+2)
+showsHtmlExp i (HtmlEvent hexp _) = showsHtmlExp i hexp
+showsHtmlExp i (HtmlCRef  hexp _) = showsHtmlExp i hexp
+
+showsHtmlExp _ (AjaxEvent _ _) = showString ""
+showsHtmlExp _ (AjaxEvent2 _ _ _ _) = showString ""
 
 
-showsHtmlExp (AjaxEvent _ _) = showString ""
-showsHtmlExp (AjaxEvent2 _ _ _ _) = showString ""
+showsHtmlExps :: Int -> [HtmlExp] -> ShowS
+showsHtmlExps _ [] = id
+showsHtmlExps i (he:hes) = showsWithLnPrefix he . showsHtmlExps i hes
+ where
+   showsWithLnPrefix hexp = let s = getText hexp
+                            in if s/="" && isSpace (head s)
+                               then nl . showTab i . showString (tail s)
+                               else showsHtmlExp i hexp
 
+showTab :: Int -> String -> String
+showTab n = showString (take n (repeat ' '))
 
 showsHtmlOpenTag :: String -> [(String,String)] -> String -> ShowS
 showsHtmlOpenTag tag attrs close =
@@ -888,26 +984,6 @@ showsHtmlOpenTag tag attrs close =
 
 
 ------------------------------------------------------------------------------
---- Transforms HTML expressions into string representation of complete
---- HTML document with title
---- (deprecated, included only for backward compatibility).
---- @param title - the title of the HTML document
---- @param hexps - the body (list of HTML expressions) of the document
---- @return string representation of the HTML document
-showHtmlDoc :: String -> [HtmlExp] -> String
-showHtmlDoc title html = showHtmlPage (page title html)
-
---- Transforms HTML expressions into string representation of complete
---- HTML document with title and a URL for a style sheet file
---- (deprecated, included only for backward compatibility).
---- @param title - the title of the HTML document
---- @param css - the URL for a CSS file for this document
---- @param hexps - the body (list of HTML expressions) of the document
---- @return string representation of the HTML document
-showHtmlDocCSS :: String -> String -> [HtmlExp] -> String
-showHtmlDocCSS title css html =
-  showHtmlPage (page title html `addPageParam` pageCSS css)
-
 --- Transforms HTML page into string representation.
 --- @param page - the HTML page
 --- @return string representation of the HTML document
@@ -916,9 +992,9 @@ showHtmlPage (HtmlPage title params html) =
   htmlPrelude ++
   showHtmlExp (HtmlStruct "html" htmlTagAttrs
                   [HtmlStruct "head" []
-                       ([HtmlStruct "title" [] [HtmlText title]] ++
+                       ([HtmlStruct "title" [] [HtmlText (htmlQuote title)]] ++
                        concatMap param2html params),
-                   HtmlStruct "body" [defaultBackground] html])
+                   HtmlStruct "body" bodyattrs html])
  where
   param2html (PageEnc enc) =
      [HtmlStruct "meta" [("http-equiv","Content-Type"),
@@ -928,24 +1004,19 @@ showHtmlPage (HtmlPage title params html) =
                  []]
   param2html (PageJScript js) =
      [HtmlStruct "script" [("type","text/javascript"),("src",js)] []]
+  param2html (PageMeta attrs) = [HtmlStruct "meta" attrs []]
+  param2html (PageLink attrs) = [HtmlStruct "link" attrs []]
+  param2html (PageBodyAttr _) = [] -- these attributes are separately processed
 
+  bodyattrs = [attr | (PageBodyAttr attr) <- params]
 
 --- Standard header for generated HTML pages.
-htmlPrelude =
- --"<?xml version=\"1.0\" encoding=\""++defaultEncoding++"\"?>\n"++
- --"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"++
- --"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
- "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n" ++
-   "  \"http://www.w3.org/TR/html4/strict.dtd\">\n"
-
- 
- 
-
-
+htmlPrelude :: String
+htmlPrelude = "<!DOCTYPE html>\n"
 
 --- Standard attributes for element "html".
-htmlTagAttrs = [] --[("xmlns","http://www.w3.org/1999/xhtml"),
-                  --("xml:lang","en"),("lang","en")]
+htmlTagAttrs :: [(String,String)]
+htmlTagAttrs = [("lang","en")]
 
 ------------------------------------------------------------------------------
 --- Gets the parameter attached to the URL of the script.
@@ -1007,7 +1078,7 @@ parseCookies str = if str=="" then [] else
 coordinates :: CgiEnv -> Maybe (Int,Int)
 coordinates env = let x = env (CgiRef "x")
                       y = env (CgiRef "y")
-                   in if x/="" && y/="" 
+                   in if x/="" && y/=""
                         then Just (tryReadNat 0 x, tryReadNat 0 y)
                         else Nothing
 
@@ -1054,8 +1125,9 @@ runFormServerWithKeyAndFormParams url cgikey formparams hformact = do
     _ -> (defaultCgiServerTimeout,args)
 
   startCgiServer timeout port scriptkey = do
-    time <- getClockTime
-    (state,htmlstring) <- computeFormInStateAndEnv True url cgikey formparams
+    time  <- getClockTime
+    ltime <- toCalendarTime time
+    (state,htmlstring) <- computeFormInStateAndEnv url cgikey formparams
                              (initialServerState time) scriptkey hformact []
     putStr htmlstring
     hClose stdout
@@ -1064,7 +1136,6 @@ runFormServerWithKeyAndFormParams url cgikey formparams hformact = do
      else -- start server process:
       do let portname = port++scriptkey
          socket <- listenOn portname
-         ltime <- toCalendarTime time
          putErrLn $ calendarTimeToString ltime ++
                     ": server started on port " ++ portname
          registerCgiServer url portname
@@ -1072,6 +1143,7 @@ runFormServerWithKeyAndFormParams url cgikey formparams hformact = do
                                  hformact socket state
 
 -- The default timeout period for the cgi server in milliseconds:
+defaultCgiServerTimeout :: Int
 defaultCgiServerTimeout = 7200000 -- two hours
 
 
@@ -1096,12 +1168,15 @@ serveCgiMessagesForForm servertimeout url cgikey portname
                               ": terminated due to timeout"
                    unregisterCgiServer portname
                    sClose socket )
-               (\ (rhost,hdl) ->
-                  if rhost == "localhost" || take 8 rhost == "127.0.0."
-                  then readCgiServerMsg hdl >>=
-                       maybe (hClose hdl >> serveCgiMessages state)
-                             (serveCgiMessage state hdl)
-                  else hClose hdl >> serveCgiMessages state )
+               (\ (rhost,hdl) -> do
+                  hostname <- getHostname
+                  if rhost `elem` ["localhost","localhost.localdomain",hostname]
+                     || take 8 rhost == "127.0.0."
+                   then readCgiServerMsg hdl >>=
+                        maybe (hClose hdl >> serveCgiMessages state)
+                              (serveCgiMessage state hdl)
+                   else putErrLn ("Ignored message from: "++rhost) >>
+                        hClose hdl >> serveCgiMessages state )
 
   -- Process the received CgiServerMsg:
   serveCgiMessage _ hdl StopCgiServer = do
@@ -1111,12 +1186,12 @@ serveCgiMessagesForForm servertimeout url cgikey portname
               ": server terminated by stop message"
     unregisterCgiServer portname
     sClose socket
-  
+
   serveCgiMessage state hdl CleanServer = do
     hClose hdl
     nstate <- cleanOldEventHandlers state
     serveCgiMessages nstate
-  
+
   serveCgiMessage oldstate hdl GetLoad = do
     state <- cleanOldEventHandlers oldstate
     serverload <- getServerLoad state
@@ -1130,7 +1205,7 @@ serveCgiMessagesForForm servertimeout url cgikey portname
     hPutStrLn hdl serverstatus
     hClose hdl
     serveCgiMessages state
-  
+
   serveCgiMessage state hdl SketchHandlers =
     reportStatus state hdl sketchEventHandler
    where
@@ -1139,7 +1214,7 @@ serveCgiMessagesForForm servertimeout url cgikey portname
       return $ "No. " ++ show key ++ " (" ++ showGroupKey gkey ++
                "), expires at: " ++
                calendarTimeToString ltime ++ "\n"
-  
+
   serveCgiMessage state hdl ShowStatus =
     reportStatus state hdl showEventHandler
    where
@@ -1167,7 +1242,7 @@ serveCgiMessagesForForm servertimeout url cgikey portname
                mfe
    where
     serveFormInEnv rstate scriptkey hformact cenv = do
-      (nstate,htmlstring) <- computeFormInStateAndEnv False url cgikey fparams
+      (nstate,htmlstring) <- computeFormInStateAndEnv url cgikey fparams
                                                 rstate scriptkey hformact cenv
       hPutStrLn hdl htmlstring
       hClose hdl
@@ -1185,13 +1260,15 @@ serveCgiMessagesForForm servertimeout url cgikey portname
     serveCgiMessages state
 
 -- computes a HTML form w.r.t. a state and a cgi environment:
-computeFormInStateAndEnv isinitform url cgikey fparams state scriptkey
-                         hformact cenv =
+computeFormInStateAndEnv
+  :: String -> String -> [FormParam] -> ServerState -> String
+  -> IO HtmlForm -> [(String,String)] -> IO (ServerState,String)
+computeFormInStateAndEnv url cgikey fparams state scriptkey hformact cenv =
   catch tryComputeForm
         (\e -> do uparam <- getUrlParameter
                   return (state,errorAsHtml e uparam))
  where
-  errorAsHtml e urlparam = addHtmlContentType isinitform $ showHtmlPage $
+  errorAsHtml e urlparam = addHtmlContentType $ showHtmlPage $
    page "Server Error"
     [h1 [htxt "Error: Failure during computation"],
      par [htxt "Your request cannot be processed due to a run-time error:"],
@@ -1205,7 +1282,7 @@ computeFormInStateAndEnv isinitform url cgikey fparams state scriptkey
   tryComputeForm = do
     cform <- hformact
     let (cookiestring,hform) = extractCookies cform
-    (htmlstring,evhs) <- showAnswerFormInEnv isinitform url scriptkey
+    (htmlstring,evhs) <- showAnswerFormInEnv url scriptkey
                                              (addFormParams hform fparams)
                                              (getMaxFieldNr cenv + 1)
     nstate <- storeEnvHandlers state
@@ -1213,16 +1290,19 @@ computeFormInStateAndEnv isinitform url cgikey fparams state scriptkey
                 (encodeKey cgikey)
                 (filter (\ (t,_) -> t/="DEFAULT" && take 6 t /= "EVENT_") cenv)
                 evhs
-    
     seq (isList htmlstring) done -- to ensure to catch all failures here
     return (nstate, cookiestring++htmlstring)
 
-  isList [] = success
+  isList [] = True
   isList (_:xs) = isList xs
 
 formWithMultipleHandlers :: HtmlForm -> Bool
 formWithMultipleHandlers (HtmlAnswer _ _) = False
-formWithMultipleHandlers (HtmlForm _ params _) = any (==MultipleHandlers) params
+formWithMultipleHandlers (HtmlForm _ params _) = any isMultipleHandlers params
+ where
+  isMultipleHandlers formparam =
+    case formparam of MultipleHandlers -> True
+                      _                -> False
 formWithMultipleHandlers (AjaxAnswer _ _) = True
 
 -- Encode an arbitrary string to make it less readable.
@@ -1236,6 +1316,7 @@ encodeKey = map mapchr . reverse . filter (not . isSpace)
    where oc = ord c
 
 -- Puts a line to stderr:
+putErrLn :: String -> IO ()
 putErrLn s = hPutStrLn stderr s >> hFlush stderr
 
 
@@ -1249,77 +1330,61 @@ getNextFormAndCgiEnv :: ServerState -> String -> [(String,String)]
 getNextFormAndCgiEnv state cgikey newcenv = do
   (nstate,mbh) <- retrieveEnvHandlers state (encodeKey cgikey)
                              (urlencoded2string (getFormEvent "" newcenv))
-  --return $ 
-  maybe (return $ (nstate,Nothing))                 
-        (\ (oldcenv,handler) -> let cenv = newcenv++oldcenv in
-           case handler of 
-             h -> do
-               --appendFile "debugh.txt" (show cenv)           
-               return (nstate, Just (h (cgiGetValue cenv), cenv))      
-          
-             --HtmlHandler2 h -> do
-             --  --(form,env2) <- h (cgiGetValue cenv)
-             --  --return (nstate, Just $ (return form, cenv++env2)))
-             --  --appendFile "debugh.txt" (show cenv)  
-             --  return (nstate, Just (h (cgiGetValue2 cenv), cenv)
-        )
-        mbh
-        
-        
--- get the value assigned to a name in a given cgi environment
-cgiGetValue :: [(String,String)] -> CgiRef -> String
-cgiGetValue cenv (CgiRef ref) =
-    concat (intersperse "\n" (map snd (filter ((ref==) . fst) cenv)))
+  return $ maybe (nstate,Nothing)
+                 (\ (oldcenv,handler) -> let cenv = newcenv++oldcenv in
+                         (nstate, Just (handler (cgiGetValue cenv), cenv)))
+                 mbh
 
 
 -- put the HTML string corresponding to an HtmlForm with HTTP header on stdout:
-showAnswerFormInEnv :: Bool -> String -> String -> HtmlForm -> Int
+showAnswerFormInEnv :: String -> String -> HtmlForm -> Int
                       -> IO (String,[(HtmlHandler,String)])
-showAnswerFormInEnv withlength url key hform@(HtmlForm _ _ _) crefnr = do
+showAnswerFormInEnv url key hform@(HtmlForm _ _ _) crefnr = do
   (htmlstring,evhs) <- showHtmlFormInEnv url key hform crefnr
-  return (addHtmlContentType withlength htmlstring, evhs)
-showAnswerFormInEnv _ _ _ (HtmlAnswer ctype cont) _ = do
-  return ("Content-Type: "++ctype++"\n\n"++cont, [])
+  return (addHtmlContentType htmlstring, evhs)
+showAnswerFormInEnv _ _ (HtmlAnswer ctype cont) _ = do
+  return ("Content-Length: " ++ show (length cont) ++
+          "\nContent-Type: "++ctype++"\n\n"++cont, [])
 
-showAnswerFormInEnv _ _ _ (AjaxAnswer cont nvsAndhexps) crefnr = do
+showAnswerFormInEnv _ _ (AjaxAnswer cont nvsAndhexps) crefnr = do
   (pairs,evhs) <- converttohtml ([],[]) nvsAndhexps crefnr
  
   let jsonpairs = map (\ (nvs,html) -> 
                           Object ((map (\ (n,v) -> (n,String v)) nvs) ++ 
-                                  [("html",String html)])                ) pairs 
+                                  [("html",String html)]) ) pairs 
  
   return ("Content-Type: text/json\n\n" ++ 
     (showJson $ Object [("content",cont),("popups",Array jsonpairs)]),evhs)
 
 
+converttohtml :: ([(a,String)],[(HtmlHandler,String)])
+              -> [(a, [HtmlExp])] -> Int
+              -> IO ([(a, String)], [(HtmlHandler,String)])
 converttohtml (xs,evhs) [] _                  = return (xs,evhs)
 converttohtml (xs,evhs) ((nvs,hexp):ys) crefnr = do
   (htmlstring,newevhs,newrefnr) <- htmlForm2html_ hexp crefnr 
   converttohtml ((nvs,(showHtmlExps htmlstring)):xs,evhs++newevhs) ys newrefnr
   
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-htmlForm2html_ (html) crefnr = do
+htmlForm2html_ :: [HtmlExp] -> Int
+               -> IO ([HtmlExp],[(HtmlHandler,String)],Int)
+htmlForm2html_ html crefnr = do
   let (htmlwithoutcrefs,newrefnr) = numberCgiRefs html crefnr
   -- enforce instantiation before handlers are stored:
   seq newrefnr done
   --seq (normalForm htmlwithoutcrefs) done
   let (transhtml, evhs, _) = translateHandlers htmlwithoutcrefs
   --storeEventHandlers cgikey oldcenv evhs
-    
   return (transhtml, evhs, newrefnr)
 
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-
--- Adds the initial content lines to an HTML string.
--- If the first argument is True, the content length is computed and also added.
-addHtmlContentType withlength htmlstring =
-    (if withlength
-     then "Connection: close\nContent-Length: " ++
-          show (length htmlstring) ++ "\n"
-     else "") ++
-    "Content-Type: text/html;charset=iso-8859-1\n\n" ++ htmlstring
+-- Adds the initial content lines (including content length) to an HTML string.
+addHtmlContentType :: String -> String
+addHtmlContentType htmlstring =
+    "Content-Length: " ++ show (length htmlstring) ++ "\n" ++
+    "Content-Type: text/html\n\n" ++ htmlstring
 
 -- return the HTML string corresponding to an HtmlForm:
 showHtmlFormInEnv :: String -> String -> HtmlForm -> Int
@@ -1329,7 +1394,9 @@ showHtmlFormInEnv url key (HtmlForm ftitle fparams fhexp) crefnr = do
   --putStrLn (showHtmlExps [pre [par (env2html cenv),hrule]]) --debug
   (title,params,hexps,firsthandler,evhs) <-
     htmlForm2html (HtmlForm ftitle fparams fhexp) crefnr
-  return (showForm [("SCRIPTKEY",key),("DEFAULT","EVENT_"++firsthandler)]
+  return (showForm (if null evhs
+                    then []
+                    else [("SCRIPTKEY",key),("DEFAULT","EVENT_"++firsthandler)])
                    (if qstr=="" then url else url++"?"++qstr)
                    (HtmlForm title params hexps),
           evhs)
@@ -1340,7 +1407,7 @@ showHtmlFormInEnv url key (HtmlForm ftitle fparams fhexp) crefnr = do
 extractCookies :: HtmlForm -> (String,HtmlForm)
 extractCookies (HtmlAnswer ctype cont) = ("",HtmlAnswer ctype cont)
 extractCookies (HtmlForm title params hexp) =
-  let cookiestring = if cookies==[]
+  let cookiestring = if null cookies
                      then ""
                      else "Cache-control: no-cache=\"set-cookie\"\n" ++
                           concatMap ((++"\n") . formatCookie) cookies
@@ -1374,18 +1441,15 @@ getMaxFieldNr ((name,_):env) =
   if take 6 name == "FIELD_"
   then max (tryReadNat 0 (drop 6 name)) (getMaxFieldNr env)
   else getMaxFieldNr env
- 
-max x y = if x>y then x else y
 
 -- try to read a natural number in a string or return first argument:
 tryReadNat :: Int -> String -> Int
 tryReadNat d s = maybe d (\(i,rs)->if null rs then i else d) (readNat s)
 
-
- 
-
-
-    
+-- get the value assigned to a name in a given cgi environment
+cgiGetValue :: [(String,String)] -> CgiRef -> String
+cgiGetValue cenv (CgiRef ref) =
+    concat (intersperse "\n" (map snd (filter ((ref==) . fst) cenv)))
 
 -- transform HTML form into HTML document (by instantiating CgiRefs
 -- (starting with the second argument) and modifying event handlers):
@@ -1408,21 +1472,20 @@ numberCgiRefs :: [HtmlExp] -> Int -> ([HtmlExp],Int)
 -- result: translated HTMLExps, new number for cgi-refs
 numberCgiRefs [] i = ([],i)
 numberCgiRefs (HtmlText s : hexps) i =
-   let (nhexps,j) = numberCgiRefs hexps i
-   in (HtmlText s : nhexps, j)
+  case numberCgiRefs hexps i of
+    (nhexps,j) -> (HtmlText s : nhexps, j)
 numberCgiRefs (HtmlStruct tag attrs hexps1 : hexps2) i =
-   let (nhexps1,j) = numberCgiRefs hexps1 i
-       (nhexps2,k) = numberCgiRefs hexps2 j
-   in (HtmlStruct tag attrs nhexps1 : nhexps2, k)
+  case numberCgiRefs hexps1 i of
+    (nhexps1,j) -> case numberCgiRefs hexps2 j of
+                     (nhexps2,k) -> (HtmlStruct tag attrs nhexps1 : nhexps2, k)
 numberCgiRefs (HtmlEvent (HtmlStruct tag attrs hes) handler : hexps) i =
-   let (nhexps,j) = numberCgiRefs hexps i
-   in (HtmlEvent (HtmlStruct tag attrs hes) handler : nhexps, j)
+  case numberCgiRefs hexps i of
+    (nhexps,j) -> (HtmlEvent (HtmlStruct tag attrs hes) handler : nhexps, j)
 numberCgiRefs (HtmlCRef hexp (CgiRef ref) : hexps) i
   | ref =:= ("FIELD_"++show i)
-  = let ([nhexp],j) = numberCgiRefs [hexp] (i+1)
-        (nhexps,k) = numberCgiRefs hexps j
-    in (nhexp : nhexps, k)
-
+  = case numberCgiRefs [hexp] (i+1) of
+      ([nhexp],j) -> case numberCgiRefs hexps j of
+                       (nhexps,k) -> (nhexp : nhexps, k)
 
 numberCgiRefs (AjaxEvent id handler: hexps) i =
    let (nhexps,j) = numberCgiRefs hexps i
@@ -1493,14 +1556,16 @@ translateHandlers (AjaxEvent2 hexp handler str1 str2 : hexps) =
 
 
 -- show a HTML form in String representation:
+showForm :: [(String,String)] -> String -> HtmlForm -> String
 showForm cenv url (HtmlForm title params html) =
   htmlPrelude ++
   showHtmlExp
    (HtmlStruct "html" htmlTagAttrs
-     [HtmlStruct "head" [] ([HtmlStruct "title" [] [HtmlText title]] ++
-                            concatMap param2html params),
+     [HtmlStruct "head" []
+                 ([HtmlStruct "title" [] [HtmlText (htmlQuote title)]] ++
+                  concatMap param2html paramsWithEncoding),
       HtmlStruct "body" bodyattrs
-       ((if null url then id
+       ((if null url || null cenv then id
          else \he->[HtmlStruct "form"
                                ([("method","post"),("action",url)]
                                 ++ onsubmitattr ++ targetattr)
@@ -1509,12 +1574,17 @@ showForm cenv url (HtmlForm title params html) =
            cenv2hidden cenv ++
            html))])
  where
+  paramsWithEncoding = if null [e | (FormEnc e) <- params]
+                       then FormEnc defaultEncoding : params
+                       else params
+
   param2html (FormEnc enc) =
      [HtmlStruct "meta" [("http-equiv","Content-Type"),
                          ("content","text/html; charset="++enc)] []]
   param2html (FormCSS css) =
      [HtmlStruct "link" [("rel","stylesheet"),("type","text/css"),("href",css)]
                  []]
+  param2html (FormMeta attrs) = [HtmlStruct "meta" attrs []]
   param2html (FormJScript js) =
      [HtmlStruct "script" [("type","text/javascript"),("src",js)] []]
   param2html (FormOnSubmit _) = []
@@ -1545,6 +1615,7 @@ env2html env = concat (map (\(n,v)->[htxt (n++": "++v),breakline]) env)
 -- (note: the field values are urlencoded to avoid problems
 --  with passing special characters; moreover, the names of fields
 --  containing urlencoded values are prefixed by "U")
+cenv2hidden :: [(String,String)] -> [HtmlExp]
 cenv2hidden env = concat (map pair2hidden env)
  where
    pair2hidden (n,v)
@@ -1556,7 +1627,7 @@ cenv2hidden env = concat (map pair2hidden env)
 -- association lists (list of tag/value pairs):
 
 -- change an associated value (or add association, if not there):
-changeAssoc :: [(tt,tv)] -> tt -> tv -> [(tt,tv)]
+changeAssoc :: Eq tt => [(tt,tv)] -> tt -> tv -> [(tt,tv)]
 changeAssoc [] tag val = [(tag,val)]
 changeAssoc ((tag1,val1):tvs) tag val =
    if tag1 == tag then (tag,val) : tvs
@@ -1589,10 +1660,12 @@ showLatexExp (HtmlStruct tag attrs htmlexp)
  | tag=="tt"   = "{\\tt " ++ showLatexExps htmlexp ++ "}"
  | tag=="code" = "{\\tt " ++ showLatexExps htmlexp ++ "}"
  | tag=="center" = latexEnvironment "center" (showLatexExps htmlexp)
- | tag=="pre"  = latexEnvironment "verbatim" (showLatexExps htmlexp)
+ | tag=="pre"  = latexEnvironment "verbatim" (textOf htmlexp)
  | tag=="font" = showLatexExps htmlexp  -- ignore font changes
  | tag=="address" = showLatexExps htmlexp
  | tag=="blink"   = showLatexExps htmlexp
+ | tag=="sub"  = "$_{\\mbox{" ++ showLatexExps htmlexp ++ "}}$"
+ | tag=="sup"  = "$^{\\mbox{" ++ showLatexExps htmlexp ++ "}}$"
  | tag=="a"    = showLatexExps htmlexp ++
                  -- add href attribute as footnote, if present:
                  maybe ""
@@ -1604,9 +1677,9 @@ showLatexExp (HtmlStruct tag attrs htmlexp)
  | tag=="dl"   = latexEnvironment "description" (showLatexExps htmlexp)
  | tag=="dt"  = "\\item[" ++ showLatexExps htmlexp ++ "]~\\\\\n"
  | tag=="dd"  = showLatexExps htmlexp
- -- tables will be set using the longtable environment, 
+ -- tables will be set using the longtable environment,
  -- (The package longtable is added by default to every latex document)
- | tag=="table" = attrLatexEnv "longtable" (latexTabFormat htmlexp) 
+ | tag=="table" = attrLatexEnv "longtable" (latexTabFormat htmlexp)
                                            (showLatexTableContents htmlexp)
  | tag=="tr"   = let cells = map showLatexExp htmlexp
                   in concat (intersperse " & " cells) ++ "\\\\\n"
@@ -1633,7 +1706,7 @@ attrLatexEnv env attr content
  ++"\n\\end{"++env++"}\n"
 
 -- yield the format of a table, e.g. {lll} from list of html rows.
--- for longtables we set the chunksize big enough 
+-- for longtables we set the chunksize big enough
 -- to avoid having to rerun latex for inaccurat tables.
 latexTabFormat :: [HtmlExp] -> String
 latexTabFormat rows = "{" ++ replicate breadth 'l' ++ "}"
@@ -1692,33 +1765,46 @@ findHtmlAttr atag ((t,f):attrs) =
              else findHtmlAttr atag attrs
 
 
--- convert special characters into TeX representation:
-specialchars2tex [] = []
-specialchars2tex (c:cs)
-  | c==chr 228  = "\\\"a"  ++ specialchars2tex cs
-  | c==chr 246  = "\\\"o"  ++ specialchars2tex cs
-  | c==chr 252  = "\\\"u"  ++ specialchars2tex cs
-  | c==chr 196  = "\\\"A"  ++ specialchars2tex cs
-  | c==chr 214  = "\\\"O"  ++ specialchars2tex cs
-  | c==chr 220  = "\\\"U"  ++ specialchars2tex cs
-  | c==chr 223  = "\\ss{}" ++ specialchars2tex cs
-  | c=='~'      = "{\\char126}" ++ specialchars2tex cs
-  | c=='\\'     = "{\\char92}" ++ specialchars2tex cs
-  | c=='<'      = "{$<$}" ++ specialchars2tex cs
-  | c=='>'      = "{$>$}" ++ specialchars2tex cs
-  | c=='_'      = "\\_" ++ specialchars2tex cs
-  | c=='#'      = "\\#" ++ specialchars2tex cs
-  | c=='$'      = "\\$" ++ specialchars2tex cs
-  | c=='%'      = "\\%" ++ specialchars2tex cs
-  | c=='{'      = "\\{" ++ specialchars2tex cs
-  | c=='}'      = "\\}" ++ specialchars2tex cs
+--- Convert special characters into TeX representation, if necessary.
+specialchars2tex :: String -> String
+specialchars2tex = htmlSpecialChars2tex . escapeLaTeXSpecials
+
+escapeLaTeXSpecials :: String -> String
+escapeLaTeXSpecials [] = []
+escapeLaTeXSpecials (c:cs)
+  | c=='^'      = "{\\tt\\char94}" ++ escapeLaTeXSpecials cs
+  | c=='~'      = "{\\tt\\char126}" ++ escapeLaTeXSpecials cs
+  | c=='\\'     = "{\\textbackslash}" ++ escapeLaTeXSpecials cs
+  | c=='<'      = "{\\tt\\char60}" ++ escapeLaTeXSpecials cs
+  | c=='>'      = "{\\tt\\char62}" ++ escapeLaTeXSpecials cs
+  | c=='_'      = "\\_" ++ escapeLaTeXSpecials cs
+  | c=='#'      = "\\#" ++ escapeLaTeXSpecials cs
+  | c=='$'      = "\\$" ++ escapeLaTeXSpecials cs
+  | c=='%'      = "\\%" ++ escapeLaTeXSpecials cs
+  | c=='{'      = "\\{" ++ escapeLaTeXSpecials cs
+  | c=='}'      = "\\}" ++ escapeLaTeXSpecials cs
+  | otherwise   = c : escapeLaTeXSpecials cs
+
+--- Convert special HTML characters into their LaTeX representation,
+--- if necessary.
+htmlSpecialChars2tex :: String -> String
+htmlSpecialChars2tex [] = []
+htmlSpecialChars2tex (c:cs)
+  | c==chr 228  = "{\\\"a}"  ++ htmlSpecialChars2tex cs
+  | c==chr 246  = "{\\\"o}"  ++ htmlSpecialChars2tex cs
+  | c==chr 252  = "{\\\"u}"  ++ htmlSpecialChars2tex cs
+  | c==chr 196  = "{\\\"A}"  ++ htmlSpecialChars2tex cs
+  | c==chr 214  = "{\\\"O}"  ++ htmlSpecialChars2tex cs
+  | c==chr 220  = "{\\\"U}"  ++ htmlSpecialChars2tex cs
+  | c==chr 223  = "{\\ss}" ++ htmlSpecialChars2tex cs
   | c=='&'      = let (special,rest) = break (==';') cs
                   in  if null rest
-                      then "\\&" ++ specialchars2tex special -- wrong format
+                      then "\\&" ++ htmlSpecialChars2tex special -- wrong format
                       else htmlspecial2tex special ++
-                           specialchars2tex (tail rest)
-  | otherwise   = c : specialchars2tex cs
+                           htmlSpecialChars2tex (tail rest)
+  | otherwise   = c : htmlSpecialChars2tex cs
 
+htmlspecial2tex :: String -> String
 htmlspecial2tex special
   | special=="Auml"   =  "{\\\"A}"
   | special=="Euml"   =  "{\\\"E}"
@@ -1786,7 +1872,7 @@ showLatexDoc htmlexps = showLatexDocs [htmlexps]
 --- e.g. "ngerman"
 
 showLatexDocWithPackages :: [HtmlExp] -> [String] -> String
-showLatexDocWithPackages hexps packages 
+showLatexDocWithPackages hexps packages
   = showLatexDocsWithPackages [hexps] packages
 
 --- Transforms a list of HTML expressions into a string representation
@@ -1819,8 +1905,9 @@ showLatexDocsWithPackages htmlexps_list packages =
  "\\setlength{\\textheight}{24.0cm}\n"++
  "\\pagestyle{empty}\n"++
  "\\begin{document}\n\\sloppy\n"++
- "\\addtolength{\\baselineskip}{0.3ex}\n"++
- "\\setlength{\\parindent}{0.0ex}\n\\addtolength{\\parskip}{1.5ex}\n"++
+ "\\addtolength{\\baselineskip}{0.0ex}\n"++
+ "\\setlength{\\parindent}{0.0ex}\n"++
+ "\\addtolength{\\parskip}{0.5ex}\n"++
  concat (intersperse "\\newpage\n" (map showLatexExps htmlexps_list))++
  "\\end{document}\n"
 
@@ -1850,7 +1937,7 @@ intFormMain :: String -> String -> String -> String ->
 intFormMain baseurl basecgi reldir cginame forever urlparam hformact = do
   pid      <- getPID
   user     <- getEnviron "USER"
-  home     <- getEnviron "HOME"
+  home     <- getHomeDirectory
   let portname = "intcgi_" ++ show pid
   socket <- listenOn portname
   let cgiprogname = if null cginame then "cgitest_"++show pid++".cgi"
@@ -1904,13 +1991,14 @@ intFormInEnv url cgikey initform hformact cenv state forever socket = do
                                              env rstate forever socket)
              mfe
 
-   answerTxt = "Content-Type: text/html;charset=iso-8859-1\n\n" ++
+   answerTxt = "Content-Type: text/html\n\n" ++
                 showHtmlExp (italic [htxt "Waiting for next web form..."])
 
    extendForm orgform =
      orgform `addFormParam` HeadInclude (HtmlStruct "base" [("href",url)] [])
 
 -- has an HTML form event handlers?
+formWithHandlers :: HtmlForm -> Bool
 formWithHandlers (HtmlForm _ _ hexps) = hasHandlers hexps
  where
   hasHandlers :: [HtmlExp] -> Bool
@@ -1924,6 +2012,7 @@ formWithHandlers (HtmlForm _ _ hexps) = hasHandlers hexps
   hasHandlers (AjaxEvent2 _ _ _ _ : _) = True
 
 --- Shows a string in HTML format in a browser.
+showHtmlStringInBrowser :: String -> IO ()
 showHtmlStringInBrowser htmlstring = do
   pid <- getPID
   let htmlfilename = "tmpcgiform_" ++ show pid ++ ".html"
@@ -2008,18 +2097,23 @@ storeEnvHandlers :: ServerState -> Bool -> String -> [(String,String)]
 storeEnvHandlers ostate multipleuse cgikey env handlerkeys = do
   time <- getClockTime
   cstate <- cleanOldEventHandlers ostate
+  rannums <- getRandomSeed >>= return . drop 3 . nextInt
   let nstate = generateEventServerMessages
+                 rannums
                  (if multipleuse then Nothing else Just (keyOfState cstate))
                  (eventHandlerExpiration time)
                  cstate
                  handlerkeys
-  seq nstate done -- to ensure that handler keys are instantiated  
-  return nstate 
+  seq nstate done -- to ensure that handler keys are instantiated
+  return nstate
  where
-   generateEventServerMessages _ _ state [] = state
-   generateEventServerMessages groupkey expiredate state ((handler,hkey):evhs)
-     | show (keyOfState state) ++ ' ':showQTerm (toUTCTime expiredate) =:= hkey
+   generateEventServerMessages _ _ _ state [] = state
+   generateEventServerMessages (rannum:rannums) groupkey expiredate state
+                               ((handler,hkey) : evhs)
+     | hkey =:= show (keyOfState state) ++ ' ':showQTerm (toUTCTime expiredate)
+                ++ '_' : show rannum -- add random element to handler key string
      = generateEventServerMessages
+            rannums
             groupkey
             expiredate
             (storeNewEnvEventWithCgiKey groupkey expiredate state env handler)
@@ -2060,7 +2154,7 @@ cleanOldEventHandlers state@(stime,maxkey,cleandate,ehs@(_:_)) = do
 -- Returns Nothing if the handler is no longer available, i.e., expired.
 retrieveEnvHandlers :: ServerState -> String -> String
                     -> IO (ServerState,Maybe ([(String,String)],HtmlHandler))
-retrieveEnvHandlers state cgikey skey = 
+retrieveEnvHandlers state cgikey skey =
   let (numstring,datestring) = break (==' ') skey
       dateps = readsQTerm datestring
       num    = tryReadNat (-1) numstring
@@ -2097,7 +2191,7 @@ retrieveEnvHandlers state cgikey skey =
       if groupkey==gk
       then deleteEvInGroup groupkey es
       else let des = deleteEv groupkey es in seq des (ev : des)
- 
+
     deleteEvInGroup _ [] = []
     deleteEvInGroup _        (ev@(_,_,_,_,Nothing):es) = ev : es
     deleteEvInGroup groupkey (ev@(_,_,_,_,Just gk):es) =

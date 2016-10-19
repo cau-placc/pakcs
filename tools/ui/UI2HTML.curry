@@ -100,7 +100,7 @@ data Reconfigure
   | Style [StyleClass]
   | Pos (Int,Int)
   | ErrorBg Bool
-
+ deriving Show
 
 conf2str :: Reconfigure -> (String,Json)
 conf2str val = case val of
@@ -650,14 +650,14 @@ seeText cref (line,column) env = do
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-findValue :: a -> ([(a,Maybe b,_)],_) -> Maybe b
+findValue :: Eq a => a -> ([(a,Maybe b,_)],_) -> Maybe b
 findValue _ ([],_) = Nothing
 findValue ref ((r,mbval,_):xs,ps) =
   if (ref == r) 
     then mbval
     else findValue ref (xs,ps)
 
-changeValue :: ([(a,Maybe b,[c])],d) -> a -> b -> ([(a,Maybe b,[c])],d)
+changeValue :: Eq a => ([(a,Maybe b,[c])],d) -> a -> b -> ([(a,Maybe b,[c])],d)
 changeValue (xs,ps) ref nvalue = (change xs,ps)
   where 
     change [] = [(ref,Just nvalue,[])]
@@ -666,8 +666,8 @@ changeValue (xs,ps) ref nvalue = (change xs,ps)
         then ((r,Just nvalue,confs):xs1)
         else ((r,mbval,confs):change xs1)
 
-changeConfig :: ([(a,Maybe b,[Reconfigure])],c) -> a -> Reconfigure ->
-                                              ([(a,Maybe b,[Reconfigure])],c)
+changeConfig :: Eq a => ([(a,Maybe b,[Reconfigure])],c) -> a -> Reconfigure
+                     -> ([(a,Maybe b,[Reconfigure])],c)
 changeConfig (xs,ps) ref nconf = (change xs,ps)
   where
     change [] = [(ref,Nothing,[nconf])]
