@@ -1343,7 +1343,7 @@ showAnswerFormInEnv url key hform@(HtmlForm _ _ _) crefnr = do
   (htmlstring,evhs) <- showHtmlFormInEnv url key hform crefnr
   return (addHtmlContentType htmlstring, evhs)
 showAnswerFormInEnv _ _ (HtmlAnswer ctype cont) _ = do
-  return ("Content-Length: " ++ show (length cont :: Int) ++
+  return ("Content-Length: " ++ show (length cont) ++
           "\nContent-Type: "++ctype++"\n\n"++cont, [])
 
 showAnswerFormInEnv _ _ (AjaxAnswer cont nvsAndhexps) crefnr = do
@@ -1383,7 +1383,7 @@ htmlForm2html_ html crefnr = do
 -- Adds the initial content lines (including content length) to an HTML string.
 addHtmlContentType :: String -> String
 addHtmlContentType htmlstring =
-    "Content-Length: " ++ show (length htmlstring:: Int) ++ "\n" ++
+    "Content-Length: " ++ show (length htmlstring) ++ "\n" ++
     "Content-Type: text/html\n\n" ++ htmlstring
 
 -- return the HTML string corresponding to an HtmlForm:
