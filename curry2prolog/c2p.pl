@@ -19,7 +19,7 @@
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
-parserOptions('-X TypeClassExtensions'). % additional options passed to cymake parser
+parserOptions(''). % additional options passed to cymake parser
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 varDefines([]). % list of top-level bindings
@@ -29,7 +29,7 @@ safeMode(no). % safe execution without IO actions at top level?
 readRcFile(ArgProps) :-
 	installDir(PH),
         appendAtom(PH,'/pakcsrc.default',ConfigFile),
-        getEnv('HOME',Home),
+        getHomeDirectory(Home),
 	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
 	% first, try to install local .pakcsrc file:
         (existsFile(HomeConfigFile)
@@ -55,8 +55,6 @@ readRcFile(ArgProps) :-
 	nlNQ,
 	writeNQ('Current configurations: '), nlNQ,
 	writeRCvalues.
-readRcFile(_) :-
-	getEnv('HOME',_), !.
 readRcFile(ArgProps) :-
 	% maybe the environment variable HOME is not set since the system
 	% is not started by a regular user:
@@ -99,11 +97,14 @@ pakcsMain :-
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
 	printPakcsHeader,
+        nlNQ,
+	writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'), nlNQ,
+	flush_output,
 	main.
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
 
-% extract all run-time arguments of the form "-Dname=value" as a property list:
+% extract the initial arguments of the form "-Dname=value" as a property list:
 processDArgs([],[],[]).
 processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Arg,[45,68|Def]), !, % [45,68] = "-D"
@@ -111,13 +112,16 @@ processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Name,NameS),
 	atom_codes(Val,ValS),
 	processDArgs(DArgs,Props,Args).
-processDArgs([Arg|DArgs],Props,[Arg|Args]) :-
-	processDArgs(DArgs,Props,Args).
+processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
 processArgs([]).
 processArgs(['--noreadline'|Args]) :-
 	processArgs(Args).            % ignore since already processed
+processArgs([Arg|_]) :-
+	(Arg='--version' ; Arg='-V'), !, % show version and quit:
+	printPakcsHeader,
+	halt(0).
 processArgs([Arg|_]) :-
 	(Arg='--help' ; Arg='-help' ; Arg='-h' ; Arg='-?'),
 	writeMainHelp,
@@ -128,11 +132,6 @@ processArgs([Arg|Args]) :-
 	asserta(quietmode(yes)), !,
 	setVerbosity(0),
 	processArgs(Args).
-processArgs(['-c',Prog|Args]) :- !,
-	(Args=[] -> true
-	  ; writeErr('ERROR: Illegal arguments after "-c": '),
-	    writeErr(Args), nlErr, fail),
-	processCompileOption(Prog).
 processArgs([Arg|Args]) :- % command option as in KiCS2
 	atom_codes(Arg,[58|CmdS]), !, % 58=':'
 	expandCommand(CmdS,FullCmd),
@@ -142,28 +141,14 @@ processArgs([Arg|Args]) :- % command option as in KiCS2
 processArgs([Arg|Args]) :-
 	atom_codes(Arg,[45|_]), !, % 45='-'
 	writeErr('ERROR: Illegal or no longer supported option: '),
-	writeErr([Arg|Args]), nlErr,
-	writeErr('Hint: use command options (like "pakcs :load rev")'), nlErr,
+	writeLnErr([Arg|Args]),
+	writeLnErr('Hint: use command options (like "pakcs :load rev")'),
 	halt(1).
 processArgs([Arg|Args]) :-
 	retract(rtArgs(RTA)),
 	append(RTA,[Arg],RTAs),
 	assertz(rtArgs(RTAs)),
 	processArgs(Args).
-
-% process compile option "-c":
-processCompileOption(ProgOption) :-
-	atom_codes(ProgOption,ProgOptionS),
-	extractProgName(ProgOptionS,ProgString),
-	isValidProgramName(ProgString),
-	atom_codes(ProgAtom,ProgString),
-	split2dirbase(ProgAtom,DirName,ProgName),
-	(setWorkingDirectory(DirName) -> true ; halt(1)),
-	atom_codes(ProgName,ProgNameS),
-	(processCompile(ProgNameS,PrologFile) -> true ; halt(1)),
-	(existsFile(PrologFile)
-          -> loadAndCompile(PrologFile,[],create), halt(0)
-           ; halt(1)).
 
 % extract REPL command parameters (i.e., everything until next REPL command):
 extractReplCmdParameters([],[],[]).
@@ -191,14 +176,15 @@ combine2cmd([X1,X2|Xs],CmdS) :-
 % Show the main options of calling pakcs:
 writeMainHelp :-
 	nlErr,
-	writeErr('Usage: pakcs <options>'), nlErr,
+	writeLnErr('Usage: pakcs <options>'),
 	nlErr,
-	writeErr('Options:'), nlErr,
-	writeErr('-h|--help|-?  : show this message and quit'), nlErr,
-	writeErr('-q|--quiet    : work silently'), nlErr,
-	writeErr('--noreadline  : do not use input line editing via command "rlwrap"'), nlErr,
-	writeErr('-Dname=val    : define pakcsrc property "name" as "val"'), nlErr,
-	writeErr(':<cmd> <args> : command of the PAKCS environment'), nlErr.
+	writeLnErr('Options:'),
+	writeLnErr('-h|--help|-?  : show this message and quit'),
+	writeLnErr('-V|--version  : show version and quit'),
+	writeLnErr('-q|--quiet    : work silently'),
+	writeLnErr('--noreadline  : do not use input line editing via command "rlwrap"'),
+	writeLnErr('-Dname=val    : define pakcsrc property "name" as "val"'),
+	writeLnErr(':<cmd> <args> : command of the PAKCS environment').
 
 
 % Compute the prompt of the interactive loop:
@@ -243,17 +229,18 @@ expandCommand(AShortCmd,Cmd) :-
 	(FullCmds=[Cmd] -> true ;
 	 (FullCmds=[]
 	  -> writeErr('ERROR: unknown command: ":'),
-	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeErr('"'),
-	     nlErr, fail
+	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeLnErr('"'),
+	     fail
 	   ; writeErr('ERROR: ambiguous command: ":'),
-	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeErr('"'),
-	     nlErr, fail)).
+	     atom_codes(ASC,AShortCmd), writeErr(ASC), writeLnErr('"'),
+	     fail)).
 
 prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
 prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
-allCommands(["add","browse","cd","coosy","define","edit","eval","fork","help",
+allCommands(["add","browse","cd","compile","coosy","define",
+             "edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
 	     "save","set","show","source","type","usedimports","xml"]).
 
@@ -268,11 +255,11 @@ expandOption(ShortOpt,FullOpt) :-
                                         ; append(Opt,[32|OptRest],FullOpt))
          ; (FullOpts=[]
 	     -> writeErr('ERROR: unknown option: '),
-	        atom_codes(OF,OptFirst), writeErr(OF), nlErr,
-		writeErr('Type :set for help'), nlErr, fail
+	        atom_codes(OF,OptFirst), writeLnErr(OF),
+		writeLnErr('Type :set for help'), fail
   	      ; writeErr('ERROR: option not unique: '),
-	        atom_codes(OF,OptFirst), writeErr(OF), nlErr,
-		writeErr('Type :set for help'), nlErr, fail)).
+	        atom_codes(OF,OptFirst), writeLnErr(OF),
+		writeLnErr('Type :set for help'), fail)).
 
 % all possible options:
 allOptions(["+allfails","-allfails",
@@ -309,7 +296,9 @@ process([58|Cs]) :- !, % 58=':'
 	(append(ShortCmd,[32|Rest],Cs) -> true ; ShortCmd=Cs, Rest=[]),
 	expandCommand(ShortCmd,Cmd),
 	removeBlanks(Rest,Params),
-	(member(Cmd,["load","reload","quit","eval"]) -> true ; ioAdmissible),
+	(member(Cmd,["load","reload","compile","quit","eval"])
+          -> true
+           ; ioAdmissible),
 	processCommand(Cmd,Params),
 	!,
 	Cmd="quit".
@@ -364,8 +353,8 @@ tryDefaultType(Input,'FuncType'(AType,RType),ExprGoal) :-
 	  ; TVar = 'TCons'('Prelude.Float',[]),
 	    tryDefaultType(Input,RType,ExprGoal)).
 tryDefaultType(Input,Type,ExprGoal) :-
-	\+ (nonvar(RType), RType='FuncType'(_,_)), % can't default functions
-	\+ append(_,[119,104,101,114,101|_],Input), % can't handler ...where...
+	\+ (nonvar(Type), Type='FuncType'(_,_)), % can't default functions
+	\+ append(_,[119,104,101,114,101|_],Input), % can't handle ...where...
 	defaultMainExp(Input,Type,ExprGoal).
 
 % default the main expression to some given type:
@@ -388,69 +377,20 @@ defaultMainExp(Input,ExpType,ExprGoal) :-
 	processExpression(TypedInput,ExprGoal).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Internal (FlatCurry) representations of some type contexts:
-
-% the internal representation of the class dictionary: Num a
-classDict('TCons'('Prelude.(,,,,,,)',
-	                    ['FuncType'(A,'FuncType'(A,A)), % (+)
-			     'FuncType'(A,'FuncType'(A,A)), % (-)
-			     'FuncType'(A,'FuncType'(A,A)), % (*)
-			     'FuncType'(A,A),               % negate
-			     'FuncType'(A,A),               % abs
-			     'FuncType'(A,A),               % signum
-			     'FuncType'('TCons'('Prelude.Int',[]),A)]),
-	 A,"Num").
-
-% the internal representation of the class dictionary: Fractional a
-classDict('TCons'('Prelude.(,,,)',
-                            [NumDict,
-                             'FuncType'(A,'FuncType'(A,A)), % (/)
-			     'FuncType'(A,A),               % recip
-			     'FuncType'('TCons'('Prelude.Float',[]),A)]),
-         A,"Fractional") :-
-	classDict(NumDict,A,"Num").
-
-% the internal representation of the class dictionary: Eq a
-classDict('TCons'('Prelude.(,)',
-                            ['FuncType'(A,'FuncType'(A,BoolType)),   % (==)
-			     'FuncType'(A,'FuncType'(A,BoolType))]), % (/=)
-	 A,"Eq") :-
-	BoolType = 'TCons'('Prelude.Bool',[]).
-
-% the internal representation of the class dictionary: Ord a
-classDict('TCons'('Prelude.(,,,,,,,)',
-                            [EqDict,
-                             'FuncType'(A,'FuncType'(A,OrderingType)),% compare
-                             'FuncType'(A,'FuncType'(A,BoolType)), % (<=)
-                             'FuncType'(A,'FuncType'(A,BoolType)), % (>=)
-                             'FuncType'(A,'FuncType'(A,BoolType)), % (<)
-                             'FuncType'(A,'FuncType'(A,BoolType)), % (>)
-                             'FuncType'(A,'FuncType'(A,A)),        % min
-                             'FuncType'(A,'FuncType'(A,A))]),        % max
-         A,"Ord") :-
-	classDict(EqDict,A,"Eq"),
-	OrderingType = 'TCons'('Prelude.Ordering',[]),
-	BoolType = 'TCons'('Prelude.Bool',[]).
-
-% the internal representation of the class dictionary: Show a
-classDict('TCons'('Prelude.(,,)',
-               ['FuncType'(A,StringType),
-                'FuncType'('TCons'('Prelude.Int',[]),
-		  'FuncType'(A,'FuncType'(StringType,StringType))),
-                'FuncType'('TCons'([],[A]),'FuncType'(StringType,StringType))]),
-	  A,"Show") :-
-	StringType = 'TCons'([],['TCons'('Prelude.Char',[])]).
-
-% the internal representation of the class dictionary: Read a
-classDict('TCons'('Prelude.(,)',
-               ['FuncType'('TCons'('Prelude.Int',[]),
-		           'FuncType'(String,ListAString)), % readsPrec
-                'FuncType'(String,ListAsString)]), % readList
-	  A,"Read") :-
-	StringType = 'TCons'([],['TCons'('Prelude.Char',[])]),
-	ListAString = 'TCons'([],['TCons'('Prelude.(,)',[A,StringType])]),
-	ListAsString = 'TCons'([],['TCons'('Prelude.(,)',
-	                                   ['TCons'([],[A]),StringType])]).
+% Check whether the first argument is the (FlatCurry) representation
+% of some class contexts and return the context type in the second
+% argument and the class name (string) in the third argument:
+classDict('TCons'(FCDictA,[A]),A,Dict) :-
+        atom_codes(FCDictA,FCDictS),
+        atom_codes('._Dict\'23',FCDictPrefixS),
+        append(ModFCDictPrefixS,DictS,FCDictS),
+        append(ModS,FCDictPrefixS,ModFCDictPrefixS), !,
+        atom_codes(ModA,ModS),
+        currentModule(CurrMod),
+        ((ModA='Prelude' ; ModA=CurrMod)
+          -> Dict = DictS
+           ; append(ModS,[46|DictS],Dict)),
+        !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -540,13 +480,13 @@ getMainProgPath(CurrMod,MainPath) :-
 	(verbosityQuiet -> true ;
 	    lastload(LoadProgS), atom_codes(LoadProg,LoadProgS),
 	    writeErr('*** Warning: module loaded from                : '),
-	    writeErr(LoadProg), nlErr,
+	    writeLnErr(LoadProg),
 	    writeErr('    main expression parsed w.r.t. source module: '),
-	    writeErr(CurrMod), nlErr).
+	    writeLnErr(CurrMod)).
 getMainProgPath(_,_) :-
 	lastload(MainProgS), atom_codes(MainProg,MainProgS),
 	writeErr('Source program for module "'), writeErr(MainProg),
-	writeErr('" not found!'), nlErr,
+	writeLnErr('" not found!'),
 	!, fail.
 
 % delete all auxiliary files for storing main expression:
@@ -656,16 +596,16 @@ flatExp2MainExp(Vs,'Comb'(CType,FNameS,FArgs),Vs1,Exp) :-
 flatExp2MainExp(Vs,'Free'(_,FExp),Vs1,Exp) :-
 	flatExp2MainExp(Vs,FExp,Vs1,Exp).
 flatExp2MainExp(_,'Let'(_,_),_,_) :-
-        writeErr('ERROR: Let not allowed in main expressions!'), nlErr,
+        writeLnErr('ERROR: Let not allowed in main expressions!'),
 	!, fail.
 flatExp2MainExp(_,'Or'(_,_),_,_) :-
-        writeErr('ERROR: Or not allowed in main expressions!'), nlErr,
+        writeLnErr('ERROR: Or not allowed in main expressions!'),
 	!, fail.
 flatExp2MainExp(_,'Typed'(_,_),_,_) :-
-        writeErr('ERROR: Typed not allowed in main expressions!'), nlErr,
+        writeLnErr('ERROR: Typed not allowed in main expressions!'),
 	!, fail.
 flatExp2MainExp(_,'Case'(_,_,_),_,_) :-
-        writeErr('ERROR: Case not allowed in main expressions!'), nlErr,
+        writeLnErr('ERROR: Case not allowed in main expressions!'),
 	!, fail.
 
 flatExps2MainExps(Vs,[],Vs,[]).
@@ -677,7 +617,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
 	(verbosityIntermediate
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
-	open(ExprFile,write,S),
+	fileOpenOptions(FOptions),
+	open(ExprFile,write,S,FOptions),
 	% suppress parser warnings:
 	write(S,'{-# OPTIONS_CYMAKE -Wnone #-}'), nl(S),
 	(MainProg='Prelude' -> true
@@ -715,6 +656,7 @@ processCommand("help",[]) :- !,
 	write(':load <prog>      - compile and load program "<prog>.curry" and all imports'),nl,
 	write(':add <m1> .. <mn> - add modules <m1> to <mn> to currently loaded modules'),nl,
 	write(':reload           - recompile currently loaded modules'),nl,
+	write(':compile <prog>   - alias for ":load <prog>"'),nl,
 	write(':eval <expr>      - evaluate expression <expr>'), nl,
 	write(':define <v>=<exp> - define variable binding for subsequent expressions'), nl,
 	write(':type <expr>      - show the type of <expression>'),nl,
@@ -837,15 +779,15 @@ processCommand("set",Option) :- !,
 
 processCommand("add",Arg) :- !,
 	split2words(Arg,Args),
-	map2M(user:extractProgName,Args,Progs),
-	map1M(user:isValidModuleName,Progs),
-	map2M(prologbasics:atomCodes,NewImps,Progs),
-	retract(addImports(OldAddImps)),
-	append(NewImps,OldAddImps,NewAddImps),
-	asserta(addImports(NewAddImps)),
-        (processCommand("reload",[])
-         -> true
-          ; retract(addImports(_)), asserta(addImports(OldAddImps))).
+	addImports(OldAddImps), !,
+	map1M(user:addImportModule,Args),
+	addImports(NewAddImps), !,
+	((OldAddImps=NewAddImps) -> true
+	 ; (processCommand("reload",[]) -> true
+             ; retract(addImports(_)), asserta(addImports(OldAddImps)))).
+
+processCommand("compile",Arg) :- !,
+        processCommand("load",Arg).
 
 processCommand("load",Arg) :- !,
 	extractProgName(Arg,Prog),
@@ -862,8 +804,8 @@ processCommand("load",Arg) :- !,
 
 processCommand("reload",[]) :- !,
 	lastload(Prog),
-	(Prog="" -> writeErr('ERROR: no load command to repeat'),
-	            nlErr, !, fail
+	(Prog="" -> writeLnErr('ERROR: no load command to repeat'),
+	            !, fail
                   ; true),
 	processCompile(Prog,PrologFile),
 	!,
@@ -932,7 +874,7 @@ processCommand("interface",IFTail) :- !,
 	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
         installDir(PH),
-	appendAtoms(['"',PH,'/currytools/genint/GenInt" -int ',ProgA],
+	appendAtoms(['"',PH,'/currytools/browser/GenInt" -int ',ProgA],
 		    GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
@@ -962,12 +904,12 @@ processCommand("coosy",[]) :- !,
 	appendAtoms(['"',CoosyHome,'/CoosyGUI" ',CoosyHome,' &'],GuiCmd),
         shellCmdWithCurryPathWithReport(GuiCmd),
 	(waitForFile('COOSYLOGS/READY',3) -> true
-	 ; writeErr('ERROR: COOSy startup failed'), nlErr, fail),
+	 ; writeLnErr('ERROR: COOSy startup failed'), fail),
 	printCurrentLoadPath.
 
 processCommand("xml",[]) :- !,
 	lastload(Prog),
-	(Prog="" -> write('ERROR: no program loaded for XML translation'), nl,
+	(Prog="" -> writeLnErr('ERROR: no program loaded for XML translation'),
 	            !, fail
                   ; true),
         atom_codes(ProgA,Prog),
@@ -977,8 +919,7 @@ processCommand("xml",[]) :- !,
 
 processCommand("peval",[]) :- !,
 	lastload(Prog),
-	(Prog="" -> write('ERROR: no program loaded for partial evaluation'),
-	            nl,
+	(Prog="" -> writeLnErr('ERROR: no program loaded for partial evaluation'),
 	            !, fail
                   ; true),
         atom_codes(ProgA,Prog),
@@ -1028,7 +969,7 @@ processCommand("show",[]) :- !, % show source code of current module
 	  ; write('No source program file available, generating source from FlatCurry...'),
 	    nl, nl,
 	    installDir(PH), atom_codes(ProgA,Prog),
-	    appendAtoms(['"',PH,'/currytools/genint/GenInt" -mod ',ProgA],
+	    appendAtoms(['"',PH,'/currytools/browser/GenInt" -mod ',ProgA],
 			ShowProgCmd),
 	    shellCmdWithCurryPathWithReport(ShowProgCmd)).
 
@@ -1041,10 +982,14 @@ processCommand("show",ShTail) :- % show source of a module
 	shellCmdWithReport(Cmd).
 
 processCommand("show",_) :- !,
-	writeErr('ERROR: source file not found'), nlErr.
+	writeLnErr('ERROR: Source file not found').
 
 processCommand("source",Arg) :-
-	append(PModS,[46|FunS],Arg), !, % show source code of function in module
+	append(PModS,[46|FunS],Arg),
+	append(_,[LM],PModS), isLetterDigitCode(LM),
+	(\+ member(46,FunS) ; isOperatorName(FunS)),
+	!,
+	% show source code of function in module
 	extractProgName(PModS,ModS),
 	showSourceCodeOfFunction(ModS,FunS).
 
@@ -1053,23 +998,21 @@ processCommand("source",ExprInput) :- !, % show source code of a function
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
-	(DirString="" -> writeErr('ERROR: missing argument'), nlErr, fail
+	(DirString="" -> writeLnErr('ERROR: missing argument'), fail
 	               ; true),
 	atom_codes(Dir,DirString),
 	(existsDirectory(Dir)
 	 -> (setWorkingDirectory(Dir) -> true
-              ; writeErr('ERROR: cd command failed!'), nlErr)
+              ; writeLnErr('ERROR: cd command failed!'))
 	  ; writeErr('ERROR: directory \''),
 	    writeErr(Dir),
-	    writeErr('\' does not exist!'),
-	    nlErr).
+	    writeLnErr('\' does not exist!')).
 
 processCommand("save",Exp) :- !,
 	(Exp=[] -> MainGoal="main" ; MainGoal=Exp),
 	currentprogram(Prog),
 	atom_codes(ProgName,Prog),
-	(Prog="Prelude" -> writeErr('ERROR: no program loaded'),
-	                   nlErr, fail
+	(Prog="Prelude" -> writeLnErr('ERROR: no program loaded'), fail
 	                 ; true),
 	appendAtom(ProgName,'.state',ProgStName),
 	initializationsInProg(ProgInits),
@@ -1093,7 +1036,9 @@ processCommand("save",Exp) :- !,
 	  ; CMD2=CMD1),
 	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
 	shellCmdWithReport(Cmd),
-	write('Executable saved in: '), write(ProgName), nl,
+	(verbosityNotQuiet
+	  -> write('Executable saved in: '), write(ProgName), nl
+	   ; true),
 	call(ProgInits).
 
 processCommand("fork",STail) :- !, processFork(STail).
@@ -1114,6 +1059,21 @@ shellCmdWithCurryPathWithReport(Cmd) :-
 	flush_output(user_output),
 	shellCmdWithCurryPath(Cmd).
 
+
+% add a module to be imported in addition to the main module:
+addImportModule(Arg) :-
+	extractProgName(Arg,Prog),
+	isValidModuleName(Prog),
+	findSourceProg(Prog,_), !,
+	atomCodes(NewImp,Prog),
+	retract(addImports(OldAddImps)),
+	(member(NewImp,OldAddImps) -> NewAddImps = OldAddImps
+	  ; NewAddImps = [NewImp|OldAddImps]),
+	asserta(addImports(NewAddImps)).
+addImportModule(Arg) :-
+	writeErr('ERROR: Source file of module "'),
+	atomCodes(ArgA,Arg), writeErr(ArgA),
+	writeLnErr('" not found!').
 
 % show the Curry programs in a given directory:
 showProgramsInDirectory(Dir) :-
@@ -1163,10 +1123,9 @@ processCompile(ProgS,PrologFile) :-
 	tryXml2Fcy(Prog),
 	(findFlatProgFileInLoadPath(Prog,PathProgName)
 	 -> true
-	  ; writeErr('ERROR: FlatCurry file for program '),
+	  ; writeErr('ERROR: FlatCurry file for program "'),
 	    writeErr(Prog),
-	    writeErr(' not found!'),
-	    nlErr,
+	    writeLnErr('" not found!'),
 	    deletePrologTarget(LocalPrologFile),!, failWithExitCode),
 	prog2PrologFile(PathProgName,PrologFile),
 	checkProgramHeader(PrologFile),
@@ -1181,10 +1140,10 @@ reloadMainProgram :-
 	atom_codes(Prog,ProgS),
 	(findFlatProgFileInLoadPath(Prog,PathProgName)
 	 -> true
-	  ; writeErr('ERROR: FlatCurry file for program '),
+	  ; writeErr('ERROR: FlatCurry file for program "'),
 	    writeErr(Prog),
-	    writeErr(' not found!'),
-	    nlErr, !, fail),
+	    writeLnErr('" not found!'),
+	    !, fail),
 	prog2PrologFile(PathProgName,PrologFile),
 	loadMain(PrologFile),
 	!.
@@ -1192,8 +1151,7 @@ reloadMainProgram :-
 
 % create a saved state for an already compiled Curry program:
 createSavedState(ProgPl,ProgState,InitialGoal) :-
-	writeErrNQ('>>> Creating saved state without interactive environment...'),
-	nlErrNQ,
+	writeLnErrNQ('>>> Creating saved state without interactive environment...'),
 	findall(assertz(prologbasics:pakcsrc(Tag,Value)),pakcsrc(Tag,Value),Pakcsrcs),
 	foldr(',',true,Pakcsrcs,AssertPakcsrcs),
 	generateMainPlFile(ProgPl,MainPrologFile),
@@ -1220,9 +1178,9 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 
 % process the various options of the ":set" command:
 processSetOption("+error") :- !,
-	writeErr('WARNING: option "error" no longer supported!'), nlErr.
+	writeLnErr('WARNING: option "error" no longer supported!').
 processSetOption("-error") :- !,
-	writeErr('WARNING: option "error" no longer supported!'), nlErr.
+	writeLnErr('WARNING: option "error" no longer supported!').
 processSetOption("+free") :- !,
 	retract(freeVarsUndeclared(_)),
 	asserta(freeVarsUndeclared(yes)).
@@ -1313,7 +1271,7 @@ processSetOption(Option) :-
 	 append("file:",FileS,OptTail)
 	   -> atom_codes(File,FileS), asserta(printConsFailure(file(File)))
 	    ; asserta(printConsFailure(Old)),
-	      writeErr('ERROR: illegal option for +consfail!'), nlErr),
+	      writeLnErr('ERROR: illegal option for +consfail!')),
 	(Old=no -> reloadMainProgram ; true).
 
 processSetOption("+debug") :- compileWithDebug, !.
@@ -1386,7 +1344,7 @@ processSetOption(Option) :-
 	atom_codes(PN,P),
 	spypoint(PN).
 processSetOption(_) :- !,
-	writeErr('ERROR: unknown option. Type :set for help'), nlErr.
+	writeLnErr('ERROR: unknown option. Type :set for help').
 
 printCurrentLoadPath :-
 	loadPath('.',LP),
@@ -1417,8 +1375,7 @@ checkFreeVars(FreeVars,Vs) :-
 	!,
 	writeErr('ERROR: Expression contains unknown symbols: '),
 	writeVar(user_error,V), writeVars(user_error,RVs), nlErr,
-	writeErr('(Note: free variables should be declared with "where...free" in initial goals)'),
-	nlErr,
+	writeLnErr('(Note: free variables should be declared with "where...free" in initial goals)'),
 	failWithExitCode.
 checkFreeVars(_,_).
 
@@ -1521,8 +1478,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
            -> appendAtom(CM4,' --extended',CM5)           ; CM5 = CM4 ),
 	getCurryPath(CP),
 	appendAtom(TCP,'/lib',TCPLib),
-	appendAtom(TCP,'/lib/meta',TCPLibMeta),
-	append(CP,[TCPLib,TCPLibMeta],ImportPath),
+	append(CP,[TCPLib],ImportPath),
 	addImports(ImportPath,CM5,CM6),
 	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
@@ -1531,7 +1487,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	setWorkingDirectory(ProgPath),
 	appendAtoms([CM6,' ',POpts,' ',ProgName],LoadCmd),
 	(shellCmdWithReport(LoadCmd) -> Parse=ok
-	  ; writeErr('ERROR occurred during parsing!'), nlErr, Parse=failed),
+	  ; writeLnErr('ERROR occurred during parsing!'), Parse=failed),
 	setWorkingDirectory(CurDir),
 	!, Parse=ok, % proceed only in case of successful parsing
 	% finally, we apply the FlatCury preprocessor:
@@ -1545,7 +1501,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	stripSuffix(PPSA,ProgNameA),
 	appendAtoms([PP2,CWCA,' ',ProgNameA],PPCmd),
 	(shellCmdWithReport(PPCmd) -> true
-	  ; writeErr('ERROR occurred during FlatCurry preprocessing!'), nlErr,
+	  ; writeLnErr('ERROR occurred during FlatCurry preprocessing!'),
 	    fail).
 parseProgram(_,_,_). % do not parse if source program does not exist
 
@@ -1585,11 +1541,21 @@ writeType('TCons'(TC,[Type|Types]),_) :-
 	!,
 	write('('), writeType(Type,top), writeTupleType(Types), write(')').
 writeType('TCons'(TC,[]),_) :- writeTypeCons(TC), !.
+writeType('TCons'(TC,[T1,T2]),top) :- isTypeApplyCons(TC), !,
+	writeType(T1,nested), write(' '), writeType(T2,nested), !.
+writeType('TCons'(TC,[T1,T2]),nested) :- isTypeApplyCons(TC), !,
+	write('('),
+        writeType(T1,nested), write(' '), writeType(T2,nested),
+        write(')'), !.
 writeType('TCons'(TC,Ts),top) :-
 	writeTypeCons(TC), writeTypes(Ts), !.
 writeType('TCons'(TC,Ts),nested) :-
 	write('('), writeTypeCons(TC),
 	writeTypes(Ts), write(')'), !.
+
+isTypeApplyCons(TC) :-
+        atom_codes(TC,TCS),
+        append(_,[46,64],TCS), !. % 64 = @
 
 writeTypeCons(TC) :-
 	atom_codes(TC,TCS),
@@ -1790,7 +1756,7 @@ transDefinedFunc(F,_) :-
 	constructorOrFunctionType(FI,F,_,_), constructorOrFunctionType(FJ,F,_,_),
 	\+ FI=FJ, !,
 	writeErr('ERROR: Symbol "'), writeErr(F),
-	writeErr('" not unique due to multiple imports.'), nlErr, fail.
+	writeLnErr('" not unique due to multiple imports.'), fail.
 transDefinedFunc(F,FI) :-
 	constructorOrFunctionType(FI,F,_,_).
 % allow access to non-exported qualified names in the interpreter shell:
@@ -2035,7 +2001,7 @@ extractProgName(S,ProgName) :-
 	removeBlanks(S,S1),
 	(append(P,".curry",S1) -> true ;
 	 append(P,".lcurry",S1) -> true ; P=S1),
-	((P=[126|P1], getEnv('HOME',HomeDir))
+	((P=[126|P1], getHomeDirectory(HomeDir))
            -> atom_codes(HomeDir,HomeDirS), append(HomeDirS,P1,PH)
             ; PH=P),
 	workingDirectory(Dir),
@@ -2056,7 +2022,7 @@ isValidProgramName(ProgString) :-
 isValidModuleName(ModString) :-
 	(isValidModuleString(ModString) -> true
 	 ; writeErr('ERROR: Illegal module name: '),
-	   atom_codes(ModName,ModString), writeErr(ModName), nlErr,
+	   atom_codes(ModName,ModString), writeLnErr(ModName),
 	   fail).
 
 isValidModuleString([]).
@@ -2066,7 +2032,7 @@ isValidModuleString([C|Cs]) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-% convert an expression (of Flat-Curry) into a Prolog term and return
+% convert an expression (of FlatCurry) into a Prolog term and return
 % list of assignments (variable -> Prolog variable):
 
 exp2Term(var(V),Vs,V1,Vs1) :- !, addVar(V,Vs,V1,Vs1).
@@ -2106,7 +2072,7 @@ addVar(V,[(X=NX)|Vs],NV,[(X=NX)|Vs1]) :- addVar(V,Vs,NV,Vs1).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% type check an expression (of Flat-Curry):
+% type check an expression (of FlatCurry):
 
 typecheck(Exp,Type) :-	typecheck(Exp,[],Type,_).
 
@@ -2253,7 +2219,7 @@ updateProperty(N,Ns,Vs,[_|Ps],NL) :- updateProperty(N,Ns,Vs,Ps,NL).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % show source code of a function call:
 showSourceCode(F) :- var(F),
-	writeErr('Cannot show source code of a variable!'), nlErr.
+	writeLnErr('Cannot show source code of a variable!').
 showSourceCode(partcall(_,QF,_)) :- !,
 	atom_codes(QF,QFS),
 	append(ModS,[46|FS],QFS), !,

@@ -13,7 +13,7 @@ module TypedUI2HTML (
   renderOf,errorOf,conditionOf,
   withRendering,withError,withConditionIO,withCondition,
   --filterStringInput,removeCRs,
-  transformWSpec,adaptWSpec,--invert,
+  transformWSpec,adaptWSpec,
   wInt,--stripSpaces,readMaybeInt,
   wConstant,wHidden,
   wStringStyles,wString,wStringSize,wRequiredString,wRequiredStringSize,
@@ -33,6 +33,7 @@ import Read(readNat)
 import List(elemIndex)
 import Maybe
 import Char(isDigit,isSpace)
+import FunctionInversion(invf1)
 import ReadShowTerm
 
 import qualified HTML 
@@ -77,9 +78,9 @@ conditionOf (_,_,c) = c
 data UISpec a =
   UISpec (UIParams a)
          (UIParams a -> a -> (UIWidget,
-	                      UIEnv -> IO (Maybe a),
-			      a -> UIEnv -> IO ())) 
-	  
+                              UIEnv -> IO (Maybe a),
+                              a -> UIEnv -> IO ())) 
+          
 ------------------------------------------------------------------------------
 
 --- Puts a new rendering function into a UI specification.
@@ -127,7 +128,7 @@ transformWSpec (a2b,b2a) (UISpec wparamsa showuia) =
     let (widgetb,reada,seta) = showuia (transParam a2b wparamsb) (b2a b)
 
         readb env = do mba <- reada env
-                       return $ maybe Nothing (Just . a2b) mba	     
+                       return $ maybe Nothing (Just . a2b) mba       
         setb val env = seta (b2a val) env 
 
     in (widgetb,readb,setb)
@@ -141,15 +142,7 @@ transformWSpec (a2b,b2a) (UISpec wparamsa showuia) =
 --- and operationally invertible (i.e., the inverse must be computable
 --- by narrowing). Otherwise, use <code>transformWSpec</code>!
 adaptWSpec :: (a->b) -> UISpec a -> UISpec b
-adaptWSpec a2b = transformWSpec (a2b,invert a2b)
-
--- Compute the inverse of a function by exploiting function patterns:
-invert :: (a->b) -> b -> a
-invert f = f_invert
- where
-  local_f x = f x
-  --f_invert (local_f x) = x  -- here we use a function pattern
-  f_invert y | (local_f x) =:<= y = x where x free -- the same without fun.pat.
+adaptWSpec a2b = transformWSpec (a2b, invf1 a2b)
 
 -------------------------------------------------------------------------------
 hideErrorLabel lref env     = do setValue lref "" env
@@ -185,7 +178,7 @@ wInt =
             if b then do hideErrorLabel errorref env
                          return mbn
                  else do showErrorLabel errorref errmsg env 
-                         return Nothing 	
+                         return Nothing         
 
       setval val env = do hideErrorLabel errorref env
                           setValue ref (show val) env
@@ -238,7 +231,7 @@ wStringStyles styles =
           labelS [errorStyle] "" `setRef` errorref,
           entryS styles ref v 
           -- `addHandlers` 
-	  --  [Handler FocusOut (Cmd (\env -> readval env >> done))]
+          --  [Handler FocusOut (Cmd (\env -> readval env >> done))]
         ]
 
       readval env = do
@@ -294,7 +287,7 @@ showError errorref mberrmsg env |
 renderError :: UIWidget -> ErrorRefs -> UIWidget
 renderError widget errorref | ErrorRefs (labelref,colref) =:= errorref = 
         col [labelS  [Class [Fg Red, Font Bold,  Display False]] "" 
-	       `setRef` labelref, 
+               `setRef` labelref, 
              widget] `setRef` colref
   where labelref,colref free
 
@@ -425,7 +418,7 @@ wList (UISpec rendera showa) =
           readval env = do
             mbvals <- mapIO (\r -> r env) readvals
 
-            if foldl (||) False (map (\v -> v == Nothing) mbvals) 	
+            if foldl (||) False (map (\v -> v == Nothing) mbvals)       
               then do showError errorref Nothing env
                       return Nothing
               else do let value = (map fromJust mbvals) 
@@ -437,7 +430,7 @@ wList (UISpec rendera showa) =
                                 return Nothing
 
           setval vals env = do 
-            showError errorref Nothing env	
+            showError errorref Nothing env      
             mapIO_ (\ (set,val) -> set val env)  (zip setvals vals)
 
 -- standard rendering of lists 
@@ -509,7 +502,6 @@ wSelect showelem selset =
 
       readval env = do val <- getValue ref env
                        return (Just (selset!!(readNat val)))
-
 
       setval val env = do let midx = elemIndex val selset
                           maybe (done) (\n -> setValue ref (show n) env) midx

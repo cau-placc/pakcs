@@ -16,10 +16,11 @@
 --- is a shell script stored in *pakcshome*/bin).
 ---
 --- @author Michael Hanus (with extensions by Bernd Brassel and Marco Comini)
---- @version November 2014
+--- @version October 2016
+--- @category web
 ------------------------------------------------------------------------------
 
-{-# OPTIONS_CYMAKE -X TypeClassExtensions #-}
+{-# OPTIONS_CYMAKE -Wno-incomplete-patterns #-}
 
 module HTML(HtmlExp(..),HtmlPage(..),PageParam(..),
             HtmlForm(..),FormParam(..),CookieParam(..),
@@ -31,7 +32,7 @@ module HTML(HtmlExp(..),HtmlPage(..),PageParam(..),
             pageEnc,pageCSS,pageMetaInfo,pageLinkInfo,pageBodyAttr,addPageParam,
             formEnc,formCSS,formMetaInfo,formBodyAttr,addFormParam,
             htxt,htxts,hempty,nbsp,h1,h2,h3,h4,h5,
-            par,emphasize,strong,bold,italic,code,
+            par,section,header,footer,emphasize,strong,bold,italic,nav,code,
             center,blink,teletype,pre,verbatim,address,href,anchor,
             ulist,olist,litem,dlist,table,headedTable,addHeadings,
             hrule,breakline,image,
@@ -51,19 +52,21 @@ module HTML(HtmlExp(..),HtmlPage(..),PageParam(..),
             germanLatexDoc,htmlSpecialChars2tex,
             addSound,addCookies) where
 
-import System
 import Char
-import List
-import Time
+import Directory    (getHomeDirectory)
+import Distribution (installDir)
 import HtmlCgi
-import NamedSocket
-import ReadNumeric(readNat,readHex)
-import ReadShowTerm(showQTerm,readsQTerm)
---import Unsafe(showAnyQExpression) -- to show status of cgi server
-import Distribution(installDir)
 import IO
+import NamedSocket
+import List
 import Profile
-import Random(getRandomSeed,nextInt)
+import Random       (getRandomSeed, nextInt)
+import ReadNumeric  (readNat, readHex)
+import ReadShowTerm (showQTerm, readsQTerm)
+import System
+import Time
+import Unsafe(showAnyQExpression) -- to show status of cgi server
+
 import Json
 
 
@@ -75,15 +78,14 @@ infixl 0 `addFormParam`
 
 ------------------------------------------------------------------------------
 --- The default encoding used in generated web pages.
+defaultEncoding :: String
 defaultEncoding = "utf-8" --"iso-8859-1"
-
---- The default background for generated web pages. = ("bgcolor","#ffffff")
 
 ------------------------------------------------------------------------------
 --- The (abstract) data type for representing references to input elements
 --- in HTML forms.
 data CgiRef = CgiRef String
-  deriving Eq
+ deriving Eq
 
 --- Internal identifier of a CgiRef (intended only for internal use in other
 --- libraries!).
@@ -112,8 +114,7 @@ data HtmlExp =
  | HtmlCRef   HtmlExp CgiRef
  | HtmlEvent  HtmlExp HtmlHandler
  | AjaxEvent  String HtmlHandler
- | AjaxEvent2  HtmlExp HtmlHandler String String
-
+ | AjaxEvent2 HtmlExp HtmlHandler String String
 
 --- Extracts the textual contents of a list of HTML expressions.
 ---
@@ -126,6 +127,8 @@ textOf = unwords . filter (not . null) . map textOfHtmlExp
    textOfHtmlExp (HtmlStruct _ _ hs) = textOf hs
    textOfHtmlExp (HtmlCRef   hexp _) = textOf [hexp]
    textOfHtmlExp (HtmlEvent  hexp _) = textOf [hexp]
+   textOfHtmlExp (AjaxEvent _ _) = ""
+   textOfHtmlExp (AjaxEvent2 hexp _ _ _) = textOf [hexp]
 
 
 ------------------------------------------------------------------------------
@@ -208,7 +211,6 @@ data CookieParam = CookieExpire ClockTime
                  | CookieDomain String
                  | CookiePath   String
                  | CookieSecure
-  deriving Eq
 
 --- A basic HTML form for active web pages with the default encoding
 --- and a default background.
@@ -241,12 +243,13 @@ cookieForm t cs he = HtmlForm t (map (\(n,v)->FormCookie n v []) cs) he
 --- @param form - the form to add cookies to
 --- @return a new HTML form
 addCookies :: [(String,String)] -> HtmlForm -> HtmlForm
-addCookies cs (HtmlForm t as hs) =
-  HtmlForm t (map (\ (n,v) -> FormCookie n v []) cs++as) hs
+addCookies cs (HtmlForm t fas hs) =
+  HtmlForm t (map (\ (n,v) -> FormCookie n v []) cs ++ fas) hs
 addCookies _ (HtmlAnswer _ _) =
   error "addCookies: cannot add cookie to Html answer"
 
 -- Shows the cookie in standard syntax:
+formatCookie :: (String,String,[CookieParam]) -> String
 formatCookie (name,value,params) =
   "Set-Cookie: " ++ name ++ "=" ++ string2urlencoded value ++
   concatMap (\p->"; "++formatCookieParam p) params
@@ -453,6 +456,18 @@ h5 hexps = HtmlStruct "h5" [] hexps
 par      :: [HtmlExp] -> HtmlExp
 par hexps = HtmlStruct "p" [] hexps
 
+--- Section
+section :: [HtmlExp] -> HtmlExp
+section hexps = HtmlStruct "section" [] hexps
+
+--- Header
+header :: [HtmlExp] -> HtmlExp
+header hexps = HtmlStruct "header" [] hexps
+
+--- Footer
+footer :: [HtmlExp] -> HtmlExp
+footer hexps = HtmlStruct "footer" [] hexps
+
 --- Emphasize
 emphasize      :: [HtmlExp] -> HtmlExp
 emphasize hexps = HtmlStruct "em" [] hexps
@@ -468,6 +483,10 @@ bold hexps = HtmlStruct "b" [] hexps
 --- Italic
 italic      :: [HtmlExp] -> HtmlExp
 italic hexps = HtmlStruct "i" [] hexps
+
+--- Navigation
+nav :: [HtmlExp] -> HtmlExp
+nav doc = HtmlStruct "nav" [] doc
 
 --- Program code
 code      :: [HtmlExp] -> HtmlExp
@@ -518,6 +537,7 @@ olist :: [[HtmlExp]] -> HtmlExp
 olist items = HtmlStruct "ol" [] (map litem items)
 
 --- A single list item (usually not explicitly used)
+litem :: [HtmlExp] -> HtmlExp
 litem hexps = HtmlStruct "li" [] hexps
 
 --- Description list
@@ -539,7 +559,7 @@ headedTable :: [[[HtmlExp]]] -> HtmlExp
 headedTable = withinTable . table
  where
   withinTable (HtmlStruct "table" attrs (HtmlStruct "tr" rowAttrs row:rows)) =
-      HtmlStruct "table" attrs 
+      HtmlStruct "table" attrs
         (HtmlStruct "tr" rowAttrs (map addTh row):rows)
   addTh x = case x of
              (HtmlStruct "td" attrs conts) -> HtmlStruct "th" attrs conts
@@ -860,10 +880,16 @@ addClass hexp cls = addAttr hexp ("class",cls)
 
 type ShowS = String -> String
 
+showString :: String -> String -> String
 showString s = (s++)
-showChar   c = (c:)
-nl    = showChar '\n'
 
+showChar :: Char -> String -> String
+showChar c = (c:)
+
+nl :: String -> String
+nl = showChar '\n'
+
+concatS :: [a -> a] -> a -> a
 concatS [] = id
 concatS xs@(_:_) = foldr1 (\ f g -> f . g) xs
 
@@ -895,6 +921,7 @@ getTag (AjaxEvent2 _ _ _ _) = ""
 
 
 -- is this a tag where a line break can be safely added?
+tagWithLn :: String -> Bool
 tagWithLn t = t/="" &&
               t `elem` ["br","p","li","ul","ol","dl","dt","dd","hr",
                         "h1","h2","h3","h4","h5","h6","div",
@@ -907,6 +934,7 @@ showHtmlExp :: HtmlExp -> String
 showHtmlExp hexp = showsHtmlExp 0 hexp ""
 
 --- HTML tags that have no end tag in HTML:
+noEndTags :: [String]
 noEndTags = ["img","input","link","meta"]
 
 showsHtmlExp :: Int -> HtmlExp -> ShowS
@@ -925,9 +953,9 @@ showsHtmlExp i (HtmlStruct tag attrs hexps) =
 showsHtmlExp i (HtmlEvent hexp _) = showsHtmlExp i hexp
 showsHtmlExp i (HtmlCRef  hexp _) = showsHtmlExp i hexp
 
-
 showsHtmlExp _ (AjaxEvent _ _) = showString ""
 showsHtmlExp _ (AjaxEvent2 _ _ _ _) = showString ""
+
 
 showsHtmlExps :: Int -> [HtmlExp] -> ShowS
 showsHtmlExps _ [] = id
@@ -938,6 +966,7 @@ showsHtmlExps i (he:hes) = showsWithLnPrefix he . showsHtmlExps i hes
                                then nl . showTab i . showString (tail s)
                                else showsHtmlExp i hexp
 
+showTab :: Int -> String -> String
 showTab n = showString (take n (repeat ' '))
 
 showsHtmlOpenTag :: String -> [(String,String)] -> String -> ShowS
@@ -982,9 +1011,11 @@ showHtmlPage (HtmlPage title params html) =
   bodyattrs = [attr | (PageBodyAttr attr) <- params]
 
 --- Standard header for generated HTML pages.
+htmlPrelude :: String
 htmlPrelude = "<!DOCTYPE html>\n"
 
 --- Standard attributes for element "html".
+htmlTagAttrs :: [(String,String)]
 htmlTagAttrs = [("lang","en")]
 
 ------------------------------------------------------------------------------
@@ -1187,13 +1218,12 @@ serveCgiMessagesForForm servertimeout url cgikey portname
   serveCgiMessage state hdl ShowStatus =
     reportStatus state hdl showEventHandler
    where
-    showEventHandler (key,time,_,(_,_{-handler-}),gkey) = do
+    showEventHandler (key,time,_,(_,handler),gkey) = do
       ltime <- toCalendarTime time
       return $ "No. " ++ show key ++ " (" ++ showGroupKey gkey ++
                "), expires at " ++
                calendarTimeToString ltime ++ ": " ++
-               --showAnyQExpression handler ++ "\n"
-               "<sorry, can't show handler>\n"
+               showAnyQExpression handler ++ "\n"
 
   serveCgiMessage state hdl (CgiSubmit scriptenv formenv) = do
       let scriptkey = maybe "" id (lookup "SCRIPTKEY" scriptenv)
@@ -1230,6 +1260,9 @@ serveCgiMessagesForForm servertimeout url cgikey portname
     serveCgiMessages state
 
 -- computes a HTML form w.r.t. a state and a cgi environment:
+computeFormInStateAndEnv
+  :: String -> String -> [FormParam] -> ServerState -> String
+  -> IO HtmlForm -> [(String,String)] -> IO (ServerState,String)
 computeFormInStateAndEnv url cgikey fparams state scriptkey hformact cenv =
   catch tryComputeForm
         (\e -> do uparam <- getUrlParameter
@@ -1260,7 +1293,7 @@ computeFormInStateAndEnv url cgikey fparams state scriptkey hformact cenv =
     seq (isList htmlstring) done -- to ensure to catch all failures here
     return (nstate, cookiestring++htmlstring)
 
-  isList [] = success
+  isList [] = True
   isList (_:xs) = isList xs
 
 formWithMultipleHandlers :: HtmlForm -> Bool
@@ -1283,6 +1316,7 @@ encodeKey = map mapchr . reverse . filter (not . isSpace)
    where oc = ord c
 
 -- Puts a line to stderr:
+putErrLn :: String -> IO ()
 putErrLn s = hPutStrLn stderr s >> hFlush stderr
 
 
@@ -1317,35 +1351,39 @@ showAnswerFormInEnv _ _ (AjaxAnswer cont nvsAndhexps) crefnr = do
  
   let jsonpairs = map (\ (nvs,html) -> 
                           Object ((map (\ (n,v) -> (n,String v)) nvs) ++ 
-                                  [("html",String html)])                ) pairs 
+                                  [("html",String html)]) ) pairs 
  
   return ("Content-Type: text/json\n\n" ++ 
     (showJson $ Object [("content",cont),("popups",Array jsonpairs)]),evhs)
 
 
+converttohtml :: ([(a,String)],[(HtmlHandler,String)])
+              -> [(a, [HtmlExp])] -> Int
+              -> IO ([(a, String)], [(HtmlHandler,String)])
 converttohtml (xs,evhs) [] _                  = return (xs,evhs)
 converttohtml (xs,evhs) ((nvs,hexp):ys) crefnr = do
   (htmlstring,newevhs,newrefnr) <- htmlForm2html_ hexp crefnr 
   converttohtml ((nvs,(showHtmlExps htmlstring)):xs,evhs++newevhs) ys newrefnr
   
-------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-htmlForm2html_ (html) crefnr = do
+htmlForm2html_ :: [HtmlExp] -> Int
+               -> IO ([HtmlExp],[(HtmlHandler,String)],Int)
+htmlForm2html_ html crefnr = do
   let (htmlwithoutcrefs,newrefnr) = numberCgiRefs html crefnr
   -- enforce instantiation before handlers are stored:
   seq newrefnr done
   --seq (normalForm htmlwithoutcrefs) done
   let (transhtml, evhs, _) = translateHandlers htmlwithoutcrefs
   --storeEventHandlers cgikey oldcenv evhs
-    
   return (transhtml, evhs, newrefnr)
 
-------------------------------------------------------------------------------------------------------
-
+------------------------------------------------------------------------------
 
 -- Adds the initial content lines (including content length) to an HTML string.
+addHtmlContentType :: String -> String
 addHtmlContentType htmlstring =
-    "Content-Length: " ++ show (length htmlstring :: Int) ++ "\n" ++
+    "Content-Length: " ++ show (length htmlstring:: Int) ++ "\n" ++
     "Content-Type: text/html\n\n" ++ htmlstring
 
 -- return the HTML string corresponding to an HtmlForm:
@@ -1369,7 +1407,7 @@ showHtmlFormInEnv url key (HtmlForm ftitle fparams fhexp) crefnr = do
 extractCookies :: HtmlForm -> (String,HtmlForm)
 extractCookies (HtmlAnswer ctype cont) = ("",HtmlAnswer ctype cont)
 extractCookies (HtmlForm title params hexp) =
-  let cookiestring = if cookies==[]
+  let cookiestring = if null cookies
                      then ""
                      else "Cache-control: no-cache=\"set-cookie\"\n" ++
                           concatMap ((++"\n") . formatCookie) cookies
@@ -1403,8 +1441,6 @@ getMaxFieldNr ((name,_):env) =
   if take 6 name == "FIELD_"
   then max (tryReadNat 0 (drop 6 name)) (getMaxFieldNr env)
   else getMaxFieldNr env
-
-max x y = if x>y then x else y
 
 -- try to read a natural number in a string or return first argument:
 tryReadNat :: Int -> String -> Int
@@ -1520,6 +1556,7 @@ translateHandlers (AjaxEvent2 hexp handler str1 str2 : hexps) =
 
 
 -- show a HTML form in String representation:
+showForm :: [(String,String)] -> String -> HtmlForm -> String
 showForm cenv url (HtmlForm title params html) =
   htmlPrelude ++
   showHtmlExp
@@ -1578,6 +1615,7 @@ env2html env = concat (map (\(n,v)->[htxt (n++": "++v),breakline]) env)
 -- (note: the field values are urlencoded to avoid problems
 --  with passing special characters; moreover, the names of fields
 --  containing urlencoded values are prefixed by "U")
+cenv2hidden :: [(String,String)] -> [HtmlExp]
 cenv2hidden env = concat (map pair2hidden env)
  where
    pair2hidden (n,v)
@@ -1589,7 +1627,7 @@ cenv2hidden env = concat (map pair2hidden env)
 -- association lists (list of tag/value pairs):
 
 -- change an associated value (or add association, if not there):
-changeAssoc ::  Eq tt => [(tt,tv)] -> tt -> tv -> [(tt,tv)]
+changeAssoc :: Eq tt => [(tt,tv)] -> tt -> tv -> [(tt,tv)]
 changeAssoc [] tag val = [(tag,val)]
 changeAssoc ((tag1,val1):tvs) tag val =
    if tag1 == tag then (tag,val) : tvs
@@ -1672,7 +1710,7 @@ attrLatexEnv env attr content
 -- to avoid having to rerun latex for inaccurat tables.
 latexTabFormat :: [HtmlExp] -> String
 latexTabFormat rows = "{" ++ replicate breadth 'l' ++ "}"
-  ++ "\\setcounter{LTchunksize}{"++show ((length rows+5) :: Int)++"}%"
+  ++ "\\setcounter{LTchunksize}{"++show (length rows+5)++"}%"
   where
     breadth = foldl max 0 (map getBreadth rows)
 
@@ -1766,6 +1804,7 @@ htmlSpecialChars2tex (c:cs)
                            htmlSpecialChars2tex (tail rest)
   | otherwise   = c : htmlSpecialChars2tex cs
 
+htmlspecial2tex :: String -> String
 htmlspecial2tex special
   | special=="Auml"   =  "{\\\"A}"
   | special=="Euml"   =  "{\\\"E}"
@@ -1898,7 +1937,7 @@ intFormMain :: String -> String -> String -> String ->
 intFormMain baseurl basecgi reldir cginame forever urlparam hformact = do
   pid      <- getPID
   user     <- getEnviron "USER"
-  home     <- getEnviron "HOME"
+  home     <- getHomeDirectory
   let portname = "intcgi_" ++ show pid
   socket <- listenOn portname
   let cgiprogname = if null cginame then "cgitest_"++show pid++".cgi"
@@ -1959,6 +1998,7 @@ intFormInEnv url cgikey initform hformact cenv state forever socket = do
      orgform `addFormParam` HeadInclude (HtmlStruct "base" [("href",url)] [])
 
 -- has an HTML form event handlers?
+formWithHandlers :: HtmlForm -> Bool
 formWithHandlers (HtmlForm _ _ hexps) = hasHandlers hexps
  where
   hasHandlers :: [HtmlExp] -> Bool
@@ -1972,6 +2012,7 @@ formWithHandlers (HtmlForm _ _ hexps) = hasHandlers hexps
   hasHandlers (AjaxEvent2 _ _ _ _ : _) = True
 
 --- Shows a string in HTML format in a browser.
+showHtmlStringInBrowser :: String -> IO ()
 showHtmlStringInBrowser htmlstring = do
   pid <- getPID
   let htmlfilename = "tmpcgiform_" ++ show pid ++ ".html"
@@ -2039,7 +2080,7 @@ getServerStatus state@(stime,maxkey,_,evs) = do
   lstime <- toCalendarTime stime
   pinfos <- getProcessInfos
   return $ "Status: " ++ busy ++ ", Maxkey: "++show maxkey ++ ", #Handlers: " ++
-           show (length evs :: Int) ++ ", Start time: " ++
+           show (length evs) ++ ", Start time: " ++
            calendarTimeToString lstime ++ "\n" ++
            showMemInfo pinfos
 
@@ -2096,7 +2137,7 @@ cleanOldEventHandlers state@(stime,maxkey,cleandate,ehs@(_:_)) = do
    then return state
    else do
      let currentehs = filter (isNotExpired ctime) ehs
-         noehs = length ehs :: Int
+         noehs = length ehs
          nocurrentehs = length currentehs
      if nocurrentehs < noehs
       then do -- report cleanup numbers:

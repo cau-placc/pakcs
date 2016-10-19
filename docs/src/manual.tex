@@ -1,13 +1,21 @@
 \documentclass[11pt,fleqn]{article}
 
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{csquotes}
 \usepackage{latexsym}
 \usepackage{makeidx}
 \usepackage{url}
 \usepackage{xspace}
 \usepackage{graphicx}
 \usepackage{syntax}
+\usepackage{textcomp}
 
 \input{version}
+
+% define home dir of the Curry system in order to locate tool manuals:
+\newcommand{\curryhome}{../..}
 
 %%% ------------------------------------------------------------------
 
@@ -75,6 +83,8 @@
 \let_=\sb
 \catcode`\_=12
 
+\newcommand{\translation}[1]{\bigskip\fbox{\begin{minipage}{15cm}\textbf{Translation: }{#1}\end{minipage}}\par\bigskip}
+
 % produce an index:
 \makeindex
 
@@ -122,16 +132,36 @@ Frank Steiner$^{10}$ \\[4ex]
 \pdfbookmark[1]{Contents}{Contents}
 \tableofcontents
 
+\clearpage
 \include{preface}
 \include{overview}
 \include{usage}
 \include{extensions}
 \include{syntax}
-\include{currydoc}
-\include{currybrowser}
-\include{currytest}
-\include{erd2curry}
-\include{spicey}
+\clearpage
+\input{\curryhome/currytools/optimize/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/currydoc/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/browser/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/currycheck/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/currytest/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/verification/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/currypp/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/runcurry/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/CASS/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/ertools/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/spicey/Docs/manual}
+\clearpage
+\input{\curryhome/currytools/peval/Docs/manual}
 \include{ui}
 \include{preprocessing}
 \include{problems}
@@ -145,6 +175,8 @@ Frank Steiner$^{10}$ \\[4ex]
 
 \include{libraries}
 \include{markdown_syntax}
+\clearpage
+\input{\curryhome/currytools/currypp/Docs/sqlsyntax}
 \include{distribution}
 \include{auxiliary_files}
 \include{external_ops}

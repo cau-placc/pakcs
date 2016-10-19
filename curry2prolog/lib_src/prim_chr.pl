@@ -14,8 +14,8 @@ warnSuspendedConstraints(ShowAll,R) :-
 	find_chr_constraint(C), !,
 	write(user_error,'WARNING: residual CHR constraints:'),
 	writeSuspendedCHRConstraints(ShowAll),
-	R='Prelude.success'.
-warnSuspendedConstraints(_,'Prelude.success').
+	R='Prelude.True'.
+warnSuspendedConstraints(_,'Prelude.True').
 
 writeSuspendedCHRConstraints(ShowAll) :-
 	find_chr_constraint(C), write(user_error,' '), write(user_error,C),

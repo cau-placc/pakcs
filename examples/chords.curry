@@ -21,7 +21,7 @@
 
 -- The current program can only deal with bars of type 4/4.
 
-import Findall
+import Findall(allValues)
 
 ------------------------ Data type declarations ----------------------------
 
@@ -76,10 +76,10 @@ four_chord_bar :: [(Chord, Int)]
 four_chord_bar = [(aChord, 2), (aChord, 2), (aChord, 2), (aChord, 2)]
 
 -- Versions without demand-driven generation of the search space:
---two_chord_bar  | [(aChord, 4), (aChord, 4)] =:= bar
+--two_chord_bar  | [(aChord, 4), (aChord, 4)] == bar
 --               = bar
 --  where bar free
---four_chord_bar | [(aChord, 2), (aChord, 2), (aChord, 2), (aChord, 2)] =:= bar
+--four_chord_bar | [(aChord, 2), (aChord, 2), (aChord, 2), (aChord, 2)] == bar
 --               = bar
 --  where bar free
 
@@ -340,13 +340,11 @@ compute_bar :: [(Note, Int)] -> [([(Chord, Int)],Int)]
 compute_bar mbar =
   if one_chord_solutions == []
   then if two_chord_solutions == []
-       then bestOf (findall (\x -> checkBarDiss four_chord_bar mbar =:= x))
+       then bestOf (allValues (checkBarDiss four_chord_bar mbar))
        else bestOf two_chord_solutions
   else bestOf one_chord_solutions
-    where one_chord_solutions =
-                 findall (\x -> checkBarDiss one_chord_bar mbar =:= x)
-          two_chord_solutions =
-                 findall (\x -> checkBarDiss two_chord_bar mbar =:= x)
+    where one_chord_solutions = allValues (checkBarDiss one_chord_bar mbar)
+          two_chord_solutions = allValues (checkBarDiss two_chord_bar mbar)
 
 
 -- Filter list of pairs with a minimal (up to variance 1) snd component:

@@ -31,7 +31,7 @@ so that the expression \code{(onetwo 6)} evaluates to \code{[1,2,1,2,1,2]}.
 \subsection{Functional Patterns}
 
 Functional patterns \cite{AntoyHanus05LOPSTR} are a useful extension
-to code operations in a more readable way. Furthermore,
+to implement operations in a more readable way. Furthermore,
 defining operations with functional patterns avoids problems
 caused by strict equality (\ccode{=:=}) and leads to programs
 that are potentially more efficient.
@@ -68,10 +68,67 @@ $\ldots$
 which shows that the evaluation of the list elements is not demanded
 by the functional pattern.
 
-In general, a pattern of the form \code{($f$ $t_1$\ldots$t_n$)} ($n>0$)
+In general, a pattern of the form \code{($f$ $t_1$\ldots$t_n$)} for $n>0$
+(or of the qualified form \code{($M.f$ $t_1$\ldots$t_n$)} for $n \geq 0$)
 is interpreted as a functional pattern if $f$ is not a visible constructor
 but a defined function that is visible in the scope of the pattern.
+Furthermore, for a functional pattern to be well defined,
+there are two additional requirements to be satisfied:
 
+\begin{enumerate}
+
+\item
+If a function $f$ is defined by means of a functional pattern $fp$,
+then the evaluation of $fp$ must not depend on $f$, i.e.,
+the semantics of a function defined using functional patterns
+must not (transitively) depend on its own definition.
+This excludes definitions such as
+\begin{curry}
+(xs ++ ys) ++ zs = xs ++ (ys ++ zs)
+\end{curry}
+and is necessary to assign a semantics to funtions employing functional patterns
+(see \cite{AntoyHanus05LOPSTR} for more details).
+
+\item
+Only functions that are globally defined may occur inside a functional pattern.
+This restriction ensures that no local variable
+might occur in the value of a functional pattern,
+which might lead to an non-intuitive semantics.
+Consider, for instance, the following (complicated) equality operation
+\begin{curry}
+eq :: a -> a -> Bool
+eq x y = h y
+ where
+  g True  = x
+  h (g a) = a
+\end{curry}
+where the locally defined function \code{g} occurs in the functional
+pattern \code{(g a)} of \code{h}.
+Since \code{(g a)} evaluates to the value of \code{x} whereas \code{a}
+is instantiated to \code{True}, the call \code{h y} now evaluates to \code{True}
+if the value of \code{y} equals the value of \code{x}.
+In order to check this equality condition,
+a strict unification between \code{x} and \code{y} is required
+so that an equivalent definition without functional patterns would be:
+\begin{curry}
+eq :: a -> a -> Bool
+eq x y = h y
+ where
+  h x1 | x =:= x1 = True
+\end{curry}
+However, this implies that variables occuring in the value
+of a functional pattern imply a strict unification
+if they are defined in an outer scope,
+whereas variables defined \emph{inside} a functional pattern
+behave like pattern variables.
+In consequence, the occurrence of variables from an outer scope
+inside a functional pattern might lead to an non-intuitive behavior.
+To avoid such problems, locally defined functions are excluded
+as functional patterns.
+Note that this does not exclude a functional pattern inside a local function,
+which is still perfectly reasonable.
+\end{enumerate}
+%
 It is also possible to combine functional patterns with
 as-patterns.\index{as-pattern}\pindex{"@}
 Similarly to the meaning of as-patterns
@@ -173,254 +230,7 @@ of the order of pattern matching. Note that other orders of pattern matching
 can be obtained using auxiliary operations.
 
 
-
-\subsection {Records}
-\label{records}
-
-A record is a data structure for bundling several data of various types.
-It consists of typed data fields where each field is associated with
-a unique label. These labels can be used to construct, select or update
-fields in a record.
-
-
-Unlike labeled data fields in Haskell, records are
-not syntactic sugar but a real extension of the
-language\footnote{The current version allows to transform records
-  into abstract data types. Future extensions may not have
-  this facility.}.
-The basic concept is described in \cite{Leijen05} but the current
-version does not yet provide all features mentioned there.
-The restrictions are explained in Section~\ref{sec-restrinrecs}.
-
-\subsubsection{Record Type Declaration}
-\label{sec-recordtypedecl}
-
-It is necessary to declare a record type before a record
-can be constructed or used. The declaration has the following form:
-\begin{curry}
-type $R$ $\alpha_1$ $\ldots$ $\alpha_n$ = { $l_1$ :: $\tau_1$,$\ldots$, $l_m$ :: $\tau_m$ }
-\end{curry}
-It introduces a new $n$-ary record type $R$ which represents a
-record consisting of $m$ fields. Each field has a unique label $l_i$
-representing a value of the type $\tau_i$. Labels
-are identifiers which refer to the corresponding
-fields. The following examples define some record types:
-\begin{curry}
-type Person = {name :: String, age :: Int}
-type Address = {person :: Person, street :: String, city :: String}
-type Branch a b = {left :: a, right :: b}
-\end{curry}
-It is possible to summarize different labels which have the same
-type. For instance, the record \code{Address} can also be declared as follows:
-\begin{curry}
-type Address = {person :: Person, street,city :: String}
-\end{curry}
-The fields can occur in an arbitrary order. The example above
-can also be written as
-\begin{curry}
-type Address = {street,city :: String, person :: Person}
-\end{curry}
-The record type can be used in every type expression to represent
-the corresponding record, e.g.
-\begin{curry}
-data BiTree = Node (Branch BiTree BiTree) | Leaf Int
-\end{curry}
-\begin{curry}
-getName :: Person -> String
-getName $\ldots$
-\end{curry}
-
-Labels can only be used in the context of
-records. They do not share the name space with
-functions/constructors/variables or type constructors/type variables.
-For instance it is possible to use
-the same identifier for a label and a function at the same time. Label
-identifiers cannot be shadowed by other identifiers.
-
-Like in type synonym declarations, recursive or mutually
-dependent record declarations are not allowed. Records can only
-be declared at the top level. Further restrictions are described in
-section \ref{sec-restrinrecs}.
-
-
-\subsubsection{Record Construction}
-\label{sec-recordconstr}
-
-The record construction generates a record with initial values for
-each data field. It has the following form:
-\begin{curry}
-{ $l_1$ := $v_1$,$\ldots$, $l_m$ := $v_m$ }
-\end{curry}
-It generates a record where each label $l_i$ refers to the
-value $v_i$. The type of the record results from the record type
-declaration where the labels $l_i$ are defined.
-A mix of labels from different
-record types is not allowed. All labels must be specified with
-exactly one assignment. Examples for record constructions are
-\begin{curry}
-{name := "Johnson", age := 30}     -- generates a record of type 'Person'
-{left := True, right := 20}        -- generates a record of type 'Branch'
-\end{curry}
-Assignments to labels can occur in an arbitrary order. For instance a
-record of type \code{Person} can also be generated as follows:
-\begin{curry}
-{age := 30, name := "Johnson"}     -- generates a record of type 'Person'
-\end{curry}
-Unlike labeled fields in record type declarations,
-record constructions can be used in expressions without any restrictions
-(as well as all kinds of record expressions). For instance the following
-expression is valid:
-\begin{curry}
-{person := {name := "Smith", age := 20},   -- generates a record of
- street := "Main Street",                  -- type 'Address'
- city   := "Springfield"}
-\end{curry}
-
-
-\subsubsection{Field Selection}
-\label{sec-fieldsel}
-
-The field selection is used to extract data from records.
-It has the following form:
-\begin{curry}
-$r$ :> $l$
-\end{curry}
-It returns the value to which the label $l$ refers to from the
-record expression $r$. The label must occur in the declaration of
-the record type of $r$.
-An example for a field selection is:
-\begin{curry}
-pers :> name
-\end{curry}
-This returns the value of the label \code{name} from the record \code{pers}
-(which has the type \code{Person}).
-Sequential application of field selections are also possible:
-\begin{curry}
-addr :> person :> age
-\end{curry}
-The value of the label \code{age} is extracted from a record which itself
-is the value of the label \code{person} in the record \code{addr}
-(which has the type \code{Address}).
-
-
-\subsubsection{Field Update}
-\label{sec-fieldupd}
-
-Records can be updated by reassigning a new value to a label:
-\begin{curry}
-{$l_1$ := $v_1$,$\ldots$, $l_k$ := $v_k$ | $r$}
-\end{curry}
-The label $l_i$ is associated with the new value $v_i$ which
-replaces the current value in the record $r$.
-The labels must occur in the declaration
-of the record type of $r$. In contrast to record constructions,
-it is not necessary to specify all labels of a record.
-Assignments can occur in an arbitrary order. It is not allowed to
-specify more than one assignment for a label in a record update.
-Examples for record updates are:
-\begin{curry}
-{name := "Scott", age := 25 | pers}
-{person := {name := "Scott", age := 25 | pers} | addr}
-\end{curry}
-In these examples \code{pers} is a record of type \code{Person} and \code{addr}
-is a record of type \code{Address}.
-
-
-\subsubsection{Records in Pattern Matching}
-\label{sec-recsinpm}
-
-It is possible to apply pattern matching to records (e.g., in functions,
-let expressions or case branches). Two kinds of record patterns
-are available:
-\begin{curry}
-{$l_1$ = $p_1$,$\ldots$, $l_n$ = $p_n$}
-{$l_1$ = $p_1$,$\ldots$, $l_k$ = $p_k$ | _}
-\end{curry}
-In both cases each label $l_i$ is specified with a pattern $p_i$.
-All labels must occur only once in the record pattern.
-The first case is used to match the whole record. Thus, all labels
-of the record must occur in the pattern.
-The second case is used to match only a part of
-the record. Here it is not necessary to specify all labels.
-This case is represented by a vertical bar followed by the underscore
-(anonymous variable). It is
-not allowed to use a pattern term instead of the underscore.
-
-
-When trying to match a record against a record pattern, the
-patterns of the specified labels are matched against
-the corresponding values in the record expression. On success, all pattern
-variables occurring in the patterns are replaced by their actual expression.
-If none of the patterns matches, the computation fails.
-
-
-Here are some examples of pattern matching with records:
-\begin{curry}
-isSmith30 :: Person -> Bool
-isSmith30 {name = "Smith", age = 30} = True
-\end{curry}
-\begin{curry}
-startsWith :: Char -> Person -> Bool
-startsWith c {name = (d:_) | _} = c == d
-\end{curry}
-\begin{curry}
-getPerson :: Address -> Person
-getPerson {person = p | _} = p
-\end{curry}
-As shown in the last example, a field selection can also be obtained
-by pattern matching.
-
-
-\subsubsection{Export of Records}
-\label{sec-exprecs}
-
-Exporting record types and labels is very similar to exporting
-data types and constructors. There are three ways
-to specify an export:
-\begin{itemize}
-\item \code{module $M$ (\ldots, $R$, \ldots) where} \\
-  exports the record $R$ without any of its labels.
-\item \code{module $M$ (\ldots, $R$(..), \ldots) where} \\
-  exports the record $R$ together with all its labels.
-\item \code{module $M$ (\ldots, $R$($l_1$,\ldots,$l_k$), \ldots) where} \\
-  exports the record $R$ together with the labels $l_1$, \ldots, $l_k$.
-\end{itemize}
-%
-Note that imported labels cannot be overwritten in record declarations
-of the importing module. It is also not possible to import equal labels
-from different modules.
-
-
-\subsubsection{Restrictions in the Usage of Records}
-\label{sec-restrinrecs}
-
-In contrast to the basic concept in \cite{Leijen05}, \CYS/Curry provides a
-simpler version of records. Some of the features described there are
-currently not supported or even restricted.
-
-\begin{itemize}
-\item Labels must be unique within the whole scope of the program.
-  In particular, it is not allowed to define the same label within
-  different records, not even when they are imported from other
-  modules. However, it is possible to use equal identifiers for other
-  entities without restrictions, since labels have an independent
-  name space.
-\item The record type representation with labeled fields can only be
-  used as the right-hand-side of a record type declaration. It is
-  not allowed to use it in any other type annotation.
-\item Records are not extensible or reducible. The structure of a
-  record is specified in its record declaration and cannot be
-  modified at the runtime of the program.
-\item Empty records are not allowed.
-\item It is not allowed  to use a pattern term
-  at the right side of the vertical bar in a record pattern
-  except for the underscore (anonymous pattern variable).
-\item Labels cannot be sequentially associated with multiple values
-  (record fields do not behave like stacks).
-\end{itemize}
-
-
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "manual"
-%%% End: 
+%%% End:

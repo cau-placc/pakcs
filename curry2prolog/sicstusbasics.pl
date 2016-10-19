@@ -29,7 +29,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
-	   isInputStream/1, isOutputStream/1,
+	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
 	   connect2socket/4, closeSocketStream/2,
@@ -231,15 +231,15 @@ waitConcurrentConjunction(S1,S2,R,E1,E2,E) :- % E2 must be nonvar
 	reduceConcurrentConjunction(S2,S1,R,E2,E1,E).
 
 % reduce a concurrent conjunction where the first argument is already evaluated
-reduceConcurrentConjunction('Prelude.success',S2,R,_,E2,E) :-
+reduceConcurrentConjunction('Prelude.True',S2,R,_,E2,E) :-
 	!, % first constraint is successful
-	waitForEval(S2,R,E2,E).
+	waitForEval(S2,R,E2,E3), R='Prelude.True', E3=E.
 reduceConcurrentConjunction('FAIL'(X),_,R,E1,_,E) :-
 	!, % first constraint is a failure
 	R='FAIL'(X), E=E1.
-reduceConcurrentConjunction(_,_,_,_,_,_) :-
-	write(user_error,'Internal error in waitConcurrentConjunction'),
-	nl(user_error).
+%reduceConcurrentConjunction(_,_,_,_,_,_) :-
+%	write(user_error,'Internal error in waitConcurrentConjunction'),
+%	nl(user_error).
 
 ?- block waitForEval(?,?,-,?).
 waitForEval(R,R,E,E).
@@ -361,7 +361,7 @@ fileSize(File,Size) :-
 existsFile(File) :- 
 	sicstus4
 	-> file_exists(File)
-	 ; file_exists(File), file_property(File,type(regular)).
+	 ; file_exists(File), \+ file_property(File,type(directory)).
 
 % does a directory exist?
 existsDirectory(Dir) :-
@@ -488,6 +488,13 @@ isInputStream(Stream) :-
 isOutputStream(Stream) :-
 	sicstus38orHigher -> stream_property(Stream,output)
 	                   ; current_stream(_,output,Stream).
+
+% is a stream connected to a terminal?
+isTerminalDeviceStream(Stream) :-
+	sicstus4
+	 -> stream_property(Stream,interactive)
+	  ; write(user_error,'IO.hIsTerminalDevice not implemented for this Prolog version'),
+	    nl(user_error).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

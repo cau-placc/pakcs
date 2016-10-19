@@ -9,9 +9,9 @@ add' O     n = n
 add' (S m) n = S(add m n )
 
 
-isNat :: Nat -> Success
+isNat :: Nat -> Bool
 
-isNat O     = success
+isNat O     = True
 isNat (S n) = isNat n 
 
 

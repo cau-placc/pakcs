@@ -1,8 +1,12 @@
 #!/bin/sh
-PAKCS="../bin/pakcs"
+# Shell script to test some Curry examples
+
+CURRYHOME=..
+CURRYBIN=$CURRYHOME/bin
+
 LOGFILE=xxx$$
-../bin/cleancurry -r
-cat << EOM | $PAKCS -q :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
+$CURRYBIN/cleancurry -r
+cat << EOM | $CURRYBIN/curry -q :set parser -W none :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
 :l rev
 append [1,2] [3,4] :: [Int]
 rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
@@ -34,8 +38,7 @@ goal2 x y  where x,y free
 :l member
 goal2 x    where x free
 :l colormap
-goal1 l1 l2 l3 l4   where l1,l2,l3,l4 free
-goal2 l1 l2 l3 l4   where l1,l2,l3,l4 free
+goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 :l account
 goal1 b  where b free
 goal2 b  where b free
@@ -43,7 +46,7 @@ goal3 s  where s free
 :l maxtree
 goal2
 :l assembler
-goal
+main
 :l ralign
 goal1
 goal2
@@ -111,6 +114,8 @@ pali5
 mortgage 100000.0 180.0 0.01 r 0.0  where r free
 :l smm
 smm l  where l free
+:l smm2
+smm
 :cd ..
 :cd distcurry
 :l accountport
@@ -139,11 +144,12 @@ SICSTUS=`pwd`/../bin/sicstusprolog
 # The SWI-Prolog interpreter:
 SWI=`pwd`/../bin/swiprolog
 
+# Check differences:
 DIFF=diff$$
-if [ -x "${SICSTUS}" ] ; then
-  diff CPTEST.sicstusresult $LOGFILE > $DIFF
-elif [ -x "${SWI}" ] ; then
-  diff CPTEST.swiresult $LOGFILE > $DIFF
+if [ -x "$SICSTUS" ] ; then
+  diff TESTRESULT.sicstus $LOGFILE > $DIFF
+elif [ -x "$SWI" ] ; then
+  diff TESTRESULT.swi     $LOGFILE > $DIFF
 fi
 if [ "`cat $DIFF`" = "" ] ; then
   echo
@@ -156,4 +162,5 @@ else
   /bin/rm -f $DIFF
   /bin/mv -f $LOGFILE LOGFILE
   echo "Test output saved in file 'LOGFILE'."
+  exit 1
 fi

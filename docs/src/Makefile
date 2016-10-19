@@ -1,11 +1,12 @@
-# To format the PAKCS User Manual
+# To format the user manual
 
 PAKCS=../../bin/pakcs
 
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex lib/LAST
+manual.pdf: $(wildcard *.tex lib/*.tex ../../currytools/*/Docs/*.tex) \
+	    markdown_syntax.tex
 	pdflatex manual
 	bibtex manual
 	pdflatex manual
@@ -15,29 +16,26 @@ manual.pdf: manual.tex version.tex currydoc.tex markdown_syntax.tex lib/LAST
 ../Manual.pdf: manual.pdf
 	thumbpdf manual
 	pdflatex manual
-	rm -f ../Manual.pdf
-	cp manual.pdf ../Manual.pdf
+	rm -f $@
+	cp $< $@
 
 markdown_syntax.tex: markdown_syntax.txt
-	$(PAKCS) :l Markdown :eval 'readFile "markdown_syntax.txt" >>= writeFile "markdown_syntax.tex" . markdownText2LaTeX' :quit
+	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2LaTeX' :quit
 
 ../markdown_syntax.html: markdown_syntax.txt
-	$(PAKCS) :l Markdown :eval 'readFile "markdown_syntax.txt" >>= writeFile "../markdown_syntax.html" . markdownText2CompleteHTML "Markdown Syntax"' :quit
+	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "Markdown Syntax"' :quit
 
 # format installation description as HTML page
 ../INSTALL.html: ../../INSTALL.txt
-	$(PAKCS) :l Markdown :eval 'readFile "../../INSTALL.txt" >>= writeFile "../INSTALL.html" . markdownText2CompleteHTML "PAKCS Installation Instructions"' :quit
+	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Installation Instructions"' :quit
 
 # format repository installation description as HTML page
 ../GITINSTALL.html: ../../GITINSTALL.txt
-	$(PAKCS) :l Markdown :eval 'readFile "../../GITINSTALL.txt" >>= writeFile "../GITINSTALL.html" . markdownText2CompleteHTML "PAKCS Repository"' :quit
+	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Repository"' :quit
 
 # format release notes as HTML page
 ../RELNOTES.html: ../../RELNOTES.txt
-	$(PAKCS) :l Markdown :eval 'readFile "../../RELNOTES.txt" >>= writeFile "../RELNOTES.html" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
-
-../../lib/TEXDOC/LAST:
-	$(MAKE) libdoc
+	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
 
 # generate documentation for all libraries
 .PHONY: libdoc

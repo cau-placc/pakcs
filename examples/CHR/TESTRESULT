@@ -21,7 +21,7 @@ compileCHR "GCDCHR" [gcda,gcd2]
 Curry interface to CHR(Prolog) written to GCDCHR.curry
 Loading program "GCDCHR"...
 solveCHR $ ((gcdanswer x) /\ ((gcd 206) /\ (gcd 40)))
-{x=2} success
+{x=2} True
 Loading program "Fib"...
 (runCHR [dup,fib1,fibn,addrule]) $ ((fib 7) x)
 {x=21} [Fib 7 21,Fib 4 5,Fib 2 2,Fib 3 3,Fib 5 8,Fib 6 13]
@@ -29,7 +29,7 @@ compileCHR "FIBCHR" [fibo1,fibo2,fibo3,addrule]
 Curry interface to CHR(Prolog) written to FIBCHR.curry
 Loading program "FIBCHR"...
 solveCHR $ (fib 20 x)
-{x=10946} success
+{x=10946} True
 Loading program "FD"...
 main50 x y
 {x=1, y=1} []
@@ -68,7 +68,7 @@ compileCHR "UFCHR" [makeI,unionI,findNode,findRoot,linkEq,linkTo]
 Curry interface to CHR(Prolog) written to UFCHR.curry
 Loading program "UFCHR"...
 solveCHR $ (andCHR [make 1,make 2,make 3,make 4,make 5,union 1 2,union 3 4,union 5 3,find 2 x,find 4 y])
-{x=1, y=5} success
+{x=1, y=5} True
 Loading program "Primes"...
 runPrime $ (prime 20)
 [Prime 2,Prime 19,Prime 17,Prime 3,Prime 13,Prime 11,Prime 7,Prime 5]
@@ -87,4 +87,4 @@ compileCHR "GAUSSCHR" [arithrule,emptyP,constM,eliminate,bindVar]
 Curry interface to CHR(Prolog) written to GAUSSCHR.curry
 Loading program "GAUSSCHR"...
 solveCHR $ (((3.0 :*: x) :=: 6.0) /\ (((2.0 :*: x) :+: (6.0 :*: y)) :=: 10.0))
-{x=2.0, y=1.0} success
+{x=2.0, y=1.0} True

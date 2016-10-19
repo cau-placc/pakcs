@@ -6,6 +6,10 @@
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
+# Add PAKCS bin directory to path so that currypp can be found:
+PATH=$PATH:$PAKCSHOME/bin
+export PATH
+
 REPL="$PAKCSHOME/curry2prolog/pakcs"
 if [ ! -x "$REPL" ] ; then
   echo "ERROR: executable '$REPL' not found!" >&2
@@ -13,11 +17,13 @@ if [ ! -x "$REPL" ] ; then
   exit 1
 fi
 
-# use readline wrapper rlwrap if it is installed and we have tty as stdin:
+# use readline wrapper rlwrap for SICStus-Prolog back end
+# if rlwrap exists, we have tty as stdin, and we have a home directory to
+# store rlwrap's history:
 USERLWRAP=no
 if tty -s ; then
   RLWRAP=`which rlwrap`
-  if [ -x "$RLWRAP" ] ; then
+  if [ -f "$PAKCSHOME/bin/sicstusprolog" -a -x "$RLWRAP" -a -n "$HOME" ] ; then
     USERLWRAP=yes
   fi
 fi

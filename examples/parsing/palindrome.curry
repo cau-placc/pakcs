@@ -34,5 +34,5 @@ pali5 = getAllSolutions (\[x1,x2,x3,x4,x5] -> pali [x1,x2,x3,x4,x5] =:= [])
 palin len = getAllSolutions (\xs -> strlen xs len & pali xs =:= [])
  where
    -- Has a list a given length?
-   strlen [] 0 = success
+   strlen [] 0 = True
    strlen (_:xs) n | n>0 = strlen xs (n-1)

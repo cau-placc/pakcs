@@ -4,19 +4,19 @@
 
 data Message = Deposit Int | Withdraw Int | Balance Int
 
-account :: Int -> [Message] -> Success
-account _ []                 =  success
+account :: Int -> [Message] -> Bool
+account _ []                 =  True
 account n (Deposit  a : ms)  =  account (n+a) ms
 account n (Withdraw a : ms)  =  account (n-a) ms
 account n (Balance  b : ms)  =  b=:=n & account n ms
 
-make_account s = account 0 (ensureSpine s) -- create bank account
+makeAccount s = account 0 (ensureSpine s) -- create bank account
 
 -- goals:
 goal1 b = let s free in
-          make_account s & s=:=[Deposit 200, Deposit 50, Balance b]
+          makeAccount s & s=:=[Deposit 200, Deposit 50, Balance b]
 goal2 b = let s free in
-          make_account s &
+          makeAccount s &
             s=:=[Deposit 200, Withdraw 100, Deposit 50, Balance b]
 
 -- send a message:
@@ -29,6 +29,6 @@ client s | s1 =:= sendMsg (Balance b) s =
                         else client (sendMsg (Deposit  70) s1)  -- work
   where s1,b free
 
-goal3 s = make_account s & client (sendMsg (Deposit 100) s) -- simulation
+goal3 s = makeAccount s & client (sendMsg (Deposit 100) s) -- simulation
 
 

@@ -1,18 +1,18 @@
 import CLP.FD
 
+-- send more money puzzle in Curry with FD constraints:
+
 smm :: [Int]
 smm =
  let xs@[s,e,n,d,m,o,r,y] = take 8 (domain 0 9)
-  in solve [] xs $
-        s ># 0 /\
-        m ># 0 /\
+
+     constraints =
+        s ># fd 0 /\
+        m ># fd 0 /\
         allDifferent xs /\
-                       1000 * s + 100 * e + 10 * n + d
-                     + 1000 * m + 100 * o + 10 * r + e
-        =# 10000 * m + 1000 * o + 100 * n + 10 * e + y
+           fd 1000  *# s +# fd 100  *# e +# fd 10  *# n +# d
+        +# fd 1000  *# m +# fd 100  *# o +# fd 10  *# r +# e
+        =# fd 10000 *# m +# fd 1000 *# o +# fd 100 *# n +# fd 10 *# e +# y
+ in solveFD [] xs constraints
 
--- ...and with good old constraint representation:
-smmC :: [Int] -> Success
-smmC xs = smm =:= xs
-
--- smmC [s,e,n,d,m,o,r,y]  where s,e,n,d,m,o,r,y free
+-- smm --> [9,5,6,7,1,0,8,2]

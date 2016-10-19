@@ -1,7 +1,190 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.11.5 (February 23, 2015)
+Release notes for PAKCS Version 1.14.1 (September 22, 2016)
+-----------------------------------------------------------
+
+Changes to version 1.14.0:
+
+  * Library `Database.ERD...` added (formerly part of ER currytools).
+  * Library `Nat` for Peano numbers added.
+  * Libraries `Rewriting.*` for term rewriting in Curry extended
+    to deal with rewriting strategies, narrowing strategies,
+    critical pairs, definitional trees.
+  * Library `Sort`: ...Sort operations renamed to ...SortBy and
+    ...Sort operations with standard ordering added.
+  * Library `State` implementation the state monad added.
+  * Library `Test.EasyCheck` split into two modules to have less
+    import dependencies when putting properties into a module.
+  * Library `Test.Prop` added as a clone of `Test.EasyCheck` which defines
+    the interface but no implementation so that it does not import
+    any other library.
+    import dependencies when putting properties into a module.
+  * CurryDoc shows properties and contracts, if they are present
+    in source files, in the HTML documentation.
+  * The Curry Preprocessor supports a new option `contracts`
+    to transform contracts (specifications, pre/postconditions)
+    into run-time assertions.
+  * New partial evaluator (command "peval") added to `currytools`.
+  * New tool Curry2Verify (to translated Curry programs into Agda programs)
+    added to `currytools`.
+
+
+Release notes for PAKCS Version 1.14.0 (April 19, 2016)
+------------------------------------------------------
+
+Changes to version 1.13.0:
+
+  * Type `Success` is now a type synonym for `Bool` and
+    `success` is defined as `True` in the prelude.
+  * Library Constraints removed since it is no longer necessary
+    due to the equivalence of `Success` and `Bool`.
+  * Operation `Prelude.compare` and related comparison operations
+    are flexible (instead of rigid as before) on user-defined datatypes.
+    It still suspends when comparing two variables or
+    one variable with a number or character.
+  * Prelude: operations `(===)` and `(&&>)` removed
+  * Libraries CLPFD and CLP.FD: labeling options  `RandomVariable` and
+    `RandomValue` added
+    (currently only supported by SWI-Prolog)
+  * Library Distribution: some load path handling operations
+    (`findFileInLoadPath`, `lookupFileInLoadPath`, `readFirstFileInLoadPath`,
+    `getLoadPath`, `getLoadPathForFile`) removed since they are deprecated
+    (use operations like `getLoadPathForModule` and
+    `lookupModuleSourceInLoadPath` instead of the deprecated operations
+    since they handle hierarchical module names better)
+  * Libraries `List`: `diagonal` added
+  * Libraries `meta/*` removed (since they have been replaced
+    by libraries with hierachical names, see below)
+  * Hierarchical libraries for FlatCurry added and extended:
+    in order to to compatible with future versions, the following
+    imports should be adapted in programs working with AbstractCurry:
+
+    - replace `import FlatCurry` by
+
+          import FlatCurry.Types
+          import FlatCurry.Files
+
+    - replace `import FlatCurryGoodies` by
+
+          import FlatCurry.Goodies
+
+    - replace `import FlatCurryPretty` by
+
+          import FlatCurry.Pretty
+
+    - replace `import FlatCurryRead` by
+
+          import FlatCurry.Read
+
+    - replace `import FlatCurryShow` by
+
+          import FlatCurry.Show
+
+    - replace `import FlatCurryXML` by
+
+          import FlatCurry.XML
+
+    - replace `import CompactFlatCurry` by
+
+          import FlatCurry.Compact
+
+    - replace `import AnnotatedFlatCurry` by
+
+          import FlatCurry.Annotated.Types
+
+    - replace `import AnnotatedFlatGoodies` by
+
+          import FlatCurry.Annotated.Goodies
+
+    - replace `import AnnotatedFlatCurryPretty` by
+
+          import FlatCurry.Annotated.Pretty
+
+    - replace `import FlexRigid` by
+
+          import FlatCurry.FlexRigid
+
+  * New libraries added: Bootstrap3Style, ErrorState, SCC, Rewriting.*,
+    FlatCurry.Annotated.TypeInference
+  * currytools: typeinference removed since it is now contained
+    in the standard system libraries
+  * currytools: new tool `currycheck` for automated test execution added
+  * PAKCS option "-c" removed and replaced by REPL command ":compile"
+    (the old option was only internally used for building the libraries)
+
+
+Release notes for PAKCS Version 1.13.1 (October 2, 2015)
+--------------------------------------------------------
+
+Changes to version 1.13.0:
+
+  * Hierarchical libraries for AbstractCurry added and extended:
+    in order to to compatible with future versions, the following
+    imports should be adapted in programs working with AbstractCurry:
+
+    - replace `import AbstractCurry` by
+
+          import AbstractCurry.Types
+          import AbstractCurry.Files
+
+    - replace `import AbstractCurryGoodies` by
+
+          import AbstractCurry.Select
+          import AbstractCurry.Build
+
+    - replace `import PrettyAbstract` by
+
+          import AbstractCurry.Pretty
+
+  * Library `CLP.FD` added: its functionality is similar to the old
+    library `CLPFD`, but the interface is different so that other
+    FD constraint solvers are easier to connect.
+
+
+Release notes for PAKCS Version 1.13.0 (August 24, 2015)
+--------------------------------------------------------
+
+Changes to version 1.12.0:
+  * Operation `Prelude.==` is flexible (instead of rigid as before).
+    It still suspends when comparing two variables or
+    one variable with a number or character.
+    However, if `Prelude.==` is (positively) used in conditions of rules,
+    it is automatically transformed into a unification constraint
+    so that it does not suspend.
+  * Library `Pretty`: code and interface updated, e.g., some combinators
+    renamed and new combinators added (e.g., to support ANSI formatting
+    and colorisation of documents)
+
+
+Release notes for PAKCS Version 1.12.0 (July 15, 2015)
+------------------------------------------------------
+
+Changes to version 1.11.5:
+  * The extension for records (with special Curry syntax) was removed.
+    Instead, PAKCS now supports Haskell's record syntax.
+    See the manual for a detailed description of the new record syntax.
+  * The Curry syntax is extended to also support binary integer literals.
+    For instance, `0b101010` or `0B101010` can now be lexed
+    and are converted to the integer value `42`.
+  * The definition of AbstractCurry has been changed to sync with the
+    changes of Curry done during the last years:
+    - AbstractCurry files now contain version information
+    - support for new record syntax
+    - support for newtype declarations
+    - evaluation annotations removed
+    - arity of constructor declarations removed
+    - simplified representation of function rules
+    - String literals added
+  * Library `FunctionInversion` added
+  * Library `AnnotatedFlatCurryPretty` added
+  * Library `Either` extended with functions `fromLeft` and `fromRight`
+  * Library `ShowS` added
+  * Library `AnsiCodes` added
+  * Prelude operation `===` added
+
+
+Release notes for PAKCS Version 1.11.5 (February 28, 2015)
 ----------------------------------------------------------
 
 Changes to version 1.11.4:

@@ -1,18 +1,21 @@
 ------------------------------------------------------------------------------
 --- Library for GUI programming in Curry (based on Tcl/Tk).
---- [This paper](http://www.informatik.uni-kiel.de/~mh/papers/PADL00.html)
---- contains a description of the basic ideas behind this library.
+--- <A HREF="http://www.informatik.uni-kiel.de/~mh/papers/PADL00.html">
+--- This paper</A> contains a description of the basic ideas
+--- behind this library.
+---
+--- This library is an improved and updated version of the library Tk.
+--- The latter might not be supported in the future.
 ---
 --- @authors Michael Hanus, Bernd Brassel
---- @version November 2014
+--- @version July 2013
 ------------------------------------------------------------------------------
-
-{-# OPTIONS_CYMAKE -X TypeClassExtensions #-}
 
 module GUI(GuiPort,Widget(..),Button,ConfigButton,
            TextEditScroll,ListBoxScroll,CanvasScroll,EntryScroll,
            ConfItem(..),ReconfigureItem(..),
-           Cmd,Command,Event(..),ConfCollection(..),MenuItem(..),
+           Cmd,Command,   
+           Event(..),ConfCollection(..),MenuItem(..),
            CanvasItem(..),WidgetRef, Style(..), Color(..),
            col,row,matrix,
            runGUI,runGUIwithParams,runInitGUI,runInitGUIwithParams,
@@ -25,7 +28,7 @@ module GUI(GuiPort,Widget(..),Button,ConfigButton,
            focusInput,addCanvas,setConfig,
            getOpenFile,getOpenFileWithTypes,getSaveFile,getSaveFileWithTypes,
            chooseColor,popupMessage,debugTcl,
-	       cmd,command,button)  where
+           cmd,command,button)  where
 
 import Read
 import Unsafe(trace)
@@ -88,7 +91,7 @@ data Widget = PlainButton            [ConfItem]
             | Row    [ConfCollection] [Widget]
             | Col    [ConfCollection] [Widget]
             | Matrix [ConfCollection] [[Widget]]
-	    -- 
+            -- 
             | RowC   [ConfCollection] [ConfItem] [Widget]
             | ColC    [ConfCollection] [ConfItem] [Widget]            
 
@@ -173,7 +176,7 @@ data Event = DefaultEvent
            | MouseButton3
            | KeyPress
            | Return
-  deriving Eq
+ deriving Eq
 
 -- translate event into corresponding Tcl string (except for DefaultEvent)
 -- with a leading blank:
@@ -194,7 +197,6 @@ event2tcl Return       = " <Return>"
 --- @cons BottomAlign  - bottom alignment
 data ConfCollection =
    CenterAlign | LeftAlign | RightAlign | TopAlign | BottomAlign
-  deriving Eq
 
 --- The data type for specifying items in a menu.
 --- @cons MButton - a button with an associated command
@@ -213,7 +215,7 @@ data CanvasItem = CLine [(Int,Int)] String
                 | CRectangle (Int,Int) (Int,Int) String
                 | COval (Int,Int) (Int,Int) String
                 | CText (Int,Int) String String
-  deriving Eq
+
 
 --- The (hidden) data type of references to a widget in a GUI window.
 --- Note that the constructor WRefLabel will not be exported so that values
@@ -224,7 +226,6 @@ data CanvasItem = CLine [(Int,Int)] String
 ---       button / canvas / checkbutton / entry / label / listbox /
 ---       message / scale / scrollbar / textedit
 data WidgetRef = WRefLabel String String
-  deriving Eq
 
 wRef2Label (WRefLabel var _)   = wRefname2Label var
 wRef2Wtype (WRefLabel _ wtype) = wtype
@@ -511,8 +512,7 @@ widget2tcl label (Matrix confs ws) =
 
 --
 
-widget2tcl label (RowC confs confitems ws) = case widgets2tcl label 97 ws of
- (wstcl,wsevs) ->
+widget2tcl label (RowC confs confitems ws) =
   ((if label=="" then "wm resizable . " ++ resizeBehavior wsGridInfo++"\n"
     else "frame "++label++"\n" ++ conf_tcl ++ "\n") ++   
    wstcl ++
@@ -523,12 +523,12 @@ widget2tcl label (RowC confs confitems ws) = case widgets2tcl label 97 ws of
                 (1,"")
                 wsGridInfo),
    conf_evs ++ wsevs)
-  where (conf_tcl,conf_evs) = configs2tcl "row" label confitems
-	wsGridInfo = widgets2gridinfo ws
+  where (wstcl,wsevs) = widgets2tcl label 97 ws
+        (conf_tcl,conf_evs) = configs2tcl "row" label confitems
+        wsGridInfo = widgets2gridinfo ws
         
 
-widget2tcl label (ColC confs confitems ws) = case widgets2tcl label 97 ws of
- (wstcl,wsevs) ->
+widget2tcl label (ColC confs confitems ws) =
   ((if label=="" then "wm resizable . " ++ resizeBehavior wsGridInfo++"\n"
     else "frame "++label++"\n"  ++ conf_tcl ++ "\n") ++
       wstcl ++
@@ -539,9 +539,10 @@ widget2tcl label (ColC confs confitems ws) = case widgets2tcl label 97 ws of
                    (1,"")
                    (widgets2gridinfo ws)),
       conf_evs ++ wsevs)
-  where (conf_tcl,conf_evs) = configs2tcl "col" label confitems  
+  where (wstcl,wsevs) = widgets2tcl label 97 ws
+        (conf_tcl,conf_evs) = configs2tcl "col" label confitems  
         wsGridInfo = widgets2gridinfo ws
-	
+        
 
 -- actual translation function of the list of lists of widgets in a matrix
 matrix2tcl :: Int -> Int -> String -> [ConfCollection] 
@@ -952,6 +953,12 @@ receiveFromTk (GuiPort tclhdl) = do
   reportTclTk ("GUI RECEIVED: "++s)
   return s
 
+-- Choice over the output of the wish process and a stream of external messages
+choiceOverHandlesMsgs :: [Handle] -> [msg] -> IO (Either (Int,Handle) [msg])
+choiceOverHandlesMsgs hdls msgs = do
+  iormsgs <- hWaitForInputsOrMsg hdls msgs
+  return (either (\i -> Left (i,hdls!!i)) Right iormsgs)
+
 -- Choice over the output of the wish process and handles to input streams:
 choiceOverHandles :: [Handle] -> IO (Int,Handle)
 choiceOverHandles hdls = do
@@ -1143,7 +1150,7 @@ data ExternalHandler =
 initSchedule :: Widget -> GuiPort -> [ExternalHandler] ->
                 (GuiPort -> IO [ReconfigureItem]) -> IO ()
 initSchedule widget gport exths initcmd = do
-  send2tk (defaultBgColor ++ tcl) gport
+  send2tk tcl gport
   confs <- initcmd gport
   -- add handler on wish connection as first handler:
   configAndProceedScheduler evs gport
@@ -1488,7 +1495,7 @@ CanvasScroll :: [ConfItem] -> Widget
 CanvasScroll confs =
    col
      [row [Canvas ([WRef cref, Fill]++confs),
-              ScrollV cref [FillY]],
+           ScrollV cref [FillY]],
       ScrollH cref [FillX]]     where cref free
 
 

@@ -48,21 +48,22 @@ starts \CYS, loads the main module \code{Mod}, creates an executable,
 and terminates \CYS. This invocation could be useful in ``make'' files
 for systems implemented in Curry.
 
-There are also some specific options that can be used
+There are also some additional options that can be used
 when invoking \CYS:
 \begin{description}
-\item[\code{-q} or \code{--quiet}:]
-With this option, \CYS works silently, i.e., the initial banner
-and the input prompt are not shown.
-The output of other information is determined by the options
-\ccode{verbose} and \ccode{v$n$} (see Section~\ref{sec:options}).
-\item[\code{--noreadline}:]
+\item[\fbox{\code{--noreadline}}] (if used, this must be the first option):
 Do not use input line editing (see Section~\ref{sec:readline}).
-\item[\code{-Dname=val}:]
+\item[\fbox{\code{-Dname=val}}]
+(these options must come before any \CYS command):
 Overwrite values defined in the configuration file \ccode{.pakcsrc}
 (see Section~\ref{sec-customization}),
 where \code{name} is a property defined in the configuration file
 and \code{val} its new value.
+\item[\fbox{\code{-q}} or \fbox{\code{--quiet}}]:
+With this option, \CYS works silently, i.e., the initial banner
+and the input prompt are not shown.
+The output of other information is determined by the options
+\ccode{verbose} and \ccode{v$n$} (see Section~\ref{sec:options}).
 \end{description}
 
 
@@ -452,7 +453,7 @@ so that the path is independent of later changes of the
 current working directory.
 
 \item[\fbox{\code{printdepth $n$}}]\pindex{printdepth}
-Set the depth for printing terms to the value \code{n} (initially: 10).
+Set the depth for printing terms to the value \code{n} (initially: 0).
 In this case subterms with a depth greater than \code{n} are abbreviated
 by dots when they are printed as a result of a computation
 or during debugging. A value of \code{0} means infinite depth

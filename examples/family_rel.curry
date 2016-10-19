@@ -43,11 +43,11 @@ mother Monica Peter     = True
 mother Alice Andrew     = True
 
 
-father f c | let m free in (married m f && mother m c) =:= True  = True
+father f c | married m f && mother m c  = True  where m free
 
 
-grandfather g c | let f free in (father g f && father f c) =:= True  = True
-grandfather g c | let m free in (father g m && mother m c) =:= True  = True
+grandfather g c | father g f && father f c  = True  where f free
+grandfather g c | father g m && mother m c  = True  where m free
 
 
 -- goals: 

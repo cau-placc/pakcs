@@ -15,7 +15,7 @@
 %	   prim_Monad_bind/5, prim_Monad_seq/5, prim_putChar/2, prim_getChar/1,
 %	   prim_return/4, prim_readFile/2, prim_readFileContents/4,
 %	   prim_writeFile/5, prim_appendFile/5,
-%	   prim_catch/5, prim_catchFail/5,
+%	   prim_catch/5,
 %	   prim_apply/5, prim_applySeq/5, prim_applyNormalForm/5,
 %	   prim_applyNotFree/5, prim_applyGroundNormalForm/5,
 %	   prim_seq/5, prim_ensureNotFree/4,
@@ -26,6 +26,7 @@
 
 :- use_module('../prologbasics').
 :- use_module('../basics').
+:- use_module('../evaluator').
 
 % dereference a function's argument, i.e., remove all top-level sharing structures:
 %derefRoot(R,V) :- var(R), !, V=R.
@@ -77,7 +78,7 @@ prim_concurrent_and(C1,C2,R,E0,E) :-
 
 
 % The always satisfiable primitive constraint:
-prim_success('Prelude.success').
+prim_success('Prelude.True').
 
 % primitive for conditional rules:
 ?- block prim_cond(?,?,?,-,?).
@@ -85,14 +86,14 @@ prim_cond(Cond,RHS,R,E0,E) :-
 	user:hnf(Cond,S,E0,E1), prim_checkcond(S,Cond,RHS,R,E1,E).
 
 ?- block prim_checkcond(-,?,?,?,?,?), prim_checkcond(?,?,?,?,-,?).
-prim_checkcond('Prelude.success',_,RHS,R,E0,E) :- user:hnf(RHS,R,E0,E).
+prim_checkcond('Prelude.True',_,RHS,R,E0,E) :- user:hnf(RHS,R,E0,E).
 prim_checkcond('FAIL'(Src),Cond,RHS,'FAIL'(['Prelude.cond'(Cond,RHS)|Src]),E,E).
 
 
 % primitive for implementing letrec:
 ?- block prim_letrec(?,?,?,-,?).
-prim_letrec(X,XE,'Prelude.success',E0,E) :- var(XE), !, X=XE, E0=E.
-prim_letrec(X,XE,'Prelude.success',E0,E) :- create_mutable(XE,MX), X=share(MX), E0=E.
+prim_letrec(X,XE,'Prelude.True',E0,E) :- var(XE), !, X=XE, E0=E.
+prim_letrec(X,XE,'Prelude.True',E0,E) :- create_mutable(XE,MX), X=share(MX), E0=E.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,32 +257,25 @@ prim_catch(A1,A2,partcall(1,prim_catchWorld,[A2,A1]),E,E).
 ?- block prim_catchWorld(?,?,?,?,-,?).
 prim_catchWorld(Action,ErrFunction,W,R,E0,E) :-
 	on_exception(ErrorMsg,
-		     prim_apply(Action,W,R,E0,E),
+		     (prim_apply(Action,W,R0,E0,E),
+                         (nonvar(E) -> R=R0
+                         ; ErrAtom = 'Computation suspended',
+                           returnIOError(ErrAtom,ErrFunction,W,R,E0,E))),
 		     (prologError2Atom(ErrorMsg,ErrAtom),
-		      atom2String(ErrAtom,ErrString),
-		      ErrValue = 'Prelude.IOError'(ErrString),
-		      applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E))),
+		      returnIOError(ErrAtom,ErrFunction,W,R,E0,E))),
 	!.
 prim_catchWorld(_,ErrFunction,W,R,E0,E) :-
 	atom2String('IO action failed',FailMsg),
 	applyErrorFunction(ErrFunction,'Prelude.FailError'(FailMsg),W,R,E0,E).
 
+returnIOError(ErrAtom,ErrFunction,W,R,E0,E) :-
+        atom2String(ErrAtom,ErrString),
+        ErrValue = 'Prelude.IOError'(ErrString),
+        applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E).
+
 applyErrorFunction(ErrFunction,ErrValue,W,R,E0,E) :-
 	prim_apply(ErrFunction,ErrValue,ErrAction,E0,E1),
 	prim_apply(ErrAction,W,R,E1,E).
-
-
-?- block prim_catchFail(?,?,?,-,?).
-prim_catchFail(A1,A2,partcall(1,prim_catchFailWorld,[A2,A1]),E,E).
-
-?- block prim_catchFailWorld(?,?,?,?,-,?).
-prim_catchFailWorld(Action,_,W,R,E0,E) :-
-	on_exception(ErrorMsg,
-		     prim_apply(Action,W,R,E0,E),
-		     (printError(ErrorMsg), fail)),
-	!.
-prim_catchFailWorld(_,ErrAction,W,R,E0,E) :-
-	prim_apply(ErrAction,W,R,E0,E).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -385,8 +379,10 @@ prim_ensureNotFree(Arg,Result,E0,E) :-
 
 ?- block prim_ensureNotFreeHNF(?,?,-,?).
 prim_ensureNotFreeHNF(Val,Result,E0,E) :-
-	isFail(Val) -> Result=Val, E0=E
-	             ; prim_ensureHnfNotFree(Val,Result,E0,E).
+	isFail(Val)
+	 -> Result=Val, E0=E
+	  ; (var(Val) -> addSuspensionReason('Applying a primitive (rigid) operation to a free variable') ; true),
+	    prim_ensureHnfNotFree(Val,Result,E0,E).
 
 ?- block prim_ensureHnfNotFree(-,?,?,?), prim_ensureHnfNotFree(?,?,-,?).
 prim_ensureHnfNotFree(Val,Val,E,E).
@@ -420,10 +416,18 @@ prim_compare(X,Y,R,E0,E) :-
 	user:hnf(Y,HY,E1,E2),
 	prim_compareHNF(HX,HY,R,E2,E).
 
-?- block prim_compareHNF(-,?,?,?,?), prim_compareHNF(?,-,?,?,?),
-         prim_compareHNF(?,?,?,-,?).
+?- block prim_compareHNF(?,?,?,-,?).
+prim_compareHNF(X,Y,R,E0,E) :- var(X), var(Y), !,
+	addSuspensionReason('Comparing (with <, >,...) two free variables'),
+	when((nonvar(X);nonvar(Y)), prim_compareHNF(X,Y,R,E0,E)).
+prim_compareHNF(X,Y,R,E0,E) :- var(X), !,
+	prim_compareHNF(Y,X,R0,E0,E1),
+	switchOrdering(R0,R), E1=E.
 prim_compareHNF('FAIL'(Src),_,'FAIL'(Src),E,E) :- !.
-prim_compareHNF(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
+prim_compareHNF(_,Y,R,E0,E) :- nonvar(Y), Y='FAIL'(_), !, R=Y, E0=E.
+prim_compareHNF(X,Y,R,E0,E) :- var(Y), (number(X); isCharCons(X)), !,
+	addSuspensionReason('Comparing (with <, >,...) a free variable with a number or character'),
+	when(nonvar(Y), prim_compareHNF(X,Y,R,E0,E)).
 prim_compareHNF(X,Y,R,E0,E) :- number(X), !,
 	(X=Y -> R='Prelude.EQ' ; (X<Y -> R='Prelude.LT' ; R='Prelude.GT')),
 	E0=E.
@@ -431,10 +435,19 @@ prim_compareHNF(X,Y,R,E0,E) :- isCharCons(X), !,
 	char_int(X,VX), char_int(Y,VY),
 	(VX=VY -> R='Prelude.EQ' ; (VX<VY -> R='Prelude.LT' ; R='Prelude.GT')),
 	E0=E.
+prim_compareHNF(X,Y,R,E0,E) :- var(Y), !,
+	functor(X,FX,NX),
+	( functor(Y,FX,NX), prim_compareArgs(1,NX,X,Y,R,E0,E)
+	; user:constructortype(FX,_,NX,_,IX,_,OtherCons),
+	  member(FY/NY,OtherCons),
+	  user:constructortype(FY,_,NY,_,IY,_,_),
+	  functor(Y,FY,NY),
+	  (IX<IY -> R='Prelude.LT', E0=E ; (IX>IY -> R='Prelude.GT', E0=E))
+	).
 prim_compareHNF(X,Y,R,E0,E) :-
 	functor(X,FX,NX), functor(Y,FY,NY),
-	user:constructortype(FX,_,NX,_,IX,_),
-	user:constructortype(FY,_,NY,_,IY,_), !,
+	user:constructortype(FX,_,NX,_,IX,_,_),
+	user:constructortype(FY,_,NY,_,IY,_,_), !,
 	(IX<IY -> R='Prelude.LT', E0=E ; (IX>IY -> R='Prelude.GT', E0=E
           ; prim_compareArgs(1,NX,X,Y,R,E0,E))).
 
@@ -446,6 +459,9 @@ prim_compareArgs(I,N,X,Y,R,E0,E) :-
 	(ArgR='Prelude.EQ' -> I1 is I+1, prim_compareArgs(I1,N,X,Y,R,E1,E)
 	                    ; R=ArgR, E1=E).
 
+switchOrdering('Prelude.LT','Prelude.GT') :- !.
+switchOrdering('Prelude.GT','Prelude.LT') :- !.
+switchOrdering(X,X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % encapsulated search not yet implemented in Curry2Prolog:
@@ -469,13 +485,24 @@ prim_findall(RSG,Sols,E0,E) :-
 	prim_findall_exec(SG,Sols,E1,E).
 
 :- block prim_findall_exec(?,?,-,?).
-prim_findall_exec(SG,Sols,E0,E) :- 
+prim_findall_exec(SG,Sols,E0,E) :-
 	hasPrintedFailure
-	 -> findall(X,prim_apply(SG,X,'Prelude.success',E0,_),Sols),
-	    E0=E
+	 -> findall((X,E1),prim_apply(SG,X,'Prelude.True',E0,E1),SolEs),
+	    extractSolutions(SolEs,Sols,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    findall(X,prim_apply(SG,X,'Prelude.success',E0,_),Sols),
-	    retract(hasPrintedFailure), E0=E.
+	    findall((X,E1),prim_apply(SG,X,'Prelude.True',E0,E1),SolEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(SolEs,Sols,E0,E).
+
+% check whether all solutions of encapsulated search are not suspended:
+extractSolutions([],[],E0,E0).
+extractSolutions([(Sol,E)|SolEs],[Sol|Sols],E0,E1) :-
+	extractMoreSolutions(SolEs,Sols,E,E0,E1).
+
+:- block extractMoreSolutions(?,?,-,?,?).
+extractMoreSolutions(SolEs,Sols,_,E0,E) :-
+	extractSolutions(SolEs,Sols,E0,E).
+
 
 :- block waitUntilGround(-,?,?), waitUntilGround(?,-,?).
 waitUntilGround(share(M),E0,E) :-
@@ -503,16 +530,17 @@ prim_findfirst(RSG,Sol,E0,E) :-
 :- block prim_findfirst_exec(?,?,-,?).
 prim_findfirst_exec(SG,Sol,E0,E) :-
 	hasPrintedFailure
-	 -> prim_findfirstWithPF(SG,Sol,E0), E0=E
+	 -> prim_findfirstWithPF(SG,Sol,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    prim_findfirstWithoutPF(SG,Sol,E0), E0=E.
+	    prim_findfirstWithoutPF(SG,Sol,E0,E).
 
-prim_findfirstWithPF(SG,Sol,E) :-
-	prim_apply(SG,X,'Prelude.success',E,_), !, Sol=X.
+prim_findfirstWithPF(SG,Sol,E0,E) :-
+	prim_apply(SG,X,'Prelude.True',E0,E1), !, Sol=X, E1=E.
 
-prim_findfirstWithoutPF(SG,Sol,E) :-
-	prim_apply(SG,X,'Prelude.success',E,_), retract(hasPrintedFailure), !, Sol=X.
-prim_findfirstWithoutPF(_,_,_) :-
+prim_findfirstWithoutPF(SG,Sol,E0,E) :-
+	prim_apply(SG,X,'Prelude.True',E0,E1),
+	retract(hasPrintedFailure), !, Sol=X, E1=E.
+prim_findfirstWithoutPF(_,_,_,_) :-
 	retract(hasPrintedFailure), fail.
 
 
@@ -535,12 +563,12 @@ prim_getOneSol_exec(SG,Sol,E0,E) :-
 	    prim_getOneSolWithoutPF(SG,Sol,E0,E).
 
 prim_getOneSolWithPF(SG,Sol,E0,E) :-
-	prim_apply(SG,X,'Prelude.success',E0,E1), !,
+	prim_apply(SG,X,'Prelude.True',E0,E1), !,
 	Sol='$io'('Prelude.Just'(X)), E1=E.
 prim_getOneSolWithPF(_,'$io'('Prelude.Nothing'),E,E).
 
 prim_getOneSolWithoutPF(SG,Sol,E0,E) :-
-	prim_apply(SG,X,'Prelude.success',E0,E1), retract(hasPrintedFailure), !,
+	prim_apply(SG,X,'Prelude.True',E0,E1), retract(hasPrintedFailure), !,
 	Sol='$io'('Prelude.Just'(X)), E1=E.
 prim_getOneSolWithoutPF(_,'$io'('Prelude.Nothing'),E0,E) :-
 	retract(hasPrintedFailure), E0=E.
@@ -574,15 +602,16 @@ prim_rewriteAll(Exp,Vals,E0,E) :-
 :- block rewriteAllExec(?,?,?,-,?).
 rewriteAllExec(ExpVars,Exp,Vals,E0,E) :-
 	hasPrintedFailure
-	 -> findall(Val,
-		    (user:nf(Exp,Val,E0,_), allUnboundVariables(ExpVars)),
-		    Vals),
-	    E0=E
+	 -> findall((Val,E1),
+		    (user:nf(Exp,Val,E0,E1), allUnboundVariables(ExpVars)),
+		    ValEs),
+	    extractSolutions(ValEs,Vals,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    findall(Val,
-		    (user:nf(Exp,Val,E0,_), allUnboundVariables(ExpVars)),
-		    Vals),
-	    retract(hasPrintedFailure), E0=E.
+	    findall((Val,E1),
+		    (user:nf(Exp,Val,E0,E1), allUnboundVariables(ExpVars)),
+		    ValEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(ValEs,Vals,E0,E).
 
 % same as rewriteAll but computes only first value:
 :- block prim_rewriteSome(?,?,-,?).
@@ -653,7 +682,7 @@ unifEq(A,B,R,E0,E):- user:hnf(A,HA,E0,E1), unifEq1(HA,B,R,E1,E).
 % a non-constructor term is not problematic since the functional pattern
 % variable is a logical variable that is not enclosed
 % by a sharing structure (compare definition of makeShare).
-unifEq1(FPat,ActArg,'Prelude.success',E0,E) :-
+unifEq1(FPat,ActArg,'Prelude.True',E0,E) :-
 	var(FPat), !,
 	user:occursNot(FPat,ActArg),
 	%FPat=ActArg, % this would implement run-time choice
@@ -675,7 +704,7 @@ unifEq1(A,B,R,E0,E) :-
 unifEq2(EqR,LinConstraints,R,E0,E) :-
 	isFail(EqR)
 	-> R=EqR, E0=E
-	 ; %(LinConstraints='Prelude.success' -> true
+	 ; %(LinConstraints='Prelude.True' -> true
 	   % ; writeErr('Linearity constraints: '),
 	   %   writeErr(LinConstraints), nlErr),
 	user:hnf(LinConstraints,R,E0,E).
@@ -713,12 +742,12 @@ getControlVar(X,Below,[control(Y,YBelow,NewVar,NewConstraint)|_],NewX) :- X==Y, 
 				      'Prelude.=:='(ShareVar,'Prelude.()'),
 				      'Prelude.=:='(CtrlVar,'Prelude.()')),X),
 	        NewConstraint = 'Prelude.ifVar'(CtrlVar,
-						'Prelude.success',
+						'Prelude.True',
 						'Prelude.=:='(X,X))
  	      ; true)).
 getControlVar(X,Below,[_|L],NewVar) :- getControlVar(X,Below,L,NewVar).
 
-getSEqConstraints(L,'Prelude.success') :- var(L), !, L=[].
+getSEqConstraints(L,'Prelude.True') :- var(L), !, L=[].
 getSEqConstraints([control(X,_,NewVar,NewConstraint)|L],Constraints) :-
 	var(NewConstraint), !, % occurred only once
 	X=NewVar,
@@ -751,7 +780,7 @@ unifEqHnf(A,B,Success,E0,E) :- var(B),!,
 unifEqHnf(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
 unifEqHnf(A,B,R,E0,E) :-
 	number(A), !,
-	(A=B -> R='Prelude.success', E0=E
+	(A=B -> R='Prelude.True', E0=E
 	      ; prim_failure(partcall(2,'Prelude.=:<=',[]),[A,B],R,E0,E)).
 unifEqHnf(A,B,R,E0,E) :-
 	functor(A,FuncA,ArA), functor(B,FuncB,ArB), FuncA==FuncB, ArA==ArB, !,
@@ -759,7 +788,7 @@ unifEqHnf(A,B,R,E0,E) :-
 unifEqHnf(A,B,R,E0,E) :-
 	prim_failure(partcall(2,'Prelude.=:<=',[]),[A,B],R,E0,E).
 
-genUnifEqHnfBody(N,Arity,_,_,'Prelude.success') :- N>Arity, !.
+genUnifEqHnfBody(N,Arity,_,_,'Prelude.True') :- N>Arity, !.
 genUnifEqHnfBody(N,Arity,A,B,'Prelude.=:<='(ArgA,ArgB)):-
 	N=Arity, !,
 	arg(N,A,ArgA), arg(N,B,ArgB).
@@ -782,7 +811,7 @@ unifEqLinear(A,B,R,E0,E):-
 % a non-constructor term is not problematic since the functional pattern
 % variable is a logical variable that is not enclosed
 % by a sharing structure (compare definition of makeShare).
-unifEqLinear1(FPat,ActArg,'Prelude.success',E0,E):-
+unifEqLinear1(FPat,ActArg,'Prelude.True',E0,E):-
 	var(FPat), !,
 	%FPat=ActArg, % this would implement run-time choice
 	% in order to implement call-time choice for pattern variables,
@@ -799,11 +828,11 @@ unifEqLinear1(A,B,R,E0,E):-
 :- block unifEqLinearHnf(?,?,?,-,?).
 unifEqLinearHnf(A,B,R,E0,E) :- var(B), !,
 	user:nf(A,NA,E0,E1),
-	freeze(E1,(isFail(NA) -> R=NA, E1=E ; B=NA, R='Prelude.success', E1=E)).
+	freeze(E1,(isFail(NA) -> R=NA, E1=E ; B=NA, R='Prelude.True', E1=E)).
 unifEqLinearHnf(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
 unifEqLinearHnf(A,B,R,E0,E) :-
 	number(A), !,
-	(A=B -> R='Prelude.success', E0=E
+	(A=B -> R='Prelude.True', E0=E
 	      ; prim_failure(partcall(2,'Prelude.=:<<=',[]),[A,B],R,E0,E)).
 unifEqLinearHnf(A,B,R,E0,E) :-
 	functor(A,FuncA,ArA), functor(B,FuncB,ArB), FuncA==FuncB, ArA==ArB, !,
@@ -811,7 +840,7 @@ unifEqLinearHnf(A,B,R,E0,E) :-
 unifEqLinearHnf(A,B,R,E0,E) :-
 	prim_failure(partcall(2,'Prelude.=:<<=',[]),[A,B],R,E0,E).
 
-genUnifEqLinearHnfBody(N,Arity,_,_,'Prelude.success') :- N>Arity, !.
+genUnifEqLinearHnfBody(N,Arity,_,_,'Prelude.True') :- N>Arity, !.
 genUnifEqLinearHnfBody(N,Arity,A,B,'Prelude.=:<<='(ArgA,ArgB)):-
 	N=Arity, !,
 	arg(N,A,ArgA), arg(N,B,ArgB).

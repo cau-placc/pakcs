@@ -75,4 +75,4 @@ testDirContents = assertIO "test getDirectoryContents"
     fs==fs `seq` removeFile "xxx"
     setCurrentDirectory cdir
     removeDirectory dname
-    return (mergeSort leqString fs)
+    return (mergeSortBy leqString fs)

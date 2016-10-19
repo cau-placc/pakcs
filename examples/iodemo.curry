@@ -23,8 +23,8 @@ rev (x:xs) = rev xs++[x]
 nondet :: IO ()
 nondet | generate x  = putChar x  where x free
 
-generate 'a' = success
-generate 'b' = success
+generate 'a' = True
+generate 'b' = True
 
 -- ...but is allowed if the non-determinism is encapsulated:
 det | findfirst (\x -> generate x) =:= y  = putChar y  where y free

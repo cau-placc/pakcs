@@ -12,12 +12,13 @@ import CLP.FD
 magic :: Int -> [Int]
 magic n =
  let vs = take n (domain 0 (n-1))  -- FD variables
-     is = map fdc (take n [0..])   -- FD constants: indices of elements
-  in solve [FirstFail] vs $
+     is = map fd (take n [0..])   -- FD constants: indices of elements
+  in solveFD [FirstFail] vs $
        constrain vs vs is /\
-       sum vs Equ (fdc n) /\
-       scalarProduct is vs Equ (fdc n)
+       sum vs Equ (fd n) /\
+       scalarProduct is vs Equ (fd n)
 
+constrain :: [FDExpr] -> [FDExpr] -> [FDExpr] -> FDConstr
 constrain []     _  _      = true
 constrain (x:xs) vs (i:is) = count i vs Equ x /\ constrain xs vs is
 

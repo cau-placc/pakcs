@@ -2,8 +2,10 @@
 --- Solving Su Doku puzzles in Curry with FD constraints
 ---
 --- @author Michael Hanus
---- @version January 2014
+--- @version September 2015
 -----------------------------------------------------------------------------
+
+{-# OPTIONS_CYMAKE -Wno-incomplete-patterns #-}
 
 import CLP.FD
 import List(transpose)
@@ -11,7 +13,7 @@ import List(transpose)
 -- Solving a Su Doku puzzle represented as a matrix of numbers (possibly free
 -- variables):
 sudoku :: [[FDExpr]] -> [Int]
-sudoku m = solve [FirstFail] (concat m) $
+sudoku m = solveFD [FirstFail] (concat m) $
  allC allDifferent m  /\             -- all rows contain different digits
  allC allDifferent (transpose m) /\  -- all columns have different digits
  allC allDifferent (squares m)       -- all 3x3 squares are different
@@ -28,13 +30,14 @@ sudoku m = solve [FirstFail] (concat m) $
 -- and spaces
 readSudoku :: [String] -> [[FDExpr]]
 readSudoku = map (map (\c -> if c==' ' then head (domain 1 9)
-                                       else fdc (ord c - ord '0')))
+                                       else fd (ord c - ord '0')))
 
 -- show a solved Su Doku matrix
 showSudoku :: [[Int]] -> String
 showSudoku = unlines . map (concatMap (\i->[chr (i + ord '0'),' ']))
 
 -- the main function, e.g., evaluate (main s1):
+main :: [[Char]] -> IO ()
 main s = putStrLn (showSudoku (toMatrix m (sudoku m)))
  where m = readSudoku s
 
@@ -42,6 +45,7 @@ main s = putStrLn (showSudoku (toMatrix m (sudoku m)))
        toMatrix (r:rs) xs = let rn = length r
                              in take rn xs : toMatrix rs (drop rn xs)
 
+s1 :: [[Char]]
 s1 = ["9  2  5  ",
       " 4  6  3 ",
       "  3     6",
@@ -52,6 +56,7 @@ s1 = ["9  2  5  ",
       " 5  2  4 ",
       "  1  6  9"]
 
+s2 :: [[Char]]
 s2 = ["819  5   ",
       "  2   75 ",
       " 371 4 6 ",
@@ -62,6 +67,7 @@ s2 = ["819  5   ",
       " 64   9  ",
       "   2  438"]
 
+s3 :: [[Char]]
 s3 = ["    63 8 ",
       "   1     ",
       "327   1  ",

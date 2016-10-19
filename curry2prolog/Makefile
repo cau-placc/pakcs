@@ -3,18 +3,21 @@
 ########################################################################
 
 # define environment variable PAKCSHOME:
-PAKCSHOME=`pwd`/..
+PAKCSHOME=$(dir $(CURDIR))
 
 # The SICStus Prolog interpreter:
-SICSTUS=`pwd`/../bin/sicstusprolog
+SICSTUS=$(PAKCSHOME)/bin/sicstusprolog
 
 # The SWI-Prolog interpreter:
-SWI=`pwd`/../bin/swiprolog
+SWI=$(PAKCSHOME)/bin/swiprolog
 
 # Standard options for SWI-Prolog
-SWIOPTIONS=-q -L0 -G0 -T0 -O
+SWIOPTIONS=--traditional -q -L0 -G0 -T0 -O
 
-# standard name in bin dirctory:
+# librariry directory of PAKCS:
+LIBDIR=$(PAKCSHOME)/lib
+
+# standard name in bin directory:
 INSTALLBIN = ../bin/curry
 
 .PHONY: install
@@ -24,7 +27,7 @@ install:
 	../bin/.makesavedstate c2p.state
 	rm -f pakcs
 	mv c2p.state pakcs
-	ln -s ../bin/pakcs $(INSTALLBIN)
+	ln -s $(PAKCSHOME)/bin/pakcs $(INSTALLBIN)
 
 .PHONY: uninstall
 uninstall:
@@ -50,8 +53,8 @@ swi:
 c2p.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
-	      readXml.pl ../lib/.curry/Prelude.fcy
-	echo "compile(c2p),c2p('../lib/Prelude'),compile('../lib/.curry/pakcs/Prelude'),loadAndCompile('../lib/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)." \
+	      readXml.pl $(LIBDIR)/.curry/Prelude.fcy
+	echo "compile(c2p),c2p('$(LIBDIR)/Prelude'),compile('$(LIBDIR)/.curry/pakcs/Prelude'),loadAndCompile('$(LIBDIR)/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)." \
            | "$(SICSTUS)"
 
 #
@@ -60,16 +63,16 @@ c2p.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
-	      readXml.pl ../lib/.curry/Prelude.fcy
-	echo "compile(c2p). c2p('../lib/Prelude'), compile('$(PAKCSHOME)/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('$(PAKCSHOME)/lib/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "$(SWI)" $(SWIOPTIONS)
+	      readXml.pl $(LIBDIR)/.curry/Prelude.fcy
+	echo "compile(c2p). c2p('$(LIBDIR)/Prelude'), compile('$(PAKCSHOME)/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('$(PAKCSHOME)/lib/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "$(SWI)" $(SWIOPTIONS)
 
-../lib/.curry/Prelude.fcy: ../lib/Prelude.curry
-	cd ../lib ; $(MAKE) .curry/Prelude.fcy
+$(LIBDIR)/.curry/Prelude.fcy: $(LIBDIR)/Prelude.curry
+	cd $(LIBDIR) && $(MAKE) .curry/Prelude.fcy
 
 #
 # generate correct versions of run-time libraries for SWI-Prolog
 #
-PRIMLIBSRC = `cd lib_src ; echo *.pl`
+PRIMLIBSRC = `cd lib_src && echo *.pl`
 
 .PHONY: libswi
 libswi:
@@ -82,6 +85,6 @@ libswi/%.pl: lib_src/%.pl
 # clean up everything
 .PHONY: clean
 clean: uninstall
-	rm -f c2p.state pakcs ../lib/.curry/pakcs/Prelude.pl ../bin/pakcs prologbasics.pl
+	rm -f c2p.state pakcs $(LIBDIR)/.curry/pakcs/Prelude.pl ../bin/pakcs prologbasics.pl
 	rm -f pakcsversion.pl
 	rm -rf libswi/

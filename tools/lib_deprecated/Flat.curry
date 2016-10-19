@@ -11,9 +11,12 @@
 
 module Flat where
 
-import Directory
 import Char
+import Directory
 import Distribution
+import FileGoodies     (getFileInPath)
+import FilePath        (takeFileName, (</>), (<.>))
+import Maybe           (isNothing)
 
 ------------------------------------------------------------------------------
 -- Definition of data types for representing FlatCurry programs:
@@ -79,7 +82,6 @@ data TypeExpr = TVar TVarIndex              -- type variable
               | TCons String [TypeExpr]     -- type constructor application
   deriving (Eq,Show)
 
-
 --- Data type for operator declarations.
 --- An operator declaration "fix p n" in Curry corresponds to the
 --- FlatCurry term (Op n fix p).
@@ -90,7 +92,6 @@ data OpDecl = Op String Fixity Int
 --- Data types for the different choices for the fixity of an operator.
 data Fixity = InfixOp | InfixlOp | InfixrOp
   deriving (Eq,Show)
-
 
 --- Data types for representing object variables.
 --- Object variables occurring in expressions are represented by (Var i)
@@ -274,16 +275,31 @@ readFlatCurry progfile =
 
 readFlatCurryWithParseOptions :: String -> FrontendParams -> IO Prog
 readFlatCurryWithParseOptions progname options = do
-  existsCurry <- doesFileExist (progname++".curry")
-  existsLCurry <- doesFileExist (progname++".lcurry")
-  if existsCurry || existsLCurry
-   then callFrontendWithParams FCY options progname
-   else done
-  filename <- findFileInLoadPath (progname++".fcy")
-  readFlatCurryFile filename
+  mbsrc <- lookupModuleSourceInLoadPath progname
+  case mbsrc of
+    Nothing -> do -- no source file, try to find FlatCurry file in load path:
+      loadpath <- getLoadPathForModule progname
+      filename <- getFileInPath (flatCurryFileName (takeFileName progname)) [""]
+                                loadpath
+      readFlatCurryFile filename
+    Just (dir,_) -> do
+      callFrontendWithParams FCY options progname
+      readFlatCurryFile (flatCurryFileName (dir </> takeFileName progname))
+
+--- Transforms a name of a Curry program (with or without suffix ".curry"
+--- or ".lcurry") into the name of the file containing the
+--- corresponding FlatCurry program.
+flatCurryFileName :: String -> String
+flatCurryFileName prog = inCurrySubdir (stripCurrySuffix prog) <.> "fcy"
+
+--- Transforms a name of a Curry program (with or without suffix ".curry"
+--- or ".lcurry") into the name of the file containing the
+--- corresponding FlatCurry program.
+flatCurryIntName :: String -> String
+flatCurryIntName prog = inCurrySubdir (stripCurrySuffix prog) <.> "fint"
 
 --- I/O action which reads a FlatCurry program from a file in ".fcy" format.
---- In contrast to <CODE>readFlatCurry</CODE>, this action does not parse
+--- In contrast to `readFlatCurry`, this action does not parse
 --- a source program. Thus, the argument must be the name of an existing
 --- file (with suffix ".fcy") containing a FlatCurry program in ".fcy"
 --- format and the result is a FlatCurry term representing this program.

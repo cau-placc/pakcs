@@ -6,11 +6,11 @@ import Ports
 -- the counter implemented as a concurrent object:
 data CounterMessage = Set Int | Inc | Get Int
 
-counter :: Int -> [CounterMessage] -> Success
+counter :: Int -> [CounterMessage] -> Bool
 counter _ (Set v : ms) = counter v ms
 counter n (Inc   : ms) = counter (n+1) ms
 counter n (Get v : ms) = v=:=n & counter n ms
-counter _ []           = success
+counter _ []           = True
 
 -- creating the counter object as a server:
 counter_server = newNamedObject counter 0 "counter"

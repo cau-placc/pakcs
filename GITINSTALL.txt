@@ -6,10 +6,10 @@ Installation Instructions for the GIT Repository
 
 If you want to install the up-to-date version of PAKCS
 from the developer's repository, you have to clone the
-[git repository](https://git-ps.informatik.uni-kiel.de/curry/pakcs),
+[git repository](https://git.ps.informatik.uni-kiel.de/curry/pakcs),
 e.g., by the shell command
 
-    git clone git://git-ps.informatik.uni-kiel.de/curry/pakcs.git
+    git clone https://git.ps.informatik.uni-kiel.de/curry/pakcs.git
 
 This creates a new directory `pakcs` containing the current version.
 Go into this directory by
@@ -28,12 +28,6 @@ Then, each future update can be obtained by the executing
 
     git pull
     git submodule update
-
-If you install PAKCS for the first time, you need to install
-some Haskell packages required by the front end via Cabal,
-i.e., run the command
-
-    make installhaskell
 
 Now you can install the complete system by the command
 

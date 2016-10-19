@@ -94,19 +94,14 @@ writeCostCenter(Stream,CC) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 reportLiftBug :-
-	writeErr('> Probably, this is due to a compiler bug in transforming'),
-	nlErr,
-	writeErr('> do/let/where expressions. Suggested solution:'),
-	nlErr,
-	writeErr('> Simplify dependencies in the do/let/where expression.'),
-	nlErr,
+	writeLnErr('> Probably, this is due to a compiler bug in transforming'),
+	writeLnErr('> do/let/where expressions. Suggested solution:'),
+	writeLnErr('> Simplify dependencies in the do/let/where expression.'),
 	setFlcBug.
 
 pleaseReport :-
-	writeErr('*** Please report this error to the PAKCS developers'),
-	nlErr,
-	writeErr('*** if you have used the standard compiler!'),
-	nlErr,
+	writeLnErr('*** Please report this error to the PAKCS developers'),
+	writeLnErr('*** if you have used the standard compiler!'),
 	setFlcBug.
 
 
@@ -128,7 +123,7 @@ c2p(Prog,PrologFile) :-
 c2p(Prog,PrologFile) :-
 	writeErr('ERROR during compilation of program "'),
 	writeErr(Prog),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	deleteFileIfExists(PrologFile).
 
 % read all imported entities (types/functions/operators) of a set of modules:
@@ -137,7 +132,7 @@ readImportedEntities(_,[Imp|_],_,_,_,_,_,_,_) :-
 	forbiddenModules(ForbiddenModules),
 	member(Imp,ForbiddenModules),
 	writeErr('Module "'), writeErr(Imp),
-	writeErr('" not allowed as import!'), nlErr,
+	writeLnErr('" not allowed as import!'),
 	setExitCode(3),
 	!, fail.
 readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
@@ -169,7 +164,7 @@ readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
                 writeErr(CompileMsg)
               ; true),
 	   generateProg(ImpProg,AllImpTypes,AllImpFuncs,AllImpOps,PrologFile),
-	   (verbosityIntermediate -> writeErr('done'), nlErr ; true)
+	   (verbosityIntermediate -> writeLnErr('done') ; true)
         ).
 
 doesPrologTranslationExists(DirProg,PrologFile) :-
@@ -179,7 +174,7 @@ doesPrologTranslationExists(DirProg,PrologFile) :-
 	fileExistsAndNewer(PrologFile,DirProgFlatFile),
         %writeErrNQ('Compiled Curry program \''),
 	%writeErrNQ(PrologFile),
-	%writeErrNQ('\' is up-to-date.'), nlErrNQ,
+	%writeLnErrNQ('\' is up-to-date.'),
 	!.
 
 
@@ -226,12 +221,10 @@ generateProg('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
 	            ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
 	initializeCompilerState,
 	(compileWithDebug
-	 -> writeErr('...including code for debugging'),
-	    nlErr
+	 -> writeLnErr('...including code for debugging')
 	  ; true),
 	(compileWithFailPrint
-	 -> writeErr('...including code for failure printing'),
-	    nlErr
+	 -> writeLnErr('...including code for failure printing')
 	  ; true),
 	ensureDirOfFile(PrologFile),
 	tryWriteFile(PrologFile),
@@ -253,8 +246,7 @@ generateProg('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
 	told, !.
 generateProg(_,PrologFile) :-
 	told,
-	writeErr('ERROR during compiling, no program generated!'),
-	nlErr,
+	writeLnErr('ERROR during compiling, no program generated!'),
 	deleteFileIfExists(PrologFile).
 
 % write head of generated Prolog file:
@@ -365,9 +357,8 @@ preprocessFcyFile(FcyFile) :-
     appendAtoms(['"',OptProg,'" ',VParam,FParam,FcyFile],OptCmd),
     (verbosityIntermediate -> write('Executing: '), write(OptCmd),nl ; true),
     (shellCmdWithCurryPath(OptCmd) -> true
-     ; writeErr('WARNING: no binding optimization performed for file:'), nlErr,
-       writeErr(FcyFile),
-       nlErr).
+     ; writeLnErr('WARNING: no binding optimization performed for file:'),
+       writeLnErr(FcyFile)).
 preprocessFcyFile(_).
  
 checkForFurtherFcyProgs(_,[],_).
@@ -376,7 +367,7 @@ checkForFurtherFcyProgs(FcyDir,[Dir|Dirs],Prog) :-
 	prog2FlatCurryFile(DirProg,DirProgFile),
 	((existsFile(DirProgFile), \+ equalDirectories(FcyDir,Dir))
 	 -> writeErrNQ('WARNING: further FlatCurry file found (but ignored): '),
-	    writeErrNQ(DirProgFile), nlErrNQ,
+	    writeLnErrNQ(DirProgFile),
 	    checkForFurtherFcyProgs(FcyDir,Dirs,Prog)
 	  ; checkForFurtherFcyProgs(FcyDir,Dirs,Prog)).
 
@@ -410,7 +401,7 @@ mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg) :-
 	(verbosityIntermediate
 	 -> getRunTime(RT2),
 	    RT is RT2-RT1,
-	    writeErr(RT), writeErr(' ms.'), nlErr
+	    writeErr(RT), writeLnErr(' ms.')
 	  ; true),
         append(ModName,".",ModNameDotS), atom_codes(ModNameDot,ModNameDotS),
 	map2partialM(compiler:addModuleName2PrimSpecs(ModNameDot),PrimSpecs,QPrimSpecs),
@@ -434,15 +425,15 @@ addPrimitiveSpecs2FlatProg('Prog'(ModName,Imps,Types,Funcs,Ops),PrimSpecs,
 % format a primitive specification (e.g., for error messages):
 writePrimSpec(primitive(F,Arity,ELib,_EName)) :-
 	writeErr(F), writeErr('/'), writeErr(Arity), writeErr(' in library "'),
-	writeErr(ELib), writeErr('"'), nlErr.
+	writeErr(ELib), writeLnErr('"').
 writePrimSpec(ignore(F,Arity)) :-
-	writeErr(F), writeErr('/'), writeErr(Arity), nlErr.
+	writeErr(F), writeErr('/'), writeLnErr(Arity).
 
 % process list of function declarations w.r.t. primitive specification:
 addPrimitiveSpecs2Funcs([],[],[]) :- !.
 addPrimitiveSpecs2Funcs(PrimSpecs,[],[]) :-
 	writeErrNQ('WARNING: specifications of primitive functions '),
-	writeErrNQ('without source code found:'), nlErrNQ,
+	writeLnErrNQ('without source code found:'),
 	(quietmode(no) -> map1M(compiler:writePrimSpec,PrimSpecs) ; true), !.
 addPrimitiveSpecs2Funcs(PrimSpecs,['Func'(Name,Arity,_,_Type,_)|Funcs],MFuncs) :-
 	flatName2Atom(Name,F),
@@ -472,15 +463,15 @@ addPrimitiveSpecs2Funcs(_,['Func'(Name,Arity,_,_,'External'(_))|_],_) :-
 	deleteCostCenterInPrologName(F,PWOCC), decodePrologName(PWOCC,FWOCC),
 	writeErr('ERROR: specification of primitive function '),
 	writeErr(FWOCC), writeErr('/'), writeErr(Arity),
-	writeErr(' not found!'), nlErr, !, setFlcBug, fail.
+	writeLnErr(' not found!'), !, setFlcBug, fail.
 addPrimitiveSpecs2Funcs(PrimSpecs,[Func|Funcs],[Func|MFuncs]) :-
 	addPrimitiveSpecs2Funcs(PrimSpecs,Funcs,MFuncs).
 
 checkArityConsistency(FName,FArity,EArity) :-
 	(FArity=EArity -> true
          ; writeErr('ERROR in specification of primitive function '),
-	   writeErr(FName), writeErr(' : inconsistent arities!'),
-	   nlErr, setFlcBug).
+	   writeErr(FName), writeLnErr(' : inconsistent arities!'),
+	   setFlcBug).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -508,7 +499,7 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	asserta(externalFuncs(ExtFuncs)),
 	(map2M(compiler:elimNestedOrCases,MainFuncs,CodeFuncsWOnestedcase)
 	 -> true
-	  ; writeErr('INTERNAL COMPILER ERROR in or/case lifter!'), nlErr,
+	  ; writeLnErr('INTERNAL COMPILER ERROR in or/case lifter!'),
 	    fail),
 	newAuxFunctions(TmpAuxFuns), rev(TmpAuxFuns,RevAuxFuns),
 	append(CodeFuncsWOnestedcase,AllTypes,CodeFuncsAndAllTypes),
@@ -519,8 +510,8 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	 ; (map2partialM(compiler:completeCaseExpressions(AllTypes),
 		        CodeFuncsOIS,CodeFuncsOISTotal)
  	    -> true
-	     ; writeErr('INTERNAL COMPILER ERROR in case branch completion!'),
-	       nlErr, fail)),
+	     ; writeLnErr('INTERNAL COMPILER ERROR in case branch completion!'),
+	       fail)),
 	append(CodeFuncsOISTotal,ImpFuncs,AllFuncs),
 	map2M(compiler:flcFunc2FA,AllFuncs,AllFuncsArities),
 	retract(allFunctions(_)), asserta(allFunctions(AllFuncsArities)),
@@ -529,12 +520,13 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	writeClause((:- dynamic functiontype/6)),
 	map1partialM(compiler:writeFTypeClause(ExtFuncs,AllOps),CodeFuncsOISTotal), nl,
 	write('%%%%%%%%%%%% constructor types %%%%%%%%%%%%%%%%%%%'), nl,
-	writeClause((:- multifile constructortype/6)),
-	writeClause((:- dynamic constructortype/6)),
+	writeClause((:- multifile constructortype/7)),
+	writeClause((:- dynamic constructortype/7)),
 	(member("Prelude",Imports) -> true
 	 ; % generate type clause for partcall in the prelude:
 	   writeClause(constructortype(partcall,partcall,3,partcall,0,
-	    'FuncType'('TCons'('Int',[]),'FuncType'(_,'FuncType'('TCons'([],[_]),_)))))),
+	    'FuncType'('TCons'('Int',[]),
+		       'FuncType'(_,'FuncType'('TCons'([],[_]),_)))))),
 	map1M(compiler:writeDTypeClause,MainTypes), nl,
 
 	getConstructors(AllTypes,ConsList),
@@ -602,8 +594,7 @@ checkForDeprecatedFunction(Name) :-
 		     'Ports.openSocketConnectPort']), !,
 	writeErrNQ('WARNING: do not use deprecated function "'),
 	writeErrNQ(Name),
-	writeErrNQ('".'),
-	nlErrNQ.
+	writeLnErrNQ('".').
 checkForDeprecatedFunction(_).
 
 % check for ocurrences of constructors of Dynamic type and print error:
@@ -616,8 +607,7 @@ checkForDynamicConstructor(Name) :-
 	writeErr(QFunc),
 	writeErr('": Function "'),
 	writeErr(Name),
-	writeErr('" is not allowed in this context!'),
-	nlErr,
+	writeLnErr('" is not allowed in this context!'),
 	setFlcBug.
 checkForDynamicConstructor(_).
 
@@ -630,11 +620,11 @@ checkForTupleArity([40,44|Name]) :-
 	writeErr('ERROR in "'),
 	writeErr(QFunc),
 	writeErr('": arity of '), writeErr(TA),
-	writeErr('-tupel too large.'), nlErr,
+	writeLnErr('-tupel too large.'),
 	writeErr('The maximal arity of tuples is '), writeErr(MA),
-	writeErr('.'), nlErr,
-	writeErr('This can only be changed by reconfiguring your installation'),
-	nlErr, setFlcBug.
+	writeLnErr('.'),
+	writeLnErr('This can only be changed by reconfiguring your installation'),
+	setFlcBug.
 checkForTupleArity(_).
 
 
@@ -658,7 +648,7 @@ getConstructors([],Cs) :-
 	(includePrelude
           -> Cs=[partcall/3,'$stream'/1] % all standard constructors defined in prelude
            ; Cs=[partcall/3,'Prelude.True'/0,'Prelude.False'/0,
-		 'Prelude.success'/0,[]/0,'.'/2|TupleCons]).
+		 []/0,'.'/2|TupleCons]).
 getConstructors(['Type'(_,_,_,DataCons)|Types],AllCons) :-
 	getDataCons(DataCons,DCs),
 	getConstructors(Types,TCs),
@@ -686,7 +676,7 @@ getFuncArity(Func,_) :-
 	writeErr(Func),
 	writeErr(' (used in function '),
 	currentFunction(CF), writeErr(CF), writeErr(')'),
-	writeErr(' not found!'), nlErr, !, fail.
+	writeLnErr(' not found!'), !, fail.
 
 getArity([Name/Arity|_],Name,Arity) :- !.
 getArity([_|FAs],Name,Arity) :- getArity(FAs,Name,Arity).
@@ -740,7 +730,7 @@ completeCaseExpressions(Types,
 			'Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)),
 			'Func'(Name,Arity,Vis,Type,'Rule'(Args,NewRHS))) :-
 	!,
-	%atom_codes(A,Name), writeErr(completeCase(A)), nlErr,
+	%atom_codes(A,Name), writeLnErr(completeCase(A)),
 	completeCaseInExp(Name,Types,RHS,NewRHS).
 completeCaseExpressions(_,Func,Func).
 
@@ -839,8 +829,7 @@ elimNestedOrCases('Func'(Name,Arity,Vis,Type,'External'(EName)),
 		  'Func'(Name,Arity,Vis,Type,'External'(EName))) :- !.
 elimNestedOrCases(Arg,Arg) :-
 	writeErr('ERROR: Illegal argument in elimNestedOrCases: '),
-	writeErr(Arg),
-	nlErr.
+	writeLnErr(Arg).
 
 % remove nested cases in right-hand side:
 elimNestedCasesInRHS('Case'(CT,CE,Cases),'Case'(CT,NCE,NewCases)) :- !,
@@ -944,23 +933,33 @@ addAuxFunction(AF) :-
 computeCorrectType(_,[],[]).
 computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,_,'Rule'(Args,RHS))|Funs],
 		   [NewFun|NewFuns]) :-
-	%writeErr('Compute type of '),
-	%atom_codes(NameA,Name), writeErr(NameA), nlErr,
+	atom_codes(NameA,Name),
+	%writeErr('Compute type of '), writeLnErr(NameA),
 	%writeFunTypes(AllFunData), nlErr,
 	map2M(compiler:var2vartype,Args,TEnv),
 	%writeErr(TEnv), nlErr,
 	%writeErr(RHS), nlErr,
-	typeExpr(RHS,AllFunData,TEnv,EType),
+        (typeExpr(RHS,AllFunData,TEnv,EType) -> true
+          ; % an internal type error occurred: set new type to error type:
+            (verbosityIntermediate
+            -> writeErr('*** Internal type inference for auxiliary function "'),
+               writeErr(NameA), writeLnErr('" failed') ; true),
+            EType = 'TCons'("ERRORTYPE",[])),
 	%writeErr(EType), nlErr,
-	%writeErr(TEnv), nlErr,
+ 	%writeErr(TEnv), nlErr,
 	tenvtype2funtype(TEnv,EType,Type),
 	freevars2tvars(Type,0,_),
-	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)),
+	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)), !,
 	computeCorrectType([NewFun|AllFunData],Funs,NewFuns).
 computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,Type,'External'(EName))|Funs],
 		   [NewFun|NewFuns]) :-
-	NewFun='Func'(Name,Arity,Vis,Type,'External'(EName)),
+	NewFun='Func'(Name,Arity,Vis,Type,'External'(EName)), !,
 	computeCorrectType([NewFun|AllFunData],Funs,NewFuns).
+computeCorrectType(AllFunData,[FunDecl|Funs],[FunDecl|NewFuns]) :-
+        FunDecl = 'Func'(Name,_,_,_,_),
+        writeErr('*** Internal error during compilation of operation: '),
+	atom_codes(NameA,Name), writeLnErr(NameA),
+	computeCorrectType([FunDecl|AllFunData],Funs,NewFuns).
 
 % for testing:
 writeFunTypes([]).
@@ -981,6 +980,22 @@ var2vartype(V,type(V,_)).
 getTypeFromTypeEnv([type(V,T)|_],V,T) :- !.
 getTypeFromTypeEnv([_|TEnv],V,T) :- getTypeFromTypeEnv(TEnv,V,T).
 
+% transform list of ASCII values into atom in a term:
+ascii2atom(T,T) :- var(T), !.
+ascii2atom([],[]).
+ascii2atom([X|Xs],A) :- isListOfASCII([X|Xs]), !, atom_codes(A,[X|Xs]).
+ascii2atom(T,TA) :-
+        T =.. [F|Args],
+        ascii2atoms(Args,ArgsA),
+        TA =.. [F|ArgsA].
+
+ascii2atoms([],[]).
+ascii2atoms([T|Ts],[TA,TAs]) :- ascii2atom(T,TA), ascii2atoms(Ts,TAs).
+
+isListOfASCII(T) :- var(T), fail.
+isListOfASCII([]).
+isListOfASCII([A|As]) :- integer(A), A>31, A<255, isListOfASCII(As).
+
 typeExpr('Var'(V),_,TEnv,Type) :- getTypeFromTypeEnv(TEnv,V,Type), !.
 typeExpr('Lit'('Intc'(_)),_,_,'TCons'("Prelude.Int",[])) :- !.
 typeExpr('Lit'('Floatc'(_)),_,_,'TCons'("Prelude.Float",[])) :- !.
@@ -996,32 +1011,34 @@ typeExpr('Or'(E1,E2),Funs,TE,T) :-
 	typeExpr(E1,Funs,TE,T1),
 	typeExpr(E2,Funs,TE,T2),
 	(unifyWithOccursCheck(T1,T2) -> T=T1 ;
-	   writeErr('*** Illegal FlatCurry file: Type error (Or):'),
-	   nlErr,
-	   writeErr('*** Term: '), writeErr('Or'(E1,E2)),
-	   nlErr,
-	   writeErr('*** Inferred type of first argument:  '),
-	   writeErr(T1), nlErr,
-	   writeErr('*** Inferred type of second argument: '),
-	   writeErr(T2), nlErr,
+           (verbosityIntermediate ->
+	     writeLnErr('*** Illegal FlatCurry file: Type error (Or):'),
+             writeLnErr('*** Term: '), writeErr('Or'(E1,E2)),
+	     writeErr('*** Inferred type of first argument:  '),
+	     writeLnErr(T1),
+	     writeErr('*** Inferred type of second argument: '),
+	     writeLnErr(T2) ; true),
 	   !, fail), !.
 typeExpr('Case'(_,CE,Branches),Funs,TE,T) :-
 	typeExpr(CE,Funs,TE,CT),
 	typeBranches(Branches,CT,Funs,TE,T), !.
+typeExpr(Expr,_,_,_) :-
+        (verbosityIntermediate ->
+	   writeLnErr('*** Internal error: cannot type expression'),
+           ascii2atom(Expr,ExprA), writeLnErr(ExprA) ; true), !, fail.
 % TODO: add Let case
 
 typeExprs([],_,_,Type,Type).
 typeExprs([E|Es],Funs,TE,'FuncType'(T1,T2),ResultType) :-
 	typeExpr(E,Funs,TE,TA1),
 	(unifyWithOccursCheck(TA1,T1) -> true ;
-	   writeErr('*** Illegal FlatCurry file: Type error (FunArgs):'),
-	   nlErr,
-	   writeErr('*** Term: '), writeErr(E),
-	   nlErr,
-	   writeErr('*** Inferred type: '),
-	   writeErr(TA1), nlErr,
-	   writeErr('*** Expected type: '),
-	   writeErr(T1), nlErr,
+           (verbosityIntermediate ->
+	     writeLnErr('*** Illegal FlatCurry file: Type error (FunArgs):'),
+	     writeLnErr('*** Term: '), writeErr(E),
+	     writeErr('*** Inferred type: '),
+	     writeLnErr(TA1),
+	     writeErr('*** Expected type: '),
+	     writeLnErr(T1) ; true),
 	   !, fail),
 	typeExprs(Es,Funs,TE,T2,ResultType).
 
@@ -1042,20 +1059,20 @@ typeBranches(['Branch'('Pattern'(Cons,Vs),Exp)|Bs],CT,Funs,TE,T) :-
 
 unifyBranchTypes(_,T1,T2,T) :- unifyWithOccursCheck(T1,T2), !, T=T1.
 unifyBranchTypes(Branches,T1,T2,_) :-
-	writeErr('*** Illegal FlatCurry file: Type error (Case):'),
-	nlErr,
-	writeErr('*** Branches: '), writeErr(Branches),
-	nlErr,
-	writeErr('*** Inferred type of first branch:  '),
-	writeErr(T1), nlErr,
-	writeErr('*** Inferred type of second branch: '),
-	writeErr(T2), nlErr,
+        (verbosityIntermediate ->
+	  writeLnErr('*** Illegal FlatCurry file: Type error (Case):'),
+	  writeLnErr('*** Branches: '),
+          ascii2atom(Branches,Bs), writeLnErr(Bs),
+	  writeErr('*** Inferred type of first branch:  '),
+	  ascii2atom(T1,T1A), writeLnErr(T1A),
+	  writeErr('*** Inferred type of second branch: '),
+	  ascii2atom(T2,T2A), writeLnErr(T2A) ; true),
 	!, fail.
 
 getTypeOfFunction([],Name,_) :- % usually, this case should not occur!
 	writeErr('WARNING: Type of function '),
 	atom_codes(AName,Name), writeErr(AName),
-	writeErr(' not found!'), nlErr.
+	writeLnErr(' not found!').
 getTypeOfFunction(['Func'(Name,_,_,FType,_)|_],Name,Type) :- !,
 	tvars2freevars(FType,[],Type,_).
 getTypeOfFunction(['Type'(TC,_,TVs,Conss)|_],Name,Type) :-
@@ -1186,7 +1203,7 @@ translateGlobalSpec(_,'Global.Persistent'(_),'Global.Persistent').
 translateGlobalSpec(FName,_,_) :-
 	writeErr('ERROR: Global declaration "'),
 	writeErr(FName),
-	writeErr('" has illegal specification of storage mechanism!'),  nlErr,
+	writeLnErr('" has illegal specification of storage mechanism!'),
 	setFlcBug.
 
 % check the type of dynamic predicates (i.e., result type Dynamic and
@@ -1196,7 +1213,7 @@ checkGlobalType(PredName,'TCons'("Global.Global",[T])) :- !,
 checkGlobalType(PredName,_) :-
 	writeErr('ERROR: Global declaration "'),
 	writeErr(PredName),
-	writeErr('" has not result type "Global"!'),  nlErr,
+	writeLnErr('" has not result type "Global"!'),
 	setFlcBug.
 
 checkGlobalTypeForCorrectTypes(PredName,'FuncType'(T1,T2)) :-
@@ -1211,14 +1228,14 @@ checkGlobalTypeForCorrectTypes(PredName,'TCons'(TC,_)) :-
 	nlErr,
 	writeErr('ERROR: Type of global declaration "'),
 	writeErr(PredName),
-	writeErr('" contains illegal type: '), writeErr(TCA), nlErr,
+	writeErr('" contains illegal type: '), writeLnErr(TCA),
 	setFlcBug.
 checkGlobalTypeForCorrectTypes(PredName,'TCons'(_,Ts)) :-
 	map1partialM(compiler:checkGlobalTypeForCorrectTypes(PredName),Ts).
 checkGlobalTypeForCorrectTypes(PredName,'TVar'(_)) :-
 	writeErr('ERROR: Type of global declaration "'),
 	writeErr(PredName),
-	writeErr('" contains type variable!'),  nlErr,
+	writeLnErr('" contains type variable!'),
 	setFlcBug.
 
 
@@ -1232,7 +1249,7 @@ checkGVarType(PredName,'TCons'("GlobalVariable.GVar",[T])) :- !,
 checkGVarType(PredName,_) :-
 	writeErr('ERROR: GVar declaration "'),
 	writeErr(PredName),
-	writeErr('" has not result type "GVar"!'),  nlErr,
+	writeLnErr('" has not result type "GVar"!'),
 	setFlcBug.
 
 
@@ -1271,7 +1288,7 @@ checkDynamicType(_,'TCons'("Dynamic.Dynamic",[])) :- !.
 checkDynamicType(PredName,_) :-
 	writeErr('ERROR: Dynamic predicate "'),
 	writeErr(PredName),
-	writeErr('" has not result type "Dynamic"!'),  nlErr,
+	writeLnErr('" has not result type "Dynamic"!'),
 	setFlcBug.
 
 checkDynamicTypeForCorrectTypes(PredName,'FuncType'(T1,T2)) :-
@@ -1285,14 +1302,14 @@ checkDynamicTypeForCorrectTypes(PredName,'TCons'(TC,_)) :-
 	nlErr,
 	writeErr('ERROR: Type of dynamic predicate "'),
 	writeErr(PredName),
-	writeErr('" contains illegal type: '), writeErr(TCA), nlErr,
+	writeErr('" contains illegal type: '), writeLnErr(TCA),
 	setFlcBug.
 checkDynamicTypeForCorrectTypes(PredName,'TCons'(_,Ts)) :-
 	map1partialM(compiler:checkDynamicTypeForCorrectTypes(PredName),Ts).
 checkDynamicTypeForCorrectTypes(PredName,'TVar'(_)) :-
 	writeErr('ERROR: Type of dynamic predicate "'),
 	writeErr(PredName),
-	writeErr('" contains type variable!'),  nlErr,
+	writeLnErr('" contains type variable!'),
 	setFlcBug.
 
 
@@ -1445,7 +1462,7 @@ genDerefCalls(_,[],[],LastGoal,LastGoal).
 % derefRoot for primitive types and derefAll for other types
 type2derefPred('TCons'(Name,_),derefRoot) :-
 	member(Name,["Prelude.Int","Prelude.Float","Prelude.Char","Prelude.Bool",
-		     "Prelude.Success","Prelude.Ordering",
+		     "Prelude.Ordering",
 		     "IO.Handle","IO.IOMode","IO.SeekMode",
 		     "PlProfileData.ProfileSelection","Ports.Port","Socket.Socket"]), !.
 type2derefPred('FuncType'(_,_),derefRoot) :-
@@ -1485,7 +1502,7 @@ flatexp2var(_,Expr,Expr) :-
 	writeErr(Expr),
 	writeErr('" in function "'),
 	currentFunction(FName), writeErr(FName),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	pleaseReport,
 	put_code(37), write('ERROR in FlatCurry file: Unknown expression "'),
 	write(Expr), write('" in function "'),
@@ -1504,7 +1521,7 @@ getVarInEnv(_,[],_) :-
 	writeErr('ERROR in FlatCurry file: '),
 	writeErr('undeclared variable in function "'),
 	currentFunction(FName), writeErr(FName),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	reportLiftBug,
 	put_code(37), write('ERROR in FlatCurry file: '),
 	write('undeclared variable in function "'),
@@ -1523,7 +1540,8 @@ writeFTypeClause(ExtFuncs,Ops,'Func'(Name,_FArity,Vis,FlatType,_)) :-
 	getFuncArity(FName,Arity),
 	getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName),
 	getFixityFromOpList(FName,Ops,Fixity),
-	writeClause(functiontype(FName,EName,Arity,PrologName,Fixity,FlatTypeP)).
+	writeClause(functiontype(FName,EName,Arity,PrologName,
+                                 Fixity,FlatTypeP)).
 
 getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName) :-
 	member((FName/Arity,PName),ExtFuncs), !,
@@ -1535,7 +1553,7 @@ getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName) :-
 	    deleteCostCenterInPrologName(FName,PNameWOCC),
 	    decodePrologName(PNameWOCC,FNameWOCC),
 	    writeErr(FNameWOCC), writeErr('/'), writeErr(Arity),
-	    writeErr(' not found!'), nlErr,
+	    writeLnErr(' not found!'),
 	    setFlcBug, fail).
 getPrologNameFromExtFuncs(FName,_,_,FName).
 
@@ -1561,21 +1579,31 @@ getUnqualifiedName(Name,UQName) :- atom_codes(UQName,Name).
 writeDTypeClause('Type'(TypeName,_Vis,TypeArgs,ConsExprs)) :-
 	map2M(compiler:index2tvar,TypeArgs,TypeArgExps),
 	ResultType = 'TCons'(TypeName,TypeArgExps),
-	writeDTypeClauses(ResultType,0,ConsExprs).
+	writeDTypeClauses(ResultType,0,ConsExprs,ConsExprs).
 
 index2tvar(I,'TVar'(I)). % transform tvar index into type expression
 
-writeDTypeClauses(_,_,[]).
-writeDTypeClauses(ResultType,Index,['Cons'(ConsName,Arity,Vis,ArgTypes)|Cs]) :-
+writeDTypeClauses(_,_,[],_).
+writeDTypeClauses(ResultType,Index,['Cons'(ConsName,Arity,Vis,ArgTypes)|Cs],
+		  AllConstrs) :-
 	flatName2Atom(ConsName,Cons),
 	append(ArgTypes,[ResultType],TypeL),
 	typelist2flattype(TypeL,CType),
 	replaceTVarByLVar([],CType,_,CTypeP),
 	getExternalNameFromVisibility(ConsName,Vis,EName),
 	getUnqualifiedName(ConsName,UQName),
-	writeClause(constructortype(Cons,EName,Arity,UQName,Index,CTypeP)),
+	getOtherConstructors(ConsName,AllConstrs,OtherConstrs),
+	writeClause(constructortype(Cons,EName,Arity,UQName,Index,CTypeP,
+				    OtherConstrs)),
 	Index1 is Index+1,
-	writeDTypeClauses(ResultType,Index1,Cs).
+	writeDTypeClauses(ResultType,Index1,Cs,AllConstrs).
+
+getOtherConstructors(_,[],[]).
+getOtherConstructors(ConsName,['Cons'(ConsName,_,_,_)|Cs],OCs) :- !,
+	getOtherConstructors(ConsName,Cs,OCs).
+getOtherConstructors(ConsName,['Cons'(CN,CA,_,_)|Cs],[CNA/CA|OCs]) :-
+	flatName2Atom(CN,CNA),
+	getOtherConstructors(ConsName,Cs,OCs).
 
 typelist2flattype([Type],Type) :- !.
 typelist2flattype([T1|T2L],'FuncType'(T1,T2)) :-
@@ -1636,18 +1664,16 @@ genVariableShareHnfClause(HNF,Suffix) :-
 	appendAtom(propagateShare,Suffix,PropShare),
 	PropShare_HV_R =.. [PropShare,HV,R],
 	HnfLHS =.. [HNF,Share_M,R,E0,E],
+	ShareGoal = (PropShare_HV_R, update_mutable('$eval'(R),M)),
 	(printConsFailure(no)
-	 -> NoSharingCheck = functor(HV,'Prelude.success',0)
-	  ; NoSharingCheck =
-	             (functor(HV,'Prelude.success',0);functor(HV,'FAIL',_))),
+	 -> ShareHNF = ShareGoal
+	  ; ShareHNF = % no sharing for FAIL:
+	     ((nonvar(HV), functor(HV,'FAIL',_)) -> R=HV ; ShareGoal)),
 	writeClause((HnfLHS :- !, get_mutable(V,M),
                         (V='$eval'(Expr)
                          -> R=Expr, E0=E
                           ; hnf(V,HV,E0,E1),
-			    ((nonvar(HV),NoSharingCheck)
-			      -> R=HV % no sharing for constraints
-                               ; PropShare_HV_R,
-				 update_mutable('$eval'(R),M)),
+			    ShareHNF,
 			    E1=E))).
 
 genFunctionShareHnfClause(HNF,Suffix) :-
@@ -1662,11 +1688,6 @@ genFunctionShareHnfClause(HNF,Suffix) :-
 			    E1=E))).
 
 % generate hnf clause for a function:
-genHnfClause(_,('Prelude.success'/0,_)) :- !. % success is treated as a constructor
-genHnfClause(HNF,(FName/0,'Prelude.success')) :- !,
-	% if somebody defines FName as (External Prelude.success)
-	HnfLHS =.. [HNF,FName,'Prelude.success',E,E],
-	writeClause((HnfLHS :- !)).
 genHnfClause(HNF,(FName/FArity,PredName)) :-
 	length(Args,FArity),
 	LHS =.. [FName|Args],
@@ -1702,7 +1723,7 @@ transConstrEq(Suffix) :-
 	                                 hnf(A,HA,E0,E1), hnf(B,HB,E1,E2),
 	                                 ConstrEqHnf_HA_HB_R_E2_E,
 					 traceExit('Prelude.=:='(A,B),
-						   'Prelude.success',
+						   'Prelude.True',
 						   E,Skip)))
           ; writeClause((ConstrEq_A_B_R_E0_E :- hnf(A,HA,E0,E1),hnf(B,HB,E1,E2),
 	                                 ConstrEqHnf_HA_HB_R_E2_E))),
@@ -1714,7 +1735,7 @@ transConstrEq(Suffix) :-
 	BindTryNf_X_H_R_E0_E =.. [BindTryNf,X,H,R,E0,E],
 	writeClause((ConstrEqHnf_X_H_R_E0_E :- var(X),!,BindTryNf_X_H_R_E0_E)),
 	writeClause((ConstrEqHnf_H_X_R_E0_E :- var(X),!,BindTryNf_X_H_R_E0_E)),
-	ConstrEqHnf_T1_T2_E0_E =.. [ConstrEqHnf,T1,T2,'Prelude.success',E0,E],
+	ConstrEqHnf_T1_T2_E0_E =.. [ConstrEqHnf,T1,T2,'Prelude.True',E0,E],
 	ConstrEqHnf_A_B_R_E0_E =.. [ConstrEqHnf,A,B,R,E0,E],
 	(printConsFailure(no)
 	 -> writeClause((ConstrEqHnf_T1_T2_E0_E :- number(T1),!,T1=T2,E0=E))
@@ -1725,7 +1746,7 @@ transConstrEq(Suffix) :-
 					'FAIL'(Src),E,E],
 	    writeClause((ConstrEqHnf_X_FAIL_E_E :- !)),
 	    writeClause((ConstrEqHnf_A_B_R_E0_E :- number(A), !,
-             (A=B -> R='Prelude.success', E0=E
+             (A=B -> R='Prelude.True', E0=E
 	           ; prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E))))),
 	appendAtom(genConstrEqHnfBody,Suffix,GenConstrEqHnfBody),
 	GenConstrEqHnfBody_1_NA =.. [GenConstrEqHnfBody,1,NA,A,B,EqBody],
@@ -1739,7 +1760,7 @@ transConstrEq(Suffix) :-
 		          prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E)))),
 	nl,
 	GenConstrEqHnfBody_N_NA_Succ =..
-             [GenConstrEqHnfBody,N,NA,_,_,'Prelude.success'],
+             [GenConstrEqHnfBody,N,NA,_,_,'Prelude.True'],
 	writeClause((GenConstrEqHnfBody_N_NA_Succ :- N>NA,!)),
 	appendAtom('Prelude.=:=',Suffix,Eq),
 	Eq_ArgA_ArgB =.. [Eq,ArgA,ArgB],
@@ -1769,19 +1790,19 @@ transConstrEq(Suffix) :-
 	appendAtom(occursNot,Suffix,OccursNot),
 	OccursNot_X_T =.. [OccursNot,X,T],
 	writeClause((BindDirect_X_T_R_E0_E :- var(T), !, X=T,
-		                              R='Prelude.success', E0=E)),
+		                              R='Prelude.True', E0=E)),
 	(printConsFailure(no)
 	 -> writeClause((BindDirect_X_T_R_E0_E :-
-			     OccursNot_X_T, X=T, R='Prelude.success', E0=E))
+			     OccursNot_X_T, X=T, R='Prelude.True', E0=E))
 	  ; BindDirect_X_FAIL_E_E =..
 	                      [BindDirect,X,'FAIL'(Src),'FAIL'(Src),E,E],
 	    writeClause((BindDirect_X_FAIL_E_E :- !)),
 	    writeClause((BindDirect_X_T_R_E0_E :-
-			     OccursNot_X_T, !, X=T, R='Prelude.success', E0=E)),
+			     OccursNot_X_T, !, X=T, R='Prelude.True', E0=E)),
 	    writeClause((BindDirect_X_T_R_E0_E :-
 		       prim_failure(partcall(2,'Prelude.=:=',[]),[X,T],R,E0,E)))),
 	nl,
-	Bind_X_T_E0_E =.. [Bind,X,T,'Prelude.success',E0,E],
+	Bind_X_T_E0_E =.. [Bind,X,T,'Prelude.True',E0,E],
 	writeClause((Bind_X_T_E0_E :- var(T), !, X=T, E0=E)),
 	writeClause((Bind_X_T_E0_E :- number(T), !, X=T, E0=E)),
 	(printConsFailure(no) -> true
@@ -1810,7 +1831,7 @@ transConstrEq(Suffix) :-
 		        OccursNot_A_ArgB,
 		        N1 is N+1, OccursNotArgs_N1_NA_A_B)),
 	nl,
-	BindArgs_N_NA_A_B_E0_E =.. [BindArgs,N,NA,A,B,'Prelude.success',E0,E],
+	BindArgs_N_NA_A_B_E0_E =.. [BindArgs,N,NA,A,B,'Prelude.True',E0,E],
 	BindArgs_N_NA_A_B_R_E0_E =.. [BindArgs,N,NA,A,B,R,E0,E],
 	Bind_ArgA_HArgB_R_E1_E2 =.. [Bind,ArgA,HArgB,R,E1,E2],
 	Bind_ArgA_HArgB_R0_E1_E2 =.. [Bind,ArgA,HArgB,R0,E1,E2],
@@ -1832,7 +1853,7 @@ transConstrEq(Suffix) :-
 	writeClause((OccursNot_X_Y :- var(Y), !, X\==Y)),
 	OccursNotArgs_1_NY_X_Y =.. [OccursNotArgs,1,NY,X,Y],
 	writeClause((OccursNot_X_Y :- functor(Y,FY,NY),
-		                      constructortype(FY,_,NY,_,_,_),
+		                      constructortype(FY,_,NY,_,_,_,_),
 		                      !, OccursNotArgs_1_NY_X_Y)),
 	writeClause(OccursNot_X_Y),
 	nl.
@@ -1890,17 +1911,35 @@ transBoolEq(Suffix) :-
 	writeClause((BoolEq_A_B_R_E0_E :- hnf(A,HA,E0,E1),hnf(B,HB,E1,E2),
 	                                  BoolEqHnf_HA_HB_R_E2_E)),
 	nl,
-	genBlockDecl(BoolEqHnfOrg,5,[1,2,4],BoolEqHnf),
+	%genBlockDecl(BoolEqHnfOrg,5,[1,2,4],BoolEqHnf),
+	genBlockDecl(BoolEqHnfOrg,5,[4],BoolEqHnf),
+	BoolEqHnf_A_B_R_E0_E =.. [BoolEqHnf,A,B,R,E0,E],
+	BoolEqHnf_B_A_R_E0_E =.. [BoolEqHnf,B,A,R,E0,E],
+	% wait if both arguments are variables:
+	writeClause((BoolEqHnf_A_B_R_E0_E :- var(A), var(B), !,
+		      evaluator:addSuspensionReason('Comparing (with ==) two free variables'),
+		      when((nonvar(A);nonvar(B)),BoolEqHnf_A_B_R_E0_E))),
+	writeClause((BoolEqHnf_A_B_R_E0_E :- var(A), !,
+		                             BoolEqHnf_B_A_R_E0_E)),
 	(printConsFailure(no) -> true
 	 ; BoolEqHnf_FAIL_X_E_E =.. [BoolEqHnf,'FAIL'(Src),X,'FAIL'(Src),E,E],
 	   writeClause((BoolEqHnf_FAIL_X_E_E :- !)),
 	   BoolEqHnf_X_FAIL_E_E =.. [BoolEqHnf,X,'FAIL'(Src),'FAIL'(Src),E,E],
 	   writeClause((BoolEqHnf_X_FAIL_E_E :- !))),
-	BoolEqHnf_A_B_R_E0_E =.. [BoolEqHnf,A,B,R,E0,E],
 	writeClause((BoolEqHnf_A_B_R_E0_E :-
-		       number(A), !, (A=B->R='Prelude.True';R='Prelude.False'), E0=E)),
+		% we cannot narrow numbers or characters, so we wait:
+		(number(A) ; basics:isCharCons(A)), !,
+		((A=B, R='Prelude.True', E0=E) ;
+		    evaluator:addSuspensionReason('Comparing (with ==) a free variable with a number or character'),
+		    when(nonvar(B),(A\=B, R='Prelude.False', E0=E))))),
 	appendAtom(genBoolEqHnfBody,Suffix,GenBoolEqHnfBody),
 	GenBoolEqHnfBody_1_NA =.. [GenBoolEqHnfBody,1,NA,A,B,SeqBody],
+	writeClause((BoolEqHnf_A_B_R_E0_E :- var(B), !, % bind variable
+	    functor(A,FA,NA),
+	    ((functor(B,FA,NA),GenBoolEqHnfBody_1_NA,hnf(SeqBody,R,E0,E))
+	     ; (constructortype(FA,_,NA,_,_,_,OtherCons),
+		member(OC/OCA,OtherCons),
+		functor(B,OC,OCA), R='Prelude.False',E0=E)))),
 	writeClause((BoolEqHnf_A_B_R_E0_E :-
 		       functor(A,FA,NA),
 		       ((functor(B,FA,NA),GenBoolEqHnfBody_1_NA)
@@ -2141,8 +2180,7 @@ transExp(FName,Aux,Patterns,Vars,_,'Or'(Exp1,Exp2)) :- !,
 transExp(FName,Aux,Patterns,Vars,Cut,'Comb'('FuncCall',"commit",[Exp])) :- !,
 	writeErr('ERROR: "'),
 	writeErr(FName),
-	writeErr(' eval choice" not yet supported!'),
-	nlErr,
+	writeLnErr(' eval choice" not yet supported!'),
 	transExp(FName,Aux,Patterns,Vars,Cut,Exp),
 	setFlcBug.
 
@@ -2180,8 +2218,6 @@ transExp(FName,_Aux,Patterns,Vars,Cut,Exp) :-
 	       TPCall =.. [TP|TArgsH],
                writeClauseWithInitGoals(LHS,CutUShares,TPCall) )).
 
-localFunCall(_,'Comb'('FuncCall',"Prelude.success",_)) :-
-	!. % since we implement "success" as a constructor, thus we don't need hnf for it
 localFunCall(DefFuncName,'Comb'('FuncCall',FName,_)) :-
 	atom_codes(DefFuncName,DefFuncNameS),
 	fromSameModule(DefFuncNameS,FName), !.
@@ -2194,8 +2230,6 @@ fromSameModule(F1,F2) :-
 
 isConstructorRooted('Lit'(_)).
 isConstructorRooted('Comb'('ConsCall',_,_)).
-% we implement "success" as a constructor of type "Success":
-isConstructorRooted('Comb'('FuncCall',"Prelude.success",[])).
 isConstructorRooted('Free'(_,Exp)) :- % since we ignore Constr in the code:
 	isConstructorRooted(Exp).
 
@@ -2247,7 +2281,7 @@ transCaseLit2Cons('Charc'(N),C) :- !, char_int(C,N).
 transCaseLit2Cons(Lit,Lit) :-
 	writeErr('ERROR in FlatCurry file: Illegal argument "'),
 	writeErr(Lit),
-	writeErr('" in case branch!'), nlErr,
+	writeLnErr('" in case branch!'),
 	pleaseReport.
 
 % translate FlatCurry expression into corresponding Prolog term:
@@ -2257,11 +2291,10 @@ exp2Term(Vars,'Var'(V),V) :- !,
 	(memberEq(V,Vars) -> true
 	  ; writeErr('ERROR in FlatCurry file in function "'),
 	    currentFunction(FuncName), writeErr(FuncName),
-	    writeErr('":'), nlErr,
+	    writeLnErr('":'),
 	    writeErr('variable "'),
 	    writeErr(V),
-	    writeErr('" does not occur in left-hand side.'),
-	    nlErr,
+	    writeLnErr('" does not occur in left-hand side.'),
 	    reportLiftBug,
 	    put_code(37), write('ERROR in FlatCurry file: variable "'),
 	    write(V),
@@ -2272,12 +2305,11 @@ exp2Term(_,'Lit'('Charc'(N)),C) :- !, char_int(C,N).
 exp2Term(_,'Lit'('Ident'(S)),A) :- !,
 	writeErr('ERROR in FlatCurry file in function "'),
 	currentFunction(FuncName), writeErr(FuncName),
-	writeErr('":'), nlErr,
+	writeLnErr('":'),
 	flatName2Atom(S,A),
 	writeErr('Expression "'),
 	writeErr('Lit'('Ident'(A))),
-	writeErr('" should not occur in FlatCurry expressions.'),
-	nlErr,
+	writeLnErr('" should not occur in FlatCurry expressions.'),
 	pleaseReport,
 	put_code(37), write('ERROR in FlatCurry file: Expression "'),
 	write('Lit'('Ident'(A))),
@@ -2298,12 +2330,11 @@ exp2Term(Vars,'Comb'(CombType,NameS,Exprs),Term) :- !,
            %(getFuncArity(Name,Arity) -> Missing is Arity-TArity ; Missing=0)),
 	(Missing=0 -> Term =.. [Name|Terms] ;
          (Missing>0 -> rev(Terms,RevTerms), Term = partcall(Missing,Name,RevTerms)
-	             ; writeErr('INTERNAL COMPILER ERROR: over-application occured in exp2Term!'),
-	               nlErr,
+	             ; writeLnErr('INTERNAL COMPILER ERROR: over-application occured in exp2Term!'),
 	               writeErr('Function: '),
-	               currentFunction(QFunc), writeErr(QFunc), nlErr,
+	               currentFunction(QFunc), writeLnErr(QFunc),
 	               writeErr('Expression: '),
-	               writeErr('Comb'(CombType,NameS,Exprs)), nlErr,
+	               writeLnErr('Comb'(CombType,NameS,Exprs)),
 	               setFlcBug)).
 exp2Term(Vars,'Free'(LocalVars,Exp),ET) :- !,
 	append(Vars,LocalVars,NewVars),
@@ -2311,7 +2342,7 @@ exp2Term(Vars,'Free'(LocalVars,Exp),ET) :- !,
 exp2Term(_,Expr,'***unknown expression***') :-
 	writeErr('ERROR in FlatCurry file: Unknown expression "'),
 	writeErr(Expr),
-	writeErr('" in FlatCurry file!'), nlErr,
+	writeLnErr('" in FlatCurry file!'),
 	pleaseReport.
 
 
@@ -2339,12 +2370,9 @@ insertShare('Or'(Exp1,Exp2),Shares,'Or'(SExp1,SExp2)) :-
 	insertShare(Exp1,Shares,SExp1),
 	insertShare(Exp2,Shares,SExp2).
 insertShare(Exp,_,Exp) :-
-	writeErr('INTERNAL ERROR in "insertShare"!'),
-	nlErr,
-	writeErr('Unknown expression in FlatCurry file:'),
-	nlErr,
-	writeErr(Exp),
-	nlErr,
+	writeLnErr('INTERNAL ERROR in "insertShare"!'),
+	writeLnErr('Unknown expression in FlatCurry file:'),
+	writeLnErr(Exp),
 	pleaseReport.
 
 insertShareInBranch(Shares,'Branch'(Pattern,Exp),'Branch'(Pattern,SExp)) :-
@@ -2375,11 +2403,10 @@ exp2FuncShareTerm(_,Vars,'Var'(V),[],V) :- !,
 	(memberEq(V,Vars) -> true
 	  ; writeErr('ERROR in FlatCurry file in function "'),
 	    currentFunction(FuncName), writeErr(FuncName),
-	    writeErr('":'), nlErr,
+	    writeLnErr('":'),
 	    writeErr('variable "'),
 	    writeErr(V),
-	    writeErr('" does not occur in left-hand side.'),
-	    nlErr,
+	    writeLnErr('" does not occur in left-hand side.'),
 	    reportLiftBug,
 	    put_code(37), write('ERROR in FlatCurry file: variable "'),
 	    write(V),
@@ -2390,12 +2417,11 @@ exp2FuncShareTerm(_,_,'Lit'('Charc'(N)),[],C) :- !, char_int(C,N).
 exp2FuncShareTerm(_,_,'Lit'('Ident'(S)),[],A) :- !,
 	writeErr('ERROR in FlatCurry file in function "'),
 	currentFunction(FuncName), writeErr(FuncName),
-	writeErr('":'), nlErr,
+	writeLnErr('":'),
 	flatName2Atom(S,A),
 	writeErr('Expression "'),
 	writeErr('Lit'('Ident'(A))),
-	writeErr('" should not occur in FlatCurry expressions.'),
-	nlErr,
+	writeLnErr('" should not occur in FlatCurry expressions.'),
 	pleaseReport,
 	put_code(37), write('ERROR in FlatCurry file: Expression "'),
 	write('Lit'('Ident'(A))),
@@ -2413,8 +2439,7 @@ exp2FuncShareTerm(Level,Vars,'Comb'(CombType,NameS,Exprs),NewShares,NewTerm) :- 
 	 ; (getFuncArity(Name,Arity) -> Missing is Arity-TArity ; Missing=0)),
 	(Missing=0 -> Term =.. [Name|Terms] ;
          (Missing>0 -> rev(Terms,RevTerms), Term = partcall(Missing,Name,RevTerms)
-	             ; writeErr('INTERNAL COMPILER ERROR: over-application occured in exp2FuncShareTerm!'),
-	               nlErr)),
+	             ; writeLnErr('INTERNAL COMPILER ERROR: over-application occured in exp2FuncShareTerm!'))),
 	((CombType='FuncCall', Level=subterm)
 	 -> NewShares = [makeShare(Term,V)|Shares], NewTerm = V
 	  ; NewShares = Shares, NewTerm = Term).
@@ -2422,12 +2447,9 @@ exp2FuncShareTerm(Level,Vars,'Free'(LocalVars,Exp),Shares,Term) :- !,
 	append(Vars,LocalVars,NewVars),
 	exp2FuncShareTerm(Level,NewVars,Exp,Shares,Term).
 exp2FuncShareTerm(_,_,Exp,[],'***unknown expression***') :-
-	writeErr('INTERNAL ERROR in "exp2FuncShareTerm"!'),
-	nlErr,
-	writeErr('Unknown expression in FlatCurry file:'),
-	nlErr,
-	writeErr(Exp),
-	nlErr,
+	writeLnErr('INTERNAL ERROR in "exp2FuncShareTerm"!'),
+	writeLnErr('Unknown expression in FlatCurry file:'),
+	writeLnErr(Exp),
 	pleaseReport.
 
 exp2FuncShareTerms(_,[],[],[]).
@@ -2483,12 +2505,9 @@ countVarsInTerm('Or'(E1,E2),Vars,IVars) :- !,
 	countVarsInTerm(E1,Vars,Vars1),
 	countVarsInTerm(E2,Vars1,IVars).
 countVarsInTerm(Exp,Vars,Vars) :- !,
-	writeErr('INTERNAL ERROR in "countVarsInTerm"!'),
-	nlErr,
-	writeErr('Unknown expression in FlatCurry file:'),
-	nlErr,
-	writeErr(Exp),
-	nlErr,
+	writeLnErr('INTERNAL ERROR in "countVarsInTerm"!'),
+	writeLnErr('Unknown expression in FlatCurry file:'),
+	writeLnErr(Exp),
 	pleaseReport.
 
 countVarsInTerms([],Vars,Vars).
@@ -2529,7 +2548,7 @@ check_flcFunction(_) :-
 	writeErr('INTERNAL ERROR in FlatCurry file "'),
 	writeErr('" in function "'),
 	currentFunction(FName), writeErr(FName),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	pleaseReport.
 
 check_flcRule('Rule'(Args,Expr)) :-
@@ -2571,7 +2590,7 @@ check_flcExpr(E) :-
 	writeErr(E),
 	writeErr('" in function "'),
 	currentFunction(FName), writeErr(FName),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	reportLiftBug.
 
 check_flcBinding('Prelude.(,)'(V,E)) :- integer(V), check_flcExpr(E).
@@ -2584,7 +2603,7 @@ check_flcLit(Lit) :-
 	writeErr(Lit),
 	writeErr('" in function "'),
 	currentFunction(FName), writeErr(FName),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	pleaseReport.
 
 check_flcCase('Branch'('Pattern'(Name,Xs),E)) :- !,
@@ -2599,7 +2618,7 @@ check_flcCase(Branch) :-
 	writeErr(Branch),
 	writeErr('" in function "'),
 	currentFunction(FName), writeErr(FName),
-	writeErr('"!'), nlErr,
+	writeLnErr('"!'),
 	pleaseReport.
 
 
@@ -2670,7 +2689,7 @@ deletePrologTarget(PrologProg) :-
 	existsFile(PrologProg),
 	writeErrNQ('Deleting old target file \''),
 	writeErrNQ(PrologProg),
-	writeErrNQ('\'.'), nlErrNQ,
+	writeLnErrNQ('\'.'),
 	tryDeleteFile(PrologProg), !.
 deletePrologTarget(_).
 

@@ -8,7 +8,7 @@
 module Flat2Fcy(writeFCY,flc2fcy) where
 
 import Flat
-import qualified FlatCurry as FCY
+import qualified FlatCurry.Types as FCY
 import ReadShowTerm
 
 --- Writes a FlatCurry program (old format) into a file in .fcy format.

@@ -44,13 +44,13 @@ Subtraction on floating point numbers.
 Multiplication on floating point numbers.
 \item[\code{(/.)   :: Float -> Float -> Float}]~\\
 Division on floating point numbers.
-\item[\code{(<.)   :: Float -> Float -> Success}]~\\
+\item[\code{(<.)   :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``less than'' relation.
-\item[\code{(>.)   :: Float -> Float -> Success}]~\\
+\item[\code{(>.)   :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``greater than'' relation.
-\item[\code{(<=.)  :: Float -> Float -> Success}]~\\
+\item[\code{(<=.)  :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``less than or equal'' relation.
-\item[\code{(>=.)  :: Float -> Float -> Success}]~\\
+\item[\code{(>=.)  :: Float -> Float -> Bool}]~\\
 Comparing two floating point numbers with the ``greater than or equal''
 relation.
 \item[\code{i2f    :: Int -> Float}]~\\
@@ -104,7 +104,7 @@ Appendix~\ref{sec-external-functions}), it is relatively
 easy to provide the complete functionality.}
 
 \begin{description}
-\item[\code{domain :: [Int] -> Int -> Int -> Success}]~\\
+\item[\code{domain :: [Int] -> Int -> Int -> Bool}]~\\
 The constraint \ccode{domain [$x_1,\ldots,x_n$] $l$ $u$}
 is satisfied if the domain of all variables $x_i$ is the interval $[l,u]$.
 \item[\code{(+\#)   :: Int -> Int -> Int}]~\\
@@ -113,36 +113,36 @@ Addition on finite domain values.
 Subtraction on finite domain values.
 \item[\code{(*\#)   :: Int -> Int -> Int}]~\\
 Multiplication on finite domain values.
-\item[\code{(=\#)   :: Int -> Int -> Success}]~\\
+\item[\code{(=\#)   :: Int -> Int -> Bool}]~\\
 Equality of finite domain values.
-\item[\code{(/=\#)  :: Int -> Int -> Success}]~\\
+\item[\code{(/=\#)  :: Int -> Int -> Bool}]~\\
 Disequality of finite domain values.
-\item[\code{(<\#)   :: Int -> Int -> Success}]~\\
+\item[\code{(<\#)   :: Int -> Int -> Bool}]~\\
 ``less than'' relation on finite domain values.
-\item[\code{(<=\#)  :: Int -> Int -> Success}]~\\
+\item[\code{(<=\#)  :: Int -> Int -> Bool}]~\\
 ``less than or equal'' relation on finite domain values.
-\item[\code{(>\#)   :: Int -> Int -> Success}]~\\
+\item[\code{(>\#)   :: Int -> Int -> Bool}]~\\
 ``greater than'' relation on finite domain values.
-\item[\code{(>=\#)  :: Int -> Int -> Success}]~\\
+\item[\code{(>=\#)  :: Int -> Int -> Bool}]~\\
 ``greater than or equal'' relation on finite domain values.
-\item[\code{sum :: [Int] -> (Int -> Int -> Success) -> Int -> Success}]~\\
+\item[\code{sum :: [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
 The constraint \ccode{sum [$x_1,\ldots,x_n$] $op$ $x$}
 is satisfied if all $x_1+\cdots + x_n \mathrel{op} x$ is satisfied,
 where $op$ is one of the above finite domain constraint relations
 (e.g., \ccode{=\#}).
-\item[\code{scalar_product :: [Int] -> [Int] -> (Int -> Int -> Success) -> Int -> Success}]~\\
+\item[\code{scalar_product :: [Int] -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
 The constraint \ccode{scalar_product [$c_1,\ldots,c_n$] [$x_1,\ldots,x_n$] $op$ $x$}
 is satisfied if all $c_1 x_1+\cdots + c_n x_n \mathrel{op} x$ is satisfied,
 where $op$ is one of the above finite domain constraint relations.
-\item[\code{count :: Int -> [Int] -> (Int -> Int -> Success) -> Int -> Success}]~\\
+\item[\code{count :: Int -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
 The constraint \ccode{count $k$ [$x_1,\ldots,x_n$] $op$ $x$}
 is satisfied if all $k \mathrel{op} x$ is satisfied,
 where $n$ is the number of the $x_i$ that are equal to $k$ and
 $op$ is one of the above finite domain constraint relations.
-\item[\code{all_different :: [Int] -> Success}]~\\
-The constraint \ccode{all_different [$x_1,\ldots,x_n$]}
+\item[\code{allDifferent :: [Int] -> Bool}]~\\
+The constraint \ccode{allDifferent [$x_1,\ldots,x_n$]}
 is satisfied if all $x_i$ have pairwise different values.
-\item[\code{labeling :: [LabelingOption] -> [Int] -> Success}]~\\
+\item[\code{labeling :: [LabelingOption] -> [Int] -> Bool}]~\\
 The constraint \ccode{labeling $os$ [$x_1,\ldots,x_n$]}
 non-deterministically instantiates all $x_i$ to the values
 of their domain according to the options $os$ (see the module documentation
@@ -170,7 +170,7 @@ smm l =
         domain l 0 9 &
         s ># 0 &
         m ># 0 &
-        all_different l  &
+        allDifferent l  &
                          1000 *# s +# 100 *# e +# 10 *# n +# d
         +#               1000 *# m +# 100 *# o +# 10 *# r +# e
         =# 10000 *# m +# 1000 *# o +# 100 *# n +# 10 *# e +# y &
@@ -204,14 +204,14 @@ This declaration includes the following entities in the program:
 \item[\code{Port a}\pindex{Port}]~\\
 This is the datatype of a port to which one can send messages of type \code{a}.
 
-\item[\code{openPort :: Port a -> [a] -> Success}]~\\
+\item[\code{openPort :: Port a -> [a] -> Bool}]~\\
 The constraint \ccode{openPort p s}\pindex{openPort}
 establishes a new \emph{internal port}
 \code{p} with an associated message stream \code{s}. \code{p} and \code{s} must be
 unbound variables,
 otherwise the constraint fails (and causes a runtime error).
 
-\item[\code{send :: a -> Port a -> Success}]~\\
+\item[\code{send :: a -> Port a -> Bool}]~\\
 The constraint \ccode{send m p}\pindex{send}
 is satisfied if \code{p} is constrained
 to contain the message \code{m}, i.e., \code{m} will be sent to the port
@@ -302,32 +302,31 @@ printed on the standard error stream.
 \index{AbstractCurry}
 \index{FlatCurry}
 To support meta-programming, i.e., the manipulation of Curry programs
-in Curry, there are system modules \code{FlatCurry} and \code{AbstractCurry}
-(stored in the directory \ccode{\cyshome/lib/meta})
+in Curry, there are system modules \code{AbstractCurry.Types}
+and \code{FlatCurry.Types}
 which define datatypes for the representation
 of Curry programs.
-\code{AbstractCurry} is a more direct representation of a Curry program,
-whereas \code{FlatCurry} is a simplified representation
+\code{AbstractCurry.Types} is a more direct representation of a Curry program,
+whereas \code{FlatCurry.Types} is a simplified representation
 where local function definitions are replaced by global definitions
 (i.e., lambda lifting has been performed) and pattern matching
 is translated into explicit case/or expressions.
-Thus, \code{FlatCurry} can be used for more back-end oriented
+Thus, \code{FlatCurry.Types} can be used for more back-end oriented
 program manipulations (or, for writing new back ends for Curry),
-whereas \code{AbstractCurry} is intended for manipulations of
+whereas \code{AbstractCurry.Types} is intended for manipulations of
 programs that are more oriented towards the source program.
 
-Both modules contain predefined I/O actions to read programs
-in the \code{AbstractCurry} (\code{readCurry}\pindex{readCurry})
-or \code{FlatCurry}
-(\code{readFlatCurry}\pindex{readFlatCurry}) format.
+There are predefined I/O actions to read AbstractCurry and
+FlatCurry programs: \code{AbstractCurry.Files.readCurry}\pindex{readCurry})
+and \code{FlatCurry.Files.readFlatCurry}\pindex{readFlatCurry}).
 These actions parse the corresponding source program and return
 a data term representing this program (according to the definitions
-in the modules \code{AbstractCurry} and \code{FlatCurry}).
+in the modules \code{AbstractCurry.Types} and \code{FlatCurry.Types}).
 
 Since all datatypes are explained in detail in these modules,
 we refer to the online documentation\footnote{%
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/FlatCurry.html} and
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/AbstractCurry.html}}
+\url{http://www.informatik.uni-kiel.de/~pakcs/lib/FlatCurry.Types.html} and
+\url{http://www.informatik.uni-kiel.de/~pakcs/lib/AbstractCurry.Types.html}}
 of these modules.
 
 As an example, consider a program file \ccode{test.curry}
@@ -336,7 +335,7 @@ containing the following two lines:
 rev []     = []
 rev (x:xs) = (rev xs) ++ [x]
 \end{curry}
-Then the I/O action \code{(FlatCurry.readFlatCurry "test")} returns the
+Then the I/O action \code{(FlatCurry.Files.readFlatCurry "test")} returns the
 following term:
 \begin{curry}
  (Prog "test"
@@ -389,23 +388,24 @@ following term:
 \input{lib/Char}
 \input{lib/CHR}
 \input{lib/CHRcompiled}
+\input{lib/CLP.FD}
 \input{lib/CLPFD}
 \input{lib/CLPR}
 \input{lib/CLPB}
 \input{lib/Combinatorial}
-\input{lib/Constraint}
 \input{lib/CPNS}
 \input{lib/CSV}
-\input{lib/Database}
 \input{lib/Debug}
 \input{lib/Directory}
 \input{lib/Distribution}
-\input{lib/Dynamic}
 \input{lib/Either}
+\input{lib/ErrorState}
 \input{lib/FileGoodies}
 \input{lib/FilePath}
+\input{lib/Findall}
 \input{lib/Float}
 \input{lib/Function}
+\input{lib/FunctionInversion}
 \input{lib/GetOpt}
 \input{lib/Global}
 \input{lib/GlobalVariable}
@@ -414,9 +414,6 @@ following term:
 \input{lib/IO}
 \input{lib/IOExts}
 \input{lib/JavaScript}
-\input{lib/KeyDatabase}
-\input{lib/KeyDatabaseSQLite}
-\input{lib/KeyDB}
 \input{lib/List}
 \input{lib/Maybe}
 \input{lib/NamedSocket}
@@ -431,11 +428,11 @@ following term:
 \input{lib/ReadShowTerm}
 \input{lib/SetFunctions}
 \input{lib/Socket}
+\input{lib/State}
 \input{lib/System}
 \input{lib/Time}
-%\input{lib/Tk}
 \input{lib/Unsafe}
-
+\input{lib/Test.EasyCheck}
 
 \subsection{Data Structures and Algorithms}
 
@@ -445,13 +442,45 @@ following term:
 \input{lib/GraphInductive}
 \input{lib/Random}
 \input{lib/RedBlackTree}
+\input{lib/SCC}
+\input{lib/SearchTree}
+\input{lib/SearchTreeTraversal}
 \input{lib/SetRBT}
 \input{lib/Sort}
 \input{lib/TableRBT}
 \input{lib/Traversal}
+\input{lib/ValueSequence}
+\input{lib/Rewriting.CriticalPairs}
+\input{lib/Rewriting.DefinitionalTree}
+\input{lib/Rewriting.Files}
+\input{lib/Rewriting.Narrowing}
+\input{lib/Rewriting.Position}
+\input{lib/Rewriting.Rules}
+\input{lib/Rewriting.Strategy}
+\input{lib/Rewriting.Substitution}
+\input{lib/Rewriting.Term}
+\input{lib/Rewriting.Unification}
+\input{lib/Rewriting.UnificationSpec}
+
+\subsection{Libraries for Database Access and Manipulation}
+
+\input{lib/Database}
+\input{lib/Dynamic}
+\input{lib/KeyDatabase}
+\input{lib/KeyDatabaseSQLite}
+\input{lib/KeyDB}
+\input{lib/Database.CDBI.Connection}
+\input{lib/Database.CDBI.Criteria}
+\input{lib/Database.CDBI.Description}
+\input{lib/Database.CDBI.ER}
+\input{lib/Database.CDBI.QueryTypes}
+\input{lib/Database.ERD}
+\input{lib/Database.ERDGoodies}
+
 
 \subsection{Libraries for Web Applications}
 
+\input{lib/Bootstrap3Style}
 \input{lib/CategorizedHtmlList}
 \input{lib/HTML}
 \input{lib/HtmlCgi}
@@ -466,20 +495,26 @@ following term:
 
 \subsection{Libraries for Meta-Programming}
 
-\input{lib/AbstractCurry}
-\input{lib/AbstractCurryGoodies}
-\input{lib/AbstractCurryPrinter}
-\input{lib/AnnotatedFlatCurry}
-\input{lib/AnnotatedFlatCurryGoodies}
-\input{lib/CompactFlatCurry}
+\input{lib/AbstractCurry.Types}
+\input{lib/AbstractCurry.Files}
+\input{lib/AbstractCurry.Select}
+\input{lib/AbstractCurry.Build}
+\input{lib/AbstractCurry.Pretty}
+\input{lib/FlatCurry.Types}
+\input{lib/FlatCurry.Files}
+\input{lib/FlatCurry.Goodies}
+\input{lib/FlatCurry.Pretty}
+\input{lib/FlatCurry.Read}
+\input{lib/FlatCurry.Show}
+\input{lib/FlatCurry.XML}
+\input{lib/FlatCurry.FlexRigid}
+\input{lib/FlatCurry.Compact}
+\input{lib/FlatCurry.Annotated.Types}
+\input{lib/FlatCurry.Annotated.Pretty}
+\input{lib/FlatCurry.Annotated.Goodies}
+\input{lib/FlatCurry.Annotated.TypeSubst}
+\input{lib/FlatCurry.Annotated.TypeInference}
 \input{lib/CurryStringClassifier}
-\input{lib/FlatCurry}
-\input{lib/FlatCurryGoodies}
-\input{lib/FlatCurryRead}
-\input{lib/FlatCurryShow}
-\input{lib/FlatCurryXML}
-\input{lib/FlexRigid}
-\input{lib/PrettyAbstract}
 
 } % end setlength parindent
 

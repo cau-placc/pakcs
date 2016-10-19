@@ -40,8 +40,8 @@ tree2 = getSearchTree [x,y] (=:=(x+y=:=1)) >>= print
           x=coin
           y=coin  
 --> (SearchBranch [(0,(SearchBranch [(0,(Solutions [])),
---                                   (1,(Solutions [success]))])),
---                 (1,(SearchBranch [(0,(Solutions [success])),
+--                                   (1,(Solutions [True]))])),
+--                 (1,(SearchBranch [(0,(Solutions [True])),
 --                                   (1,(Solutions []))]))])
 
 

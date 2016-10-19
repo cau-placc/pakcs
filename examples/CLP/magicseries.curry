@@ -16,7 +16,7 @@ magic n | take n (generateFD n) =:= l &
 
 generateFD n | n ># 0 & domain [x] 0 (n-1) = x : generateFD n  where x free
 
-constrain [] _ _ [] = success
+constrain [] _ _ [] = True
 constrain (x:xs) l i (j:s2) = i=:=j & count i l (=#) x & constrain xs l (i+1) s2
 
 

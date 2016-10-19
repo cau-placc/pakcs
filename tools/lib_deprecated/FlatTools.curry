@@ -28,9 +28,9 @@ import Char
 showFlatProg :: Prog -> String
 showFlatProg (Prog modname imports types funcs ops transtable) =
      " (Prog " ++ flatShowString modname
-     ++ (if imports==[] then "\n  []" else
+     ++ (if null imports then "\n  []" else
          "\n  [" ++ flatShowListElems flatShowString imports ++ "]")
-     ++ (if types==[] then "\n  []" else
+     ++ (if null types then "\n  []" else
          "\n  [" ++ flatShowListElems flatShowType types ++ "\n ]")
      ++ "\n  [" ++ flatShowListElems flatShowFunc funcs ++ "\n  ]"
      ++ "\n " ++ flatShowList flatShowOp ops
@@ -138,7 +138,7 @@ showCurryType tf nested (FuncType t1 t2) =
      showCurryType tf False t2 ++
    (if nested then ")" else "")
 showCurryType tf nested (TCons tc ts)
- | ts==[]  = tf tc
+ | null ts = tf tc
  | tc=="[]" && (head ts == TCons "Char" []) = "String"
  | tc=="[]" = "[" ++ showCurryType tf False (head ts) ++ "]" -- list type
  | take 2 tc=="(,"                                           -- tuple type
@@ -190,7 +190,7 @@ showCurryExpr tf nested b (Comb ct cf [e1,e2]) =
               (showCurryExpr tf True b e1 ++ " " ++ tf cf ++ " " ++
                showCurryExpr tf True b e2 )
 showCurryExpr tf nested b (Comb _ cf (e1:e2:e3:es)) =
-  if cf=="if_then_else" && es==[]
+  if cf=="if_then_else" && null es
   then maybeShowBrackets nested
         ("\n" ++
          sceBlanks b ++ " if "   ++ showCurryExpr tf False (b+2) e1 ++ "\n" ++
@@ -285,7 +285,7 @@ isFiniteList :: Expr -> Bool
 isFiniteList (Var _) = False
 isFiniteList (Lit _) = False
 isFiniteList (Comb _ name args)
-  | name=="[]" && args==[] = True
+  | name=="[]" && null args = True
   | name==":"  && length args == 2 = isFiniteList (args!!1)
   | otherwise = False
 isFiniteList (Apply _ _) = False

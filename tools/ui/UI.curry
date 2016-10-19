@@ -106,7 +106,7 @@ defaultHandler cmd = Handler DefaultEvent (Cmd cmd)
 -------------------------------------------------------------------------------
 
 addStyle :: Widget r a1 a2 -> StyleClass -> Widget r a1 a2
-addStyle widget stcls = addStyles widget [stcls]
+addStyle widget cls = addStyles widget [cls]
 
 addStyles :: Widget r a1 a2 -> [StyleClass] -> Widget r a1 a2
 addStyles (Widget str mblabel mbref handlers styleClasses ws) classes 
@@ -152,11 +152,13 @@ data CanvasItem =
 -------------------------------------------------------------------------------
 
 data StyleClass = Class [Style]
-  deriving Show
+ deriving Show
+
 data Position = Center | Left | Right | Top | Bottom
-  deriving Show
+ deriving Show
+
 data Direction = X | Y | Both
-  deriving Show
+ deriving Show
 
 --- The data type of possible styles.
 data Style = 
@@ -173,19 +175,21 @@ data Style =
  | Border BorderStyle
  | Display Bool
  | NameValue String String 
- deriving Show
+  deriving Show
+
 
 data BorderStyle = Dotted | Dashed | Solid
-  deriving Show
+ deriving Show
+
 data FontStyle   = Bold | Italic | Underline
-  deriving Show
+ deriving Show
 
 --- The data type of possible colors.
 data Color 
   = Black | Blue | Brown | Cyan | Gold | Gray | Green
   | Magenta | Navy | Orange | Pink | Purple | Red
   | Tomato| Turquoise | Violet | White | Yellow | Default
-  deriving Show
+ deriving Show
 
 -------------------------------------------------------------------------------
 

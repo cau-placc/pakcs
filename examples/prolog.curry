@@ -79,7 +79,7 @@ all_id n g  = depthLoop n n (toDepthN n n g) False
 -- Examples:
 
 p (_:xs) = p xs
-p []     = success
+p []     = True
 
 g1 = prolog          \x -> p x
 

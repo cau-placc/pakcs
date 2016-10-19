@@ -4,7 +4,8 @@
 
 module CoosyDerive(derive,deriveFile) where
 
-import AbstractCurry
+import AbstractCurry.Types
+import AbstractCurry.Files
 import System(getProgName)
 import Char(isSpace)
 
@@ -56,11 +57,12 @@ deriveTypeDecl (CTypeSyn (_,name) _ vs t)
   = ('o':name) ++concatMap deriveTypeVar vs ++ "= "++deriveTypeExpr t++"\n"
 
 deriveCCons :: String -> [CTVarIName] -> CConsDecl -> String
-deriveCCons tname vs (CCons (_,cname) arity _ texps) =
+deriveCCons tname vs (CCons (_,cname) _ texps) =
   tname ++deriveTypeVarPattern vs (usedVars texps) ++  
   ' ':brackets (arity>0) (cname ++ derivePatArgs arity) ++
   " = o" ++ show arity ++ concatMap deriveTypeExpr texps ++
   ' ':show cname ++ ' ':cname++derivePatArgs arity++"\n"
+ where arity = length texps
 
 deriveTypeExpr :: CTypeExpr -> String
 deriveTypeExpr (CTVar index) = deriveTypeVar index

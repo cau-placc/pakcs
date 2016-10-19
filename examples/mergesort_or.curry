@@ -4,7 +4,7 @@ goal2 xs = sort intMerge [3,1,2,5,4,8] xs
 goal3 xs = sort intMerge [3,1,2,5,4,8,6,7,2,9,1,4,3] xs
 
 
-sort :: ([a] -> [a] -> [a] -> Success) -> [a] -> [a] -> Success
+sort :: ([a] -> [a] -> [a] -> Bool) -> [a] -> [a] -> Bool
 
 sort merge xs ys =
    if length xs < 2 then ys =:= xs
@@ -14,7 +14,7 @@ sort merge xs ys =
    where us,vs free
 
 
-intMerge :: [Int] -> [Int] -> [Int] -> Success
+intMerge :: [Int] -> [Int] -> [Int] -> Bool
 
 intMerge [] ys zs =  zs =:= ys
 intMerge xs [] zs =  zs =:= xs

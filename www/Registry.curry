@@ -11,6 +11,7 @@ import IOExts
 import HtmlCgi
 import Directory(doesFileExist)
 
+main :: IO ()
 main = do
   args <- getArgs
   case args of

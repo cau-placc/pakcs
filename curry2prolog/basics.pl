@@ -10,9 +10,12 @@
 		  compileWithDebug/0, compileWithFailPrint/0,
 		  hasPrintedFailure/0, printConsFailure/1,
 		  evalToken/1, worldToken/1,
-		  writeNQ/1, nlNQ/0, writeErr/1, nlErr/0,
-		  writeErrNQ/1, nlErrNQ/0, writeBlanks/1,
+		  writeNQ/1, nlNQ/0, writeLnNQ/1,
+		  writeErr/1, nlErr/0, writeLnErr/1,
+		  writeErrNQ/1, nlErrNQ/0, writeLnErrNQ/1,
+		  writeBlanks/1,
 		  onlySICStusMessage/1, checkSICStusAndWarn/1,
+		  onlySWIMessage/1, checkSWIAndWarn/1,
 		  putChars/2, writeChars/2,
 		  assertPakcsrc/1, writeRCvalues/0,
 		  evaluateDynamicPredInfo/3, checkDynamicAccessMethod/2,
@@ -31,7 +34,9 @@
 		  isIoType/1, isId/1, 
 		  constructorOrFunctionType/4,
 		  flatName2Atom/2, decodePrologName/2,
-		  isTupleCons/1, isLetterDigitCode/1, isOpIdChar/1,
+		  isTupleCons/1, isLetterDigitCode/1,
+		  isOperatorName/1, isOpIdChar/1,
+                  getHomeDirectory/1,
 		  rev/2, concat/2, take/3, drop/3, splitAt/4,
 		  memberEq/2, deleteFirst/3, replaceEq/4,
 		  union/3, diff/3,
@@ -45,7 +50,7 @@
 		  prog2ICurryFile/2, hierarchical2dirs/2,
 		  readLine/1, readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
-		  printError/1,prologError2Atom/2]).
+		  printError/1, prologError2Atom/2]).
 
 :- use_module(prologbasics).
 :- use_module(pakcsversion).
@@ -61,6 +66,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % hook predicates to influence message printing from Prolog:
 
+noLoadMessage :- \+ pakcsrc(_,_), !. % no messages for initial state creation
+noLoadMessage :- \+ verbosityIntermediate.
+
 :- multifile user:portray_message/2.
 :- dynamic user:portray_message/2.
 
@@ -72,7 +80,7 @@ user:portray_message(informational,loaded(_,_,_,_,_,_)) :- !,noLoadMessage.
 user:portray_message(informational,created(File,_)) :- !,
 	noLoadMessage,
 	atom_codes(File,FileS),
-	append(_,".po",FileS). % don't show creation message for .po files
+	append(_,".po",FileS). % do not show creation message for .po files
 user:portray_message(warning,import(_,_,_,_)) :- !, noLoadMessage.
 user:portray_message(informational,imported(_,_,_)) :- !, noLoadMessage.
 user:portray_message(informational,foreign_resource(_,_,_,_)) :- !, noLoadMessage.
@@ -81,9 +89,6 @@ user:portray_message(informational,loading(_,restoring,_)) :- !.
 user:portray_message(informational,restored(_,_,_)) :- !.
 % do not show saved state creation messages:
 user:portray_message(informational,created(_,_)) :- !.
-
-noLoadMessage :- \+ pakcsrc(_,_), !. % no messages for initial state creation
-noLoadMessage :- \+ verbosityIntermediate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -140,14 +145,17 @@ verbosityDetailed :- verbosity(N), N>2.
 % write on standard out if not in quiet mode:
 writeNQ(T) :- quietmode(no) -> write(T); true.
 nlNQ :- quietmode(no) -> nl; true.
+writeLnNQ(T) :- writeNQ(T), nlNQ.
 
 % write on user error:
 writeErr(T) :- write(user_error,T).
 nlErr :- nl(user_error), flush_output(user_error).
+writeLnErr(T) :- writeErr(T), nlErr.
 
 % write on user error if not in quiet mode:
 writeErrNQ(T) :- quietmode(no) -> write(user_error,T); true.
 nlErrNQ :- quietmode(no) -> nl(user_error); true.
+writeLnErrNQ(T) :- writeErrNQ(T), nlErrNQ.
 
 
 % write n blanks on standard out:
@@ -171,10 +179,22 @@ checkSICStusAndWarn(Feature) :-
 	prolog(sicstus) -> true ; onlySICStusMessage(Feature).
 
 onlySICStusMessage(Feature) :-
-	writeErr('WARNING: "'), writeErr(Feature),
-	writeErr('" not available!'), nlErr,
-	writeErr('(only available in a PAKCS implementation based on SICStus-Prolog)'),
-	nlErr.
+	appendAtoms(['"',Feature,'" not available ',
+		     '(only available in a PAKCS implementation based on SICStus-Prolog)!'],
+		    Message),
+	raise_exception(Message).
+
+
+% check whether this is a SICStus-based implementation and provide warning
+% if this is not the case:
+checkSWIAndWarn(Feature) :-
+	prolog(swi) -> true ; onlySWIMessage(Feature).
+
+onlySWIMessage(Feature) :-
+	appendAtoms(['"',Feature,'" not available ',
+		     '(only available in a PAKCS implementation based on SWI-Prolog)!'],
+		    Message),
+	raise_exception(Message).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,7 +217,7 @@ evaluateDynamicPredInfo(P/N,Exp,Dir) :-
 	assertz(orgDynamicPredInfo(P/N,Exp)),
 	evalToken(Eval),
 	user:nf(Exp,NF,Eval,E1),
-	user:waitUntilGround(NF,E1,_), % groundness required
+	user:boolEq(NF,NF,_,E1,_), % groundness required
 	string2Atom(NF,DynAccess),
 	checkDynamicAccessMethod(DynAccess,Dir),
 	user:retractClause(dynamicPredInfo(P/N,_),_),
@@ -353,8 +373,7 @@ getLocalLibPath([]).
 getSysLibPath(LP) :-
 	installDir(Root),
 	appendAtom(Root,'/lib',Lib),
-	appendAtom(Root,'/lib/meta',LibMeta),
-	LP = [Lib,LibMeta].
+	LP = [Lib].
 
 % findFilePropertyInPath(Path,Pred,F,PF): find a file name w.r.t. to path
 %                                         satisfying a given predicate
@@ -425,10 +444,10 @@ toAbsPath(Path,AbsPath) :-
         atom_codes(Path,[126,47|RPathS]), % home dir path ~/...?
 	!,
 	atom_codes(RPath,RPathS),
-	(getEnv('HOME',HomeDir) -> true ; HomeDir='~'),
+	(getHomeDirectory(HomeDir) -> true ; HomeDir='~'),
 	appendAtoms([HomeDir,'/',RPath],AbsPath).
 toAbsPath('~',HomeDir) :- !,
-	(getEnv('HOME',HomeDir) -> true ; HomeDir='~').
+	(getHomeDirectory(HomeDir) -> true ; HomeDir='~').
 toAbsPath('.',CurDir) :- !,workingDirectory(CurDir).
 toAbsPath(Path,AbsPath) :-
         workingDirectory(CurDir),
@@ -462,12 +481,17 @@ isIoType('TCons'('Prelude.IO',_)) :- !.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Union of functiontype and constructortype:
 constructorOrFunctionType(QName,Name,Arity,Type) :-
-	user:constructortype(QName,Name,Arity,_UnqualifiedName,_Index,Type), !.
+	user:constructortype(QName,Name,Arity,_UnqualifiedName,_Index,Type,_),
+	!.
 constructorOrFunctionType(QName,Name,Arity,Type) :-
 	user:functiontype(QName,Name,Arity,_PrologName,_Fixity,Type).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Further auxiliaries:
+
+% get home directory (fail if it does no exist):
+getHomeDirectory(Home) :-
+        getEnv('HOME',Home), atom_codes(Home,[_|_]).
 
 % linear reverse:
 rev(Xs,Ys) :- rev_acc(Xs,Ys,[]).
@@ -926,20 +950,10 @@ isCompleteList([X|Xs],[X|L]) :- isCompleteList(Xs,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print an error message:
-printError(error(_,Error)) :-
+printError(Err) :-
+        (Err=error(_,Error) ; Err=Error), !,
 	prologError2Atom(Error,ErrorA),
 	writeErr(ErrorA), nlErr,
-        seen, told,
-        !,
-        fail.
-printError(Error) :-
-	writeErr('ERROR: '), print_message(error,Error),
-        seen, told,
-        !,
-        fail.
-printError(Error) :-
-	prologTerm2Atom(Error,ErrorA),
-	writeErr('ERROR: '), writeErr(ErrorA), nlErr,
         seen, told,
         !,
         fail.
@@ -956,6 +970,10 @@ prologError2Atom(existence_error(_Goal,_,ObjType,Culprit,_),ErrA) :-
 prologError2Atom(permission_error(_Goal,_,ObjType,Culprit,Msg),ErrA) :-
 	atom(ObjType), atom(Culprit), atom(Msg), !,
 	appendAtoms(['PERMISSION ERROR: ',ObjType,' "',Culprit,'" ',Msg],ErrA).
+prologError2Atom(Error,ErrA) :-
+	(atomic(Error) -> ErrorTermA=Error
+                        ; prologTerm2Atom(Error,ErrorTermA)),
+	appendAtoms(['ERROR: ',ErrorTermA],ErrA).
 
 prologTerm2Atom(V,'_') :- var(V), !.
 prologTerm2Atom(A,A) :- atom(A), !.

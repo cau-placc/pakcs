@@ -1,9 +1,24 @@
 #!/bin/sh
 # Shell script to test the current set of CHR(Curry) examples
-PAKCS=../../bin/pakcs
+
+CURRYHOME=../..
+CURRYBIN=$CURRYHOME/bin
+
+BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
+
+VERBOSE=no
+if [ "$1" = "-v" ] ; then
+  VERBOSE=yes
+fi
+
+if [ "$BACKEND" != sicstus4 -a "$BACKEND" != swi6 -a "$BACKEND" != swi7 ] ; then
+  echo "No appropriate Prolog back end, skip the CHR tests."
+  exit
+fi
+
 LOGFILE=xxx$$
-`dirname $PAKCS`/cleancurry
-cat << EOM | $PAKCS -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time | tee $LOGFILE
+$CURRYBIN/cleancurry
+cat << EOM | $CURRYBIN/curry -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time > $LOGFILE
 :load Leq
 main10 x        where x free
 main11 x y z    where x,y,z free
@@ -65,10 +80,15 @@ solveCHR $ 3.0:*:x GAUSSCHR.:=: 6.0 /\ 2.0:*:x :+: 6.0:*:y GAUSSCHR.:=: 10.0  wh
 
 EOM
 # clean up:
-cleancurry GCDCHR FIBCHR UFCHR GAUSSCHR
-/bin/rm GCDCHR* FIBCHR* UFCHR* GAUSSCHR*
+for p in GCDCHR FIBCHR UFCHR GAUSSCHR ; do
+    $CURRYBIN/cleancurry $p
+    /bin/rm -f $p*
+done
 ################ end of tests ####################
-# CHeck differences:
+if [ $VERBOSE = yes ] ; then
+    cat $LOGFILE
+fi
+# Check differences:
 DIFF=diff$$
 diff TESTRESULT $LOGFILE > $DIFF
 if [ "`cat $DIFF`" = "" ] ; then
@@ -82,4 +102,5 @@ else
   /bin/rm -f $DIFF
   /bin/mv -f $LOGFILE LOGFILE
   echo "Test output saved in file 'LOGFILE'."
+  exit 1
 fi

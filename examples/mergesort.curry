@@ -1,7 +1,7 @@
 -- merge sort: sorting two lists by merging the sorted first
 -- and second half of the list
 
-sort :: ([a] -> [a] -> [a] -> Success) -> [a] -> [a] -> Success
+sort :: ([a] -> [a] -> [a] -> Bool) -> [a] -> [a] -> Bool
 
 sort merge xs ys =
    if length xs < 2 then ys =:= xs
@@ -11,7 +11,7 @@ sort merge xs ys =
    where us,vs free
 
 
-intMerge :: [Int] -> [Int] -> [Int] -> Success
+intMerge :: [Int] -> [Int] -> [Int] -> Bool
 
 intMerge []     ys     zs =  zs =:= ys
 intMerge (x:xs) []     zs =  zs =:= x:xs

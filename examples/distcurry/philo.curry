@@ -24,7 +24,7 @@ dining =
 
 -- each philosopher is a process with the following loop:
 -- think / enter room / take forks / eat / release forks / leave room
-philosopher :: Int -> Port SemMessage -> [Port SemMessage] -> Success
+philosopher :: Int -> Port SemMessage -> [Port SemMessage] -> Bool
 philosopher i room forks =
   think i &>
   wait room &>
@@ -36,6 +36,6 @@ philosopher i room forks =
   signal room &>
   philosopher i room forks
 
-think i = trace ("Philosopher "++show i++" thinks.") success
-eat i   = trace ("Philosopher "++show i++" eats.") success
+think i = trace ("Philosopher "++show i++" thinks.") True
+eat i   = trace ("Philosopher "++show i++" eats.") True
 
