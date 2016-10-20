@@ -6,11 +6,12 @@ import SetFunctions
 queens :: [Int] -> [Int]
 queens x | y==permute x && isEmpty (set2 capture x y) = y  where y free
 
-permute :: [a] -> [a]
+permute :: Eq a => [a] -> [a]
 permute []     = []
 permute (x:xs) | u ++ v == permute xs  = u ++ [x] ++ v
   where u,v free
 
+capture :: [Int] -> [Int] -> Bool
 capture x y
   | l1 ++ [(x1,y1)] ++ l2 ++ [(x2,y2)] ++ l3 == zip x y &&
     (x1-y1 == x2-y2 || x1+y1 == x2+y2)

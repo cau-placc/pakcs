@@ -15,7 +15,7 @@ j n = k n
 
 k n = j n + l n
 
-l _ = 5
+l _ = 5::Int
 
 -- "Goals" in an interactive Curry environment:
 -- :t f       (should be  Int->Int)

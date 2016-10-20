@@ -236,10 +236,10 @@ goal3
 Loading program "psort"...
 goal 6
 [1,2,3,4,5,6]
-Loading program "default"...
-abs 0
+Loading program "Default"...
+pabs 0
 0
-abs 3
+pabs 3
 1
 swap [3]
 [3]
@@ -264,7 +264,7 @@ h [1,2]
 True
 h [1,3]
 False
-h [2,div 1 0]
+h [2,((_impl#div#Prelude.Integral#Prelude.Int) 1) 0]
 False
 Loading program "expr_parser"...
 ((expression val) "(10+5*2)/4") =:= []

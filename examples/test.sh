@@ -85,7 +85,7 @@ goal2
 goal3
 :l psort
 goal 6
-:l default
+:l Default
 pabs 0
 pabs 3
 swap [3]

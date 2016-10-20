@@ -1,5 +1,5 @@
 -- a one-pass assembler:
--- translate arbitrary jump-instructions into machine code
+-- translate arbitrary `Jump` instructions into machine code
 -- use logical variables to resolve forward jump addresses
 
 -- we consider only two assembler instructions: jumps and labels
@@ -24,11 +24,13 @@ assembler (Label l : ins) st a
   where st1 free
 
 -- insert an address of a labelid in a symboltable:
+insertST :: LabelId -> Int -> SymTab -> SymTab
 insertST l a []  = [(l,a)]
 insertST l a ((l1,a1):st) | l==l1 && a==a1 = (l1,a1) : st
 insertST l a ((l1,a1):st) | l/=l1          = (l1,a1) : (insertST l a st)
 
 -- lookup an address of a labelid in a symboltable:
+lookupST :: LabelId -> SymTab -> Int -> SymTab -> Bool
 lookupST l [] a st1  = st1=:=[(l,a)]
 lookupST l ((l1,a1):st) a st1 =
   if l==l1 then a=:=a1 & st1=:=(l1,a1):st

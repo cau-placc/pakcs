@@ -408,6 +408,7 @@ run melody = do
 -- Our program finds this solution, up to a few slight differences.
 
 -- The melody.
+sounds :: [[(Note, Int)]]
 sounds = [
   [(R,2),(A,1),(A,1),(C,1),(C,1),(E,1),(E,1)], [(D,8)],
   [(R,2),(G,1),(G,1),(B,1),(B,1),(D,1),(D,1)], [(C,8)],
@@ -435,6 +436,7 @@ sounds = [
 -- for this half-bar.
 
 -- The melody.
+nicolas :: [[(Note, Int)]]
 nicolas = [
   [(E,6),(C,2)], [(D,6),(B,2)], [(C,2),(B,2),(A,4)], [(B,6),(R,2)],
   [(E,6),(C,2)], [(D,6),(B,2)], [(C,2),(B,2),(A,4)], [(D,6),(R,2)],
