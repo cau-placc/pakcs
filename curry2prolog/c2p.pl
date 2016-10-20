@@ -346,10 +346,6 @@ processOrDefaultMainExpression(Input,_,_,_,MainExpType,_,ExprGoal) :-
                               write(MainExpType), nl
                             ; true),
 	processExpressionWithType(Input,MainExpType,ExprGoal).
-%processOrDefaultMainExpression(Input,_,Type,_,none,_,ExprGoal) :-
-%	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
-%                            ; true),
-%	tryDefaultMainType(Input,Type,ExprGoal), !.
 processOrDefaultMainExpression(_,_,Type,_,_,_,_) :-
 	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
                             ; true),
@@ -357,31 +353,6 @@ processOrDefaultMainExpression(_,_,Type,_,_,_,_) :-
 	nlErr,
         writeErr('Hint: add type annotation to overloaded entity'), nlErr,
         fail.
-
-%% try to default overloaded type of main expression:
-%tryDefaultMainType(Input,'FuncType'(AType,RType),ExprGoal) :-
-%	classDict(AType,TVar,DictName),
-%	member(DictName,["Num","Fractional"]), !,
-%	(DictName="Num"
-%         -> TVar = 'TCons'('Prelude.Int',[]),
-%	    tryDefaultMainType(Input,RType,ExprGoal)
-%	  ; TVar = 'TCons'('Prelude.Float',[]),
-%	    tryDefaultMainType(Input,RType,ExprGoal)).
-%tryDefaultMainType(Input,Type,ExprGoal) :-
-%	\+ (nonvar(Type), Type='FuncType'(_,_)), % can't default functions
-%	\+ append(_,[119,104,101,114,101|_],Input), % can't handle ...where...
-%	defaultMainExp(Input,Type,ExprGoal).
-%
-%% default the main expression to some given type:
-%defaultMainExp(Input,ExpType,ExprGoal) :-
-%        flatType2Atom(ExpType,TypeA),
-%        atom_codes(TypeA,TypeString),
-%	(verbosityIntermediate
-%          -> write('Defaulting expression type to "'),
-%	     write(TypeA), write('"...'), nl
-%           ; true),
-%	concat(["(",Input,") :: ",TypeString],TypedInput),
-%	processExpression(TypedInput,ExprGoal).
 
 % translate a flat type into an atom in Curry syntax:
 flatType2Atom(Type,CurryType) :-
@@ -482,10 +453,9 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,MainExp,
 	     FlatExp = 'Comb'('FuncCall',
 	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
         flatType2MainType([],FuncType,_,MFuncType),
-        %write(MFuncType),nl,
-        tryDefaultType(MFuncType,DType),
-        (isOverloadedType(DType) -> %write(DType), nl,
-                                    MainExpType=none    % can't default
+        defaultNumType(MFuncType,DefNumType),
+        removeDefaultedTypes(DefNumType,DType),
+        (isOverloadedType(DType) -> MainExpType=none    % can't default
                                   ; flatType2Atom(DType,MainExpType)),
         stripFuncTypes(NumVars,DType,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
@@ -544,25 +514,30 @@ compileMainExpression(MainExprMod) :-
 	             printError(ErrorMsg) ),
 	curryModule(CurrMod).
 
-% try to default an overloaded type:
-tryDefaultType(Type,Type) :- var(Type), !.
-tryDefaultType('FuncType'(AType,RType),DType) :-
+% try to default overloaded numerical types:
+defaultNumType(Type,Type) :- var(Type), !.
+defaultNumType('FuncType'(AType,RType),DType) :-
 	classDict(AType,TVar,DictName),
-	member(DictName,["Num","Fractional"]),
+	member(DictName,["Num","Fractional"]), !,
 	(DictName="Num"
-         -> TVar = 'TCons'('Prelude.Int',[]),
-	    tryDefaultType(RType,DType)
-	  ; TVar = 'TCons'('Prelude.Float',[]),
-	    tryDefaultType(RType,DType)).
-tryDefaultType('FuncType'(AType,RType),DType) :-
+         -> (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),
+	    defaultNumType(RType,DType)
+	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
+	    defaultNumType(RType,DType)).
+defaultNumType('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
+        defaultNumType(RType,DType).
+defaultNumType(Type,Type).
+
+% remove type class context of defaulted types:
+removeDefaultedTypes(Type,Type) :- var(Type), !.
+removeDefaultedTypes('FuncType'(AType,RType),DType) :-
 	classDict(AType,TVar,DictName),
 	member(DictName,["Eq","Ord"]),
-        %nonvar(TVar),
-        TVar = 'TCons'('Prelude.Int',[]), !,
-        tryDefaultType(RType,DType).
-tryDefaultType('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
-        tryDefaultType(RType,DType).
-tryDefaultType(Type,Type).
+        nonvar(TVar), !,
+        removeDefaultedTypes(RType,DType).
+removeDefaultedTypes('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
+        removeDefaultedTypes(RType,DType).
+removeDefaultedTypes(Type,Type).
 
 % Is the type overloaded, i.e., does it contain class dictioniary parameters?
 isOverloadedType(Type) :- var(Type), !, fail.
