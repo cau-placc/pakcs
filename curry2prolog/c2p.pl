@@ -317,12 +317,16 @@ ioAdmissible.
 % process a given main expression:
 
 processExpression(Input,ExprGoal) :-
-	parseMainExpression(Input,Term,Type,Vs,Overloaded),
-	processOrDefaultMainExpression(Input,Term,Type,Vs,Overloaded,ExprGoal).
+        processExpressionWithType(Input,none,ExprGoal).
+processExpressionWithType(Input,InitMainExpType,ExprGoal) :-
+	parseMainExpression(Input,InitMainExpType,Term,Type,Vs,
+                            MainExpType,Overloaded),
+	processOrDefaultMainExpression(Input,Term,Type,Vs,MainExpType,
+                                       Overloaded,ExprGoal).
 
 % If the main expression is overloaded, try to default it to some
 % numeric type:
-processOrDefaultMainExpression(_Input,Term,Type,Vs,false,ExprGoal) :-
+processOrDefaultMainExpression(_Input,Term,Type,Vs,_,false,ExprGoal) :-
 	% we can directly process non-overloaded expressions:
 	!,
 	(isIoType(Type) -> ioAdmissible ; true),
@@ -336,50 +340,67 @@ processOrDefaultMainExpression(_Input,Term,Type,Vs,false,ExprGoal) :-
 		writeFreeVars(Vs))
 	 ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
-processOrDefaultMainExpression(Input,_,Type,_,_,ExprGoal) :-
-	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl ; true),
-	tryDefaultType(Input,Type,ExprGoal), !.
-processOrDefaultMainExpression(_,_,_,_,_,_) :-
+processOrDefaultMainExpression(Input,_,_,_,MainExpType,_,ExprGoal) :-
+        \+ MainExpType=none, !,
+	(verbosityDetailed -> write('Defaulted type of main expression: '),
+                              write(MainExpType), nl
+                            ; true),
+	processExpressionWithType(Input,MainExpType,ExprGoal).
+%processOrDefaultMainExpression(Input,_,Type,_,none,_,ExprGoal) :-
+%	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
+%                            ; true),
+%	tryDefaultMainType(Input,Type,ExprGoal), !.
+processOrDefaultMainExpression(_,_,Type,_,_,_,_) :-
+	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
+                            ; true),
         writeErr('Cannot handle arbitrary overloaded top-level expressions'),
-	nlErr, fail.
+	nlErr,
+        writeErr('Hint: add type annotation to overloaded entity'), nlErr,
+        fail.
 
-% try to default overloaded type of main expression:
-tryDefaultType(Input,'FuncType'(AType,RType),ExprGoal) :-
-	classDict(AType,TVar,DictName),
-	member(DictName,["Num","Fractional"]), !,
-	(DictName="Num"
-         -> TVar = 'TCons'('Prelude.Int',[]),
-	    tryDefaultType(Input,RType,ExprGoal)
-	  ; TVar = 'TCons'('Prelude.Float',[]),
-	    tryDefaultType(Input,RType,ExprGoal)).
-tryDefaultType(Input,Type,ExprGoal) :-
-	\+ (nonvar(Type), Type='FuncType'(_,_)), % can't default functions
-	\+ append(_,[119,104,101,114,101|_],Input), % can't handle ...where...
-	defaultMainExp(Input,Type,ExprGoal).
+%% try to default overloaded type of main expression:
+%tryDefaultMainType(Input,'FuncType'(AType,RType),ExprGoal) :-
+%	classDict(AType,TVar,DictName),
+%	member(DictName,["Num","Fractional"]), !,
+%	(DictName="Num"
+%         -> TVar = 'TCons'('Prelude.Int',[]),
+%	    tryDefaultMainType(Input,RType,ExprGoal)
+%	  ; TVar = 'TCons'('Prelude.Float',[]),
+%	    tryDefaultMainType(Input,RType,ExprGoal)).
+%tryDefaultMainType(Input,Type,ExprGoal) :-
+%	\+ (nonvar(Type), Type='FuncType'(_,_)), % can't default functions
+%	\+ append(_,[119,104,101,114,101|_],Input), % can't handle ...where...
+%	defaultMainExp(Input,Type,ExprGoal).
+%
+%% default the main expression to some given type:
+%defaultMainExp(Input,ExpType,ExprGoal) :-
+%        flatType2Atom(ExpType,TypeA),
+%        atom_codes(TypeA,TypeString),
+%	(verbosityIntermediate
+%          -> write('Defaulting expression type to "'),
+%	     write(TypeA), write('"...'), nl
+%           ; true),
+%	concat(["(",Input,") :: ",TypeString],TypedInput),
+%	processExpression(TypedInput,ExprGoal).
 
-% default the main expression to some given type:
-defaultMainExp(Input,ExpType,ExprGoal) :-
+% translate a flat type into an atom in Curry syntax:
+flatType2Atom(Type,CurryType) :-
         % small hack to avoid redefinition of writeType/2 to writeType/3...
         getNewFileName("maintype",NewFile),
         tell(NewFile),
-	  numbersmallvars(97,_,ExpType), writeType(ExpType), nl, 
+	  numbersmallvars(97,_,Type), writeType(Type), nl, 
 	told,
 	open(NewFile,read,Stream),
 	  readStreamLine(Stream,TypeString),
 	close(Stream),
 	appendAtoms(['rm -rf ',NewFile],RmCmd), shellCmd(RmCmd),
-	(verbosityIntermediate
-          -> write('Defaulting expression type to "'),
-	     atom_codes(TypeA,TypeString),
-	     write(TypeA), write('"...'), nl
-           ; true),
-	concat(["(",Input,") :: ",TypeString],TypedInput),
-	processExpression(TypedInput,ExprGoal).
+	atom_codes(CurryType,TypeString).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check whether the first argument is the (FlatCurry) representation
 % of some class contexts and return the context type in the second
 % argument and the class name (string) in the third argument:
+classDict(T,_,_) :- var(T), !, fail.
 classDict('TCons'(FCDictA,[A]),A,Dict) :-
         atom_codes(FCDictA,FCDictS),
         atom_codes('._Dict\'23',FCDictPrefixS),
@@ -395,10 +416,11 @@ classDict('TCons'(FCDictA,[A]),A,Dict) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-parseMainExpression(Input,Term,Type,Vs,Ovld) :-
+parseMainExpression(Input,InitMainExpType,Term,Type,Vs,MainExpType,Ovld) :-
 	(freeVarsUndeclared(yes)
-	  -> parseExpressionSimple(Input,Term,Type,Vs,Ovld)
-	   ; parseExpressionWithFrontend(Input,Term,Type,Vs,Ovld)),
+	  -> parseExpressionSimple(Input,Term,Type,Vs,Ovld), MainExpType=none
+          ; parseExpressionWithFrontend(Input,InitMainExpType,Term,Type,Vs,
+                                        MainExpType,Ovld)),
 	(verbosityDetailed
           -> write('Translated expression: '), writeq(Term), nl
            ; true).
@@ -415,17 +437,21 @@ parseExpressionSimple(Input,Term,Type,Vs,false) :-
 
 % process a given main expression by writing it into a main module
 % and calling the front end:
-parseExpressionWithFrontend(Input,MainExp,Type,Vs,Ovld) :-
+parseExpressionWithFrontend(Input,InitMainExpType,MainExp,Type,Vs,
+                            MainExpType,Ovld) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
-	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld).
+	parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,
+                                         MainExp,Type,Vs,MainExpType,Ovld).
 
-parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
+parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,MainExp,
+                                 Type,Vs,MainExpType,Ovld) :-
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
-	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars),
+	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars,
+                          InitMainExpType),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
 	toAbsPath(MainPath,AbsMainPath),
@@ -455,15 +481,20 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs,Ovld) :-
 	     map2M(compiler:varIndex2VarExp,RuleArgs,RuleVars),
 	     FlatExp = 'Comb'('FuncCall',
 	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
-	stripFuncTypes(NumVars,FuncType,FType),
-	flatType2MainType([],FType,_,Type),
+        flatType2MainType([],FuncType,_,MFuncType),
+        %write(MFuncType),nl,
+        tryDefaultType(MFuncType,DType),
+        (isOverloadedType(DType) -> %write(DType), nl,
+                                    MainExpType=none    % can't default
+                                  ; flatType2Atom(DType,MainExpType)),
+        stripFuncTypes(NumVars,DType,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
 	length(FreeVars,FVL), length(RuleArgs,RAL),
 	(FVL=RAL -> Ovld=false ; Ovld=true),
 	!,
 	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_) :-
+parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
 	!, fail.
 
@@ -513,8 +544,34 @@ compileMainExpression(MainExprMod) :-
 	             printError(ErrorMsg) ),
 	curryModule(CurrMod).
 
+% try to default an overloaded type:
+tryDefaultType(Type,Type) :- var(Type), !.
+tryDefaultType('FuncType'(AType,RType),DType) :-
+	classDict(AType,TVar,DictName),
+	member(DictName,["Num","Fractional"]),
+	(DictName="Num"
+         -> TVar = 'TCons'('Prelude.Int',[]),
+	    tryDefaultType(RType,DType)
+	  ; TVar = 'TCons'('Prelude.Float',[]),
+	    tryDefaultType(RType,DType)).
+tryDefaultType('FuncType'(AType,RType),DType) :-
+	classDict(AType,TVar,DictName),
+	member(DictName,["Eq","Ord"]),
+        %nonvar(TVar),
+        TVar = 'TCons'('Prelude.Int',[]), !,
+        tryDefaultType(RType,DType).
+tryDefaultType('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
+        tryDefaultType(RType,DType).
+tryDefaultType(Type,Type).
 
-% strip the first n function types from a type expression:
+% Is the type overloaded, i.e., does it contain class dictioniary parameters?
+isOverloadedType(Type) :- var(Type), !, fail.
+isOverloadedType('FuncType'(AType,_)) :- classDict(AType,_,_), !.
+isOverloadedType('FuncType'(_,RType)) :- !, isOverloadedType(RType).
+isOverloadedType(_) :- fail.
+
+% strip the first n function types (except for class dictionaries)
+% from a type expression:
 stripFuncTypes(0,Type,Type) :- !.
 stripFuncTypes(N,'FuncType'(_,RType),Type) :-
         N1 is N-1, stripFuncTypes(N1,RType,Type).
@@ -613,7 +670,7 @@ flatExps2MainExps(Vs,[FE|FEs],Vs2,[E|Es]) :-
 	flatExp2MainExp(Vs,FE,Vs1,E),
 	flatExps2MainExps(Vs1,FEs,Vs2,Es).
 
-writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
+writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainExpType) :-
 	(verbosityIntermediate
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
@@ -624,6 +681,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
 	(MainProg='Prelude' -> true
           ; write(S,'import '), write(S,MainProg), nl(S)),
 	addImports(Imps), writeMainImports(S,Imps),
+        (InitMainExpType = none -> true
+         ; write(S,'pakcsMainGoal :: '), write(S,InitMainExpType), nl(S)),
 	write(S,'pakcsMainGoal'),
 	writeFreeVarArgs(S,FreeVars),
 	write(S,' = '),
@@ -849,7 +908,7 @@ processCommand("define",BindingS) :- !,
 	asserta(varDefines([Var=Exp|OldDefs])).
 
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(ExprInput,Term,Type,Vs,Ovld),
+	parseMainExpression(ExprInput,none,Term,Type,Vs,_,Ovld),
 	(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
                     ; writeCurryTermWithFreeVarNames(Vs,Term)),
 	write(' :: '),
@@ -994,7 +1053,7 @@ processCommand("source",Arg) :-
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	parseMainExpression(ExprInput,Term,_Type,_Vs,_),
+	parseMainExpression(ExprInput,none,Term,_Type,_Vs,_,_),
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
@@ -1356,7 +1415,7 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	parseMainExpression(ExprInput,_Term,Type,_Vs,_),
+	parseMainExpression(ExprInput,none,_Term,Type,_Vs,_,_),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
