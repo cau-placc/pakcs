@@ -518,11 +518,11 @@ compileMainExpression(MainExprMod) :-
 defaultNumType(Type,Type) :- var(Type), !.
 defaultNumType('FuncType'(AType,RType),DType) :-
 	classDict(AType,TVar,DictName),
-	member(DictName,["Num","Fractional"]), !,
-	(DictName="Num"
-         -> (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),
+	member(DictName,["Num","Integral","Fractional"]), !,
+	(DictName="Fractional"
+         -> (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
 	    defaultNumType(RType,DType)
-	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
+	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),
 	    defaultNumType(RType,DType)).
 defaultNumType('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
         defaultNumType(RType,DType).
