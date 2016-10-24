@@ -532,7 +532,7 @@ defaultNumType(Type,Type).
 removeDefaultedTypes(Type,Type) :- var(Type), !.
 removeDefaultedTypes('FuncType'(AType,RType),DType) :-
 	classDict(AType,TVar,DictName),
-	member(DictName,["Eq","Ord"]),
+	member(DictName,["Eq","Ord","Show"]),
         nonvar(TVar), !,
         removeDefaultedTypes(RType,DType).
 removeDefaultedTypes('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
