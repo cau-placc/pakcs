@@ -3,7 +3,6 @@
 -- of set functions, these tests are also limited.
 
 import SetFunctions
-import Integer(abs)
 import Test.EasyCheck
 
 coin = 0 ? 1
@@ -20,6 +19,7 @@ testSetFun_f_bigCoin = (foldValues (+) 0 (set1 f bigCoin)) <~> (5 ? 9)
 -- The flight example from the paper introducing set functions
 
 data FlightNumber = LH469 | NWA92 | LH10 | KL1783
+ deriving (Eq,Show)
 
 data City = Portland | Frankfurt | Amsterdam | Hamburg
 

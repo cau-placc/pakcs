@@ -4,9 +4,9 @@
 
 module CoosyDerive(derive,deriveFile) where
 
-import AbstractCurry2.Types
-import AbstractCurry2.Files
-import AbstractCurry2.Select(tconsArgsOfType)
+import AbstractCurry.Types
+import AbstractCurry.Files
+import AbstractCurry.Select(tconsArgsOfType)
 import Char(isSpace)
 import System(getProgName)
 
