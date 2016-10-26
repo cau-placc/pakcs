@@ -5,7 +5,7 @@
 --- as primitive constraints in CHR(Curry)
 ---
 --- @author Michael Hanus
---- @version February 2015
+--- @version October 2016
 ----------------------------------------------------------------------
 
 {-# OPTIONS_CYMAKE -Wno-incomplete-patterns -Wno-missing-signatures #-}
@@ -25,14 +25,14 @@ member x xs = anyPrim $ \() -> contains x xs
  where contains z (y:ys) = z=:=y ? contains z ys
 
 -- Rules for `dom` constraint:
-dom1 [x]   = dom x [] <=> fail
+dom1 [x]   = dom x [] <=> false
 dom2 [x,y] = dom x [y] <=> x .=. y
 dom3 [x]   = dom x xs <=> nonvar x |> member x xs     where xs free
 dom4 [x]   = dom x d1 /\ dom x d2 <=> intersect d1 d2 d3 /\ dom x d3
   where d1,d2,d3 free
 
 -- Rules for `diff` constraint:
-diff1 [x]   = diff x x <=> fail
+diff1 [x]   = diff x x <=> false
 diff2 [x,y] = diff x y <=> nonvar x /\ nonvar y |> x ./=. y
 diff3 [x,y] = diff x y /\ dom x d1 <=> nonvar y |> delete y d1 d2 /\ dom x d2
   where d1,d2 free

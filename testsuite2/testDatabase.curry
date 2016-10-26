@@ -54,8 +54,10 @@ test_q_add_delete = (runT (qrm |>> qa |>> qa |>> qr) >> getQ)
 
 
 -- manipulating more data:
+addTo :: (Int -> Dynamic) -> Int -> Transaction ()
 addTo pred n = mapT_ (addDB . pred) [1..n]
 
+deleteN :: (Int -> Dynamic) -> Int -> Transaction ()
 deleteN pred n = mapT_ (\_->deleteFirst pred) [1..n]
 
 test_manipulate_many_p =

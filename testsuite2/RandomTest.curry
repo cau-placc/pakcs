@@ -16,7 +16,7 @@ test f = (rndList lenRnds >>= \xs -> return (if f xs then Nothing else Just xs))
 --- on a list of distinct random numbers.
 --- In case of a failure, the list of random numbers is returned
 --- in order to see the test cases in the CurryTest tool.
-eq :: ([Int] -> a) -> ([Int] -> a) -> PropIO
+eq :: Eq a => ([Int] -> a) -> ([Int] -> a) -> PropIO
 eq f g = test (\x -> (f x)==(g x))
 
 --- generate a list of at most n random numbers (without duplicated elements)

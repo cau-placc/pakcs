@@ -5,6 +5,8 @@
 import Test.EasyCheck
 
 data Person = Person {name :: String, age :: Int}
+ deriving Eq
+
 data Address = Address {person :: Person, street :: String, city :: String}
 
 john1 = Person {age = 30, name = "John"}

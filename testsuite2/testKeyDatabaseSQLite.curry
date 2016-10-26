@@ -44,17 +44,19 @@ testCreatedExists =
     (runT $ (newDBEntry testPred ("new",42) |>>= getDB . existsDBKey testPred))
     `returns` (Left True)
 
-testCreatedGoneAfterClean =
-    (runTWithError
-      (newDBEntry testPred ("new",42) |>>= \key ->
-       cleanDB testPred |>> getDB (getDBInfo testPred key)))
-    `returns` (Left Nothing)
+testCreatedGoneAfterClean = runTWithError trans `returns` (Left Nothing)
+ where
+  trans = do
+    key <- newDBEntry testPred ("new",42)
+    cleanDB testPred
+    getDB (getDBInfo testPred key)
 
-testGetAllCreatedKeys =
-   (runT (mapT (newDBEntry testPred) [("a",10),("b",20),("c",30)] |>>= \keys1 ->
-          getDB (allDBKeys testPred) |>>= \keys2 ->
-          returnT (sameBag keys1 keys2)))
-   `returns` (Left True)
+testGetAllCreatedKeys = runT trans `returns` (Left True)
+ where
+  trans = do
+    keys1 <- mapT (newDBEntry testPred) [("a",10),("b",20),("c",30)]
+    keys2 <- getDB (allDBKeys testPred)
+    returnT (sameBag keys1 keys2)
 
 testGetAllCreatedInfos =
     (runT (cleanDB testPred |>>
@@ -140,6 +142,6 @@ testFinalCleanUp = (system "rm -f test.db") `returns` 0
 runTWithError trans =
   runT trans >>= return . either Left (\ (TError tkind _) -> Right tkind)
 
-sameBag :: [a] -> [a] -> Bool
+sameBag :: Ord a => [a] -> [a] -> Bool
 sameBag xs ys = sort xs == sort ys
 

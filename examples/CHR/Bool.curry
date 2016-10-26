@@ -2,7 +2,7 @@
 --- CHR(Curry): Boolean constraint solver
 ---
 --- @author Michael Hanus
---- @version February 2015
+--- @version October 2016
 ----------------------------------------------------------------------
 
 {-# OPTIONS_CYMAKE -Wno-incomplete-patterns -Wno-missing-signatures #-}
@@ -39,7 +39,7 @@ negRules =
  ,\[x] -> neg x False  <=> x .=. True
  ,\[x] -> neg True  x  <=> x .=. False
  ,\[x] -> neg x True   <=> x .=. False
- ,\[x] -> neg x x      <=> fail
+ ,\[x] -> neg x x      <=> false
  ]
 
 boolRules = andRules ++ orRules ++ negRules

@@ -21,8 +21,8 @@ $CURRYBIN/cleancurry
 cat << EOM | $CURRYBIN/curry -q :set -interactive :set v0 :set printdepth 0 :set -free :set +verbose :set -time > $LOGFILE
 :load Leq
 main10 x        where x free
-main11 x y z    where x,y,z free
-main12 x y z z' where x,y,z,z' free
+main11 (x::Int) y z    where x,y,z free
+main12 (x::Int) y z z' where x,y,z,z' free
 
 :load Bool
 main20 x y z    where x,y,z free

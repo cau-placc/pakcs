@@ -14,6 +14,7 @@ import Test.EasyCheck
 --- A datatype for lambda expressions.
 ---
 data Exp = Var Name | Lam Name Exp | App Exp Exp
+ deriving (Eq,Show)
 
 type Name = String
 

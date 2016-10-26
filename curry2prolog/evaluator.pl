@@ -472,7 +472,7 @@ writeCurryD(S,_,_,T) :- atom(T), !,
 	 ; revTransFunctor(T,ExtName),
 	    ((isId(ExtName) ; ExtName='()')
 	      -> write(S,ExtName)
-	       ; write(S,'('), write(S,ExtName), write(S,')'))).
+               ; write(S,'('), write(S,ExtName), write(S,')'))).
 writeCurryD(S,D,_,T) :-
 	isCompleteList(T,TL),
 	!,
@@ -527,6 +527,8 @@ writeCurryD(S,D,Nested,T) :-
 	writeCurryArgs(S,D1,Nested,Args).
 
 writeCurryArgs(S,_,Nested,[]) :- (Nested=nested -> write(S,')') ; true).
+writeCurryArgs(S,D,Nested,[A|As]) :- isInstDict(A), !, % omit class dicts
+        writeCurryArgs(S,D,Nested,As).
 writeCurryArgs(S,D,Nested,[A|As]) :-
 	write(S,' '),
 	writeCurryD(S,D,nested,A),
@@ -567,6 +569,17 @@ revTransFunctor(IntName,Name) :-
 	constructorOrFunctionType(IntName,Name,_,_), !.
 revTransFunctor(Name,Name).
 
+% is this a class dictionary?
+isInstDict(T) :- var(T), fail.
+isInstDict(T) :- atom(T), !, isInstDictName(T).
+isInstDict(T) :- number(T), !, fail.
+isInstDict(T) :- T =.. [Name|_], isInstDictName(Name).
+
+isInstDictName(IntName) :-
+        revTransFunctor(IntName,Name),
+        atom_codes(Name,NameS),
+        atom_codes('_inst#',InstS),
+        append(InstS,_,NameS), !.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

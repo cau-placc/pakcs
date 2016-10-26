@@ -48,7 +48,7 @@ testCheck5d = always (not (check5 ""))
 
 -- Tests with parameterized regular expressions:
 
-pregexp1 :: [a] -> a -> a -> Bool
+pregexp1 :: Ord a => [a] -> a -> a -> Bool
 pregexp1 s v1 v2 = s ``regex [<v1>-<v2>]*''
 
 testPregexp1a = always (pregexp1 "abc" 'a' 'z')
@@ -56,7 +56,7 @@ testPregexp1b = always (pregexp1 "ABC" 'A' 'Z')
 testPregexp1c = always (not (pregexp1 "abc" 'A' 'Z'))
 
 
-pregexp2 :: [a] -> a -> a -> Bool
+pregexp2 :: Ord a => [a] -> a -> a -> Bool
 pregexp2 s v1 v2 = s ``regex (<v1>|<v2>)*''
 
 testPregexp2a = always (pregexp2 "abaabbb" 'a' 'b')
