@@ -5,7 +5,7 @@ CURRYHOME=..
 CURRYBIN=$CURRYHOME/bin
 
 # test for basic language features
-TESTLANG="testFunctional testInfinite testHigher testNarrowing testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testFuncPattern testAsPattern"
+TESTLANG="testFunctional testInfinite testHigher testNarrowing testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testFuncPattern testAsPattern testReadShow"
 
 # test for standard libraries
 TESTLIBS="testPrelude testAbstractCurry testArray testCombinatorial testDequeue testDirectory testFiniteMap testFlatCurryGoodies testFormat testGlobal testInteger testIOExts testKeyDatabaseSQLite testList testRedBlackTree testRegExp testSetFunctions testSort testSystem testTraversal"
