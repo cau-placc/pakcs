@@ -302,6 +302,8 @@ process([58|Cs]) :- !, % 58=':'
 	processCommand(Cmd,Params),
 	!,
 	Cmd="quit".
+process(Input) :- % ignore inputs starting with a comment:
+        removeBlanks(Input,[45,45|_]), !, fail.
 process(Input) :-
 	processExpression(Input,ExprGoal),
 	call(ExprGoal).
