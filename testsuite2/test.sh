@@ -5,7 +5,10 @@ CURRYHOME=..
 CURRYBIN=$CURRYHOME/bin
 
 # test for basic language features
-TESTLANG="testFunctional testInfinite testHigher testNarrowing testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testFuncPattern testAsPattern testReadShow"
+TESTLANG="testFunctional testInfinite testHigher testNarrowing testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testFuncPattern testAsPattern"
+
+# test for type classes
+TESTCLASSES="testReadShow testDoList testClassInst testDeriving testDefault testMaybeMonad"
 
 # test for standard libraries
 TESTLIBS="testPrelude testAbstractCurry testArray testCombinatorial testDequeue testDirectory testFiniteMap testFlatCurryGoodies testFormat testGlobal testInteger testIOExts testKeyDatabaseSQLite testList testRedBlackTree testRegExp testSetFunctions testSort testSystem testTraversal"
@@ -41,11 +44,13 @@ LOGFILE=xxx$$
 # Note: the calls to currycheck are split into several separate calls
 #       in order to avoid memory overflow problems with PAKCS/SWI-Prolog!
 if [ $VERBOSE = yes ] ; then
-  $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTLIBS \
+  $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTCLASSES \
+    && $CURRYBIN/currycheck $TESTLIBS \
     && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS2
   if [ $? -gt 0 ] ; then exit 1 ; fi
 else
-  ( $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTLIBS \
+  ( $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTCLASSES \
+    && $CURRYBIN/currycheck $TESTLIBS \
     && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS2 ) > $LOGFILE 2>&1
   if [ $? -gt 0 ] ; then
     echo "ERROR in currycheck:"

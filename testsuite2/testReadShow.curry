@@ -22,9 +22,16 @@ showOfReadString = showOfRead
 
 showOfReadMaybeInt :: Maybe Int -> Prop
 showOfReadMaybeInt = showOfRead
-
-showOfReadEitherIntBool :: Either Int Bool -> Prop
-showOfReadEitherIntBool = showOfRead
 -}
+showOfReadEitherCharBool :: Either Char Bool -> Prop
+showOfReadEitherCharBool = showOfRead
+
 showOfReadPairIntBool :: (Int,Bool) -> Prop
 showOfReadPairIntBool = showOfRead
+
+showOfReadMaybeOrdering :: Maybe Ordering -> Prop
+showOfReadMaybeOrdering = showOfRead
+
+showOfReadListInt :: [Int] -> Prop
+showOfReadListInt = showOfRead
+
