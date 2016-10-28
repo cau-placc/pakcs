@@ -823,7 +823,7 @@ processCommand("browse",[]) :- !,
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
         installDir(PH),
-	appendAtoms(['"',PH,'/bin/currybrowse" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',PH,'/bin/curry-browse" ',RealProg,' & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
@@ -1401,7 +1401,7 @@ failprint(Exp,E,E) :-
 parseProgram(ProgS,Verbosity,Warnings) :-
 	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
-	appendAtoms(['"',TCP,'/bin/cymake" --flat'],CM1),
+	appendAtoms(['"',TCP,'/bin/pakcs-cymake" --flat'],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	(pakcsrc(warnoverlapping,no)

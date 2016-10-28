@@ -33,33 +33,7 @@ pkg/
 
 # binaries
 *.state
-bin/.makesavedstate
-bin/makecurrycgi
-bin/cleancurry
-bin/.local
-bin/sicstusprolog
-bin/swiprolog
-bin/parsecurry
-bin/pakcs
-bin/addtypes
-bin/casc
-bin/cass
-bin/cymake
-bin/curry
-bin/currycheck
-bin/currytest
-bin/currycreatemake
-bin/currydoc
-bin/currybrowse
-bin/currypp
-bin/curry2verify
-bin/data2xml
-bin/erd2cdbi
-bin/erd2curry
-bin/fcypp
-bin/peval
-bin/runcurry
-bin/spiceup
+bin/
 cpns/CPNSD
 curry2prolog/prologbasics.pl
 curry2prolog/libswi

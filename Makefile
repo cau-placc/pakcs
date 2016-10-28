@@ -68,7 +68,7 @@ export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
 export REPL_OPTS    = --noreadline :set -time
 # The front end binary
-export CYMAKE       = $(BINDIR)/cymake
+export CYMAKE       = $(BINDIR)/$(CURRYSYSTEM)-cymake
 # The cleancurry binary
 export CLEANCURRY   = $(BINDIR)/cleancurry
 
@@ -145,11 +145,13 @@ copylibs:
 # install front end (from environment variable or sources):
 .PHONY: frontend
 frontend:
+	rm -f $(BINDIR)/cymake
 ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
 	rm -f $(CYMAKE)
 	ln -s $(CURRYFRONTEND) $(CYMAKE)
+	ln -s $(CYMAKE) $(BINDIR)/cymake # for backward compatibility
 else
-	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
+	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; else ln -s $(CYMAKE) $(BINDIR)/cymake ; fi
 endif
 
 .PHONY: compilefrontend
@@ -157,6 +159,7 @@ compilefrontend:
 	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
 	ln -s $(FRONTENDDIR)/bin/cymake $(CYMAKE)
+	ln -s $(CYMAKE) $(BINDIR)/cymake # for backward compatibility
 
 # compile the tools:
 .PHONY: tools
