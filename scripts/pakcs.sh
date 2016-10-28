@@ -6,6 +6,13 @@
 PAKCSHOME=`echo PAKCSHOME must be defined here!`
 export PAKCSHOME
 
+# check whether first argument is a tool and, if yes, exec the tool
+PAKCSTOOL="$PAKCSHOME/bin/pakcs-"$1
+if [ -x "$PAKCSTOOL" ] ; then
+  shift
+  exec "$PAKCSTOOL" ${1+"$@"}
+fi
+
 # Add PAKCS bin directory to path so that currypp can be found:
 PATH=$PATH:$PAKCSHOME/bin
 export PATH
