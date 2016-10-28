@@ -18,7 +18,7 @@ SWIOPTIONS=--traditional -q -L0 -G0 -T0 -O
 LIBDIR=$(PAKCSHOME)/lib
 
 # standard name in bin directory:
-INSTALLBIN = ../bin/curry
+INSTALLBIN = $(PAKCSHOME)/bin/curry
 
 .PHONY: install
 install:
