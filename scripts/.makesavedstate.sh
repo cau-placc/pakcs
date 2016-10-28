@@ -75,8 +75,9 @@ else
 fi
 
 if [ -z "$SICSTURDIR" ] ; then
-  # patch option "--traditional" into SWI-Prolog saved states:
-  sed "3s/-x/--traditional -x/" < $TMPSTATE > $TMPSTATE$$
+  # patch option "--traditional" and unlimit memory in SWI-Prolog saved states
+  # so that the generated binaries have the same behavior as PAKCS:
+  sed "3s/-x/--traditional -L0 -G0 -T0 -x/" < $TMPSTATE > $TMPSTATE$$
   mv $TMPSTATE$$ $TMPSTATE
 fi
 
