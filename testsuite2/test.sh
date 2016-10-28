@@ -44,16 +44,16 @@ LOGFILE=xxx$$
 # Note: the calls to currycheck are split into several separate calls
 #       in order to avoid memory overflow problems with PAKCS/SWI-Prolog!
 if [ $VERBOSE = yes ] ; then
-  $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTCLASSES \
-    && $CURRYBIN/currycheck $TESTLIBS \
-    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS2
+  $CURRYBIN/curry check $TESTLANG && $CURRYBIN/curry check $TESTCLASSES \
+    && $CURRYBIN/curry check $TESTLIBS \
+    && $CURRYBIN/curry check $TESTPAKCS $TESTKICS2
   if [ $? -gt 0 ] ; then exit 1 ; fi
 else
-  ( $CURRYBIN/currycheck $TESTLANG && $CURRYBIN/currycheck $TESTCLASSES \
-    && $CURRYBIN/currycheck $TESTLIBS \
-    && $CURRYBIN/currycheck $TESTPAKCS $TESTKICS2 ) > $LOGFILE 2>&1
+  ( $CURRYBIN/curry check $TESTLANG && $CURRYBIN/curry check $TESTCLASSES \
+    && $CURRYBIN/curry check $TESTLIBS \
+    && $CURRYBIN/curry check $TESTPAKCS $TESTKICS2 ) > $LOGFILE 2>&1
   if [ $? -gt 0 ] ; then
-    echo "ERROR in currycheck:"
+    echo "ERROR in curry check:"
     cat $LOGFILE
     /bin/rm -f $LOGFILE
     exit 1
