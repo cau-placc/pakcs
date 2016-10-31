@@ -123,7 +123,7 @@ processArgs([Arg|_]) :-
 	printPakcsHeader,
 	halt(0).
 processArgs([Arg|_]) :-
-	(Arg='--help' ; Arg='-help' ; Arg='-h' ; Arg='-?'),
+	(Arg='--help' ; Arg='-h' ; Arg='-?'),
 	writeMainHelp,
 	halt(0). % quit
 processArgs([Arg|Args]) :-
@@ -176,15 +176,42 @@ combine2cmd([X1,X2|Xs],CmdS) :-
 % Show the main options of calling pakcs:
 writeMainHelp :-
 	nlErr,
-	writeLnErr('Usage: pakcs <options>'),
+	writeLnErr('Invoke interactive environment:'),
 	nlErr,
-	writeLnErr('Options:'),
+	writeLnErr('    pakcs <options>'),
+	nlErr,
+	writeLnErr('with options:'),
+	nlErr,
 	writeLnErr('-h|--help|-?  : show this message and quit'),
 	writeLnErr('-V|--version  : show version and quit'),
 	writeLnErr('-q|--quiet    : work silently'),
 	writeLnErr('--noreadline  : do not use input line editing via command "rlwrap"'),
 	writeLnErr('-Dname=val    : define pakcsrc property "name" as "val"'),
-	writeLnErr(':<cmd> <args> : command of the PAKCS environment').
+	writeLnErr(':<cmd> <args> : command of the PAKCS environment'),
+	nlErr,
+	nlErr,
+	writeLnErr('Invoke some tool:'),
+	nlErr,
+	writeLnErr('    pakcs <tool> <tool specific options>'),
+	nlErr,
+	writeLnErr('where <tool> is one of:'),
+	nlErr,
+	writeLnErr('addtypes  : add missing signature to top-level operations'),
+	writeLnErr('analyze   : analyze various properties (via CASS)'),
+	writeLnErr('browse    : browse and analyze'),
+	writeLnErr('check     : check properties'),
+	writeLnErr('createmake: create make file for main module'),
+	writeLnErr('cymake    : Curry front end'),
+	writeLnErr('data2xml  : generate XML bindings'),
+	writeLnErr('doc       : generate documentation for Curry programs'),
+	writeLnErr('erd2cdbi  : create database code for ER model and Database.CDBI libraries'),
+	writeLnErr('erd2curry : create database code for ER model'),
+	writeLnErr('peval     : partially evaluate a program'),
+	writeLnErr('pp        : Curry preprocessor'),
+	writeLnErr('spiceup   : create web application via Spicey'),
+	writeLnErr('style     : check style of source programs'),
+	writeLnErr('test      : test assertions (no longer supported)'),
+	writeLnErr('verify    : translate Curry module to Agda for property verification').
 
 
 % Compute the prompt of the interactive loop:
