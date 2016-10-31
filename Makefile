@@ -149,7 +149,6 @@ frontend:
 ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
 	rm -f $(CYMAKE)
 	ln -s $(CURRYFRONTEND) $(CYMAKE)
-	ln -s $(CYMAKE) $(BINDIR)/cymake # for backward compatibility
 else
 	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; else ln -s $(CYMAKE) $(BINDIR)/cymake ; fi
 endif
@@ -159,7 +158,6 @@ compilefrontend:
 	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
 	ln -s $(FRONTENDDIR)/bin/cymake $(CYMAKE)
-	ln -s $(CYMAKE) $(BINDIR)/cymake # for backward compatibility
 
 # compile the tools:
 .PHONY: tools

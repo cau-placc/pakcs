@@ -26,7 +26,7 @@ Changes to version 1.14.0:
     to transform contracts (specifications, pre/postconditions)
     into run-time assertions.
   * New partial evaluator (command "peval") added to `currytools`.
-  * New tool Curry2Verify (to translated Curry programs into Agda programs)
+  * New tool Curry2Verify (to translate Curry programs into Agda programs)
     added to `currytools`.
   * Obsolete script `parsecurry` removed.
   * Names of tool executables changed to `pakcs toolname`.
