@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (September 22, 2016)
------------------------------------------------------------
+Release notes for PAKCS Version 1.14.1 (October 28, 2016)
+---------------------------------------------------------
 
 Changes to version 1.14.0:
 
@@ -28,6 +28,8 @@ Changes to version 1.14.0:
   * New partial evaluator (command "peval") added to `currytools`.
   * New tool Curry2Verify (to translated Curry programs into Agda programs)
     added to `currytools`.
+  * Obsolete script `parsecurry` removed.
+  * Names of tool executables changed to `pakcs toolname`.
 
 
 Release notes for PAKCS Version 1.14.0 (April 19, 2016)
