@@ -5,7 +5,7 @@
 # the scripts to be installed
 BINS = $(BINDIR)/pakcs $(BINDIR)/makecurrycgi \
        $(BINDIR)/.makesavedstate $(BINDIR)/cleancurry \
-       $(BINDIR)/fcypp # $(BINDIR)/runcurry
+       $(BINDIR)/pakcs-fcypp # $(BINDIR)/runcurry
 
 
 .PHONY: all

@@ -21,7 +21,7 @@ done
 
 if [ $# != 1 ] ; then
   echo >&2
-  echo "Usage: fcypp [<Options>] <progname>" >&2
+  echo "Usage: pakcs-fcypp [<Options>] <progname>" >&2
   echo >&2
   echo "Apply FlatCurry preprocessor transformations on Curry program stored in" >&2
   echo "<progname>.[l]curry" >&2

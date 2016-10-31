@@ -1528,7 +1528,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	!, Parse=ok, % proceed only in case of successful parsing
 	% finally, we apply the FlatCury preprocessor:
 	findSourceProg(ProgS,ProgPathS), !,
-	appendAtoms(['"',TCP,'/bin/fcypp"'],PP1),
+	appendAtoms(['"',TCP,'/bin/pakcs-fcypp"'],PP1),
 	(verbosity(0) -> appendAtom(PP1,' --quiet',PP2) ; PP2 = PP1 ),
 	compileWithCompact(CWC), atom_codes(CWCA,CWC),
 	% delete leading './' in ProgPathS:
