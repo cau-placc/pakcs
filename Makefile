@@ -26,13 +26,13 @@
 export DISTPKGINSTALL = no
 
 # The major version numbers:
-MAJORVERSION=1
+MAJORVERSION=2
 # The minor version number:
-MINORVERSION=14
+MINORVERSION=0
 # The revision version number:
-REVISIONVERSION=1
+REVISIONVERSION=0
 # The build version number:
-BUILDVERSION=2
+BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
