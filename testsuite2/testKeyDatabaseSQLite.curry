@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---- Some tests for library KeyDatabaseSQLite
+--- Some tests for library Database.KeyDatabaseSQLite
 ---
 --- To run all tests automatically by the currytest tool, use the command:
 --- "currytest testKeyDatabaseSQLite"
@@ -8,8 +8,8 @@
 --- @version December 2011
 ------------------------------------------------------------------------------
 
+import Database.KeyDatabaseSQLite
 import IO
-import KeyDatabaseSQLite
 import List ( sortBy )
 import System
 import Test.EasyCheck

@@ -2,6 +2,7 @@
 
 import Test.Prop
 
+------------------------------------------------------------------------
 -- A class with a duplicate operation and two instances.
 class Dup a where
   dup :: a -> a
@@ -17,3 +18,23 @@ testDupInt x = dup x -=- 2*x
 
 testDupBool :: Bool -> Prop
 testDupBool x = dup x -=- x
+
+------------------------------------------------------------------------
+-- Now we test classes with non-deterministic operations.
+-- Note that instances define operations rather than values.
+-- Therefore, a non-deterministic operation without arguments
+-- must have a non-deterministic behavior like a top-level function.
+-- Since this is not conform with the standard dictionary translation,
+-- instance operation without arguments are extended with an internal
+-- argument.
+
+class Choice a where
+  choice :: a
+
+instance Choice Int where
+  choice = 0 ? 1
+
+testChoiceInt :: Prop
+testChoiceInt = (choice :: Int) <~> (1?0)
+
+------------------------------------------------------------------------
