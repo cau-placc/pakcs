@@ -197,7 +197,7 @@ $(MANUALVERSION): Makefile
 #
 .PHONY: libdoc
 libdoc:
-	@if [ ! -r bin/currydoc ] ; then \
+	@if [ ! -r bin/pakcs-doc ] ; then \
 	  echo "Cannot create library documentation: currydoc not available!" ; exit 1 ; fi
 	@rm -f $(MAKELOG)
 	@echo "Make libdoc started at `date`" > $(MAKELOG)
