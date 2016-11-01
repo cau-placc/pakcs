@@ -20,8 +20,8 @@ showOfReadOrdering = showOfRead
 showOfReadString :: String -> Prop
 showOfReadString = showOfRead
 
---showOfReadMaybeInt :: Maybe Int -> Prop
---showOfReadMaybeInt = showOfRead
+showOfReadMaybeInt :: Maybe Int -> Prop
+showOfReadMaybeInt = showOfRead
 
 showOfReadEitherCharBool :: Either Char Bool -> Prop
 showOfReadEitherCharBool = showOfRead

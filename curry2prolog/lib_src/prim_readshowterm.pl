@@ -6,6 +6,7 @@
 :- module(prim_readshowterm,
 	  [prim_showQTerm/2, prim_showTerm/2, show_term/4,
            prim_readNatLiteral/2, prim_readFloatLiteral/2,
+           prim_readCharLiteral/2, prim_readStringLiteral/2,
 	   prim_readsQTerm/2, prim_readsUnqualifiedTerm/3, readTerm/4,
 	   skipWhiteSpace/2, isShowableArg/1]).
 
@@ -183,47 +184,63 @@ diffList([H|T],[H|DT],DTE) :- diffList(T,DT,DTE).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% conversion of standard prefix string representations of Curry terms
-% into Curry terms:
 
 % conversion of string representations of nat literals into Curry terms:
-prim_readNatLiteral(String,['Prelude.(,)'(Num,TailString)]) :-
-	map2M(basics:char_int,String,[C|PrologString]),
-	C>47, C<58, natconst(NumStr,[C|PrologString],Tail),
-        number_codes(Num,NumStr),
-	map2M(basics:char_int,TailString,Tail), !.
+prim_readNatLiteral([CC|String],['Prelude.(,)'(Num,TailString)]) :-
+	char_int(CC,C), C>47, C<58,
+        natconst(NumStr,String,TailString),
+        number_codes(Num,[C|NumStr]), !.
 prim_readNatLiteral(_,[]). % parse error
 
-natconst([C|Cs]) --> [C], 
-        { C >= "0", C =< "9" }, !,
+natconst([C|Cs]) --> [CC], 
+        { char_int(CC,C), C>47, C<58 }, !,
         natconst(Cs).
 natconst([]) --> skipblanks.
 
 % conversion of string representations of float literals into Curry terms:
-prim_readFloatLiteral(String,['Prelude.(,)'(Num,TailString)]) :-
-	map2M(basics:char_int,String,[C|PrologString]),
-	C>47, C<58, floatconst(NumStr,[C|PrologString],Tail),
-        number_codes(Num,NumStr),
-	map2M(basics:char_int,TailString,Tail), !.
+prim_readFloatLiteral([CC|String],['Prelude.(,)'(Num,TailString)]) :-
+	char_int(CC,C), C>47, C<58,
+        floatconst(NumStr,String,TailString),
+        number_codes(Num,[C|NumStr]), !.
 prim_readFloatLiteral(_,[]). % parse error
 
-floatconst([C|Cs]) --> [C], 
-        { C >= "0", C =< "9" }, !,
+floatconst([C|Cs]) --> [CC], 
+        { char_int(CC,C), C>47, C<58 }, !,
         floatconst(Cs).
-floatconst([46,C|Cs]) --> ".", [C], { C >= "0", C =< "9" }, !,
+floatconst([46,C|Cs]) --> [PC], { char_int(PC,46) }, [CC],
+        { char_int(CC,C), C>47, C<58 }, !,
         floatconstrest(Cs).
 
-floatconstrest([C|Cs]) --> [C], 
-        { C >= "0", C =< "9" }, !,
+floatconstrest([C|Cs]) --> [CC], 
+        { char_int(CC,C), C>47, C<58 }, !,
         floatconstrest(Cs).
-floatconstrest([C|Cs]) --> [C], {C=69 ; C=101}, !, % exponent
+floatconstrest([C|Cs]) --> [CC], {char_int(CC,C), C=69 ; C=101}, !, % exponent
 	intconst(Cs).
 floatconstrest([]) --> skipblanks.
 
-intconst(Cs) --> ( "-", natconst(NCs), {Cs=[45|NCs]}
+intconst(Cs) --> ( [CC], {char_int(CC,45)}, natconst(NCs), {Cs=[45|NCs]}
 		  ; natconst(Cs)
 		  ).
 
+% conversion of string representations of char literals into Curry terms:
+% TODO: avoid char_int conversion
+prim_readCharLiteral(String,['Prelude.(,)'(Char,TailString)]) :-
+	map2M(basics:char_int,String,[C|PrologString]),
+	C=39, readChar(PrologString,Tail,Char),
+	map2M(basics:char_int,TailString,Tail), !.
+prim_readCharLiteral(_,[]). % parse error
+
+% conversion of string representations of string literals into Curry terms:
+% TODO: avoid char_int conversion
+prim_readStringLiteral(String,['Prelude.(,)'(Result,TailString)]) :-
+	map2M(basics:char_int,String,[C|PrologString]),
+	C=34, readString(PrologString,Tail,Result),
+	map2M(basics:char_int,TailString,Tail), !.
+prim_readStringLiteral(_,[]). % parse error
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% conversion of standard prefix string representations of Curry terms
+% into Curry terms:
 
 % conversion of string representations of Curry terms into Curry terms:
 prim_readsQTerm(String,['Prelude.(,)'(Term,TailString)]) :-
