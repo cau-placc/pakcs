@@ -5,6 +5,7 @@
 
 :- module(prim_readshowterm,
 	  [prim_showQTerm/2, prim_showTerm/2, show_term/4,
+           prim_readNatLiteral/2, prim_readFloatLiteral/2,
 	   prim_readsQTerm/2, prim_readsUnqualifiedTerm/3, readTerm/4,
 	   skipWhiteSpace/2, isShowableArg/1]).
 
@@ -185,6 +186,45 @@ diffList([H|T],[H|DT],DTE) :- diffList(T,DT,DTE).
 % conversion of standard prefix string representations of Curry terms
 % into Curry terms:
 
+% conversion of string representations of nat literals into Curry terms:
+prim_readNatLiteral(String,['Prelude.(,)'(Num,TailString)]) :-
+	map2M(basics:char_int,String,[C|PrologString]),
+	C>47, C<58, natconst(NumStr,[C|PrologString],Tail),
+        number_codes(Num,NumStr),
+	map2M(basics:char_int,TailString,Tail), !.
+prim_readNatLiteral(_,[]). % parse error
+
+natconst([C|Cs]) --> [C], 
+        { C >= "0", C =< "9" }, !,
+        natconst(Cs).
+natconst([]) --> skipblanks.
+
+% conversion of string representations of float literals into Curry terms:
+prim_readFloatLiteral(String,['Prelude.(,)'(Num,TailString)]) :-
+	map2M(basics:char_int,String,[C|PrologString]),
+	C>47, C<58, floatconst(NumStr,[C|PrologString],Tail),
+        number_codes(Num,NumStr),
+	map2M(basics:char_int,TailString,Tail), !.
+prim_readFloatLiteral(_,[]). % parse error
+
+floatconst([C|Cs]) --> [C], 
+        { C >= "0", C =< "9" }, !,
+        floatconst(Cs).
+floatconst([46,C|Cs]) --> ".", [C], { C >= "0", C =< "9" }, !,
+        floatconstrest(Cs).
+
+floatconstrest([C|Cs]) --> [C], 
+        { C >= "0", C =< "9" }, !,
+        floatconstrest(Cs).
+floatconstrest([C|Cs]) --> [C], {C=69 ; C=101}, !, % exponent
+	intconst(Cs).
+floatconstrest([]) --> skipblanks.
+
+intconst(Cs) --> ( "-", natconst(NCs), {Cs=[45|NCs]}
+		  ; natconst(Cs)
+		  ).
+
+
 % conversion of string representations of Curry terms into Curry terms:
 prim_readsQTerm(String,['Prelude.(,)'(Term,TailString)]) :-
 	map2M(basics:char_int,String,PrologString),
@@ -227,6 +267,7 @@ readTerm0([36|Cs],Q,T,Term) :-
 	Term =.. [Func|Args].
 readTerm0(S,Q,T,Term) :-
 	readTermS(S,Q,T,Term).
+
 
 % special case for Unsafe.readAny(Q)Term:
 readTermS([95|S],Q,T,'_'(Num)) :- % variable encoding
