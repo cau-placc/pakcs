@@ -954,7 +954,7 @@ processCommand("browse",[]) :- !,
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
         installDir(PH),
-	appendAtoms(['"',PH,'/bin/curry-browse" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',PH,'/bin/pakcs-browse" ',RealProg,' & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
