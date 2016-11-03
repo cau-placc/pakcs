@@ -833,7 +833,7 @@ processCommand("interface",IFTail) :- !,
 	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
         installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/GenInt" -int ',ProgA],
+	appendAtoms(['"',PH,'/currytools/browser/ShowFlatCurry" -int ',ProgA],
 		    GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
@@ -850,7 +850,7 @@ processCommand("browse",[]) :- !,
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
         installDir(PH),
-	appendAtoms(['"',PH,'/bin/pakcs-browse" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
