@@ -37,4 +37,11 @@ instance Choice Int where
 testChoiceInt :: Prop
 testChoiceInt = (choice :: Int) <~> (1?0)
 
+-- If we use the standard dictionary translation as in Haskell,
+-- the following example would produce only two answer due to the
+-- sharing of the `choice` variable.
+testTwoChoices :: Prop
+testTwoChoices = ([choice,choice] :: [Int]) <~> ([0,0]?[0,1]?[1,0]?[1,1])
+
+
 ------------------------------------------------------------------------
