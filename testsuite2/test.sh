@@ -41,7 +41,7 @@ $CURRYBIN/cleancurry
 
 LOGFILE=xxx$$
 
-# Note: the calls to currycheck are split into several separate calls
+# Note: the calls to CurryCheck are split into several separate calls
 #       in order to avoid memory overflow problems with PAKCS/SWI-Prolog!
 if [ $VERBOSE = yes ] ; then
   $CURRYBIN/curry check $TESTLANG && $CURRYBIN/curry check $TESTCLASSES \

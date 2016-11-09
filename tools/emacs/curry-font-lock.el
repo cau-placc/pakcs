@@ -188,7 +188,7 @@ suitable for `font-lock-keywords'."
 	 ;; make-regexp applied to reservedid creates the following
 	 ;; regexp
 	 (reservedid
-	  "\\b\\(as\\|c\\(ase\\|hoice\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|e\\(lse\\|val\\)\\|f\\(case\\|ree\\)\\|hiding\\|i\\([fn]\\|mport\\|n\\(fix\\(\\|[lr]\\)\\|stance\\)\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|rigid\\|t\\(hen\\|ype\\)\\|where\\)\\b")
+	  "\\b\\(as\\|c\\(ase\\|lass\\)\\|d\\(ata\\|e\\(fault\\|riving\\)\\|o\\)\\|e\\(lse\\|val\\)\\|f\\(case\\|ree\\)\\|hiding\\|i\\([fn]\\|mport\\|n\\(fix\\(\\|[lr]\\)\\|stance\\)\\)\\|let\\|module\\|newtype\\|of\\|qualified\\|t\\(hen\\|ype\\)\\|where\\)\\b")
 
          ;; This unreadable regexp matches strings and character
          ;; constants.  We need to do this with one regexp to handle
