@@ -30,6 +30,7 @@ curry2prolog/pakcsversion.pl
 docs/src/version.tex
 lib/
 pkg/
+scripts/makesavedstate
 
 # binaries
 *.state
@@ -51,6 +52,7 @@ docs/src/manual.bbl
 docs/src/lib
 docs/src/markdown_syntax.tex
 docs/markdown_syntax.html
+docs/CurryStyleGuide.html
 docs/INSTALL.html
 docs/GITINSTALL.html
 docs/RELNOTES.html

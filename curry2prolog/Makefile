@@ -24,7 +24,7 @@ INSTALLBIN = $(PAKCSHOME)/bin/curry
 install:
 	$(MAKE) uninstall
 	@if [ -x "$(SICSTUS)" ] ; then $(MAKE) sicstus ; elif [ -x "$(SWI)" ] ; then $(MAKE) swi ; else echo "No Prolog defined to generate Curry->Prolog compiler" ; exit 1 ; fi
-	../bin/.makesavedstate c2p.state
+	../scripts/makesavedstate c2p.state
 	rm -f pakcs
 	mv c2p.state pakcs
 	ln -s $(PAKCSHOME)/bin/pakcs $(INSTALLBIN)

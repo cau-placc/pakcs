@@ -90,19 +90,20 @@ if [ -n "$HOME" -a "$DISTPKGINSTALL" = "no" ] ; then
   cp "$PAKCSINITRC" "$HOMEINITRC"
 fi
 
-# Create symbolic links in PAKCSHOME/bin and update bin/.makesavedstate:
-rm -f bin/sicstusprolog bin/swiprolog # delete possible old definitions
+ORGMAKESTATE=scripts/pakcs-makesavedstate.sh
+MAKESTATE=scripts/makesavedstate
+# Create symbolic links in PAKCSHOME/bin and create scripts/makesavedstate:
+rm -f bin/sicstusprolog bin/swiprolog $MAKESTATE # delete old definitions
 if [ -n "$SICSTUSDIR" ] ; then
   ln -s "$SICSTUSDIR/bin/sicstus" bin/sicstusprolog
-  # store the value of SICSTUSDIR in script ../bin/.makesavedstate :
-  MAKESTATE=bin/.makesavedstate
-  mv $MAKESTATE $MAKESTATE.bak
-  sed "s|^SICSTUSDIR=.*$|SICSTUSDIR=$SICSTUSDIR|" < $MAKESTATE.bak > $MAKESTATE
-  rm $MAKESTATE.bak
+  # store the value of SICSTUSDIR in script scripts/makesavedstate :
+  sed "s|^SICSTUSDIR=.*$|SICSTUSDIR=$SICSTUSDIR|" < $ORGMAKESTATE > $MAKESTATE
   chmod 755 $MAKESTATE
 fi
 if [ -n "$SWIPROLOG" ] ; then
   ln -s "$SWIPROLOG" bin/swiprolog
+  cp $ORGMAKESTATE $MAKESTATE
+  chmod 755 $MAKESTATE
 fi
 
 # Report current values:

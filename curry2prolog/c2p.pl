@@ -1093,7 +1093,7 @@ processCommand("save",Exp) :- !,
  		        (ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))),
 	setVerboseMode(QM),
 	installDir(PH),
-	appendAtoms(['"',PH,'/bin/.makesavedstate" '],CMD1),
+	appendAtoms(['"',PH,'/scripts/makesavedstate" '],CMD1),
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
 	 -> appendAtom(CMD1,'-standalone ',CMD2)
 	  ; CMD2=CMD1),
