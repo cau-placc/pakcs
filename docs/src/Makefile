@@ -37,6 +37,11 @@ markdown_syntax.tex: markdown_syntax.txt
 ../RELNOTES.html: ../../RELNOTES.txt
 	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
 
+# format Curry style guide as HTML page
+../CurryStyleGuide.html: ../../currytools/casc/Docs/curry-style-guide.md
+	cd ../../currytools/casc/Docs && $(MAKE)
+	cp $< $@
+
 # generate documentation for all libraries
 .PHONY: libdoc
 libdoc:
@@ -48,6 +53,7 @@ install:
 	$(MAKE) ../INSTALL.html
 	$(MAKE) ../GITINSTALL.html
 	$(MAKE) ../RELNOTES.html
+	$(MAKE) ../CurryStyleGuide.html
 	$(MAKE) libdoc
 	$(MAKE) ../Manual.pdf
 
