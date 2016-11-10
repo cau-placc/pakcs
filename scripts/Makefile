@@ -12,9 +12,6 @@ BINS = $(BINDIR)/pakcs $(BINDIR)/pakcs-makecgi \
 all:
 	@if [ ! -d $(BINDIR) ] ; then mkdir -p $(BINDIR) ; fi
 	$(MAKE) $(BINS)
-	# for backward compatibility
-	rm -f $(BINDIR)/makecurrycgi
-	ln -s $(BINDIR)/pakcs-makecgi $(BINDIR)/makecurrycgi
 
 # install some script of PAKCS in the bin directory:
 $(BINDIR)/%: %.sh
