@@ -104,7 +104,7 @@ pakcsMain :-
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
 
-% extract the initial arguments of the form "-Dname=value" as a property list:
+% extract the initial arguments of the form "-Dprop=value" as a property list:
 processDArgs([],[],[]).
 processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Arg,[45,68|Def]), !, % [45,68] = "-D"
@@ -192,7 +192,7 @@ writeMainHelp :-
 	writeLnErr('-V|--version  : show version and quit'),
 	writeLnErr('-q|--quiet    : work silently'),
 	writeLnErr('--noreadline  : do not use input line editing via command "rlwrap"'),
-	writeLnErr('-Dname=val    : define pakcsrc property "name" as "val"'),
+	writeLnErr('-Dprop=val    : define pakcsrc property "prop" as "val"'),
 	writeLnErr(':<cmd> <args> : command of the PAKCS environment'),
 	nlErr,
 	nlErr,
@@ -212,6 +212,7 @@ writeMainHelp :-
 	writeLnErr('doc       : generate documentation for Curry programs'),
 	writeLnErr('erd2cdbi  : create database code for ER model and Database.CDBI libraries'),
 	writeLnErr('erd2curry : create database code for ER model'),
+	writeLnErr('makecgi   : translate Curry HTML program into CGI program'),
 	writeLnErr('peval     : partially evaluate a program'),
 	writeLnErr('pp        : Curry preprocessor'),
 	writeLnErr('spiceup   : create web application via Spicey'),
