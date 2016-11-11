@@ -132,28 +132,34 @@ processArgs([Arg|Args]) :-
 	asserta(quietmode(yes)), !,
 	setVerbosity(0),
 	processArgs(Args).
-processArgs([Arg|Args]) :- % command option as in KiCS2
+processArgs([Arg|Args]) :- % command option
 	atom_codes(Arg,[58|CmdS]), !, % 58=':'
 	expandCommand(CmdS,FullCmd),
 	extractReplCmdParameters(Args,Params,RArgs),
 	processReplCmd(FullCmd,Params),
 	processArgs(RArgs).
-processArgs([Arg|Args]) :-
-	atom_codes(Arg,[45|_]), !, % 45='-'
-	writeErr('ERROR: Illegal or no longer supported option: '),
-	writeLnErr([Arg|Args]),
-	writeLnErr('Hint: use command options (like "pakcs :load rev")'),
+processArgs([Arg|Args]) :- % run-time arguments (starting with '--'):
+	atom_codes(Arg,"--"), !,
+	retract(rtArgs(_)),
+	assertz(rtArgs(Args)).
+processArgs(Args) :-
+	writeErr('ERROR: Illegal arguments: '),
+	printArguments(Args),
+        nlErr, nlErr,
+	writeLnErr('Run "pakcs --help" for usage infos'),
 	halt(1).
-processArgs([Arg|Args]) :-
-	retract(rtArgs(RTA)),
-	append(RTA,[Arg],RTAs),
-	assertz(rtArgs(RTAs)),
-	processArgs(Args).
 
-% extract REPL command parameters (i.e., everything until next REPL command):
+printArguments([]).
+printArguments([Arg|Args]) :-
+        writeErr(Arg), writeErr(' '), printArguments(Args).
+
+% extract REPL command parameters, i.e., everything until next REPL command
+% or parameter "--":
 extractReplCmdParameters([],[],[]).
 extractReplCmdParameters([Arg|Args],[],[Arg|Args]) :-
 	atom_codes(Arg,[58|_]), !. % 58=':'
+extractReplCmdParameters([Arg|Args],[],[Arg|Args]) :-
+	atom_codes(Arg,"--"), !.
 extractReplCmdParameters([Arg|Args],[ArgS|Params],RArgs) :-
 	atom_codes(Arg,ArgS),
 	extractReplCmdParameters(Args,Params,RArgs).
@@ -178,7 +184,7 @@ writeMainHelp :-
 	nlErr,
 	writeLnErr('Invoke interactive environment:'),
 	nlErr,
-	writeLnErr('    pakcs <options>'),
+	writeLnErr('    pakcs <options> [ -- <run-time arguments>]'),
 	nlErr,
 	writeLnErr('with options:'),
 	nlErr,
@@ -211,12 +217,16 @@ writeMainHelp :-
 	writeLnErr('spiceup   : create web application via Spicey'),
 	writeLnErr('style     : check style of source programs'),
 	writeLnErr('test      : test assertions (no longer supported)'),
-	writeLnErr('verify    : translate Curry module to Agda for property verification').
+	writeLnErr('verify    : translate Curry module to Agda for property verification'),
+        nlErr,
+        writeLnErr('To get more help about the usage of a tool, type'),
+	nlErr,
+	writeLnErr('    pakcs <tool> -h').
 
 
 % Compute the prompt of the interactive loop:
-pakcs_prompt('') :- quietmode(yes), !.
-pakcs_prompt(Prompt) :-
+pakcsPrompt('') :- quietmode(yes), !.
+pakcsPrompt(Prompt) :-
 	currentModule(MN),
 	currentprogram(CPS),
 	atom_codes(CP,CPS),
@@ -232,7 +242,7 @@ pakcs_prompt(Prompt) :-
 main :-
 	prompt(_,''), % clear standard Prolog prompt
 	repeat,
-	pakcs_prompt(Prompt), write(Prompt),
+	pakcsPrompt(Prompt), write(Prompt),
 	flush_output(user_output),
 	flush_output(user_error),
 	readLine(Input),

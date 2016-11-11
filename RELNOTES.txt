@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (October 28, 2016)
----------------------------------------------------------
+Release notes for PAKCS Version 1.14.1 (November 12, 2016)
+----------------------------------------------------------
 
 Changes to version 1.14.0:
 
@@ -30,6 +30,7 @@ Changes to version 1.14.0:
     added to `currytools`.
   * Obsolete script `parsecurry` removed.
   * Names of tool executables changed to `pakcs toolname`.
+  * Run-time parameters passed to PAKCS must be separated by `--`.
 
 
 Release notes for PAKCS Version 1.14.0 (April 19, 2016)
