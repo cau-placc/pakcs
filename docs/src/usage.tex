@@ -65,6 +65,22 @@ and the input prompt are not shown.
 The output of other information is determined by the options
 \ccode{verbose} and \ccode{v$n$} (see Section~\ref{sec:options}).
 \end{description}
+%
+One can also invoke \CYS with some run-time arguments
+that can be accessed inside a Curry program
+by the I/O operation \code{getArgs}
+(see library \code{System} (Section~\ref{Library:System}).
+These run-time arguments must be written at the end after
+the separator \ccode{--}.
+For instance, if \CYS is invoked by
+\begin{curry}
+pakcs :load Mod -- first and second
+\end{curry}
+then a call to the I/O operation \code{getArgs}
+returns the list value
+\begin{curry}
+["first","and","second"]
+\end{curry}
 
 
 \subsection{Commands of \CYS}
