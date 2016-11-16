@@ -608,6 +608,8 @@ bindFreeVars(Susp,[(V=B)|Bs]) :-
 
 % does a variable occurs in a term?
 occursVarInTerm(X,T) :- var(T), !, X==T.
+occursVarInTerm(X,share(M)) :- !, get_mutable(V,M),
+        (V='$eval'(T) -> true ; T=V), occursVarInTerm(X,T).
 occursVarInTerm(X,T) :- T =.. [_|Ts], occursVarInTerms(X,Ts).
 occursVarInTerms(X,[T|_]) :- occursVarInTerm(X,T), !.
 occursVarInTerms(X,[_|Ts]) :- occursVarInTerms(X,Ts).
@@ -664,6 +666,9 @@ bindingsForNewVariables(Vs,Term,NewVs) :-
 
 bindingsForNewVariablesInTerm(Vs,Term,NewVs) :-
 	var(Term), !, addBindingForNewVariable(Vs,Term,NewVs).
+bindingsForNewVariablesInTerm(Vs,share(M),NewVs) :- !, get_mutable(V,M),
+        (V='$eval'(Term) -> true ; Term=V),
+        bindingsForNewVariablesInTerm(Vs,Term,NewVs).
 bindingsForNewVariablesInTerm(Vs,Term,NewVs) :-
 	Term =.. [_|Args], bindingsForNewVariablesInTerms(Vs,Args,NewVs).
 
