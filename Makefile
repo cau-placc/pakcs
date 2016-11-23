@@ -43,14 +43,21 @@ export CURRYSYSTEM=pakcs
 # Paths used in this installation
 # -------------------------------
 
+# Directories of the sources of the standard libraries and tools
+ifeq ($(DISTPKGINSTALL),yes)
+export CURRYLIBSDIR  = $(error "CURRYLIBSDIR is undefined!")
+export CURRYTOOLSDIR = $(error "CURRYTOOLSDIR is undefined!")
+else
+export CURRYLIBSDIR  = $(ROOT)/lib-trunk
+export CURRYTOOLSDIR = # not used
+endif
+
 # the root directory of the installation
 export ROOT=$(CURDIR)
 # binary directory and executables
 export BINDIR=$(ROOT)/bin
 # Directory where the front end is located
 export FRONTENDDIR   = $(ROOT)/frontend
-# Directory where the sources of the standard libraries are located
-export LIBSRCDIR     = $(ROOT)/lib-trunk
 # Directory where the actual libraries are located
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
@@ -95,7 +102,7 @@ all:
 # Install all components of PAKCS
 #
 .PHONY: install
-install: installscripts copylibs
+install: installscripts copylibs copytools
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	# install front end:
@@ -140,7 +147,22 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: copylibs
 copylibs:
-	@if [ -d $(LIBSRCDIR) ] ; then cd $(LIBSRCDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
+	@if [ -d $(CURRYLIBSDIR) ] ; then cd $(CURRYLIBSDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
+
+# if the directory `currytools` is not present, copy it from the sources:
+# (only necessary for the installation of a (Debian) packages, otherwise
+# `currytools` is a submodule of the repository)
+.PHONY: copytools
+copytools:
+ifeq ($(DISTPKGINSTALL),yes)
+	@if [ ! -d currytools ] ; then $(MAKE) forcecopytools ; fi
+endif
+
+.PHONY: forcecopytools
+forcecopytools:
+	mkdir currytools
+	# Copying currytools from $(CURRYTOOLSDIR)
+	cp -pr $(CURRYTOOLSDIR)/* currytools
 
 # install front end (from environment variable or sources):
 .PHONY: frontend
@@ -293,7 +315,7 @@ distdated: dist
 .PHONY: cleandist
 cleandist:
 	rm -rf .git .gitmodules .gitignore
-	rm -rf $(LIBSRCDIR)
+	rm -rf $(CURRYLIBSDIR)
 	rm -rf currytools/.git currytools/.gitignore
 	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
 	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist
