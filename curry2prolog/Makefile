@@ -2,23 +2,27 @@
 # Makefile for the Curry->Prolog compiler system of PAKCS
 ########################################################################
 
-# define environment variable PAKCSHOME:
-PAKCSHOME=$(dir $(CURDIR))
+# bin directory to store executables of PAKCS:
+ifndef BINDIR
+BINDIR = $(dir $(CURDIR))/../bin
+endif
 
 # The SICStus Prolog interpreter:
-SICSTUS=$(PAKCSHOME)/bin/sicstusprolog
+SICSTUS=$(BINDIR)/sicstusprolog
 
 # The SWI-Prolog interpreter:
-SWI=$(PAKCSHOME)/bin/swiprolog
+SWI=$(BINDIR)/swiprolog
 
 # Standard options for SWI-Prolog
 SWIOPTIONS=--traditional -q -L0 -G0 -T0 -O
 
-# librariry directory of PAKCS:
-LIBDIR=$(PAKCSHOME)/lib
+# library directory of PAKCS:
+ifndef LIBDIR
+LIBDIR = $(dir $(CURDIR))/../lib
+endif
 
 # standard name in bin directory:
-INSTALLBIN = ../bin/curry
+INSTALLBIN = $(BINDIR)/curry
 
 .PHONY: install
 install:
@@ -27,7 +31,7 @@ install:
 	../scripts/makesavedstate c2p.state
 	rm -f pakcs
 	mv c2p.state pakcs
-	ln -s $(PAKCSHOME)/bin/pakcs $(INSTALLBIN)
+	ln -s $(BINDIR)/pakcs $(INSTALLBIN)
 
 .PHONY: uninstall
 uninstall:
@@ -64,7 +68,7 @@ swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 	      compiler.pl external.pl readFlcFromFcy.pl \
 	      lib_src/prim_readshowterm.pl \
 	      readXml.pl $(LIBDIR)/.curry/Prelude.fcy
-	echo "compile(c2p). c2p('$(LIBDIR)/Prelude'), compile('$(PAKCSHOME)/lib/.curry/pakcs/Prelude'),loader:loadAndCompile('$(PAKCSHOME)/lib/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "$(SWI)" $(SWIOPTIONS)
+	echo "compile(c2p). c2p('$(LIBDIR)/Prelude'), compile('$(LIBDIR)/.curry/pakcs/Prelude'),loader:loadAndCompile('$(LIBDIR)/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "$(SWI)" $(SWIOPTIONS)
 
 $(LIBDIR)/.curry/Prelude.fcy: $(LIBDIR)/Prelude.curry
 	cd $(LIBDIR) && $(MAKE) .curry/Prelude.fcy
@@ -85,6 +89,6 @@ libswi/%.pl: lib_src/%.pl
 # clean up everything
 .PHONY: clean
 clean: uninstall
-	rm -f c2p.state pakcs $(LIBDIR)/.curry/pakcs/Prelude.pl ../bin/pakcs prologbasics.pl
+	rm -f c2p.state pakcs $(LIBDIR)/.curry/pakcs/Prelude.pl prologbasics.pl
 	rm -f pakcsversion.pl
 	rm -rf libswi/
