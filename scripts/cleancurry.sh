@@ -49,7 +49,7 @@ do
   if [ "$F" != "*.curry" -a "$F" != "*.lcurry" ] ; then
     F=`expr $F : '\(.*\)\.lcurry' \| $F`
     F=`expr $F : '\(.*\)\.curry' \| $F`
-    $RM -f $F.ast $F.cint $F.fl $F.def $F.pizza $F.flc $F.fint $F.profile "$F"_flat.xml
+    $RM -f $F.ast $F.cint $F.fl $F.def $F.pizza $F.profile "$F"_flat.xml
     FDIR=`dirname $F`
     FBASE=`basename $F`
     PAKCSDIR=$FDIR/.curry/pakcs
@@ -63,7 +63,7 @@ do
     CURRYDIR=$FDIR/.curry
     if [ -d $CURRYDIR ] ; then
       CURRYF=.curry/$F
-      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.icurry $CURRYF.tokens
+      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.fint $CURRYF.icurry $CURRYF.tokens
       FDIRFILES=`ls -A $CURRYDIR`
       if [ -z "$FDIRFILES" ] ; then # .curry directory is empty
         rmdir $CURRYDIR
