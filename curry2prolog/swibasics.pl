@@ -633,15 +633,13 @@ genFreezeLiteral([P|Ps],Literal,FreezeLiteral,NewFreezeLiteral) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% mutable values (simulated by open-ended lists)
+% mutable values (simulated by a specific term structure and setarg)
 
-create_mutable(V,'$mutable'([V|_])).
+create_mutable(V,'$mutable'(V)).
 
-get_mutable(V,'$mutable'(L)) :- get_mutable_aux(V,L).
-get_mutable_aux(V,[H|T]) :- var(T) -> V=H ; get_mutable_aux(V,T).
+get_mutable(V,'$mutable'(V)).
 
-update_mutable(V,'$mutable'(L)) :- update_mutable_aux(V,L).
-update_mutable_aux(V,[_|T]) :- var(T) -> T=[V|_] ; update_mutable_aux(V,T).
+update_mutable(V,MT) :- setarg(1,MT,V).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
