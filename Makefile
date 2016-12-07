@@ -229,9 +229,8 @@ libdoc:
 
 # run the test suites to check the installation
 .PHONY: runtest
-runtest: testsuite/doTest
-	#cd testsuite && ./doTest --nogui
-	cd testsuite2 && ./test.sh
+runtest: testsuite/test.sh
+	cd testsuite && ./test.sh
 	cd lib && ./test.sh
 	cd currytools && $(MAKE) runtest
 	cd examples/CHR && ./test.sh
