@@ -35,4 +35,4 @@ $CURRYBIN/cleancurry
 
 # execute all unit tests:
 echo "Executing unit tests for back end $BACKEND..."
-$CURRYBIN/currytest $TESTPARAMS $ALLTESTS
+$CURRYBIN/curry test $TESTPARAMS $ALLTESTS

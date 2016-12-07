@@ -15,6 +15,8 @@ rev (x:xs) = append (rev xs) [x]
 
 -- and now the test cases:
 
+test1 :: Assertion [Int]
 test1 = assertEqual "append" (append [1,2] [3,4]) [1,2,3,4]
 
+test2 :: Assertion [Int]
 test2 = assertEqual "rev" (rev [1,2,3,4]) [4,3,2,1]
