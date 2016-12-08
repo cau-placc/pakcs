@@ -45,16 +45,17 @@ readRcFile(ArgProps) :-
 	  ; GlobalProps=[]),
 	concat([ArgProps,HomeProps,GlobalProps],AllProps),
 	deletePropDups(AllProps,UniqueProps),
-	map1M(basics:assertPakcsrc,UniqueProps),
-	pakcsrc(verboserc,yes), !,
-	writeNQ('>>> Reading RC files:'),
-	(existsFile(HomeConfigFile)
-	 -> writeNQ(' '), writeNQ(HomeConfigFile) ; true),
-	(existsFile(ConfigFile)
-	 -> writeNQ(' '), writeNQ(ConfigFile) ; true),
-	nlNQ,
-	writeNQ('Current configurations: '), nlNQ,
-	writeRCvalues.
+	map1M(basics:assertPakcsrc,UniqueProps), !,
+	(pakcsrc(verboserc,yes)
+         -> writeNQ('>>> Reading RC files:'),
+            (existsFile(HomeConfigFile)
+             -> writeNQ(' '), writeNQ(HomeConfigFile) ; true),
+            (existsFile(ConfigFile)
+             -> writeNQ(' '), writeNQ(ConfigFile) ; true),
+            nlNQ,
+            writeNQ('Current configurations: '), nlNQ,
+            writeRCvalues
+          ; true).
 readRcFile(ArgProps) :-
 	% maybe the environment variable HOME is not set since the system
 	% is not started by a regular user:

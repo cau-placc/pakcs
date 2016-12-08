@@ -4,7 +4,7 @@
 
 # bin directory to store executables of PAKCS:
 ifndef BINDIR
-BINDIR = $(dir $(CURDIR))/../bin
+BINDIR = $(dir $(CURDIR))/bin
 endif
 
 # The SICStus Prolog interpreter:
@@ -18,7 +18,7 @@ SWIOPTIONS=--traditional -q -L0 -G0 -T0 -O
 
 # library directory of PAKCS:
 ifndef LIBDIR
-LIBDIR = $(dir $(CURDIR))/../lib
+LIBDIR = $(dir $(CURDIR))/lib
 endif
 
 # standard name in bin directory:
