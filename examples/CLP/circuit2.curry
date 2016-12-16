@@ -8,6 +8,8 @@ data Circuit = Resistor CFloat
              | Series Circuit Circuit
              | Parallel Circuit Circuit
 
+cvi :: Circuit -> CFloat -> CFloat -> Bool
+
 cvi (Resistor r) v i =  v =:= i * r
 
 cvi (Series   c1 c2) v i =

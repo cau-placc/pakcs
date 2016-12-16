@@ -13,10 +13,13 @@ allSafe (q:qs) = safe q qs (fd 1) /\ allSafe qs
 
 safe :: FDExpr -> [FDExpr] -> FDExpr -> FDConstr
 safe _ []      _ = true
-safe q (q1:qs) p = no_attack q q1 p /\ safe q qs (p +# fd 1)
+safe q (q1:qs) p = no_attack q q1 p /\ safe q qs (p + fd 1)
 
 no_attack :: FDExpr -> FDExpr -> FDExpr -> FDConstr
-no_attack q1 q2 p = q1 /=# q2 /\ q1 /=# q2+#p /\ q1 /=# q2-#p
+no_attack q1 q2 p = q1 /=# q2 /\ q1 /=# q2+p /\ q1 /=# q2-p
 
--- queens [] 8
--- queens [FirstFail] 16
+-------------------------------------------------------------------------
+
+ex1 = queens [] 8
+
+ex2 = queens [FirstFail] 16
