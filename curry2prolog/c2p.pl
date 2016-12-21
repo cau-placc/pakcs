@@ -19,7 +19,7 @@
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
-parserOptions(''). % additional options passed to cymake parser
+parserOptions(''). % additional options passed to front end
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 varDefines([]). % list of top-level bindings
@@ -208,7 +208,7 @@ writeMainHelp :-
 	writeLnErr('browse    : browse and analyze'),
 	writeLnErr('check     : check properties'),
 	writeLnErr('createmake: create make file for main module'),
-	writeLnErr('cymake    : Curry front end'),
+	writeLnErr('frontend  : Curry front end'),
 	writeLnErr('data2xml  : generate XML bindings'),
 	writeLnErr('doc       : generate documentation for Curry programs'),
 	writeLnErr('erd2cdbi  : create database code for ER model and Database.CDBI libraries'),
@@ -686,8 +686,8 @@ processCommand("set",[]) :- !,
 	write('                   2: intermediate messages and commands'), nl,
 	write('                   3: all intermediate results'), nl,
 	write('safe            - safe execution mode without I/O actions'), nl,
-	write('parser  <opts>  - additional options passed to parser (cymake)'), nl,
-	write('args    <args>  - run-time arguments passed to main program'), nl,
+	write('parser <opts>   - additional options passed to Curry front end'), nl,
+	write('args   <args>   - run-time arguments passed to main program'), nl,
 	nl,
 	write('Options in debug mode:'), nl,
 	write('+/-single         - single step mode'), nl,
@@ -1440,7 +1440,7 @@ failprint(Exp,E,E) :-
 parseProgram(ProgS,Verbosity,Warnings) :-
 	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
-	appendAtoms(['"',TCP,'/bin/pakcs-cymake" --flat'],CM1),
+	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat'],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	(pakcsrc(warnoverlapping,no)
