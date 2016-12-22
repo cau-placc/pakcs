@@ -155,12 +155,12 @@ copylibs:
 .PHONY: copytools
 copytools:
 ifeq ($(DISTPKGINSTALL),yes)
-	@if [ ! -d currytools ] ; then $(MAKE) forcecopytools ; fi
+	@if [ ! -f currytools/Makefile ] ; then $(MAKE) forcecopytools ; fi
 endif
 
 .PHONY: forcecopytools
 forcecopytools:
-	mkdir currytools
+	mkdir -p currytools
 	# Copying currytools from $(CURRYTOOLSDIR)
 	cp -pr $(CURRYTOOLSDIR)/* currytools
 
