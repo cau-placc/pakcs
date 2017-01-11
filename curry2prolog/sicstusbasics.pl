@@ -2,7 +2,8 @@
 % basic predicates related to the SICStus-Prolog system
 
 :- module(prologbasics,
-	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
+	  [installDir/1,
+           prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
 	   verbosity/1, fileOpenOptions/1,
 	   sicstus310orHigher/0, generatePrologBasics/0,
 %SICS3X	   append/3, member/2,
@@ -45,6 +46,16 @@
 :- use_module(pakcsversion).
 
 %SICS37 :- op(400, yfx, [rem]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The installation directory of PAKCS.
+% If the value of pakcsversion.pkgInstallDir is an existing directory,
+% this value will be used as the installation directory,
+% otherwise the value of pakcsversion.buildDir will be used.
+% This implementation is necessary to move the package after the build.
+installDir(PH) :- pkgInstallDir(''), !, buildDir(PH).
+installDir(PH) :- pkgInstallDir(IDir), existsDirectory(IDir), !, PH=IDir.
+installDir(PH) :- buildDir(PH).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The verbosity level is defined here since it is already used here...

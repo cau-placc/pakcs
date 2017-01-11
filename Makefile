@@ -25,6 +25,15 @@
 # - the documentation will not be built (since this takes a lot of time)
 export DISTPKGINSTALL = no
 
+# In case of an installation as a (Debian) package, the variable
+# PAKCSINSTALLDIR should be set to the location where it is finally
+# placed after the build (e.g., /usr/lib/pakcs). We assume that
+# during the build, this directory does not exist, otherwise
+# the build might fail. If this variable is set and exists, it will be
+# used as the root directory of the installation for all generated
+# components of the system.
+export PAKCSINSTALLDIR =
+
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
@@ -202,14 +211,15 @@ docs:
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
-	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, installDir/1]).' > $@
+	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1]).' > $@
 	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
 	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
 	echo 'compilerMinorVersion($(MINORVERSION)).' >> $@
 	echo 'compilerRevisionVersion($(REVISIONVERSION)).' >> $@
 	echo 'buildVersion($(BUILDVERSION)).' >> $@
 	echo "buildDate('$(COMPILERDATE)')." >> $@
-	echo "installDir('$(ROOT)')." >> $@
+	echo "buildDir('$(ROOT)')." >> $@
+	echo "pkgInstallDir('$(PAKCSINSTALLDIR)')." >> $@
 
 # Create file with version information for the manual:
 $(MANUALVERSION): Makefile
@@ -268,8 +278,11 @@ cleantools: $(CLEANCURRY)
 .PHONY: cleanall
 cleanall: clean
 	rm -rf $(LIBDIR)
-	-cd $(FRONTENDDIR) && $(MAKE) cleanall
-	if [ -d $(FRONTENDDIR) ]; then rm -rf $(BINDIR); fi
+	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
+	if [ -d $(FRONTENDDIR) ]; \
+	  then rm -rf $(BINDIR) ; \
+	  else rm -f $(BINDIR)/pakcs-cymake $(BINDIR)/pakcs-frontend ; \
+	fi
 	rm -f pakcsinitrc pakcsinitrc.bak
 
 
