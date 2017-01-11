@@ -1,8 +1,14 @@
 #!/bin/sh
 # Compile a Curry program (using the HTML library) into a cgi script
 
+PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
+PAKCSINSTALLDIR=
 # Define the main directory where PAKCS is installed:
-PAKCSHOME=`echo PAKCSHOME must be defined here!`
+if [ -d "$PAKCSINSTALLDIR" ] ; then
+  PAKCSHOME=$PAKCSINSTALLDIR
+else
+  PAKCSHOME=$PAKCSBUILDDIR
+fi
 export PAKCSHOME
 
 # Standard suffix that will be added to the main script:

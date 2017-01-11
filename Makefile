@@ -184,13 +184,13 @@ else
 endif
 	# for backward compatibility:
 	rm -f $(BINDIR)/$(CURRYSYSTEM)-cymake
-	ln -s $(CYMAKE) $(BINDIR)/$(CURRYSYSTEM)-cymake
+	cd $(BINDIR) && ln -s $(CURRYSYSTEM)-frontend $(BINDIR)/$(CURRYSYSTEM)-cymake
 
 .PHONY: compilefrontend
 compilefrontend:
 	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
-	ln -s $(FRONTENDDIR)/bin/curry-frontend $(CYMAKE)
+	cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(CURRYSYSTEM)-frontend
 
 # compile the tools:
 .PHONY: tools

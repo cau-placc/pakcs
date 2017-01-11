@@ -21,9 +21,6 @@ ifndef LIBDIR
 LIBDIR = $(dir $(CURDIR))/lib
 endif
 
-# standard name in bin directory:
-INSTALLBIN = $(BINDIR)/curry
-
 .PHONY: install
 install:
 	$(MAKE) uninstall
@@ -31,11 +28,11 @@ install:
 	../scripts/makesavedstate c2p.state
 	rm -f pakcs
 	mv c2p.state pakcs
-	ln -s $(BINDIR)/pakcs $(INSTALLBIN)
+	cd $(BINDIR) && ln -s pakcs curry
 
 .PHONY: uninstall
 uninstall:
-	rm -f $(INSTALLBIN)
+	rm -f $(BINDIR)/curry
 
 # make everything if we have a SICStus-Prolog system:
 .PHONY: sicstus
