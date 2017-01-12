@@ -30,6 +30,9 @@ Changes to version 1.14.0:
     added to `currytools`.
   * Obsolete script `parsecurry` removed.
   * Names of tool executables changed to `pakcs toolname`.
+  * Tool `pakcs analysis` (CASS): option `--all` added.
+  * Tool `pakcs analysis` (CASS): analysis `Functional` added and
+    analysis `Deterministic` modified so that it considers encapsulated search.
   * Run-time parameters passed to PAKCS must be separated by `--`.
   * Installation made more flexible by supporting environment variable
     `PAKCSINSTALLDIR` to specify the location where PAKCS is moved
