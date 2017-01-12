@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (November 12, 2016)
-----------------------------------------------------------
+Release notes for PAKCS Version 1.14.1 (January 12, 2017)
+---------------------------------------------------------
 
 Changes to version 1.14.0:
 
@@ -13,7 +13,7 @@ Changes to version 1.14.0:
     critical pairs, definitional trees.
   * Library `Sort`: ...Sort operations renamed to ...SortBy and
     ...Sort operations with standard ordering added.
-  * Library `State` implementation the state monad added.
+  * Library `State` with an implementation of the state monad added.
   * Library `Test.EasyCheck` split into two modules to have less
     import dependencies when putting properties into a module.
   * Library `Test.Prop` added as a clone of `Test.EasyCheck` which defines
@@ -31,6 +31,9 @@ Changes to version 1.14.0:
   * Obsolete script `parsecurry` removed.
   * Names of tool executables changed to `pakcs toolname`.
   * Run-time parameters passed to PAKCS must be separated by `--`.
+  * Installation made more flexible by supporting environment variable
+    `PAKCSINSTALLDIR` to specify the location where PAKCS is moved
+    after the build process.
 
 
 Release notes for PAKCS Version 1.14.0 (April 19, 2016)

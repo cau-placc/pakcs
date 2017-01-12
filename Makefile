@@ -27,11 +27,11 @@ export DISTPKGINSTALL = no
 
 # In case of an installation as a (Debian) package, the variable
 # PAKCSINSTALLDIR should be set to the location where it is finally
-# placed after the build (e.g., /usr/lib/pakcs). We assume that
+# placed after the build (e.g., /usr/lib/pakcs). It is required that
 # during the build, this directory does not exist, otherwise
-# the build might fail. If this variable is set and exists, it will be
-# used as the root directory of the installation for all generated
-# components of the system.
+# the build fails. If this variable is set and the installed system will
+# be moved to this location after the build, it will be
+# used as the root directory for all generated components of the system.
 export PAKCSINSTALLDIR =
 
 # The major version numbers:
@@ -111,7 +111,7 @@ all:
 # Install all components of PAKCS
 #
 .PHONY: install
-install: installscripts copylibs copytools
+install: checkinstalldir installscripts copylibs copytools
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	# install front end:
@@ -130,6 +130,14 @@ install: installscripts copylibs copytools
 	$(MAKE) tools
 	$(MAKE) docs
 	chmod -R go+rX .
+
+# Check whether the value of PAKCSINSTALLDIR, if defined, is a non-existing
+# directory
+.PHONY: checkinstalldir
+checkinstalldir:
+	@if [ -n "$(PAKCSINSTALLDIR)" -a -d "$(PAKCSINSTALLDIR)" ] ; then \
+	  echo "ERROR: Variable PAKCSINSTALLDIR points to an existing directory!" && exit 1 ; \
+	fi
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
 .PHONY: cleanoldinfos
