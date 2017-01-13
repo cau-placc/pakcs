@@ -190,9 +190,6 @@ ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
 else
 	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
 endif
-	# for backward compatibility:
-	rm -f $(BINDIR)/$(CURRYSYSTEM)-cymake
-	cd $(BINDIR) && ln -s $(CURRYSYSTEM)-frontend $(BINDIR)/$(CURRYSYSTEM)-cymake
 
 .PHONY: compilefrontend
 compilefrontend:

@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (January 12, 2017)
+Release notes for PAKCS Version 1.14.1 (January 13, 2017)
 ---------------------------------------------------------
 
 Changes to version 1.14.0:
@@ -30,6 +30,7 @@ Changes to version 1.14.0:
     added to `currytools`.
   * Obsolete script `parsecurry` removed.
   * Names of tool executables changed to `pakcs toolname`.
+  * Name of Curry parser `cymake` changed to `pakcs frontend`.
   * Tool `pakcs analysis` (CASS): option `--all` added.
   * Tool `pakcs analysis` (CASS): analysis `Functional` added and
     analysis `Deterministic` modified so that it considers encapsulated search.
