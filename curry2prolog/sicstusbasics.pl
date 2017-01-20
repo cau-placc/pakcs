@@ -804,7 +804,7 @@ consultPrologorPOFile(PrologFileName,POFileName) :-
 % directory containing the system run-time modules:
 moduleDir(MD) :-
         installDir(TCP),
-        appendAtom(TCP,'/curry2prolog/lib_src/',MD).
+        appendAtom(TCP,'/curry2prolog/libsicstus/',MD).
 
 % ensure that run-time library is loaded:
 ensure_lib_loaded(Lib) :-
