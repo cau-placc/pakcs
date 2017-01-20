@@ -24,9 +24,9 @@
 %	   prim_getOneSolution/4,
 %	   unifEq/5, unifEqLinear/5, prim_ifVar/6]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- use_module('../evaluator').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(evaluator)    -> true ; use_module('../evaluator')).
 
 % dereference a function's argument, i.e., remove all top-level sharing structures:
 %derefRoot(R,V) :- var(R), !, V=R.

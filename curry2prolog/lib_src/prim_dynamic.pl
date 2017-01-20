@@ -9,10 +9,10 @@
 	 prim_startTransaction/1,prim_isKnownAtTime/3,
 	 abortTransaction/0,initializeDynamic/0]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- use_module('../version').
-:- use_module('../pakcsversion').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(version)      -> true ; use_module('../version')).
+:- (current_module(pakcsversion) -> true ; use_module('../pakcsversion')).
 
 :- dynamic dynamicTime/1, dynamicVersion/3, insideTransaction/0.
 

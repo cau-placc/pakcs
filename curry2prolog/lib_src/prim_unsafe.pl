@@ -3,8 +3,8 @@
 % Definitions of builtins of module Unsafe:
 %
 
-:- use_module('../prologbasics').
-:- use_module(prim_readshowterm).
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(prim_readshowterm) -> true ; use_module(prim_readshowterm)).
 
 ?- block 'prim_unsafePerformIO'(?,?,-,?).
 'prim_unsafePerformIO'(Action,H,E0,E) :-

@@ -7,8 +7,8 @@
 	  [prim_listenOn/2,prim_listenOnFresh/1,prim_socketAccept/2,
 	   prim_waitForSocketAccept/3,prim_sClose/2,prim_connectToSocket/3]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 
 
 % create a server side socket bound to a port number.

@@ -16,9 +16,9 @@
 %	   prim_hGetChar/2,prim_hPutChar/3,
 %          prim_hIsReadable/2,prim_hIsWritable/2, prim_hIsTerminalDevice/2]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- ensure_loaded(prim_ports). % to implement IO.prim_hWaitForInputsOrMsg
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(prim_ports)   -> true ; ensure_loaded(prim_ports)). % to implement IO.prim_hWaitForInputsOrMsg
 
 prim_stdin(Stream) :- prolog_flag(user_input,Stream).
 

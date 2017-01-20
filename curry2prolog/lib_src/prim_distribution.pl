@@ -3,9 +3,9 @@
 % Definitions of builtins of module Distribution
 %
 
-:- use_module('../prologbasics').
-:- use_module('../version').
-:- use_module('../pakcsversion').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(version)      -> true ; use_module('../version')).
+:- (current_module(pakcsversion) -> true ; use_module('../pakcsversion')).
 
 prim_curryCompiler(CS) :- atom2String(pakcs,CS).
 

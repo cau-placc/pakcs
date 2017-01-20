@@ -45,8 +45,14 @@ BUILDVERSION=4
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
+ifeq ($(DISTPKGINSTALL),yes)
+COMPILERDATE := $(shell date "+%Y-%m-%d")
+else
 COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
-# The name of the Curry system, needed for installation of system libraries:
+endif
+
+# The name of the Curry system, needed for the installation of
+# the system libraries and tools:
 export CURRYSYSTEM=pakcs
 
 # Paths used in this installation
