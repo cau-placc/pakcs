@@ -577,7 +577,11 @@ moduleDir(MD) :-
         appendAtom(TCP,'/curry2prolog/libswi/',MD).
 
 % ensure that run-time library is loaded:
-ensure_lib_loaded(Lib) :- % first, look into working directory:
+ensure_lib_loaded(Lib) :-
+        % check whether it is a module that is already loaded:
+        current_module(Lib), !.
+ensure_lib_loaded(Lib) :-
+        % first, look into working directory:
 	workingDirectory(WDir),
 	appendAtom(WDir,'/',Dir),
 	appendAtom(Dir,Lib,DirLib),
@@ -587,6 +591,7 @@ ensure_lib_loaded(Lib) :- % first, look into working directory:
                        ; true),
 	ensure_loaded(user:DirLib).
 ensure_lib_loaded(Lib) :-
+        % otherwise, look into the directory containing system run-time mods:
 	moduleDir(Dir),
 	appendAtom(Dir,Lib,DirLib),
 	(verbosity(3) -> write('>>> Load Prolog library: '), write(DirLib), nl

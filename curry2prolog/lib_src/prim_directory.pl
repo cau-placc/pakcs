@@ -12,8 +12,9 @@
 	   prim_removeFile/2,prim_removeDirectory/2,
 	   prim_renameFile/3,prim_renameDirectory/3]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+
 
 prim_doesFileExist(FileName,Exists) :-
 	string2Atom(FileName,FName),

@@ -6,10 +6,10 @@
 :- module(prim_global,
 	  [initGlobalValue/4,prim_readGlobal/2,prim_writeGlobal/3]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- use_module(prim_readshowterm). % for term reading/showing
-:- ensure_loaded(user:prim_standard). % for waitUntilGround
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(prim_readshowterm) -> true ; use_module(prim_readshowterm)). % for term reading/showing
+:- (current_module(prim_standard) -> true ; ensure_loaded(user:prim_standard)). % for waitUntilGround
 
 % initialize the predicate containing the global value if called for the
 % first time:

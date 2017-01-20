@@ -4,7 +4,7 @@
 % The clauses in this file are added to each compiled Curry program
 % if finite domains constraints are used
 
-:- use_module('../prologbasics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 :- use_module(library(clpfd)).
 
 prim_FD_domain(L,A,B,R) :-

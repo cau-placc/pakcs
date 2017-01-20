@@ -8,8 +8,8 @@
 	   prim_getHostname/1,prim_getPID/1,prim_getProgName/1,
 	   prim_system/2,prim_exitWith/2,prim_sleep/2,isWindows/1]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 
 prim_getCPUTime(MS) :- getRunTime(MS).
 

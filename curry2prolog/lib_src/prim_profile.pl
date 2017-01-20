@@ -8,8 +8,8 @@
            prim_garbageCollect/1,
            prim_evalTime/4,prim_evalSpace/4]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 
 % return statistics about the PAKCS process:
 prim_getProcessInfos(Infos) :-

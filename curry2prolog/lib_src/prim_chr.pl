@@ -3,8 +3,8 @@
 % library CHRcompiled.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../basics').
-:- use_module('../prologbasics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 :- (prolog(swi) ; (prolog(sicstus),prologMajorVersion(4)))
 	-> use_module(library('chr/chr_runtime'))
  	 ; writeErr('CHR(Prolog) not available with this Prolog version!'),
