@@ -195,7 +195,7 @@ endif
 compilefrontend:
 	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
-	cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(CURRYSYSTEM)-frontend
+	cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(notdir $(CYMAKE))
 
 # compile the tools:
 .PHONY: tools
@@ -286,7 +286,7 @@ cleanall: clean
 	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
 	if [ -d $(FRONTENDDIR) ]; \
 	  then rm -rf $(BINDIR) ; \
-	  else rm -f $(BINDIR)/pakcs-cymake $(BINDIR)/pakcs-frontend ; \
+	  else rm -f $(CYMAKE) ; \
 	fi
 	rm -f pakcsinitrc pakcsinitrc.bak
 
