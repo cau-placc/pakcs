@@ -808,9 +808,6 @@ moduleDir(MD) :-
 
 % ensure that run-time library is loaded:
 ensure_lib_loaded(Lib) :-
-        % check whether it is a module that is already loaded:
-        current_module(Lib), !.
-ensure_lib_loaded(Lib) :-
         % first, look into working directory:
 	workingDirectory(WDir),
 	appendAtom(WDir,'/',Dir),
