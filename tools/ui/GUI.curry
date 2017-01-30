@@ -8,7 +8,7 @@
 --- The latter might not be supported in the future.
 ---
 --- @authors Michael Hanus, Bernd Brassel
---- @version July 2013
+--- @version January 2017
 ------------------------------------------------------------------------------
 
 module GUI(GuiPort,Widget(..),Button,ConfigButton,
@@ -30,21 +30,24 @@ module GUI(GuiPort,Widget(..),Button,ConfigButton,
            chooseColor,popup_message,debugTcl,
            cmd,command,button)  where
 
-import Read
-import Unsafe(trace)
+import Char   (isSpace, toUpper)
 import IO
-import IOExts(connectToCommand)
-import Char(isSpace,toUpper)
+import IOExts (connectToCommand)
+import Read
+import System (system)
+import Unsafe (trace)
 
 -- If showTclTkErrors is true, all synchronization errors occuring in the
 -- Tcl/Tk communication are shown (such errors should only occur on
 -- slow machines in exceptional cases; they should be handled by this library
 -- but might be interesting to see for debugging)
-showTclTkErrors = False -- True -- False
+showTclTkErrors :: Bool
+showTclTkErrors = False
 
 -- If showTclTkCommunication is true, the all strings sent to and from
 -- the Tcl/Tk GUI are shown in stdout:
-showTclTkCommunication = False -- True -- False
+showTclTkCommunication :: Bool
+showTclTkCommunication = False
 
 --- The port to a GUI is just the stream connection to a GUI
 --- where Tcl/Tk communication is done.
@@ -167,6 +170,7 @@ data Event = DefaultEvent
 
 -- translate event into corresponding Tcl string (except for DefaultEvent)
 -- with a leading blank:
+event2tcl :: Event -> String
 event2tcl DefaultEvent = " default"
 event2tcl MouseButton1 = " <ButtonPress-1>"
 event2tcl MouseButton2 = " <ButtonPress-2>"
@@ -242,6 +246,7 @@ dropSpaces :: String -> String
 dropSpaces = filter (not . isSpace)
 
 camelCase :: String -> String
+camelCase []     = []
 camelCase (c:cs) = toUpper c : cc cs
  where
   cc "" = ""
@@ -925,6 +930,9 @@ reportTclTkError s =
 -- The first argument are parameters passed to the wish command.
 openGuiPort :: String -> IO GuiPort
 openGuiPort wishparams = do
+  exwish <- system "which wish"
+  when (exwish>0) $
+    error "Windowing shell `wish' not found. Please install package `tk'!"
   reportTclTk ("OPEN CONNECTION TO WISH WITH PARAMS: "++wishparams)
   tclhdl <- connectToCommand ("wish "++wishparams)
   return (GuiPort tclhdl)

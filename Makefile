@@ -106,17 +106,20 @@ MAKELOG=make.log
 #
 .PHONY: all
 all:
+ifeq ($(DISTPKGINSTALL),yes)
+	$(MAKE) config
+	$(MAKE) build
+	# if we build a package, we compile all libraries at the end
+	# so that their intermediate files are up to date:
+	$(REPL) $(REPL_OPTS) :load AllLibraries :eval "3*13+3" :quit
+else
 	@rm -f $(MAKELOG)
 	@echo "Make started at `date`" > $(MAKELOG)
 	$(MAKE) config  2>&1 | tee -a $(MAKELOG)
 	$(MAKE) build 2>&1 | tee -a $(MAKELOG)
-ifeq ($(DISTPKGINSTALL),yes)
-	# if we build a package, we compile all libraries at the end
-	# so that their intermediate files are up to date:
-	$(REPL) $(REPL_OPTS) :load AllLibraries :eval "3*13+3" :quit
-endif
 	@echo "Make finished at `date`" >> $(MAKELOG)
 	@echo "Make process logged in file $(MAKELOG)"
+endif
 
 #
 # Build all components of PAKCS
