@@ -411,7 +411,7 @@ lockWithFileIfNotInTransaction(LockFile) :-
 	insideTransaction -> true ; lockWithFile(LockFile).
 
 lockWithFile(LockFile) :-
-	appendAtom('lockfile -1 ',LockFile,LockCmd),
+	appendAtom('lockfile-create --lock-name ',LockFile,LockCmd),
 	((existsFile(LockFile), pakcsrc(dynamicmessages,yes))
 	 -> writeErr('>>> Waiting for removing lock file \''),
 	    writeErr(LockFile), writeErr('\'...'),
@@ -430,7 +430,10 @@ unlockWithFileIfNotInTransaction(LockFile) :-
 	insideTransaction -> true ; unlockWithFile(LockFile).
 
 unlockWithFile(LockFile) :-
-	(existsFile(LockFile) -> deleteFile(LockFile) ; true), !.
+	existsFile(LockFile), !,
+        appendAtom('lockfile-remove --lock-name ',LockFile,LockCmd),
+        shellCmd(LockCmd).
+unlockWithFile(_).
 
 
 % reload newest versions of all persistent data:

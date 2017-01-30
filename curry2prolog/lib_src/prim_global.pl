@@ -94,11 +94,13 @@ writeGlobalFile(FileName,Val) :-
 lockFileName(FName,LockFile) :- appendAtom(FName,'.LOCK',LockFile).
 
 lockWithFile(LockFile) :-
-	appendAtom('lockfile -1 ',LockFile,LockCmd),
+	appendAtom('lockfile-create --lock-name ',LockFile,LockCmd),
 	((existsFile(LockFile), pakcsrc(dynamicmessages,yes))
 	 -> writeErr('>>> Waiting for removing lock file \''),
 	    writeErr(LockFile), writeErr('\'...'),
 	    nlErr ; true),
 	shellCmd(LockCmd), !.
 
-unlockWithFile(LockFile) :- deleteFile(LockFile).
+unlockWithFile(LockFile) :-
+        appendAtom('lockfile-remove --lock-name ',LockFile,LockCmd),
+	shellCmd(LockCmd).
