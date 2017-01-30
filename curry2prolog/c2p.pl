@@ -94,6 +94,8 @@ pakcsMain :-
 	processArgs(DefParamsA), % process default parameters from .pakcsrc
 	processArgs(Args), % process current parameters
 	rtArgs(RTArgs),
+        exitCode(EC),
+        (EC=0 -> true ; halt(EC)), % halt if error occurred
 	(RTArgs=[] -> true
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
@@ -138,6 +140,8 @@ processArgs([Arg|Args]) :- % command option
 	expandCommand(CmdS,FullCmd),
 	extractReplCmdParameters(Args,Params,RArgs),
 	processReplCmd(FullCmd,Params),
+        exitCode(EC),
+        (EC=0 -> true ; halt(EC)), % halt if error occurred
 	processArgs(RArgs).
 processArgs([Arg|Args]) :- % run-time arguments (starting with '--'):
 	atom_codes(Arg,"--"), !,
@@ -437,7 +441,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	deleteMainExpFiles(MainExprDir).
 parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
-	!, fail.
+	!, failWithExitCode.
 
 % get the name and path to the source code of the currently loaded main module
 % (or fail with an error message if there is no source code):
