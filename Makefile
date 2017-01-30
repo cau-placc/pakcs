@@ -109,22 +109,27 @@ all:
 	@rm -f $(MAKELOG)
 	@echo "Make started at `date`" > $(MAKELOG)
 	$(MAKE) config  2>&1 | tee -a $(MAKELOG)
-	$(MAKE) install 2>&1 | tee -a $(MAKELOG)
+	$(MAKE) build 2>&1 | tee -a $(MAKELOG)
+ifeq ($(DISTPKGINSTALL),yes)
+	# if we build a package, we compile all libraries at the end
+	# so that their intermediate files are up to date:
+	$(REPL) $(REPL_OPTS) :load AllLibraries :eval "3*13+3" :quit
+endif
 	@echo "Make finished at `date`" >> $(MAKELOG)
 	@echo "Make process logged in file $(MAKELOG)"
 
 #
-# Install all components of PAKCS
+# Build all components of PAKCS
 #
-.PHONY: install
-install: checkinstalldir installscripts copylibs copytools
+.PHONY: build
+build: checkinstalldir installscripts copylibs copytools
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	# install front end:
 	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
-	# install the Curry2Prolog compiler as a saved system:
+	# build the Curry2Prolog compiler as a saved system:
 	$(MAKE) $(C2PVERSION)
 	cd curry2prolog && $(MAKE)
 	# compile all libraries:
@@ -250,15 +255,35 @@ libdoc:
 	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
 	@echo "Make libdoc process logged in file $(MAKELOG)"
 
+########################################################################
+# Testing: run test suites to check the installation
+#
+ifeq ($(DISTPKGINSTALL),yes)
+# for a package installation, we run the tests in verbose mode:
+export RUNTESTPARAMS=-v
+else
+export RUNTESTPARAMS=
+endif
+
 # run the test suites to check the installation
 .PHONY: runtest
 runtest: testsuite/doTest
 	#cd testsuite && ./doTest --nogui
-	cd testsuite2 && ./test.sh
-	cd lib && ./test.sh
+	cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
+	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
-	cd examples/CHR && ./test.sh
+	cd examples/CHR && ./test.sh $(RUNTESTPARAMS)
 
+# run the test suites in verbose mode so that all output is shown:
+.PHONY: runtestverbose
+runtestverbose:
+	$(MAKE) runtest RUNTESTPARAMS=-v
+
+########################################################################
+# Cleaning:
+#
+
+# Build the cleancurry script:
 $(CLEANCURRY):
 	cd scripts && $(MAKE) $@
 
