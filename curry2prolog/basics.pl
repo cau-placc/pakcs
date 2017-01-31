@@ -182,7 +182,7 @@ onlySICStusMessage(Feature) :-
 	appendAtoms(['"',Feature,'" not available ',
 		     '(only available in a PAKCS implementation based on SICStus-Prolog)!'],
 		    Message),
-	raise_exception(Message).
+	writeErr('WARNING: '), writeErr(Message), nl.
 
 
 % check whether this is a SICStus-based implementation and provide warning
@@ -194,7 +194,7 @@ onlySWIMessage(Feature) :-
 	appendAtoms(['"',Feature,'" not available ',
 		     '(only available in a PAKCS implementation based on SWI-Prolog)!'],
 		    Message),
-	raise_exception(Message).
+	writeErr('WARNING: '), writeErr(Message), nl.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

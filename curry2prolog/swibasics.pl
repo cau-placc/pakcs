@@ -578,8 +578,8 @@ moduleDir(MD) :-
 
 % ensure that run-time library is loaded:
 ensure_lib_loaded(Lib) :-
-        % check whether it is a module that is already loaded:
-        current_module(Lib), !.
+        % check whether it is a module that was already loaded from some file:
+        current_module(Lib), module_property(Lib,file(_)), !.
 ensure_lib_loaded(Lib) :-
         % first, look into working directory:
 	workingDirectory(WDir),
