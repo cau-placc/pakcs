@@ -1,12 +1,16 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (January 30, 2017)
+Release notes for PAKCS Version 1.14.1 (January 31, 2017)
 ---------------------------------------------------------
 
 Changes to version 1.14.0:
 
   * Library `Database.ERD...` added (formerly part of ER currytools).
+  * Libraries `IOExts` and `Global` use system commands
+    `lockfile-create` and `lockfile-remove` instead of `lockfile`
+    for internal file synchronization in order to remove dependency
+    on package `procmail`.
   * Library `Nat` for Peano numbers added.
   * Libraries `Rewriting.*` for term rewriting in Curry extended
     to deal with rewriting strategies, narrowing strategies,
