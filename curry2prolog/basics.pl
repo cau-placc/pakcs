@@ -489,7 +489,7 @@ constructorOrFunctionType(QName,Name,Arity,Type) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Further auxiliaries:
 
-% get home directory (fail if it does no exist):
+% get home directory (fail if it does not exist):
 getHomeDirectory(Home) :-
         getEnv('HOME',Home), atom_codes(Home,[_|_]).
 
