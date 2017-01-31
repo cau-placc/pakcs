@@ -448,7 +448,7 @@ toAbsPath(Path,AbsPath) :-
 	appendAtoms([HomeDir,'/',RPath],AbsPath).
 toAbsPath('~',HomeDir) :- !,
 	(getHomeDirectory(HomeDir) -> true ; HomeDir='~').
-toAbsPath('.',CurDir) :- !,workingDirectory(CurDir).
+toAbsPath('.',CurDir) :- !, workingDirectory(CurDir).
 toAbsPath(Path,AbsPath) :-
         workingDirectory(CurDir),
 	appendAtoms([CurDir,'/',Path],AbsPath).
@@ -491,7 +491,9 @@ constructorOrFunctionType(QName,Name,Arity,Type) :-
 
 % get home directory (fail if it does not exist):
 getHomeDirectory(Home) :-
-        getEnv('HOME',Home), atom_codes(Home,[_|_]).
+        getEnv('HOME',Home),
+        atom_codes(Home,[_|_]),
+        existsDirectory(Home).
 
 % linear reverse:
 rev(Xs,Ys) :- rev_acc(Xs,Ys,[]).
