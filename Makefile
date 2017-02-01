@@ -276,6 +276,8 @@ runtest: testsuite/doTest
 	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
 	cd examples/CHR && ./test.sh $(RUNTESTPARAMS)
+	# remove .curry (might contain analysis results if home is missing)
+	rm -rf .curry
 
 # run the test suites in verbose mode so that all output is shown:
 .PHONY: runtestverbose
