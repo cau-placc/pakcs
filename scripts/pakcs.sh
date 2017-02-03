@@ -36,7 +36,7 @@ fi
 USERLWRAP=no
 if tty -s ; then
   RLWRAP=`which rlwrap`
-  if [ -f "$PAKCSHOME/bin/sicstusprolog" -a -x "$RLWRAP" -a -n "$HOME" ] ; then
+  if [ -f "$PAKCSHOME/bin/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
     USERLWRAP=yes
   fi
 fi
