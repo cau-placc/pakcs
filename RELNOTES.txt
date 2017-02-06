@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (January 31, 2017)
+Release notes for PAKCS Version 1.14.1 (February 6, 2017)
 ---------------------------------------------------------
 
 Changes to version 1.14.0:
@@ -40,6 +40,7 @@ Changes to version 1.14.0:
     analysis `Deterministic` modified so that it considers encapsulated search.
   * Tool `pakcs analysis` (CASS): simple termination analysis `Terminating`
     added.
+  * Tool `pakcs check` supports also testing with float arguments.
   * Run-time parameters passed to PAKCS must be separated by `--`.
   * Installation made more flexible by supporting environment variable
     `PAKCSINSTALLDIR` to specify the location where PAKCS is moved
