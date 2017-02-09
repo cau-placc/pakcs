@@ -221,6 +221,11 @@ tools:
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
+# compile analysis tool only:
+.PHONY: CASS
+CASS:
+	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) CASS ; fi
+
 # compile documentation if sources are available and it is not a
 # separate package distribution:
 .PHONY: docs
