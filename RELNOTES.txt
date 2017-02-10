@@ -33,15 +33,15 @@ Changes to version 1.14.0:
   * New tool Curry2Verify (to translate Curry programs into Agda programs)
     added to `currytools`.
   * Obsolete script `parsecurry` removed.
-  * Names of tool executables changed to `pakcs toolname`.
-  * Name of Curry parser `cymake` changed to `pakcs frontend`.
-  * Tool `pakcs analysis` (CASS): option `--all` added.
-  * Tool `pakcs analysis` (CASS): analysis `Functional` added and
+  * Names of tool executables changed to `pakcs toolname` or `curry toolname`.
+  * Name of Curry parser `cymake` changed to `curry frontend`.
+  * Tool `curry analysis` (CASS): option `--all` added.
+  * Tool `curry analysis` (CASS): analysis `Functional` added and
     analysis `Deterministic` modified so that it considers encapsulated search.
-  * Tool `pakcs analysis` (CASS): simple termination analysis `Terminating`
+  * Tool `curry analysis` (CASS): simple termination analysis `Terminating`
     added.
-  * Tool `pakcs analysis` (CASS): analysis `TypesInValues` added.
-  * Tool `pakcs check` supports also testing with float arguments.
+  * Tool `curry analysis` (CASS): analysis `TypesInValues` added.
+  * Tool `curry check` supports also testing with float arguments.
   * Run-time parameters passed to PAKCS must be separated by `--`.
   * Installation made more flexible by supporting environment variable
     `PAKCSINSTALLDIR` to specify the location where PAKCS is moved

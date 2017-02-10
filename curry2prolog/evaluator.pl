@@ -169,7 +169,7 @@ evaluateMainExp(_,_,RTime1,ETime1) :-
 
 showStatistics(RTime1,ETime1) :-
 	getRunTime(RTime2), getElapsedTime(ETime2),
-	(timemode(yes)
+	((timemode(yes), verbosityNotQuiet)
            -> write('Execution time: '), RTime is RTime2-RTime1, write(RTime),
 	      write(' msec. / '),
 	      write('elapsed: '), ETime is ETime2-ETime1, write(ETime),

@@ -96,12 +96,14 @@ pakcsMain :-
 	rtArgs(RTArgs),
         exitCode(EC),
         (EC=0 -> true ; halt(EC)), % halt if error occurred
-	(RTArgs=[] -> true
+	((RTArgs=[], \+ verbosityIntermediate) -> true
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
-	printPakcsHeader,
-        nlNQ,
-	writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'), nlNQ,
+	(verbosityNotQuiet
+         -> printPakcsHeader, nlNQ,
+            writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'),
+            nlNQ
+          ; true),
 	flush_output,
 	main.
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
@@ -131,8 +133,7 @@ processArgs([Arg|_]) :-
 	halt(0). % quit
 processArgs([Arg|Args]) :-
 	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'),
-	retract(quietmode(_)),
-	asserta(quietmode(yes)), !,
+	setQuietMode(yes), !,
 	setVerbosity(0),
 	processArgs(Args).
 processArgs([Arg|Args]) :- % command option

@@ -5,7 +5,8 @@
 		  noLoadMessage/0, lastload/1, plprofiling/1,
 		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
-		  verbosemode/1, setVerboseMode/1, quietmode/1, rtArgs/1,
+		  verbosemode/1, setVerboseMode/1, quietmode/1, setQuietMode/1,
+                  rtArgs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
 		  hasPrintedFailure/0, printConsFailure/1,
@@ -121,6 +122,9 @@ verbosemode(no). % yes if program should be executed in verbose mode
 
 setVerboseMode(V) :-
 	retract(verbosemode(_)), asserta(verbosemode(V)).
+
+setQuietMode(V) :-
+	retract(quietmode(_)), asserta(quietmode(V)).
 
 % verbosity/1 is defined in prologbasics.pl
 
