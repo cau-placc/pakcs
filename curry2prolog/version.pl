@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Information about version of Curry2Prolog.
 
-:- module(version,[prologMajor/1, printPakcsHeader/0]).
+:- module(version,[prologMajor/1, printPakcsHeader/0, printVersionNumber/0]).
 
 :- use_module(prologbasics).
 :- use_module(basics).
@@ -26,15 +26,15 @@ prologMajor(PrologVersion) :-
 	append(PrologS,MVS,PrologVersionS),
 	atom_codes(PrologVersion,PrologVersionS), !.
 
-printVersion :-
+printVersionNumber :-
 	compilerMajorVersion(V1),
 	compilerMinorVersion(V2),
 	compilerRevisionVersion(V3),
 	writeNQ(V1), writeNQ('.'),
 	writeNQ(V2), writeNQ('.'),
-	writeNQ(V3), writeNQ(' ('),
+	writeNQ(V3), writeNQ('-'),
 	buildVersion(B),
-	writeNQ(B), writeNQ(')').
+	writeNQ(B).
 
 	
 printPakcsHeader :-
@@ -45,7 +45,7 @@ printPakcsHeader :-
 	writeNQ(' |  __  |    /  \\     | |  / /  |  ____| |  _____|   Portland Aachen Kiel'), nlNQ,
 	writeNQ(' | |  | |   / /\\ \\    | |_/ /   | |      | |_____    Curry System'), nlNQ,
 	writeNQ(' | |__| |  / /__\\ \\   |  _  |   | |      |_____  |   '), nlNQ,
-	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersion, nlNQ,
+	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersionNumber, nlNQ,
 	writeNQ(' |_|     /_/      \\_\\ |_|  \\_\\  |______| |_______|   '), nlNQ,
 	nlNQ,
         writeNQ('Curry2Prolog('), writeNQ(Prolog),

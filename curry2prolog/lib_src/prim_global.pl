@@ -4,7 +4,7 @@
 %
 
 :- module(prim_global,
-	  [initGlobalValue/4,prim_readGlobal/2,prim_writeGlobal/3]).
+	  [initGlobalValue/4, prim_readGlobal/2, prim_writeGlobal/3]).
 
 :- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 :- (current_module(basics)       -> true ; use_module('../basics')).
@@ -65,11 +65,13 @@ prim_writeGlobal('Global.GlobalDef'(GlobName,'Global.Persistent'),
 readGlobalFile(FileName,Val) :-
 	lockFileName(FileName,LockFile),
 	lockWithFile(LockFile),
-	open(FileName,read,Stream),
-	readStreamLine(Stream,ValString),
-	readTerm(ValString,qualified,_Rest,Val),
-	close(Stream),
-	unlockWithFile(LockFile).
+        on_exception(ErrorMsg,
+                     (open(FileName,read,Stream),
+                      readStreamLine(Stream,ValString),
+                      close(Stream)),
+                     ValString=[]),
+        unlockWithFile(LockFile),
+        readTerm(ValString,qualified,_Rest,Val).
 
 % write the file with the persistent global value:
 writeGlobalFile(FileName,Val) :-

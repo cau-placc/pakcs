@@ -128,6 +128,14 @@ processArgs([Arg|_]) :-
 	printPakcsHeader,
 	halt(0).
 processArgs([Arg|_]) :-
+	Arg='--compiler-name', !, % show compiler name (pakcs) and quit:
+	write(pakcs), nl,
+	halt(0).
+processArgs([Arg|_]) :-
+	Arg='--numeric-version', !, % show version number and quit:
+	printVersionNumber,
+	halt(0).
+processArgs([Arg|_]) :-
 	(Arg='--help' ; Arg='-h' ; Arg='-?'),
 	writeMainHelp,
 	halt(0). % quit
@@ -194,12 +202,14 @@ writeMainHelp :-
 	nlErr,
 	writeLnErr('with options:'),
 	nlErr,
-	writeLnErr('-h|--help|-?  : show this message and quit'),
-	writeLnErr('-V|--version  : show version and quit'),
-	writeLnErr('-q|--quiet    : work silently'),
-	writeLnErr('--noreadline  : do not use input line editing via command "rlwrap"'),
-	writeLnErr('-Dprop=val    : define pakcsrc property "prop" as "val"'),
-	writeLnErr(':<cmd> <args> : command of the PAKCS environment'),
+	writeLnErr('-h|--help|-?      : show this message and quit'),
+	writeLnErr('-V|--version      : show version and quit'),
+	writeLnErr('--compiler-name   : show just the compiler name "pakcs" and quit'),
+	writeLnErr('--numeric-version : show just the version number and quit'),
+	writeLnErr('-q|--quiet        : work silently'),
+	writeLnErr('--noreadline      : do not use input line editing via command "rlwrap"'),
+	writeLnErr('-Dprop=val        : define pakcsrc property "prop" as "val"'),
+	writeLnErr(':<cmd> <args>     : command of the PAKCS environment'),
 	nlErr,
 	nlErr,
 	writeLnErr('Invoke some tool:'),
