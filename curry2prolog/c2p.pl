@@ -865,6 +865,7 @@ processCommand("interface",IFTail) :- !,
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
 processCommand("browse",[]) :- !,
+        checkWish,
 	lastload(LastProg),
 	(LastProg="" -> Prog="Prelude" ; Prog=LastProg),
 	atom_codes(ProgA,Prog),
@@ -881,6 +882,7 @@ processCommand("browse",[]) :- !,
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
+        checkWish,
         installDir(PH),
 	appendAtom(PH,'/tools/coosy',CoosyHome),
 	getCurryPath(SLP),
@@ -975,11 +977,13 @@ processCommand("source",Arg) :-
 	append(_,[LM],PModS), isLetterDigitCode(LM),
 	(\+ member(46,FunS) ; isOperatorName(FunS)),
 	!,
+        checkWish,
 	% show source code of function in module
 	extractProgName(PModS,ModS),
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
+        checkWish,
 	parseMainExpression(ExprInput,Term,_Type,_Vs),
 	showSourceCode(Term).
 
@@ -1031,6 +1035,19 @@ processCommand("fork",STail) :- !, processFork(STail).
 
 processCommand(_,_) :- !,
 	write('ERROR: unknown command. Type :h for help'), nl, fail.
+
+% Check for existence of a binary in the path, e.g., 'wish'.
+% If the binary does not exist, print the error message (2nd argument) and fail.
+checkProgram(Program,_) :-
+        appendAtoms(['which ',Program,' > /dev/null'],CheckCmd),
+        shellCmd(CheckCmd,ECode),
+        ECode=0, !.
+checkProgram(_,ErrMsg) :-
+        writeErr(ErrMsg), nlErr, !, fail.
+
+checkWish :-
+        checkProgram(wish,
+          'Windowing shell "wish" not found. Please install package "tk"!').
 
 % call "shellCmd" and report its execution if verbosityIntermediate:
 shellCmdWithReport(Cmd) :-
