@@ -866,6 +866,7 @@ processCommand("interface",IFTail) :- !,
 
 processCommand("browse",[]) :- !,
         checkWish,
+	writeNQ('Starting Curry Browser in separate window...'), nlNQ,
 	lastload(LastProg),
 	(LastProg="" -> Prog="Prelude" ; Prog=LastProg),
 	atom_codes(ProgA,Prog),
@@ -878,11 +879,14 @@ processCommand("browse",[]) :- !,
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
         installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],
+                    BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
         checkWish,
+	writeNQ('Starting Curry Object Observation System in separate window...'),
+        nlNQ,
         installDir(PH),
 	appendAtom(PH,'/tools/coosy',CoosyHome),
 	getCurryPath(SLP),
@@ -977,13 +981,11 @@ processCommand("source",Arg) :-
 	append(_,[LM],PModS), isLetterDigitCode(LM),
 	(\+ member(46,FunS) ; isOperatorName(FunS)),
 	!,
-        checkWish,
 	% show source code of function in module
 	extractProgName(PModS,ModS),
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-        checkWish,
 	parseMainExpression(ExprInput,Term,_Type,_Vs),
 	showSourceCode(Term).
 
@@ -2217,9 +2219,10 @@ showSourceCode(FCall) :- FCall =.. [QF|_],
 
 % show source code of a function via the simple GUI for showing complete fun's:
 showSourceCodeOfFunction(ModS,FunS) :-
-	writeNQ('Showing source code of function '),
+        checkWish,
+	writeNQ('Showing source code of function "'),
 	concat([ModS,[46],FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
-	writeNQ('...'), nlNQ,
+	writeNQ('" in separate window...'), nlNQ,
 	(retract(lastShownSourceCode(LastModS,LastF)) ; LastModS=[]),
 	(LastModS=[] -> true
           ; getModStream(LastModS,LastStr),
