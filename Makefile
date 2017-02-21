@@ -13,35 +13,41 @@
 
 # Some parameters for this installation
 # --------------------------------------
-#
+# (these parameters might be passed to `make`)
+
 # If the parameter CURRYFRONTEND is set to an executable,
 # this executable will be used as the front end for PAKCS.
 # Otherwise, the front end will be compiled from the sources
 # in subdir "frontend" (if it exists).
+export CURRYFRONTEND =
 
 # Is this an installation for a distribution (Debian) package (yes|no)?
 # In case of "yes":
 # - nothing will be stored during the installation in the home directory
 # - the documentation will not be built (since this takes a lot of time)
+# - the paramters CURRYLIBSDIR and CURRYTOOLSDIR must be defined and
+#   refer to the directories containing the Curry system libraries and tools
 export DISTPKGINSTALL = no
 
-# In case of an installation as a (Debian) package, the variable
-# PAKCSINSTALLDIR should be set to the location where it is finally
-# placed after the build (e.g., /usr/lib/pakcs). It is required that
-# during the build, this directory does not exist, otherwise
-# the build fails. If this variable is set and the installed system will
-# be moved to this location after the build, it will be
+# In order to build the system in a place different from the place of
+# the final installation (e.g., when building it as a (Debian) package),
+# the variable PAKCSINSTALLDIR should be set to the location where it
+# will be finally installed after the build (e.g., /usr/lib/pakcs).
+# It is required that during the build, this directory does not exist,
+# otherwise the build fails. If this variable is set and the
+# installed system will be moved to this location after the build, it will be
 # used as the root directory for all generated components of the system.
 export PAKCSINSTALLDIR =
 
+########################################################################
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
 MINORVERSION=14
 # The revision version number:
-REVISIONVERSION=1
+REVISIONVERSION=2
 # The build version number:
-BUILDVERSION=7
+BUILDVERSION=0
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -115,8 +121,8 @@ ifeq ($(DISTPKGINSTALL),yes)
 else
 	@rm -f $(MAKELOG)
 	@echo "Make started at `date`" > $(MAKELOG)
-	$(MAKE) config  2>&1 | tee -a $(MAKELOG)
-	$(MAKE) build 2>&1 | tee -a $(MAKELOG)
+	$(MAKE) config 2>&1 | tee -a $(MAKELOG)
+	$(MAKE) build  2>&1 | tee -a $(MAKELOG)
 	@echo "Make finished at `date`" >> $(MAKELOG)
 	@echo "Make process logged in file $(MAKELOG)"
 endif
