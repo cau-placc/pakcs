@@ -32,9 +32,9 @@ printVersionNumber :-
 	compilerRevisionVersion(V3),
 	writeNQ(V1), writeNQ('.'),
 	writeNQ(V2), writeNQ('.'),
-	writeNQ(V3), writeNQ('-'),
-	buildVersion(B),
-	writeNQ(B).
+	writeNQ(V3),
+        buildVersion(B),
+        (B=0 -> true ; writeNQ('-b'), writeNQ(B)).
 
 	
 printPakcsHeader :-
