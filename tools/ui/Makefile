@@ -13,9 +13,10 @@ LIB_PL    = `echo $(UILIBS:%.curry=.curry/pakcs/%.pl)`
 .PHONY: all
 all: pl
 
+.NOTPARALLEL: pl
 .PHONY: pl
 pl:
-	@${MAKE} $(LIB_PL)
+	@$(MAKE) $(LIB_PL)
 
 # generate all Prolog translations:
 .curry/pakcs/%.pl: %.curry
