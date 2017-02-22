@@ -220,10 +220,6 @@ compilefrontend:
 # compile the tools:
 .PHONY: tools
 tools:
-	# compile the Curry Port Name Server demon:
-	@if [ -r bin/pakcs ] ; then cd cpns       && $(MAKE) ; fi
-	# compile the event handler demon for dynamic web pages:
-	@if [ -r bin/pakcs ] ; then cd www        && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
@@ -322,8 +318,6 @@ cleantools: $(CLEANCURRY)
 	cd curry2prolog && $(MAKE) clean
 	cd currytools && $(MAKE) uninstall
 	cd tools && $(MAKE) clean
-	cd cpns && $(MAKE) clean
-	cd www && $(MAKE) clean
 	cd bin && rm -f pakcs
 
 # Clean everything (including the front end)

@@ -27,12 +27,6 @@ This directory contains:
   A directory containing various executables
   to execute the components of PAKCS.
 
-`cpns`:
-  This directory contains scripts and executables for the
-  Curry Port Name Server (CPNS) which is responsible for managing the
-  symbolic names assigned to the named sockes and ports on a local machine
-  (see libraries `NamedSocket` and `Ports` for more details).
-
 `curry2prolog`:
   This directory contains the compiler from Curry into Prolog which
   is the basis of the main component of PAKCS: the interactive
@@ -85,9 +79,3 @@ This directory contains:
 `tools`:
   This directory contains various tools for PAKCS
   (see the README there for a more detailed description).
-
-`www`:
-  This directory contains scripts and executables for the
-  event handler server that is required to execute dynamic web
-  pages implemented with the libraries HTML or WUI.
-

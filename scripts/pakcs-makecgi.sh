@@ -184,14 +184,14 @@ fi
 # stop old server, if necessary:
 if [ -f $CGISERVERFILE ] ; then
   echo "Stop old version of the server '$CGISERVERFILE'..."
-  $PAKCSHOME/www/Registry stopscript "$CGISERVERFILE"
+  $PAKCSHOME/currytools/www/Registry stopscript "$CGISERVERFILE"
 fi
 
-SUBMITFORM="$PAKCSHOME/www/submitform"
+SUBMITFORM="$PAKCSHOME/currytools/www/SubmitForm"
 # copy executable from PAKCS system (if required):
 if [ $STANDALONE = yes ] ; then
-  cp -p "$SUBMITFORM" $CGIFILEPATHNAME/submitform
-  SUBMITFORM="./submitform"
+  cp -p "$SUBMITFORM" $CGIFILEPATHNAME/SubmitForm
+  SUBMITFORM="./SubmitForm"
 fi
 # generate cgi script:
 rm -f $CGIFILE
