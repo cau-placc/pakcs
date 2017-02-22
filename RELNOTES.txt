@@ -1,6 +1,15 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.14.3 (February 22, 2017)
+----------------------------------------------------------
+
+Changes to version 1.14.2:
+
+  * Tools `cpns` (Curry Port Name Server) and `www` (web scripting)
+    moved to `currytools`.
+
+
 Release notes for PAKCS Version 1.14.2 (February 21, 2017)
 ----------------------------------------------------------
 
