@@ -32,10 +32,12 @@ printVersionNumber :-
 	compilerRevisionVersion(V3),
 	writeNQ(V1), writeNQ('.'),
 	writeNQ(V2), writeNQ('.'),
-	writeNQ(V3),
+	writeNQ(V3).
+
+printVersionNumberWithBuild :-
+        printVersionNumber,
         buildVersion(B),
         (B=0 -> true ; writeNQ('-b'), writeNQ(B)).
-
 	
 printPakcsHeader :-
 	prolog(Prolog),
@@ -45,7 +47,7 @@ printPakcsHeader :-
 	writeNQ(' |  __  |    /  \\     | |  / /  |  ____| |  _____|   Portland Aachen Kiel'), nlNQ,
 	writeNQ(' | |  | |   / /\\ \\    | |_/ /   | |      | |_____    Curry System'), nlNQ,
 	writeNQ(' | |__| |  / /__\\ \\   |  _  |   | |      |_____  |   '), nlNQ,
-	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersionNumber, nlNQ,
+	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersionNumberWithBuild, nlNQ,
 	writeNQ(' |_|     /_/      \\_\\ |_|  \\_\\  |______| |_______|   '), nlNQ,
 	nlNQ,
         writeNQ('Curry2Prolog('), writeNQ(Prolog),
