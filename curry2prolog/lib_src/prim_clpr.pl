@@ -4,7 +4,7 @@
 % The clauses in this file are added to each compiled Curry program
 % if real arithmetic constraints are used.
 
-:- use_module('../basics').
+:- (current_module(basics)       -> true ; use_module('../basics')).
 :- use_module(library(clpr)).
 
 prim_CLPR_plus(Y,X,R) :- {R = X+Y}.

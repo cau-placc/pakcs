@@ -37,6 +37,7 @@ scripts/makesavedstate
 bin/
 cpns/CPNSD
 curry2prolog/prologbasics.pl
+curry2prolog/libsicstus
 curry2prolog/libswi
 curry2prolog/pakcs
 tools/Peval/peval

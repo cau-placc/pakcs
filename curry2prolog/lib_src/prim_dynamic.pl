@@ -9,10 +9,10 @@
 	 prim_startTransaction/1,prim_isKnownAtTime/3,
 	 abortTransaction/0,initializeDynamic/0]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- use_module('../version').
-:- use_module('../pakcsversion').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(version)      -> true ; use_module('../version')).
+:- (current_module(pakcsversion) -> true ; use_module('../pakcsversion')).
 
 :- dynamic dynamicTime/1, dynamicVersion/3, insideTransaction/0.
 
@@ -411,7 +411,7 @@ lockWithFileIfNotInTransaction(LockFile) :-
 	insideTransaction -> true ; lockWithFile(LockFile).
 
 lockWithFile(LockFile) :-
-	appendAtom('lockfile -1 ',LockFile,LockCmd),
+	appendAtom('lockfile-create --lock-name ',LockFile,LockCmd),
 	((existsFile(LockFile), pakcsrc(dynamicmessages,yes))
 	 -> writeErr('>>> Waiting for removing lock file \''),
 	    writeErr(LockFile), writeErr('\'...'),
@@ -430,7 +430,10 @@ unlockWithFileIfNotInTransaction(LockFile) :-
 	insideTransaction -> true ; unlockWithFile(LockFile).
 
 unlockWithFile(LockFile) :-
-	(existsFile(LockFile) -> deleteFile(LockFile) ; true), !.
+	existsFile(LockFile), !,
+        appendAtom('lockfile-remove --lock-name ',LockFile,LockCmd),
+        shellCmd(LockCmd).
+unlockWithFile(_).
 
 
 % reload newest versions of all persistent data:

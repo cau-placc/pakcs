@@ -10,8 +10,8 @@
 	   prim_readsQTerm/2, prim_readsUnqualifiedTerm/3, readTerm/4,
 	   skipWhiteSpace/2, isShowableArg/1]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion of Curry data terms into string representation in

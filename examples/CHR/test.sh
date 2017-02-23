@@ -4,7 +4,7 @@
 CURRYHOME=../..
 CURRYBIN=$CURRYHOME/bin
 
-BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
+BACKEND=`$CURRYBIN/curry --noreadline :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
 
 VERBOSE=no
 if [ "$1" = "-v" ] ; then

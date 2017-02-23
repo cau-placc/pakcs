@@ -1,68 +1,81 @@
-This is PAKCS (the Portland Aachen Kiel Curry system),
-an implementation of Curry developed by RWTH Aachen,
+PAKCS: The Portland Aachen Kiel Curry system
+============================================
+
+PAKCS is an implementation of the multi-paradigm declarative language
+[Curry](http://www.curry-language.org) developed by RWTH Aachen,
 University of Kiel and Portland State University
 (email contact: pakcs@curry-language.org)
 
 This directory contains:
 
-RELNOTES.txt:
+`RELNOTES.txt`:
   Some information about the current release and changes w.r.t. previous
   releases of PAKCS.
 
-RESOURCES.html:
+`RESOURCES.html`:
   A description of various resources related to PAKCS and Curry.
   This is helpful for new users.
 
-INSTALL.txt:
-  Instructions to install the system.
+`INSTALL.txt`:
+  Instructions how to install the system.
 
-bin:
-  A directory containing various scripts that implement the main
-  commands to execute the components of PAKCS.
+`GITINSTALL.txt`:
+  Instructions how to install the system from the GIT repository
+  (only intended for developers).
 
-cpns:
-  This directory contains scripts and executables for the
-  Curry Port Name Server (CPNS) which is responsible for managing the
-  symbolic names assigned to the named ports on a local machine
-  (see library Ports for more details).
+`bin`:
+  A directory containing various executables
+  to execute the components of PAKCS.
 
-curry2prolog:
+`curry2prolog`:
   This directory contains the compiler from Curry into Prolog which
   is the basis of the main component of PAKCS: the interactive
   development environment.
 
-currytools:
+`currytools`:
   This directory contains various tools for Curry
   (see the README there for a more detailed description).
 
-docs:
+`docs`:
   This directory contains some documentation (Curry Report, PAKCS User Manual,
   DTD for XML representation of FlatCurry).
 
-examples:
+`examples`:
   This directory contains a collection of example Curry programs
   and test files (prefixed by "test") to check the system using
   the currytest tool. All tests can be executed by the shell script
-  "doTest" in this directory.
+  `test.sh` in this directory.
 
-frontend: 
-  This directory contains the sources of the Curry front-end, i.e., a parser
-  for Curry programs. It is adapted from the parser of the Muenster Curry
-  Compiler (MCC).
+`frontend`:
+  This directory contains the Curry frontend, i.e., a parser for
+  Curry programs. It is adapted from the parser originally developed for the
+  [Muenster Curry Compiler](http://danae.uni-muenster.de/~lux/curry/).
 
-lib:
+`include`:
+  This directory contains some resources which are included
+  by various tools delivered with KiCS2.
+
+`lib`:
   This directory contains a collection of standard libraries
   implemented in Curry (including the standard prelude).
 
-scripts:
-  This directory contains scripts used in PAKCS.
+`scripts`:
+  This directory contains some templates for scripts used in PAKCS.
 
-tools:
+`testsuite`:
+  This directory contains a collection of Curry programs
+  implementing unit tests to check the functionality of the system using
+  the currytest tool. All tests can be executed by the shell script
+  `doTest` in this directory. Since these test suite is based on
+  a test tool which is no longer supported, one should use the new
+  tests contained in `testsuite2`.
+
+`testsuite2`:
+  This directory contains a collection of Curry programs
+  implementing unit and property tests to check the functionality
+  of the system using CurryCheck. All tests can be executed by the
+  shell script `test.sh` in this directory.
+
+`tools`:
   This directory contains various tools for PAKCS
   (see the README there for a more detailed description).
-
-www:
-  This directory contains scripts and executables for the
-  event handler server that is required to execute dynamic web
-  pages implemented with the libraries HTML or WUI.
-

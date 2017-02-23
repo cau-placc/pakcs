@@ -11,10 +11,10 @@
 	   checkIncomingPortStreams/3,ifTracePort/1,readPortMessage/4,
 	   parse_received_message/4]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- ensure_loaded(user:prim_standard). % for normalizeAndCheck,waitUntilGround
-:- use_module(prim_readshowterm). % for term en/decoding
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(prim_standard) -> true ; ensure_loaded(user:prim_standard)). % for normalizeAndCheck,waitUntilGround
+:- (current_module(prim_readshowterm) -> true ; use_module(prim_readshowterm)). % for term en/decoding
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic configurations for the port implementation:

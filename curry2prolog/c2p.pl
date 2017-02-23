@@ -19,7 +19,7 @@
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
-parserOptions(''). % additional options passed to cymake parser
+parserOptions(''). % additional options passed to front end
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 varDefines([]). % list of top-level bindings
@@ -94,12 +94,16 @@ pakcsMain :-
 	processArgs(DefParamsA), % process default parameters from .pakcsrc
 	processArgs(Args), % process current parameters
 	rtArgs(RTArgs),
-	(RTArgs=[] -> true
+        exitCode(EC),
+        (EC=0 -> true ; halt(EC)), % halt if error occurred
+	((RTArgs=[], \+ verbosityIntermediate) -> true
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
-	printPakcsHeader,
-        nlNQ,
-	writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'), nlNQ,
+	(verbosityNotQuiet
+         -> printPakcsHeader, nlNQ,
+            writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'),
+            nlNQ
+          ; true),
 	flush_output,
 	main.
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
@@ -124,13 +128,20 @@ processArgs([Arg|_]) :-
 	printPakcsHeader,
 	halt(0).
 processArgs([Arg|_]) :-
+	Arg='--compiler-name', !, % show compiler name (pakcs) and quit:
+	write(pakcs), nl,
+	halt(0).
+processArgs([Arg|_]) :-
+	Arg='--numeric-version', !, % show version number and quit:
+	printVersionNumber,
+	halt(0).
+processArgs([Arg|_]) :-
 	(Arg='--help' ; Arg='-h' ; Arg='-?'),
 	writeMainHelp,
 	halt(0). % quit
 processArgs([Arg|Args]) :-
 	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'),
-	retract(quietmode(_)),
-	asserta(quietmode(yes)), !,
+	setQuietMode(yes), !,
 	setVerbosity(0),
 	processArgs(Args).
 processArgs([Arg|Args]) :- % command option
@@ -138,6 +149,8 @@ processArgs([Arg|Args]) :- % command option
 	expandCommand(CmdS,FullCmd),
 	extractReplCmdParameters(Args,Params,RArgs),
 	processReplCmd(FullCmd,Params),
+        exitCode(EC),
+        (EC=0 -> true ; halt(EC)), % halt if error occurred
 	processArgs(RArgs).
 processArgs([Arg|Args]) :- % run-time arguments (starting with '--'):
 	atom_codes(Arg,"--"), !,
@@ -189,12 +202,14 @@ writeMainHelp :-
 	nlErr,
 	writeLnErr('with options:'),
 	nlErr,
-	writeLnErr('-h|--help|-?  : show this message and quit'),
-	writeLnErr('-V|--version  : show version and quit'),
-	writeLnErr('-q|--quiet    : work silently'),
-	writeLnErr('--noreadline  : do not use input line editing via command "rlwrap"'),
-	writeLnErr('-Dprop=val    : define pakcsrc property "prop" as "val"'),
-	writeLnErr(':<cmd> <args> : command of the PAKCS environment'),
+	writeLnErr('-h|--help|-?      : show this message and quit'),
+	writeLnErr('-V|--version      : show version and quit'),
+	writeLnErr('--compiler-name   : show just the compiler name "pakcs" and quit'),
+	writeLnErr('--numeric-version : show just the version number and quit'),
+	writeLnErr('-q|--quiet        : work silently'),
+	writeLnErr('--noreadline      : do not use input line editing via command "rlwrap"'),
+	writeLnErr('-Dprop=val        : define pakcsrc property "prop" as "val"'),
+	writeLnErr(':<cmd> <args>     : command of the PAKCS environment'),
 	nlErr,
 	nlErr,
 	writeLnErr('Invoke some tool:'),
@@ -208,17 +223,17 @@ writeMainHelp :-
 	writeLnErr('browse    : browse and analyze'),
 	writeLnErr('check     : check properties'),
 	writeLnErr('createmake: create make file for main module'),
-	writeLnErr('cymake    : Curry front end'),
 	writeLnErr('data2xml  : generate XML bindings'),
 	writeLnErr('doc       : generate documentation for Curry programs'),
 	writeLnErr('erd2cdbi  : create database code for ER model and Database.CDBI libraries'),
 	writeLnErr('erd2curry : create database code for ER model'),
+	writeLnErr('frontend  : Curry front end'),
 	writeLnErr('makecgi   : translate Curry HTML program into CGI program'),
 	writeLnErr('peval     : partially evaluate a program'),
 	writeLnErr('pp        : Curry preprocessor'),
 	writeLnErr('spiceup   : create web application via Spicey'),
 	writeLnErr('style     : check style of source programs'),
-	writeLnErr('test      : test assertions (no longer supported)'),
+	writeLnErr('test      : test assertions (obsolete, no longer supported)'),
 	writeLnErr('verify    : translate Curry module to Agda for property verification'),
         nlErr,
         writeLnErr('To get more help about the usage of a tool, type'),
@@ -507,7 +522,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,MainExp,
 	deleteMainExpFiles(MainExprDir).
 parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
-	!, fail.
+	!, failWithExitCode.
 
 % get the name and path to the source code of the currently loaded main module
 % (or fail with an error message if there is no source code):
@@ -789,8 +804,8 @@ processCommand("set",[]) :- !,
 	write('                   2: intermediate messages and commands'), nl,
 	write('                   3: all intermediate results'), nl,
 	write('safe            - safe execution mode without I/O actions'), nl,
-	write('parser  <opts>  - additional options passed to parser (cymake)'), nl,
-	write('args    <args>  - run-time arguments passed to main program'), nl,
+	write('parser <opts>   - additional options passed to Curry front end'), nl,
+	write('args   <args>   - run-time arguments passed to main program'), nl,
 	nl,
 	write('Options in debug mode:'), nl,
 	write('+/-single         - single step mode'), nl,
@@ -954,6 +969,8 @@ processCommand("interface",IFTail) :- !,
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
 processCommand("browse",[]) :- !,
+        checkWish,
+	writeNQ('Starting Curry Browser in separate window...'), nlNQ,
 	lastload(LastProg),
 	(LastProg="" -> Prog="Prelude" ; Prog=LastProg),
 	atom_codes(ProgA,Prog),
@@ -966,10 +983,14 @@ processCommand("browse",[]) :- !,
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
         installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],
+                    BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
+        checkWish,
+	writeNQ('Starting Curry Object Observation System in separate window...'),
+        nlNQ,
         installDir(PH),
 	appendAtom(PH,'/tools/coosy',CoosyHome),
 	getCurryPath(SLP),
@@ -1120,6 +1141,19 @@ processCommand("fork",STail) :- !, processFork(STail).
 
 processCommand(_,_) :- !,
 	write('ERROR: unknown command. Type :h for help'), nl, fail.
+
+% Check for existence of a binary in the path, e.g., 'wish'.
+% If the binary does not exist, print the error message (2nd argument) and fail.
+checkProgram(Program,_) :-
+        appendAtoms(['which ',Program,' > /dev/null'],CheckCmd),
+        shellCmd(CheckCmd,ECode),
+        ECode=0, !.
+checkProgram(_,ErrMsg) :-
+        writeErr(ErrMsg), nlErr, !, fail.
+
+checkWish :-
+        checkProgram(wish,
+          'Windowing shell "wish" not found. Please install package "tk"!').
 
 % call "shellCmd" and report its execution if verbosityIntermediate:
 shellCmdWithReport(Cmd) :-
@@ -1544,7 +1578,7 @@ failprint(Exp,E,E) :-
 parseProgram(ProgS,Verbosity,Warnings) :-
 	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
-	appendAtoms(['"',TCP,'/bin/pakcs-cymake" --flat'],CM1),
+	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat'],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	(pakcsrc(warnoverlapping,no)
@@ -2306,9 +2340,10 @@ showSourceCode(FCall) :- FCall =.. [QF|_],
 
 % show source code of a function via the simple GUI for showing complete fun's:
 showSourceCodeOfFunction(ModS,FunS) :-
-	writeNQ('Showing source code of function '),
+        checkWish,
+	writeNQ('Showing source code of function "'),
 	concat([ModS,[46],FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
-	writeNQ('...'), nlNQ,
+	writeNQ('" in separate window...'), nlNQ,
 	(retract(lastShownSourceCode(LastModS,LastF)) ; LastModS=[]),
 	(LastModS=[] -> true
           ; getModStream(LastModS,LastStr),

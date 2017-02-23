@@ -21,8 +21,8 @@ ifndef LIBDIR
 LIBDIR = $(dir $(CURDIR))/lib
 endif
 
-# standard name in bin directory:
-INSTALLBIN = $(BINDIR)/curry
+# names of run-time libraries:
+PRIMLIBSRC = `cd lib_src && echo *.pl`
 
 .PHONY: install
 install:
@@ -31,15 +31,16 @@ install:
 	../scripts/makesavedstate c2p.state
 	rm -f pakcs
 	mv c2p.state pakcs
-	ln -s $(BINDIR)/pakcs $(INSTALLBIN)
+	cd $(BINDIR) && ln -s pakcs curry
 
 .PHONY: uninstall
 uninstall:
-	rm -f $(INSTALLBIN)
+	rm -f $(BINDIR)/curry
 
 # make everything if we have a SICStus-Prolog system:
 .PHONY: sicstus
 sicstus:
+	$(MAKE) libsicstus
 	echo "[sicstusbasics], generatePrologBasics." | "$(SICSTUS)"
 	$(MAKE) c2p.state
 
@@ -76,8 +77,6 @@ $(LIBDIR)/.curry/Prelude.fcy: $(LIBDIR)/Prelude.curry
 #
 # generate correct versions of run-time libraries for SWI-Prolog
 #
-PRIMLIBSRC = `cd lib_src && echo *.pl`
-
 .PHONY: libswi
 libswi:
 	@mkdir -p libswi
@@ -86,9 +85,20 @@ libswi:
 libswi/%.pl: lib_src/%.pl
 	echo "[block2freeze]. transFile('$*.pl')." | "$(SWI)" $(SWIOPTIONS)
 
+#
+# generate correct versions of run-time libraries for SICStus-Prolog
+#
+.PHONY: libsicstus
+libsicstus:
+	@mkdir -p libsicstus
+	@for i in $(PRIMLIBSRC) ; do $(MAKE) libsicstus/$$i ; done
+
+libsicstus/%.pl: lib_src/%.pl
+	echo "[sicstus_processing]. transFile('$*.pl')." | "$(SICSTUS)"
+
 # clean up everything
 .PHONY: clean
 clean: uninstall
 	rm -f c2p.state pakcs $(LIBDIR)/.curry/pakcs/Prelude.pl prologbasics.pl
 	rm -f pakcsversion.pl
-	rm -rf libswi/
+	rm -rf libswi/ libsicstus/

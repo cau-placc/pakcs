@@ -1,19 +1,23 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.1 (November 12, 2016)
+Release notes for PAKCS Version 1.14.2 (February 22, 2017)
 ----------------------------------------------------------
 
 Changes to version 1.14.0:
 
   * Library `Database.ERD...` added (formerly part of ER currytools).
+  * Libraries `IOExts` and `Global` use system commands
+    `lockfile-create` and `lockfile-remove` instead of `lockfile`
+    for internal file synchronization in order to remove dependency
+    on package `procmail`.
   * Library `Nat` for Peano numbers added.
   * Libraries `Rewriting.*` for term rewriting in Curry extended
     to deal with rewriting strategies, narrowing strategies,
     critical pairs, definitional trees.
   * Library `Sort`: ...Sort operations renamed to ...SortBy and
     ...Sort operations with standard ordering added.
-  * Library `State` implementation the state monad added.
+  * Library `State` with an implementation of the state monad added.
   * Library `Test.EasyCheck` split into two modules to have less
     import dependencies when putting properties into a module.
   * Library `Test.Prop` added as a clone of `Test.EasyCheck` which defines
@@ -29,8 +33,21 @@ Changes to version 1.14.0:
   * New tool Curry2Verify (to translate Curry programs into Agda programs)
     added to `currytools`.
   * Obsolete script `parsecurry` removed.
-  * Names of tool executables changed to `pakcs toolname`.
+  * Tools `cpns` (Curry Port Name Server) and `www` (web scripting)
+    moved to `currytools`.
+  * Names of tool executables changed to `pakcs toolname` or `curry toolname`.
+  * Name of Curry parser `cymake` changed to `curry frontend`.
+  * Tool `curry analysis` (CASS): option `--all` added.
+  * Tool `curry analysis` (CASS): analysis `Functional` added and
+    analysis `Deterministic` modified so that it considers encapsulated search.
+  * Tool `curry analysis` (CASS): simple termination analysis `Terminating`
+    added.
+  * Tool `curry analysis` (CASS): analysis `TypesInValues` added.
+  * Tool `curry check` supports also testing with float arguments.
   * Run-time parameters passed to PAKCS must be separated by `--`.
+  * Installation made more flexible by supporting environment variable
+    `PAKCSINSTALLDIR` to specify the location where PAKCS is moved
+    after the build process.
 
 
 Release notes for PAKCS Version 1.14.0 (April 19, 2016)

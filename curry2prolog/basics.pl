@@ -5,7 +5,8 @@
 		  noLoadMessage/0, lastload/1, plprofiling/1,
 		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
-		  verbosemode/1, setVerboseMode/1, quietmode/1, rtArgs/1,
+		  verbosemode/1, setVerboseMode/1, quietmode/1, setQuietMode/1,
+                  rtArgs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
 		  hasPrintedFailure/0, printConsFailure/1,
@@ -122,6 +123,9 @@ verbosemode(no). % yes if program should be executed in verbose mode
 setVerboseMode(V) :-
 	retract(verbosemode(_)), asserta(verbosemode(V)).
 
+setQuietMode(V) :-
+	retract(quietmode(_)), asserta(quietmode(V)).
+
 % verbosity/1 is defined in prologbasics.pl
 
 setVerbosity(N) :-
@@ -182,7 +186,7 @@ onlySICStusMessage(Feature) :-
 	appendAtoms(['"',Feature,'" not available ',
 		     '(only available in a PAKCS implementation based on SICStus-Prolog)!'],
 		    Message),
-	raise_exception(Message).
+	writeErr('WARNING: '), writeErr(Message), nl.
 
 
 % check whether this is a SICStus-based implementation and provide warning
@@ -194,7 +198,7 @@ onlySWIMessage(Feature) :-
 	appendAtoms(['"',Feature,'" not available ',
 		     '(only available in a PAKCS implementation based on SWI-Prolog)!'],
 		    Message),
-	raise_exception(Message).
+	writeErr('WARNING: '), writeErr(Message), nl.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -448,7 +452,7 @@ toAbsPath(Path,AbsPath) :-
 	appendAtoms([HomeDir,'/',RPath],AbsPath).
 toAbsPath('~',HomeDir) :- !,
 	(getHomeDirectory(HomeDir) -> true ; HomeDir='~').
-toAbsPath('.',CurDir) :- !,workingDirectory(CurDir).
+toAbsPath('.',CurDir) :- !, workingDirectory(CurDir).
 toAbsPath(Path,AbsPath) :-
         workingDirectory(CurDir),
 	appendAtoms([CurDir,'/',Path],AbsPath).
@@ -489,9 +493,11 @@ constructorOrFunctionType(QName,Name,Arity,Type) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Further auxiliaries:
 
-% get home directory (fail if it does no exist):
+% get home directory (fail if it does not exist):
 getHomeDirectory(Home) :-
-        getEnv('HOME',Home), atom_codes(Home,[_|_]).
+        getEnv('HOME',Home),
+        atom_codes(Home,[_|_]),
+        existsDirectory(Home).
 
 % linear reverse:
 rev(Xs,Ys) :- rev_acc(Xs,Ys,[]).

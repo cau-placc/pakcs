@@ -4,12 +4,12 @@
 %
 
 :- module(prim_global,
-	  [initGlobalValue/4,prim_readGlobal/2,prim_writeGlobal/3]).
+	  [initGlobalValue/4, prim_readGlobal/2, prim_writeGlobal/3]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- use_module(prim_readshowterm). % for term reading/showing
-:- ensure_loaded(user:prim_standard). % for waitUntilGround
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(prim_readshowterm) -> true ; use_module(prim_readshowterm)). % for term reading/showing
+:- (current_module(prim_standard) -> true ; ensure_loaded(user:prim_standard)). % for waitUntilGround
 
 % initialize the predicate containing the global value if called for the
 % first time:
@@ -65,11 +65,13 @@ prim_writeGlobal('Global.GlobalDef'(GlobName,'Global.Persistent'),
 readGlobalFile(FileName,Val) :-
 	lockFileName(FileName,LockFile),
 	lockWithFile(LockFile),
-	open(FileName,read,Stream),
-	readStreamLine(Stream,ValString),
-	readTerm(ValString,qualified,_Rest,Val),
-	close(Stream),
-	unlockWithFile(LockFile).
+        on_exception(ErrorMsg,
+                     (open(FileName,read,Stream),
+                      readStreamLine(Stream,ValString),
+                      close(Stream)),
+                     ValString=[]),
+        unlockWithFile(LockFile),
+        readTerm(ValString,qualified,_Rest,Val).
 
 % write the file with the persistent global value:
 writeGlobalFile(FileName,Val) :-
@@ -94,11 +96,13 @@ writeGlobalFile(FileName,Val) :-
 lockFileName(FName,LockFile) :- appendAtom(FName,'.LOCK',LockFile).
 
 lockWithFile(LockFile) :-
-	appendAtom('lockfile -1 ',LockFile,LockCmd),
+	appendAtom('lockfile-create --lock-name ',LockFile,LockCmd),
 	((existsFile(LockFile), pakcsrc(dynamicmessages,yes))
 	 -> writeErr('>>> Waiting for removing lock file \''),
 	    writeErr(LockFile), writeErr('\'...'),
 	    nlErr ; true),
 	shellCmd(LockCmd), !.
 
-unlockWithFile(LockFile) :- deleteFile(LockFile).
+unlockWithFile(LockFile) :-
+        appendAtom('lockfile-remove --lock-name ',LockFile,LockCmd),
+	shellCmd(LockCmd).

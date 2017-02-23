@@ -3,8 +3,8 @@
 % Definitions of builtins of module System:
 %
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 
 prim_profileReset('Prelude.()') :-
 	checkPlProfiling,

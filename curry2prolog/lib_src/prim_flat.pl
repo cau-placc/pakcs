@@ -3,9 +3,9 @@
 % Implementation of readFlatCurryFile of module Flat
 % (reading FlatCurry programs):
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
-:- use_module(prim_readshowterm). % for term en/decoding
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
+:- (current_module(prim_readshowterm) -> true ; use_module(prim_readshowterm)). % for term en/decoding
 
 prim_readFlatCurryFile(FileString,FlatProg) :-
 	cp_string(FileString,FileName),

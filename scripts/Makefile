@@ -16,7 +16,8 @@ all:
 # install some script of PAKCS in the bin directory:
 $(BINDIR)/%: %.sh
 	mkdir -p $(@D)
-	sed "s|^PAKCSHOME=.*$$|PAKCSHOME=$(ROOT)|" < $< > $@
+	cat $< | sed "s|^PAKCSBUILDDIR=.*$$|PAKCSBUILDDIR=$(ROOT)|" | \
+	 sed "s|^PAKCSINSTALLDIR=.*$$|PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)|" > $@
 	chmod 755 $@
 
 .PHONY: clean

@@ -6,8 +6,8 @@
 %:- module(prim_globvar,
 %	  [initGlobalVariable/5,prim_writeGVar/5,prim_readGVar/4]).
 
-%:- use_module('../prologbasics').
-%:- use_module('../basics').
+%:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+%:- (current_module(basics)       -> true ; use_module('../basics')).
 
 % initialize the predicate containing the global value if called for the
 % first time:

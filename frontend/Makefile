@@ -8,6 +8,8 @@ export ROOT=$(CURDIR)
 export BINDIR=$(ROOT)/bin
 # The frontend binary
 export CYMAKE = $(BINDIR)/cymake
+# after merging with new frontend master branch:
+# export CYMAKE = $(BINDIR)/curry-frontend
 
 # GHC and CABAL configuration (for installing the front end)
 # ----------------------------------------------------------
@@ -48,7 +50,7 @@ export LOCALPKG      = $(ROOT)/pkg
 export PKGDB         = $(LOCALPKG)/pakcs.conf.d
 
 ##############################################################################
-# Retrieve all Haskell modules as dependencies for cymake
+# Retrieve all Haskell modules as dependencies for the front end:
 DEPS := $(shell find curry-base/src/ curry-frontend/src/ -type f)
 
 # install front end (if sources are present):

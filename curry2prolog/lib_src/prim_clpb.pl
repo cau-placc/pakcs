@@ -3,7 +3,8 @@
 % The clauses in this file are added to each compiled Curry program
 % if boolean constraints are used.
 
-:- use_module('../prologbasics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 :- prolog(sicstus) -> use_module(library(clpb))
                     ; onlySICStusMessage('CLPB constraints').
 

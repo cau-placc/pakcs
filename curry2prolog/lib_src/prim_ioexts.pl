@@ -7,8 +7,8 @@
 %	  [prim_setAssoc/3,prim_getAssoc/2,prim_execCmd/2,prim_connectToCmd/2,
 %	   prim_newIORef/4,prim_readIORef/4,prim_writeIORef/5]).
 
-:- use_module('../prologbasics').
-:- use_module('../basics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
+:- (current_module(basics)       -> true ; use_module('../basics')).
 
 :- dynamic globalAssoc/2.
 

@@ -13,31 +13,52 @@
 
 # Some parameters for this installation
 # --------------------------------------
-#
+# (these parameters might be passed to `make`)
+
 # If the parameter CURRYFRONTEND is set to an executable,
 # this executable will be used as the front end for PAKCS.
 # Otherwise, the front end will be compiled from the sources
 # in subdir "frontend" (if it exists).
+export CURRYFRONTEND =
 
 # Is this an installation for a distribution (Debian) package (yes|no)?
 # In case of "yes":
 # - nothing will be stored during the installation in the home directory
 # - the documentation will not be built (since this takes a lot of time)
+# - the paramters CURRYLIBSDIR and CURRYTOOLSDIR must be defined and
+#   refer to the directories containing the Curry system libraries and tools
 export DISTPKGINSTALL = no
 
+# In order to build the system in a place different from the place of
+# the final installation (e.g., when building it as a (Debian) package),
+# the variable PAKCSINSTALLDIR should be set to the location where it
+# will be finally installed after the build (e.g., /usr/lib/pakcs).
+# It is required that during the build, this directory does not exist,
+# otherwise the build fails. If this variable is set and the
+# installed system will be moved to this location after the build, it will be
+# used as the root directory for all generated components of the system.
+export PAKCSINSTALLDIR =
+
+########################################################################
 # The major version numbers:
 MAJORVERSION=2
 # The minor version number:
 MINORVERSION=0
 # The revision version number:
 REVISIONVERSION=0
-# The build version number:
-BUILDVERSION=4
+# The build version number (if >0, then it is a pre-release)
+BUILDVERSION=2
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
+ifeq ($(DISTPKGINSTALL),yes)
+COMPILERDATE := $(shell date "+%Y-%m-%d")
+else
 COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
-# The name of the Curry system, needed for installation of system libraries:
+endif
+
+# The name of the Curry system, needed for the installation of
+# the system libraries and tools:
 export CURRYSYSTEM=pakcs
 
 # Paths used in this installation
@@ -75,7 +96,7 @@ export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
 export REPL_OPTS    = --noreadline :set -time
 # The front end binary
-export CYMAKE       = $(BINDIR)/$(CURRYSYSTEM)-cymake
+export CYMAKE       = $(BINDIR)/$(CURRYSYSTEM)-frontend
 # The cleancurry binary
 export CLEANCURRY   = $(BINDIR)/cleancurry
 
@@ -91,25 +112,33 @@ MAKELOG=make.log
 #
 .PHONY: all
 all:
+ifeq ($(DISTPKGINSTALL),yes)
+	$(MAKE) config
+	$(MAKE) build
+	# if we build a package, we compile all libraries at the end
+	# so that their intermediate files are up to date:
+	$(REPL) $(REPL_OPTS) :load AllLibraries :eval "3*13+3" :quit
+else
 	@rm -f $(MAKELOG)
 	@echo "Make started at `date`" > $(MAKELOG)
-	$(MAKE) config  2>&1 | tee -a $(MAKELOG)
-	$(MAKE) install 2>&1 | tee -a $(MAKELOG)
+	$(MAKE) config 2>&1 | tee -a $(MAKELOG)
+	$(MAKE) build  2>&1 | tee -a $(MAKELOG)
 	@echo "Make finished at `date`" >> $(MAKELOG)
 	@echo "Make process logged in file $(MAKELOG)"
+endif
 
 #
-# Install all components of PAKCS
+# Build all components of PAKCS
 #
-.PHONY: install
-install: installscripts copylibs copytools
+.PHONY: build
+build: checkinstalldir installscripts copylibs copytools
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	# install front end:
 	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
-	# install the Curry2Prolog compiler as a saved system:
+	# build the Curry2Prolog compiler as a saved system:
 	$(MAKE) $(C2PVERSION)
 	cd curry2prolog && $(MAKE)
 	# compile all libraries:
@@ -121,6 +150,14 @@ install: installscripts copylibs copytools
 	$(MAKE) tools
 	$(MAKE) docs
 	chmod -R go+rX .
+
+# Check whether the value of PAKCSINSTALLDIR, if defined, is a non-existing
+# directory
+.PHONY: checkinstalldir
+checkinstalldir:
+	@if [ -n "$(PAKCSINSTALLDIR)" -a -d "$(PAKCSINSTALLDIR)" ] ; then \
+	  echo "ERROR: Variable PAKCSINSTALLDIR points to an existing directory!" && exit 1 ; \
+	fi
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
 .PHONY: cleanoldinfos
@@ -147,7 +184,7 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: copylibs
 copylibs:
-	@if [ -d $(CURRYLIBSDIR) ] ; then cd $(CURRYLIBSDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install LIBTRUNKDIR=$(CURRYLIBSDIR) ; fi
+	@if [ -d $(CURRYLIBSDIR) ] ; then cd $(CURRYLIBSDIR) && $(MAKE) -f Makefile.$(CURRYSYSTEM).install ; fi
 
 # if the directory `currytools` is not present, copy it from the sources:
 # (only necessary for the installation of a (Debian) packages, otherwise
@@ -155,41 +192,43 @@ copylibs:
 .PHONY: copytools
 copytools:
 ifeq ($(DISTPKGINSTALL),yes)
-	@if [ ! -d currytools ] ; then $(MAKE) forcecopytools ; fi
+	@if [ ! -f currytools/Makefile ] ; then $(MAKE) forcecopytools ; fi
 endif
 
 .PHONY: forcecopytools
 forcecopytools:
-	mkdir currytools
+	mkdir -p currytools
 	# Copying currytools from $(CURRYTOOLSDIR)
 	cp -pr $(CURRYTOOLSDIR)/* currytools
 
 # install front end (from environment variable or sources):
 .PHONY: frontend
 frontend:
-	rm -f $(BINDIR)/cymake
 ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
 	rm -f $(CYMAKE)
 	ln -s $(CURRYFRONTEND) $(CYMAKE)
 else
-	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; else ln -s $(CYMAKE) $(BINDIR)/cymake ; fi
+	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
 endif
 
 .PHONY: compilefrontend
 compilefrontend:
 	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
-	ln -s $(FRONTENDDIR)/bin/cymake $(CYMAKE)
+	cd $(BINDIR) && ln -s ../frontend/bin/cymake $(notdir $(CYMAKE))
+	# after merging with new frontend master branch:
+	#cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(notdir $(CYMAKE))
 
 # compile the tools:
 .PHONY: tools
 tools:
-	# compile the Curry Port Name Server demon:
-	@if [ -r bin/pakcs ] ; then cd cpns       && $(MAKE) ; fi
-	# compile the event handler demon for dynamic web pages:
-	@if [ -r bin/pakcs ] ; then cd www        && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
 	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
+
+# compile analysis tool only:
+.PHONY: CASS
+CASS:
+	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) CASS ; fi
 
 # compile documentation if sources are available and it is not a
 # separate package distribution:
@@ -200,14 +239,15 @@ docs:
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
-	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, installDir/1]).' > $@
+	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1]).' > $@
 	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
 	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
 	echo 'compilerMinorVersion($(MINORVERSION)).' >> $@
 	echo 'compilerRevisionVersion($(REVISIONVERSION)).' >> $@
 	echo 'buildVersion($(BUILDVERSION)).' >> $@
 	echo "buildDate('$(COMPILERDATE)')." >> $@
-	echo "installDir('$(ROOT)')." >> $@
+	echo "buildDir('$(ROOT)')." >> $@
+	echo "pkgInstallDir('$(PAKCSINSTALLDIR)')." >> $@
 
 # Create file with version information for the manual:
 $(MANUALVERSION): Makefile
@@ -227,14 +267,36 @@ libdoc:
 	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
 	@echo "Make libdoc process logged in file $(MAKELOG)"
 
+########################################################################
+# Testing: run test suites to check the installation
+#
+ifeq ($(DISTPKGINSTALL),yes)
+# for a package installation, we run the tests in verbose mode:
+export RUNTESTPARAMS=-v
+else
+export RUNTESTPARAMS=
+endif
+
 # run the test suites to check the installation
 .PHONY: runtest
 runtest: testsuite/test.sh
-	cd testsuite && ./test.sh
-	cd lib && ./test.sh
+	cd testsuite && ./test.sh $(RUNTESTPARAMS)
+	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
-	cd examples/CHR && ./test.sh
+	cd examples/CHR && ./test.sh $(RUNTESTPARAMS)
+	# remove .curry (might contain analysis results if home is missing)
+	rm -rf .curry
 
+# run the test suites in verbose mode so that all output is shown:
+.PHONY: runtestverbose
+runtestverbose:
+	$(MAKE) runtest RUNTESTPARAMS=-v
+
+########################################################################
+# Cleaning:
+#
+
+# Build the cleancurry script:
 $(CLEANCURRY):
 	cd scripts && $(MAKE) $@
 
@@ -257,16 +319,17 @@ cleantools: $(CLEANCURRY)
 	cd curry2prolog && $(MAKE) clean
 	cd currytools && $(MAKE) uninstall
 	cd tools && $(MAKE) clean
-	cd cpns && $(MAKE) clean
-	cd www && $(MAKE) clean
 	cd bin && rm -f pakcs
 
 # Clean everything (including the front end)
 .PHONY: cleanall
 cleanall: clean
 	rm -rf $(LIBDIR)
-	-cd $(FRONTENDDIR) && $(MAKE) cleanall
-	if [ -d $(FRONTENDDIR) ]; then rm -rf $(BINDIR); fi
+	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
+	if [ -d $(FRONTENDDIR) ]; \
+	  then rm -rf $(BINDIR) ; \
+	  else rm -f $(CYMAKE) ; \
+	fi
 	rm -f pakcsinitrc pakcsinitrc.bak
 
 

@@ -2,7 +2,8 @@
 % basic predicates related to the SWI-Prolog system
 
 :- module(prologbasics,
-	  [prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
+	  [installDir/1,
+           prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
 	   verbosity/1, fileOpenOptions/1,
 	   sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
@@ -43,6 +44,16 @@
 	   create_mutable/2, get_mutable/2, update_mutable/2]).
 
 :- use_module(pakcsversion).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The installation directory of PAKCS.
+% If the value of pakcsversion.pkgInstallDir is an existing directory,
+% this value will be used as the installation directory,
+% otherwise the value of pakcsversion.buildDir will be used.
+% This implementation is necessary to move the package after the build.
+installDir(PH) :- pkgInstallDir(''), !, buildDir(PH).
+installDir(PH) :- pkgInstallDir(IDir), existsDirectory(IDir), !, PH=IDir.
+installDir(PH) :- buildDir(PH).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The verbosity level is defined here since it is already used here...
@@ -566,7 +577,11 @@ moduleDir(MD) :-
         appendAtom(TCP,'/curry2prolog/libswi/',MD).
 
 % ensure that run-time library is loaded:
-ensure_lib_loaded(Lib) :- % first, look into working directory:
+ensure_lib_loaded(Lib) :-
+        % check whether it is a module that was already loaded from some file:
+        current_module(Lib), module_property(Lib,file(_)), !.
+ensure_lib_loaded(Lib) :-
+        % first, look into working directory:
 	workingDirectory(WDir),
 	appendAtom(WDir,'/',Dir),
 	appendAtom(Dir,Lib,DirLib),
@@ -576,6 +591,7 @@ ensure_lib_loaded(Lib) :- % first, look into working directory:
                        ; true),
 	ensure_loaded(user:DirLib).
 ensure_lib_loaded(Lib) :-
+        % otherwise, look into the directory containing system run-time mods:
 	moduleDir(Dir),
 	appendAtom(Dir,Lib,DirLib),
 	(verbosity(3) -> write('>>> Load Prolog library: '), write(DirLib), nl

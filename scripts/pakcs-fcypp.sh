@@ -3,8 +3,14 @@
 # This is the shell script to invoke the FlatCurry preprocessor
 # which applies various transformations on a FlatCurry program
 
+PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
+PAKCSINSTALLDIR=
 # Define the main directory where PAKCS is installed:
-PAKCSHOME=`echo PAKCSHOME must be defined here!`
+if [ -d "$PAKCSINSTALLDIR" ] ; then
+  PAKCSHOME=$PAKCSINSTALLDIR
+else
+  PAKCSHOME=$PAKCSBUILDDIR
+fi
 export PAKCSHOME
 
 QUIET=no

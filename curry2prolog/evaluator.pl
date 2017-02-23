@@ -16,12 +16,7 @@
 
 :- use_module(prologbasics).
 :- use_module(basics).
-:- prolog(sicstus)
-   -> use_module('lib_src/prim_readshowterm'), % for showing characters
-      ensure_loaded(user:'lib_src/prim_standard')
-    ; use_module('libswi/prim_readshowterm'),
-      ensure_loaded(user:'libswi/prim_standard').
-
+:- ensure_lib_loaded(prim_readshowterm).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dynamic numberOfCalls/1, numberOfExits/1, singlestep/0, tracemode/0,
@@ -174,7 +169,7 @@ evaluateMainExp(_,_,RTime1,ETime1) :-
 
 showStatistics(RTime1,ETime1) :-
 	getRunTime(RTime2), getElapsedTime(ETime2),
-	(timemode(yes)
+	((timemode(yes), verbosityNotQuiet)
            -> write('Execution time: '), RTime is RTime2-RTime1, write(RTime),
 	      write(' msec. / '),
 	      write('elapsed: '), ETime is ETime2-ETime1, write(ETime),
@@ -478,7 +473,7 @@ writeCurryD(S,D,_,T) :-
 	!,
 	(isString(TL)
 	    -> % use ReadShowTerm.showTerm for showing strings:
-	       show_term(TL,_,TS,[]), string2Atom(TS,TA), write(S,TA)
+	       user:show_term(TL,_,TS,[]), string2Atom(TS,TA), write(S,TA)
 	     ; write(S,'['), writeCurryList(S,D,TL)).
 writeCurryD(S,D,Nested,[T|Ts]) :- !,
 	(Nested=nested -> write(S,'(') ; true),
@@ -535,7 +530,7 @@ writeCurryArgs(S,D,Nested,[A|As]) :-
 	writeCurryArgs(S,D,Nested,As).
 
 writeCurryLiteral(S,L) :- % use ReadShowTerm.showTerm for showing number/char literals
-	show_term(L,_,CS,[]),
+	user:show_term(L,_,CS,[]),
 	string2Atom(CS,CA),
 	write(S,CA).
 

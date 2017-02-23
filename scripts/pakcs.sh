@@ -2,8 +2,14 @@
 #
 # Start interactive read-eval-print loop of PAKCS
 
+PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
+PAKCSINSTALLDIR=
 # Define the main directory where PAKCS is installed:
-PAKCSHOME=`echo PAKCSHOME must be defined here!`
+if [ -d "$PAKCSINSTALLDIR" ] ; then
+  PAKCSHOME=$PAKCSINSTALLDIR
+else
+  PAKCSHOME=$PAKCSBUILDDIR
+fi
 export PAKCSHOME
 
 # check whether first argument is a tool and, if yes, exec the tool
@@ -30,7 +36,7 @@ fi
 USERLWRAP=no
 if tty -s ; then
   RLWRAP=`which rlwrap`
-  if [ -f "$PAKCSHOME/bin/sicstusprolog" -a -x "$RLWRAP" -a -n "$HOME" ] ; then
+  if [ -f "$PAKCSHOME/bin/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
     USERLWRAP=yes
   fi
 fi

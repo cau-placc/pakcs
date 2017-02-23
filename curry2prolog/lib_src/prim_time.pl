@@ -7,7 +7,7 @@
 	  [prim_getClockTime/1,
 	   prim_toCalendarTime/2, prim_toUTCTime/2,prim_toClockTime/2]).
 
-:- use_module('../prologbasics').
+:- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 
 prim_getClockTime('Time.CTime'(CTime)) :- currentClockTime(CTime).
 

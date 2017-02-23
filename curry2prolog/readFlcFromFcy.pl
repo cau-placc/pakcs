@@ -6,8 +6,7 @@
 
 :- use_module(prologbasics).
 :- use_module(basics).
-:- prolog(sicstus) -> use_module('lib_src/prim_readshowterm')  % for term en/decoding
-                    ; use_module('libswi/prim_readshowterm').
+:- ensure_lib_loaded(prim_readshowterm).  % for term en/decoding
 
 readFlcFromFcy(FileName,FlatProg) :-
 	(verbosityIntermediate
@@ -16,8 +15,8 @@ readFlcFromFcy(FileName,FlatProg) :-
 	    getRunTime(RT1) ; true),
 	open(FileName,read,Stream),
 	readStreamContents(Stream,FcyPrologString),
-	readTerm(FcyPrologString,unchecked,Tail,Term),
-	skipWhiteSpace(Tail,[]),
+	user:readTerm(FcyPrologString,unchecked,Tail,Term),
+	user:skipWhiteSpace(Tail,[]),
 	(verbosityIntermediate
 	 -> getRunTime(RT2),
 	    RT is RT2-RT1,
