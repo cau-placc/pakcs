@@ -1,11 +1,12 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.2 (February 22, 2017)
+Release notes for PAKCS Version 1.14.2 (February 23, 2017)
 ----------------------------------------------------------
 
 Changes to version 1.14.0:
 
+  * Makefiles changed so that parallel build (make -j) is possible.
   * Library `Database.ERD...` added (formerly part of ER currytools).
   * Libraries `IOExts` and `Global` use system commands
     `lockfile-create` and `lockfile-remove` instead of `lockfile`
