@@ -45,9 +45,9 @@ MAJORVERSION=1
 # The minor version number:
 MINORVERSION=14
 # The revision version number:
-REVISIONVERSION=2
+REVISIONVERSION=3
 # The build version number:
-BUILDVERSION=0
+BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -127,11 +127,27 @@ else
 	@echo "Make process logged in file $(MAKELOG)"
 endif
 
+# Check whether the value of PAKCSINSTALLDIR, if defined, is a non-existing
+# directory
+.PHONY: checkinstalldir
+checkinstalldir:
+	@if [ -n "$(PAKCSINSTALLDIR)" -a -d "$(PAKCSINSTALLDIR)" ] ; then \
+	  echo "ERROR: Variable PAKCSINSTALLDIR points to an existing directory!" && exit 1 ; \
+	fi
+
 #
 # Build all components of PAKCS
 #
 .PHONY: build
-build: checkinstalldir installscripts copylibs copytools
+build: checkinstalldir
+	$(MAKE) kernel
+	$(MAKE) tools
+	$(MAKE) manual
+	chmod -R go+rX .
+
+# install the kernel system (binaries and libraries)
+.PHONY: kernel
+kernel: scripts copylibs copytools
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	# install front end:
@@ -147,17 +163,6 @@ build: checkinstalldir installscripts copylibs copytools
 	@cd currytools/optimize && $(MAKE)
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
-	$(MAKE) tools
-	$(MAKE) docs
-	chmod -R go+rX .
-
-# Check whether the value of PAKCSINSTALLDIR, if defined, is a non-existing
-# directory
-.PHONY: checkinstalldir
-checkinstalldir:
-	@if [ -n "$(PAKCSINSTALLDIR)" -a -d "$(PAKCSINSTALLDIR)" ] ; then \
-	  echo "ERROR: Variable PAKCSINSTALLDIR points to an existing directory!" && exit 1 ; \
-	fi
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
 .PHONY: cleanoldinfos
@@ -168,12 +173,12 @@ cleanoldinfos:
 
 # Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
-config: installscripts
+config: scripts
 	@scripts/configure-pakcs
 
 # install the scripts of PAKCS in the bin directory:
-.PHONY: installscripts
-installscripts:
+.PHONY: scripts
+scripts:
 	cd scripts && $(MAKE) all
 
 # remove the scripts of PAKCS in the bin directory:
@@ -230,10 +235,10 @@ CASS:
 
 # compile documentation if sources are available and it is not a
 # separate package distribution:
-.PHONY: docs
-docs:
-	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; \
-	 then $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
+.PHONY: manual
+manual:
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
+	 $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
