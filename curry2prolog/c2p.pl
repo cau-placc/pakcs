@@ -1477,7 +1477,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat'],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
-	(pakcsrc(warnoverlapping,no)
+	((Warnings=yes, pakcsrc(warnoverlapping,no))
            -> appendAtom(CM3,' --no-overlap-warn',CM4)    ; CM4 = CM3 ),
 	(pakcsrc(curryextensions,yes)
            -> appendAtom(CM4,' --extended',CM5)           ; CM5 = CM4 ),
