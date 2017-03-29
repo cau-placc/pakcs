@@ -282,7 +282,7 @@ endif
 
 # run the test suites to check the installation
 .PHONY: runtest
-runtest: testsuite/doTest
+runtest:
 	#cd testsuite && ./doTest --nogui
 	cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)

@@ -12,12 +12,45 @@ else
 fi
 export PAKCSHOME
 
-# check whether first argument is a tool and, if yes, exec the tool
+# The directory where CPM installs the binaries:
+CPMBIN="$HOME/.cpm/bin"
+
+check_and_call_tool() {
+  TOOLPACKAGE=$1
+  shift
+  TOOLNAME=$1
+  TOOLBIN="$CPMBIN"/$TOOLNAME
+  shift
+  shift
+  if [ -x "$TOOLBIN" ] ; then
+    exec "$TOOLBIN" ${1+"$@"}
+  else
+    echo "Curry tool '$TOOLNAME' is not installed!"
+    echo "Please install it with the Curry Package Manager by:"
+    echo "> cpm update && cpm installbin $TOOLPACKAGE"
+    exit 1
+  fi
+}
+
+# check whether the first argument is a tool in the distributation and, if yes,
+# exec the tool
 PAKCSTOOL="$PAKCSHOME/bin/pakcs-"$1
 if [ -x "$PAKCSTOOL" ] ; then
   shift
   exec "$PAKCSTOOL" ${1+"$@"}
 fi
+
+# check whether the first argument is a tool packaged with CPM and, if yes,
+# exec this tool or require its installation:
+case $1 in
+  addtypes  ) check_and_call_tool addtypes curry-addtypes ${1+"$@"} ;;
+  data2xml  ) check_and_call_tool xmldata  curry-data2xml ${1+"$@"} ;;
+  erd2curry ) check_and_call_tool ertools  erd2curry      ${1+"$@"} ;;
+  genmake   ) check_and_call_tool makefile curry-genmake  ${1+"$@"} ;;
+  spiceup   ) check_and_call_tool spicey   curry-spiceup  ${1+"$@"} ;;
+  style     ) check_and_call_tool casc     curry-style    ${1+"$@"} ;;
+  verify    ) check_and_call_tool verify   curry-verify   ${1+"$@"} ;;
+esac
 
 # Add PAKCS bin directory to path so that currypp can be found:
 PATH=$PATH:$PAKCSHOME/bin
