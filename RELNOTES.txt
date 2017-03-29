@@ -1,6 +1,14 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.14.3 (March 29, 2017)
+-------------------------------------------------------
+
+Changes to version 1.14.2:
+
+  * Curry Package Manager added as tool `cpm`.
+
+
 Release notes for PAKCS Version 1.14.2 (February 23, 2017)
 ----------------------------------------------------------
 
