@@ -359,8 +359,10 @@ preprocessFcyFile(FcyFile) :-
     (shellCmdWithCurryPath(OptCmd) -> true
      ; writeLnErr('WARNING: no binding optimization performed for file:'),
        writeLnErr(FcyFile)).
-preprocessFcyFile(_).
- 
+preprocessFcyFile(FcyFile) :-
+    writeLnErr('WARNING: no binding optimization performed for file:'),
+    writeLnErr(FcyFile).
+
 checkForFurtherFcyProgs(_,[],_).
 checkForFurtherFcyProgs(FcyDir,[Dir|Dirs],Prog) :-
 	appendAtoms([Dir,'/',Prog],DirProg),
