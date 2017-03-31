@@ -32,6 +32,15 @@ check_and_call_tool() {
   fi
 }
 
+# check whether the combination of the program name and the first argument
+# is a tool installed by CPM and, if yes, exec the tool
+CPMTOOL="$CPMBIN"/`basename $0`-$1
+if [ -x "$CPMTOOL" ] ; then
+  shift
+  echo "Executing CPM installed tool:" "$CPMTOOL" ${1+"$@"}
+  exec "$CPMTOOL" ${1+"$@"}
+fi
+
 # check whether the first argument is a tool in the distributation and, if yes,
 # exec the tool
 PAKCSTOOL="$PAKCSHOME/bin/pakcs-"$1
@@ -43,13 +52,19 @@ fi
 # check whether the first argument is a tool packaged with CPM and, if yes,
 # exec this tool or require its installation:
 case $1 in
-  addtypes  ) check_and_call_tool addtypes curry-addtypes ${1+"$@"} ;;
-  data2xml  ) check_and_call_tool xmldata  curry-data2xml ${1+"$@"} ;;
-  erd2curry ) check_and_call_tool ertools  erd2curry      ${1+"$@"} ;;
-  genmake   ) check_and_call_tool makefile curry-genmake  ${1+"$@"} ;;
-  spiceup   ) check_and_call_tool spicey   curry-spiceup  ${1+"$@"} ;;
-  style     ) check_and_call_tool casc     curry-style    ${1+"$@"} ;;
-  verify    ) check_and_call_tool verify   curry-verify   ${1+"$@"} ;;
+  addtypes  ) check_and_call_tool addtypes    curry-addtypes ${1+"$@"} ;;
+  analyze   ) check_and_call_tool cass        cass           ${1+"$@"} ;;
+  browse    ) check_and_call_tool currybrowse curry-browse   ${1+"$@"} ;;
+  check     ) check_and_call_tool currycheck  curry-check    ${1+"$@"} ;;
+  data2xml  ) check_and_call_tool xmldata     curry-data2xml ${1+"$@"} ;;
+  doc       ) check_and_call_tool currydoc    curry-doc      ${1+"$@"} ;;
+  erd2curry ) check_and_call_tool ertools     erd2curry      ${1+"$@"} ;;
+  genmake   ) check_and_call_tool makefile    curry-genmake  ${1+"$@"} ;;
+  pp        ) check_and_call_tool currypp     curry-pp       ${1+"$@"} ;;
+  run       ) check_and_call_tool runcurry    curry-run      ${1+"$@"} ;;
+  spiceup   ) check_and_call_tool spicey      curry-spiceup  ${1+"$@"} ;;
+  style     ) check_and_call_tool casc        curry-style    ${1+"$@"} ;;
+  verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
 esac
 
 # Add PAKCS bin directory to path so that currypp can be found:

@@ -696,7 +696,7 @@ processCommand("set",[]) :- !,
 	write('path <path>     - set additional search path for loading modules'), nl,
 	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
 	write('v<n>            - verbosity level'), nl,
-	write('                   0: quiet (errors and warnings only)'), nl,
+	write('                   0: quiet (errors only)'), nl,
 	write('                   1: status messages (default)'), nl,
 	write('                   2: intermediate messages and commands'), nl,
 	write('                   3: all intermediate results'), nl,
@@ -1121,7 +1121,8 @@ writeModuleFile((M,F)) :-
 % compile a source program into Prolog code:
 processCompile(ProgS,PrologFile) :-
 	verbosity(Verbosity),
-	parser_warnings(Warnings),
+	parser_warnings(PWarnings),
+        (Verbosity=0 -> Warnings=no ; Warnings=PWarnings),
 	parseProgram(ProgS,Verbosity,Warnings),
 	atom_codes(Prog,ProgS),
 	prog2PrologFile(Prog,LocalPrologFile),
