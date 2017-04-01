@@ -60,7 +60,7 @@ case $1 in
   doc       ) check_and_call_tool currydoc    curry-doc      ${1+"$@"} ;;
   erd2curry ) check_and_call_tool ertools     erd2curry      ${1+"$@"} ;;
   genmake   ) check_and_call_tool makefile    curry-genmake  ${1+"$@"} ;;
-  pp        ) check_and_call_tool currypp     curry-pp       ${1+"$@"} ;;
+  pp        ) check_and_call_tool currypp     currypp        ${1+"$@"} ;;
   run       ) check_and_call_tool runcurry    curry-run      ${1+"$@"} ;;
   spiceup   ) check_and_call_tool spicey      curry-spiceup  ${1+"$@"} ;;
   style     ) check_and_call_tool casc        curry-style    ${1+"$@"} ;;
