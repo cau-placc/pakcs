@@ -61,7 +61,7 @@ case $1 in
   erd2curry ) check_and_call_tool ertools     erd2curry      ${1+"$@"} ;;
   genmake   ) check_and_call_tool makefile    curry-genmake  ${1+"$@"} ;;
   pp        ) check_and_call_tool currypp     currypp        ${1+"$@"} ;;
-  run       ) check_and_call_tool runcurry    curry-run      ${1+"$@"} ;;
+  run       ) check_and_call_tool runcurry    runcurry       ${1+"$@"} ;;
   spiceup   ) check_and_call_tool spicey      curry-spiceup  ${1+"$@"} ;;
   style     ) check_and_call_tool casc        curry-style    ${1+"$@"} ;;
   verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
