@@ -842,13 +842,12 @@ processCommand("type",ExprInput) :- !,
 	numbersmallvars(97,_,Type), writeType(Type), nl.
 
 processCommand("usedimports",[]) :- !,
-	lastload(Prog),
+	checkCurryUsedImports(UsedImports),
+        lastload(Prog),
 	(Prog="" -> write('ERROR: no program loaded for analysis'), nl, !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-	installDir(PH),
-	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
-		    AnaCmd),
+	appendAtoms([UsedImports,' ',ProgA],AnaCmd),
         shellCmdWithCurryPathWithReport(AnaCmd).
 
 processCommand("interface",[]) :- !,
@@ -856,12 +855,11 @@ processCommand("interface",[]) :- !,
 	(Prog="" -> processCommand("interface","Prelude")
                   ; processCommand("interface",Prog)).
 processCommand("interface",IFTail) :- !,
+        checkCurryShowFlat(ShowFlat),
 	extractProgName(IFTail,Prog),
 	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
-        installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/ShowFlatCurry" -int ',ProgA],
-		    GenIntCmd),
+	appendAtoms([ShowFlat,' -int ',ProgA],GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
 processCommand("browse",[]) :- !,
@@ -1040,16 +1038,35 @@ processCommand(_,_) :- !,
 
 % Check for existence of a binary in the path, e.g., 'wish'.
 % If the binary does not exist, print the error message (2nd argument) and fail.
-checkProgram(Program,_) :-
+checkProgram(Program,_,CProgram) :-
         appendAtoms(['which ',Program,' > /dev/null'],CheckCmd),
         shellCmd(CheckCmd,ECode),
-        ECode=0, !.
-checkProgram(_,ErrMsg) :-
+        ECode=0, !, Program=CProgram.
+checkProgram(Program,_,CProgram) :-
+        getHomeDirectory(Home),
+        appendAtoms([Home,'/.cpm/bin/',Program],CPMProg),
+        appendAtoms(['which ',CPMProg,' > /dev/null'],CheckCmd),
+        shellCmd(CheckCmd,ECode),
+        ECode=0, !, CProgram=CPMProg.
+checkProgram(_,ErrMsg,_) :-
         writeErr(ErrMsg), nlErr, !, fail.
 
 checkWish :-
         checkProgram(wish,
-          'Windowing shell "wish" not found. Please install package "tk"!').
+          'Windowing shell "wish" not found. Please install package "tk"!',_).
+
+checkCurryUsedImports(Prog) :-
+        checkProgram('curry-usedimports',
+          '"curry-usedimports" not found. Install it by: "cpm installbin importusage"!',Prog).
+
+checkCurryShowFlat(Prog) :-
+        checkProgram('curry-showflat',
+          '"curry-showflat" not found. Install it by: "cpm installbin showflatcurry"!',Prog).
+
+checkCurryShowSource(Prog) :-
+        checkProgram('curry-showsource',
+          '"curry-showflat" not found. Install it by: "cpm installbin sourceproggui"!',Prog).
+
 
 % call "shellCmd" and report its execution if verbosityIntermediate:
 shellCmdWithReport(Cmd) :-
@@ -2220,6 +2237,7 @@ showSourceCode(FCall) :- FCall =.. [QF|_],
 
 % show source code of a function via the simple GUI for showing complete fun's:
 showSourceCodeOfFunction(ModS,FunS) :-
+        checkCurryShowSource(_),
         checkWish,
 	writeNQ('Showing source code of function "'),
 	concat([ModS,[46],FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
@@ -2244,10 +2262,9 @@ showSourceCodeOfFunction(ModS,FunS) :-
 getModStream(ModS,Stream) :-
 	sourceCodeGUI(ModS,Stream), !.
 getModStream(ModS,InStream) :-
-	installDir(PH),
+        checkCurryShowSource(ShowSource),
 	atom_codes(ModA,ModS),
-	appendAtoms(['"',PH,'/currytools/browser/SourceProgGUI" ',ModA,
-		     ' 2>/dev/null'],Cmd),
+	appendAtoms([ShowSource,' ',ModA,' 2>/dev/null'],Cmd),
    	execCommand(Cmd,InStream,_,std),
 	assertz(sourceCodeGUI(ModS,InStream)).
 
