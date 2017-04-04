@@ -1,0 +1,65 @@
+\section{ERD2Curry: A Tool to Generate Programs from ER Specifications}
+\label{sec-erd2curry}
+
+ERD2Curry\index{ERD2Curry}\index{database programming}
+is a tool to generate Curry code to access and manipulate data
+persistently stored from
+entity relationship diagrams.\index{entity relationship diagrams}
+The idea of this tool is described in detail in
+\cite{BrasselHanusMueller08PADL}.
+Thus, we describe only the basic steps to use this tool
+in the following.
+
+If one creates an entity relationship diagram (ERD)
+with the Umbrello UML Modeller, one has to store its
+XML description in XMI format (as offered by Umbrello)
+in a file, e.g., \ccode{myerd.xmi}.
+This description can be compiled into a Curry program by the
+command\pindex{curry erd2curry}\pindex{erd2curry}
+\begin{curry}
+curry erd2curry -x myerd.xmi
+\end{curry}
+If \code{MyData} is the name of the ERD, the Curry program file
+\ccode{MyData.curry} is generated containing all the necessary
+database access code as described in \cite{BrasselHanusMueller08PADL}.
+In addition to the generated Curry program file,
+two auxiliary program files
+\code{ERDGeneric.curry} and \code{KeyDatabase.curry}
+are created in the same directory.
+
+If one does not want to use the Umbrello UML Modeller,
+which might be the preferred method since the interface to the
+Umbrello UML Modeller is no longer actively supported,
+one can also define an ERD in a Curry program as a (exported!)
+top-level operation of type \code{ERD}
+(w.r.t.\ the type definition given in the library
+\code{\cyshome/lib/Database/ERD.curry}).
+If this definition is stored in the Curry program file \ccode{MyERD.curry},
+it can be compiled into a Curry program by the
+command\pindex{curry erd2curry}
+\begin{curry}
+curry erd2curry MyERD.curry
+\end{curry}
+%
+The directory \code{\cyshome/currytools/erd2curry/}
+contains two examples for such ERD program files:
+\begin{description}
+\item[\code{BlogERD.curry}:]
+This is a simple ERD model for a blog with entries, comments,
+and tags.
+\item[\code{UniERD.curry}:]
+This is an ERD model for university lectures as
+presented in the paper \cite{BrasselHanusMueller08PADL}.
+\end{description}
+%
+There is also the possibility to visualize an ERD term
+as a graph with the graph visualization program \code{dotty}
+(for this purpose, it might be necessary to adapt the definition
+of \code{dotviewcommand} in your \ccode{\curryrc} file,
+see Section~\ref{sec-customization},
+according to your local environment).
+The visualization can be performed by the command
+\begin{curry}
+curry erd2curry -v MyERD.curry
+\end{curry}
+

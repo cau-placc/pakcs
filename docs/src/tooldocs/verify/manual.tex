@@ -1,0 +1,249 @@
+\section{CurryVerify: A Tool to Support the Verification of Curry Programs}
+\label{sec-curry2verify}
+
+CurryVerify\index{CurryVerify}\index{verifying programs}\index{program!verification}
+is a tool that supports the verification of Curry programs
+with the help of other theorem provers or proof assistants.
+Basically, CurryVerify extends CurryCheck (see Section~\ref{sec-currycheck}),
+which tests given properties of a program,
+by the possibility to verify these properties.
+For this purpose, CurryVerify translates properties
+into the input language of other theorem provers or proof assistants.
+This is done by collecting all operations directly or indirectly
+involved in a given property and translating them together with
+the given property.
+
+Currently, only Agda \cite{Norell09} is supported as
+a target language for verification (but more target languages
+may be supported in future releases).
+The basic schemes to translate Curry programs into Agda programs
+are presented in \cite{AntoyHanusLibby17EPTCS}.
+That paper also describes the limitations of this approach.
+Since Curry is a quite rich programming language,
+not all constructs of Curry are currently supported
+in the translation process (e.g., no case expressions,
+local definitions, list comprehensions, do notations, etc).
+Only a kernel language, where the involved rules
+correspond to a term rewriting system, are translated into Agda.
+However, these limitations might be relaxed in future releases.
+Hence, the current tool should be considered as a first prototypical
+approach to support the verification of Curry programs.
+
+\subsection{Installation}
+
+The current implementation of CurryVerify is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of CurryVerify, use the following commands:
+%
+\begin{curry}
+> cpm update
+> cpm installbin verify
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{curry-verify} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to execute CurryVerify as described below.
+
+\subsection{Basic Usage}
+
+To translate the properties of a Curry program stored
+in the file \code{prog.curry} into Agda,
+one can invoke the command\pindex{curry-verify}\pindex{verify}
+%
+\begin{curry}
+curry-verify prog
+\end{curry}
+%
+This generates for each property $p$ in module \code{prog}
+an Agda program \ccode{TO-PROVE-$p$.agda}.
+If one completes the proof obligation in this file,
+the completed file should be renamed into
+\ccode{PROOF-$p$.agda}.
+This has the effect that CurryCheck does not test this property again
+but trusts the proof and use this knowledge to simplify other tests.
+
+As a concrete example, consider the following Curry module \code{Double},
+shown in Figure~\ref{fig:double-curry},
+which uses the Peano representation of natural numbers
+(module \code{Nat}) to define an operation to double the value
+of a number, a non-deterministic operation \code{coin}
+which returns its argument or its incremented argument,
+and a predicate to test whether a number is even.
+Furthermore, it contains a property specifying that
+doubling the coin of a number is always even.
+
+\begin{figure}[t]
+\begin{curry}
+
+module Double(double,coin,even) where
+
+import Nat
+import Test.Prop
+
+double x = add x x
+
+coin x = x ? S x
+
+even Z         = True
+even (S Z)     = False
+even (S (S n)) = even n
+
+evendoublecoin x = always (even (double (coin x)))
+
+\end{curry}
+\caption{Curry program \code{Double.curry}\label{fig:double-curry}}
+\end{figure}
+
+In order to prove the correctness of this property,
+we translate it into an Agda program by executing
+%
+\begin{curry}
+> curry-verify Double
+$\ldots$
+Agda module 'TO-PROVE-evendoublecoin.agda' written.
+If you completed the proof, rename it to 'PROOF-evendoublecoin.agda'.
+\end{curry}
+%
+The Curry program is translated with
+the default scheme (see further options below) based on
+the ``planned choice'' scheme, described in \cite{AntoyHanusLibby17EPTCS}.
+The result of this translation is shown in
+Figure~\ref{fig:to-prove-evendoublecoin}.
+
+\begin{figure}[t]
+\begin{curry}
+-- Agda program using the Iowa Agda library
+
+open import bool
+
+module TO-PROVE-evendoublecoin
+  (Choice : Set)
+  (choose : Choice $\to$ ${\mathbb B}$)
+  (lchoice : Choice $\to$ Choice)
+  (rchoice : Choice $\to$ Choice)
+  where
+
+open import eq
+open import nat
+open import list
+open import maybe
+
+---------------------------------------------------------------------------
+-- Translated Curry operations:
+
+add : ${\mathbb N}$ $\to$ ${\mathbb N}$ $\to$ ${\mathbb N}$
+add zero x = x
+add (suc y) z = suc (add y z)
+
+coin : Choice $\to$ ${\mathbb N}$ $\to$ ${\mathbb N}$
+coin c1 x = if choose c1 then x else suc x
+
+double : ${\mathbb N}$ $\to$ ${\mathbb N}$
+double x = add x x
+
+even : ${\mathbb N}$ $\to$ ${\mathbb B}$
+even zero = tt
+even (suc zero) = ff
+even (suc (suc x)) = even x
+
+---------------------------------------------------------------------------
+
+evendoublecoin : (c1 : Choice) $\to$ (x : ${\mathbb N}$) $\to$ (even (double (coin c1 x))) $\equiv$ tt
+evendoublecoin c1 x = ?
+
+\end{curry}
+\caption{Agda program \code{TO-PROVE-evendoublecoin.agda}\label{fig:to-prove-evendoublecoin}}
+\end{figure}
+
+The Agda program contains all operations involved in the property
+and the property itself.
+Non-deterministic operations, like \code{coin}, have an additional
+additional argument of the abstract type \code{Choice}
+that represents the plan to execute some non-deterministic branch
+of the program. By proving the property for all possible branches
+as correct, it universally holds.
+
+In our example, the proof is quite easy. First, we prove
+that the addition of a number to itself is always even
+(lemma \code{even-add-x-x}, which uses an auxiliary lemma
+\code{add-suc}). Then, the property is an immediate consequence
+of this lemma:
+%
+\begin{curry}
+add-suc : $\forall$ (x y : ${\mathbb N}$) $\to$ add x (suc y) $\equiv$ suc (add x y)
+add-suc zero    y = refl
+add-suc (suc x) y rewrite add-suc x y = refl
+
+even-add-x-x : $\forall$ (x : ${\mathbb N}$) $\to$ even (add x x) $\equiv$ tt
+even-add-x-x zero    = refl
+even-add-x-x (suc x) rewrite add-suc x x | even-add-x-x x = refl
+
+evendoublecoin : (c1 : Choice) $\to$ (x : ${\mathbb N}$) $\to$ (even (double (coin c1 x))) $\equiv$ tt
+evendoublecoin c1 x rewrite even-add-x-x (coin c1 x) = refl
+\end{curry}
+%
+As the proof is complete, we rename this Agda program
+into \code{PROOF-evendoublecoin.agda} so that the proof
+can be used by further invocations of CurryCheck.
+
+
+\subsection{Options}
+
+The command \code{curry-verify} can be parameterized
+with various options.
+The available options can also be shown by executing
+\begin{curry}
+curry-verify --help
+\end{curry}
+The options are briefly described in the following.
+
+\begin{description}
+\item{\code{-h}, \code{-?}, \code{--help}}
+These options trigger the output of usage information.
+
+\item{\code{-q}, \code{--quiet}}
+Run quietly and produce no informative output.
+However, the exit code will be non-zero if some translation error occurs.
+
+\item{\code{-v[$n$]}, \code{--verbosity[=$n$]}}
+Set the verbosity level to an optional value.
+The verbosity level \code{0} is the same as option \code{-q}.
+The default verbosity level \code{1} shows the translation progress.
+The verbosity level \code{2} (which is the same as omitting the level)
+shows also the generated (Agda) program.
+The verbosity level \code{3} shows also more details about
+the translation process.
+
+\item{\code{-n}, \code{--nostore}}
+Do not store the translated program in a file but show it only.
+
+\item{\code{-p $p$}, \code{--property=$p$}}
+As a default, all properties occurring in the source program are
+translated. If this option is provided, only property $p$ is translated.
+
+\item{\code{-t $t$}, \code{--target=$t$}}
+Define the target language of the translation.
+Currently, only $t = \code{Agda}$ is supported, which is also the
+default.
+
+\item{\code{-s $s$}, \code{--scheme=$s$}}
+Define the translation scheme used to represent Curry programs
+in the target language.
+
+For the target \code{Agda}, the following schemes are supported:
+\begin{description}
+\item[\code{choice}]
+Use the ``planned choice'' scheme, see \cite{AntoyHanusLibby17EPTCS}
+(this is the default).
+In this scheme, the choices made in a non-deterministic computation
+are abstracted by passing a parameter for these choices.
+\item[\code{nondet}]
+Use the ``set of values'' scheme, see \cite{AntoyHanusLibby17EPTCS},
+where non-deterministic values are represented in a tree structure.
+\end{description}
+
+\end{description}
+
+% LocalWords: CurryCheck

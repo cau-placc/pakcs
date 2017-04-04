@@ -1,0 +1,73 @@
+\section{\texttt{cpm}: The Curry Package Manager}
+\label{sec-cpm}
+
+The Curry package manager (CPM) is a tool to
+distribute and install Curry libraries and applications
+and manage version dependencies between these libraries.
+Since CPM offers a lot of functionality, there is a separate
+manual available.\footnote{\url{http://curry-language.org/tools/cpm}}
+Therefore, we describe here only some basic CPM commands.
+
+The executable \code{cpm} is located in the \code{bin} directory
+of \CYS. Hence, if you have this directory in your path,
+you can start CPM by cloning a copy of the central package index repository:
+%
+\begin{curry}
+> cpm update
+\end{curry}
+%
+Now you can show a short list of all packages in this index by
+%
+\begin{curry}
+> cpm list
+Name             Synopsis                                             Version   
+----             --------                                             -------   
+addtypes         A tool to add missing type signatures in a Curry     0.0.1     
+                 program                                                        
+binint           Libraries with a binary representation of natural    0.0.1     
+                 and integers                                                   
+$\ldots$
+\end{curry}
+%
+The command
+%
+\begin{curry}
+> cpm info PACKAGE
+\end{curry}
+%
+can be used to show more information about the package with name
+\code{PACKAGE}.
+
+Some packages do not contain only useful libraries
+but also tools with some binary. In order to install such tools,
+one can use the command
+%
+\begin{curry}
+> cpm installbin PACKAGE
+\end{curry}
+%
+This command checks out the package in some internal directory
+(\code{\$HOME/.cpm/bin_packages})
+and installs the binary of the tool provided by the package
+in \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path.
+
+For instance, the most recent version of CPM
+can be installed by the following commands:
+%
+\begin{curry}
+> cpm update
+$\ldots$
+> cpm installbin cpm
+$\ldots$ Package 'cpm-xxx' checked out $\ldots$
+$\ldots$
+INFO  Installing executable 'cpm' into '/home/joe/.cpm/bin'
+\end{curry}
+%
+Now, the binary \code{cpm} of the most recent CPM version can be used
+if \code{\$HOME/.cpm/bin} is in your path
+(before \code{\cyshome{}/bin}!).
+
+A detailed description how to write your own packages
+with the use of other packages can be found in the manual of CPM.
+

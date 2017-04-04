@@ -1,0 +1,72 @@
+\section{Optimization of Curry Programs}
+
+After the invocation of the Curry front end,
+which parses a Curry program and translates it into the intermediate FlatCurry
+representation, \CYS applies a transformation
+to optimize Boolean equalities occurring in the Curry program.
+The ideas and details of this optimization are described
+in \cite{AntoyHanus15LOPSTR}.
+Therefore, we sketch only some basic ideas and options
+to influence this optimization.
+
+Consider the following definition of the operation \code{last}
+to extract the last element in list:
+%
+\begin{curry}
+last xs | xs == _++[x]
+        = x
+ where x free
+\end{curry}
+%
+In order to evaluate the condition \ccode{xs == \us{}++[x]},
+the Boolean equality is evaluated to \code{True} or \code{False}
+by instantiating the free variables \code{\us} and \code{x}.
+However, since we know that a condition must be evaluated to
+\code{True} only and all evaluations to \code{False} can be ignored,
+we can use the constrained equality to obtain a more efficient program:
+%
+\begin{curry}
+last xs | xs =:= _++[x]
+        = x
+ where x free
+\end{curry}
+%
+Since the selection of the appropriate equality operator
+is not obvious and might be tedious, \CYS encourages
+programmers to use only the Boolean equality operator \ccode{==}
+in programs.
+The constraint equality operator \ccode{=:=} can be considered
+as an optimization of \ccode{==} if it is ensured that only
+positive results are required, e.g., in conditions of program rules.
+
+To support this programming style, \CYS has a built-in optimization phase
+on FlatCurry files. For this purpose, the optimizer analyzes
+the FlatCurry programs for occurrences of \ccode{==}
+and replaces them by \ccode{=:=} whenever the result \code{False}
+is not required.
+The usage of the optimizer can be influenced by setting
+the property flag \code{bindingoptimization} in the
+configuration file \code{\curryrc}.
+The following values are recognized for this flag:
+\begin{description}
+\item[\code{no}:] Do not apply this transformation.
+\item[\code{fast}:] This is the default value.
+The transformation is based on pre-computed values for
+the prelude operations in order to decide whether the
+value \code{False} is not required as a result of a Boolean equality.
+Hence, the transformation can be efficiently performed
+without any complex analysis.
+\item[\code{full}:] Perform a complete ``required values'' analysis
+of the program (see \cite{AntoyHanus15LOPSTR})
+and use this information to optimize programs.
+In most cases, this does not yield better results so that
+the \code{fast} mode is sufficient.
+\end{description}
+%
+Hence, to turn off this optimization, one can either modify
+the flag \code{bindingoptimization} in the
+configuration file \code{\curryrc} or dynamically pass this change
+to the invocation of \CYS by
+\begin{quote}
+\ldots{} \code{-Dbindingoptimization=no} \ldots
+\end{quote}
