@@ -28,6 +28,7 @@ pakcsinitrc
 make.log
 curry2prolog/pakcsversion.pl
 docs/src/version.tex
+docs/src/tooldocs/casc/curry-style-guide.html
 lib/
 pkg/
 scripts/makesavedstate

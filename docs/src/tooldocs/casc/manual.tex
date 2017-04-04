@@ -1,4 +1,4 @@
-\section{\texttt{curry style}: A Style Checker for Curry Programs}
+\section{\texttt{curry-style}: A Style Checker for Curry Programs}
 \label{sec-casc}
 
 CASC\index{CASC}\index{style checking}
@@ -12,15 +12,32 @@ line lengths or
 indentation of \code{if-then-else}, but the kind of checks
 performed by CASC will be extended in the future.
 
+\subsection{Installation}
+
+The current implementation of CASC is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of CASC, use the following commands:
+%
+\begin{curry}
+> cpm update
+> cpm installbin casc
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{curry-style} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to execute CASC as described below.
+
 \subsection{Basic Usage}
 
 To check the style of some Curry program stored
 in the file \code{prog.curry},
 one can invoke the style checker by
-the command\pindex{curry style}\pindex{style}
+the command\pindex{curry-style}\pindex{style}
 %
 \begin{curry}
-curry style prog
+curry-style prog
 \end{curry}
 %
 After processing the program, a list of all positions
@@ -30,9 +47,12 @@ with stylistic errors is printed.
 \subsection{Configuration}
 
 CASC can be configured so that not all stylistic rules are checked.
-For this purpose, one should copy the global configuration file of CASC,
-which is stored in \code{\cyshome/currytools/casc/cascrc}
-(where \cyshome is the installation directory of \CYS),
+For this purpose, one should copy the global configuration file
+\code{cascrc} of CASC,
+which is stored in the main directory of the package,\footnote{%
+If you installed CASC as described above,
+the downloaded package is located in the directory
+\code{\$HOME/.cpm/bin_packages/casc}.}
 into the home directory under the name \ccode{.cascrc}.
 Then one can configure this file according to your own preferences,
 which are described in this file.
