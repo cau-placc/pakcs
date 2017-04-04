@@ -3,12 +3,32 @@
 
 ERD2Curry\index{ERD2Curry}\index{database programming}
 is a tool to generate Curry code to access and manipulate data
-persistently stored from
-entity relationship diagrams.\index{entity relationship diagrams}
+persistently stored in relational databases.
+The Curry code is generated from a description of the logical model
+of the database in form of an
+entity relationship diagram.\index{entity relationship diagram}
 The idea of this tool is described in detail in
 \cite{BrasselHanusMueller08PADL}.
-Thus, we describe only the basic steps to use this tool
-in the following.
+Thus, we describe only the basic steps to use this tool.
+
+\subsection{Installation}
+
+The current implementation of ERD2Curry is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of ERD2Curry, use the following commands:
+%
+\begin{curry}
+> cpm update
+> cpm installbin ertools
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{erd2curry} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to execute CurryVerify as described below.
+
+\subsection{Basic Usage}
 
 If one creates an entity relationship diagram (ERD)
 with the Umbrello UML Modeller, one has to store its
@@ -17,7 +37,7 @@ in a file, e.g., \ccode{myerd.xmi}.
 This description can be compiled into a Curry program by the
 command\pindex{curry erd2curry}\pindex{erd2curry}
 \begin{curry}
-curry erd2curry -x myerd.xmi
+erd2curry -x myerd.xmi
 \end{curry}
 If \code{MyData} is the name of the ERD, the Curry program file
 \ccode{MyData.curry} is generated containing all the necessary
@@ -27,6 +47,37 @@ two auxiliary program files
 \code{ERDGeneric.curry} and \code{KeyDatabase.curry}
 are created in the same directory.
 
+%
+\begin{figure}[t]
+\begin{curry}
+import Database.ERD
+
+blogERD :: ERD
+blogERD =
+ ERD "Blog" 
+     [Entity "Entry" 
+          [Attribute "Title"  (StringDom Nothing) Unique False, 
+           Attribute "Text"   (StringDom Nothing) NoKey  False,
+           Attribute "Author" (StringDom Nothing) NoKey  False,
+           Attribute "Date"   (DateDom   Nothing) NoKey  False],
+      Entity "Comment"
+        [Attribute "Text"   (StringDom Nothing) NoKey False,
+         Attribute "Author" (StringDom Nothing) NoKey False,
+         Attribute "Date"   (DateDom   Nothing) NoKey False],
+      Entity "Tag"
+        [Attribute "Name" (StringDom Nothing) Unique False]
+     ]
+     [Relationship "Commenting"
+       [REnd "Entry"   "commentsOn"    (Exactly 1),
+        REnd "Comment" "isCommentedBy" (Between 0 Infinite)],
+      Relationship "Tagging"
+       [REnd "Entry" "tags" (Between 0 Infinite),
+        REnd "Tag" "tagged" (Between 0 Infinite)]
+     ]
+\end{curry}
+\caption{The Curry program \code{BlogERD.curry}\label{fig:blogerdcurry}}
+\end{figure}
+
 If one does not want to use the Umbrello UML Modeller,
 which might be the preferred method since the interface to the
 Umbrello UML Modeller is no longer actively supported,
@@ -34,14 +85,11 @@ one can also define an ERD in a Curry program as a (exported!)
 top-level operation of type \code{ERD}
 (w.r.t.\ the type definition given in the library
 \code{\cyshome/lib/Database/ERD.curry}).
-If this definition is stored in the Curry program file \ccode{MyERD.curry},
-it can be compiled into a Curry program by the
-command\pindex{curry erd2curry}
-\begin{curry}
-curry erd2curry MyERD.curry
-\end{curry}
 %
-The directory \code{\cyshome/currytools/erd2curry/}
+The directory \code{examples} in the package \code{ertools}\footnote{%
+If you installed ERD2Curry as described above,
+the downloaded \code{ertools} package is located in the directory
+\code{\$HOME/.cpm/bin_packages/ertools}.}
 contains two examples for such ERD program files:
 \begin{description}
 \item[\code{BlogERD.curry}:]
@@ -52,7 +100,15 @@ This is an ERD model for university lectures as
 presented in the paper \cite{BrasselHanusMueller08PADL}.
 \end{description}
 %
-There is also the possibility to visualize an ERD term
+Figure~\ref{fig:blogerdcurry} shows the ER specification
+stored in the Curry program file \ccode{BlogERD.curry}.
+This ER specification can be compiled into a Curry program by the
+command\pindex{erd2curry}
+\begin{curry}
+erd2curry BlogERD.curry
+\end{curry}
+%
+There is also the possibility to visualize an ER specification
 as a graph with the graph visualization program \code{dotty}
 (for this purpose, it might be necessary to adapt the definition
 of \code{dotviewcommand} in your \ccode{\curryrc} file,
@@ -60,6 +116,6 @@ see Section~\ref{sec-customization},
 according to your local environment).
 The visualization can be performed by the command
 \begin{curry}
-curry erd2curry -v MyERD.curry
+erd2curry -v BlogERD.curry
 \end{curry}
 

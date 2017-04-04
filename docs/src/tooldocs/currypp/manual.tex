@@ -464,10 +464,11 @@ the (preferably absolute) file name of the SQLite database,
 and the name of the Curry program containing the ER specification.
 If the SQLite database file does not exist, it will be initialized by the tool.
 In our example, we execute the following command
-(provided that the directory \code{\cyshome/bin} is in the path):
+(provided that the tool \code{erd2curry} is already installed,
+see Sect.~\ref{sec-erd2curry}):
 %
 \begin{curry}
-> curry erd2curry --db `pwd`/Uni.db --cdbi UniERD.curry
+> erd2curry --db `pwd`/Uni.db --cdbi UniERD.curry
 \end{curry}
 %
 This initializes the SQLite database \code{Uni.db}

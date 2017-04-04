@@ -1,4 +1,4 @@
-\section{\texttt{curry peval}: A Partial Evaluator for Curry}
+\section{\texttt{curry-peval}: A Partial Evaluator for Curry}
 \label{sec-peval}
 
 peval\index{peval}\index{partial evaluation}
@@ -13,6 +13,24 @@ operations where some of the input arguments are already known at compile time,
 or operations built by the composition of multiple other ones.
 The theoretical foundations, design and implementation of
 the partial evaluator is described in detail in \cite{Peemoeller2016}.
+
+\subsection{Installation}
+
+The current implementation of the partial evaluator is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of the partial evaluator,
+use the following commands:
+%
+\begin{curry}
+> cpm update
+> cpm installbin peval
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{curry-peval} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to use the partial evaluator as described below.
 
 \subsection{Basic Usage}
 
@@ -43,9 +61,9 @@ will be improved w.r.t. the arguments \code{4} and\code{x}.
 Since the first argument is known in this case,
 the partial evalautor is able to remove the case distinctions
 in the implementation of \code{power}, and we invoke it via
-\pindex{curry peval}\pindex{peval}
+\pindex{curry-peval}\pindex{peval}
 \begin{lstlisting}[mathescape=false]
-$ curry peval Examples/power4.curry
+$ curry-peval Examples/power4.curry
 Curry Partial Evaluator
 Version 0.1 of 12/09/2016
 CAU Kiel
@@ -68,7 +86,7 @@ The new auxiliary function \code{power4._pe0} is integrated into the
 existing module such that only the implementation of \code{power4} is changed,
 which becomes visible if we increase the level of verbosity:
 \begin{lstlisting}[mathescape=false]
-$ curry peval -v2 Examples/power4.curry
+$ curry-peval -v2 Examples/power4.curry
 Curry Partial Evaluator
 Version 0.1 of 12/09/2016
 CAU Kiel
