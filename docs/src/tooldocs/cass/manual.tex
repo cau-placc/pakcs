@@ -20,6 +20,23 @@ in \cite{HanusSkrlac14}.
 In the following, CASS is presented from a perspective
 of a programmer who is interested to analyze Curry programs.
 
+\subsection{Installation}
+
+The current implementation of CASS is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of CASS, use the following commands:
+%
+\begin{curry}
+> cpm update
+> cpm installbin cass
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{cass} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to execute CASS as described below.
+
 \subsection{Using CASS to Analyze Programs}
 
 CASS is intended to analyze various operational properties
@@ -29,7 +46,7 @@ Since most of these analyses are based on abstract interpretations,
 they usually approximate program properties.
 To see the list of all available analyses, use the help option of CASS:
 \begin{curry}
-> curry analyze -h
+> cass -h
 Usage: $\ldots$
 $\vdots$
 Registered analyses names:
@@ -41,7 +58,7 @@ $\vdots$
 More information about the meaning of the various analyses
 can be obtained by adding the short name of the analysis:
 \begin{curry}
-> curry analyze -h Deterministic
+> cass -h Deterministic
 $\ldots$
 \end{curry}
 For instance, consider the following Curry module \code{Rev.curry}:
@@ -63,14 +80,14 @@ CASS supports three different usage modes to analyze this program.
 \subsubsection{Batch Mode}
 
 In the batch mode, CASS is started as a separate application
-via the shell command \code{curry analyze},
+via the shell command \code{cass},
 where the analysis name and the name of the module to be analyzed
 must be provided:\footnote{More output is generated when
 the parameter \code{debugLevel} is changed in the configuration file
 \code{.curryanalysisrc} which is installed in the user's home directory
 when CASS is started for the first time.}
 \begin{curry}
-> curry analyze Demand Rev
+> cass Demand Rev
 append : demanded arguments: 1
 main : demanded arguments: 1,2
 rev : demanded arguments: 1
@@ -156,7 +173,7 @@ in the file \code{\cyshome/currytools/CASS/Protocol.txt} and sketched below.
 
 To start CASS in the server mode, one has to execute the command
 \begin{curry}
-> curry analyze --server [ -p <port> ]
+> cass --server [ -p <port> ]
 \end{curry}
 where an optional port number for the communication can be
 provided. Otherwise, a free port number is chosen and shown. In the
@@ -210,7 +227,7 @@ commands. Finally, \code{StopServer} terminates the CASS server.
 
 For instance, if we start CASS by
 \begin{curry}
-> curry analyze --server -p 12345
+> cass --server -p 12345
 \end{curry}
 we can communicate with CASS as follows (user inputs are prefixed by \ccode{>});
 \begin{curry}
