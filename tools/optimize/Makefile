@@ -12,7 +12,7 @@ CompactFlat: CompactFlat.curry
 
 # generate saved state for the FlatCurry optimizer:
 NonStrictOpt: NonStrictOpt.curry
-	$(REPL) $(REPL_OPTS) :set path $(ROOT)/currytools/browser/analysis \
+	$(REPL) $(REPL_OPTS) :set path $(ROOT)/currytools/browser/src \
 	                     :load NonStrictOpt :save :quit
 
 clean: 

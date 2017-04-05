@@ -1,12 +1,18 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.14.3 (March 29, 2017)
--------------------------------------------------------
+Release notes for PAKCS Version 1.14.3 (April 5, 2017)
+------------------------------------------------------
 
 Changes to version 1.14.2:
 
   * Curry Package Manager added as tool `cpm`.
+  * Various tools (e.g., addtypes, currydoc, erd2curry, spicey, verify, xmldata)
+    have been removed from the distribution since they are not
+    necessary for the basic use of PAKCS and they can easily
+    installed (by a one-line command) locally via `cpm`.
+    Instructions how to install these tools are included
+    in the PAKCS manual.
 
 
 Release notes for PAKCS Version 1.14.2 (February 23, 2017)
