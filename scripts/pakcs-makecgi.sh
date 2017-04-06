@@ -103,9 +103,21 @@ if [ $# != 1 -a $# != 3 ] ; then
   exit 1
 fi
 
-# Definitions for WUI/JavaScript generation:
-WUIJS_PREPROCESSOR=$CURRYROOT/currytools/curry2js/Curry2JS
-WUIJS_DEFAULT_JS=$CURRYROOT/include/wui_prims.js
+# Try to locate WUI/JavaScript translator:
+WUIJS_PREPROCESSOR=`which curry2js`
+if [ ! -x "$WUIJS_PREPROCESSOR" ] ; then
+  # try to set curry2js to the CPM standard location:
+  WUIJS_PREPROCESSOR=$HOME/.cpm/bin/curry2js
+  if [ ! -x "$WUIJS_PREPROCESSOR" ] ; then
+    WUIJS_PREPROCESSOR=
+  fi
+fi
+if [ -z "$WUIJS_PREPROCESSOR" -a $WUIJS = yes ] ; then
+  echo "No support for JavaScript possible!"
+  echo "Please install the Curry->JavaScript translator curry2js by:"
+  echo "> cpm update && cpm installbin curry2js"
+  exit 1
+fi
 
 # remove possible suffix:
 PROG=`expr $1 : '\(.*\)\.lcurry' \| $1`

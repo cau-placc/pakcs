@@ -357,7 +357,7 @@ menuSeparatorS styles =
 
 --- A button with an associated command and a label string
 menuItem :: a1 -> String -> Widget r a1 a2
-menuItem = menuItemS []	
+menuItem = menuItemS []
 menuItemS :: [StyleClass] -> a1 -> String -> Widget r a1 a2
 menuItemS styles cmd text = 
   Widget MenuItem 
