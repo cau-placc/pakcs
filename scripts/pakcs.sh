@@ -23,6 +23,7 @@ check_and_call_tool() {
   shift
   shift
   if [ -x "$TOOLBIN" ] ; then
+    echo "Executing CPM installed tool:" "$TOOLBIN" ${1+"$@"}
     exec "$TOOLBIN" ${1+"$@"}
   else
     echo "Curry tool '$TOOLNAME' is not installed!"
@@ -32,25 +33,16 @@ check_and_call_tool() {
   fi
 }
 
-# check whether the combination of the program name and the first argument
-# is a tool installed by CPM and, if yes, exec the tool
-CPMTOOL="$CPMBIN"/`basename $0`-$1
-if [ -x "$CPMTOOL" ] ; then
+# check whether the real program name and the first argument is a tool
+# in the distribution and, if yes, exec the tool
+DISTTOOL=`readlink -f $0`-$1
+if [ -x "$DISTTOOL" ] ; then
   shift
-  echo "Executing CPM installed tool:" "$CPMTOOL" ${1+"$@"}
-  exec "$CPMTOOL" ${1+"$@"}
-fi
-
-# check whether the first argument is a tool in the distributation and, if yes,
-# exec the tool
-PAKCSTOOL="$PAKCSHOME/bin/pakcs-"$1
-if [ -x "$PAKCSTOOL" ] ; then
-  shift
-  exec "$PAKCSTOOL" ${1+"$@"}
+  exec "$DISTTOOL" ${1+"$@"}
 fi
 
 # check whether the first argument is a tool packaged with CPM and, if yes,
-# exec this tool or require its installation:
+# exec this tool or require its installation (for backward compatibility):
 case $1 in
   addtypes  ) check_and_call_tool addtypes    curry-addtypes ${1+"$@"} ;;
   analyze   ) check_and_call_tool cass        cass           ${1+"$@"} ;;
