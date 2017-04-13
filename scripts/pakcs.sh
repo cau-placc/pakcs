@@ -12,6 +12,10 @@ else
 fi
 export PAKCSHOME
 
+# Add PAKCS bin directory to path so that currypp can be found:
+PATH=$PATH:$PAKCSHOME/bin
+export PATH
+
 # The directory where CPM installs the binaries:
 CPMBIN="$HOME/.cpm/bin"
 
@@ -58,10 +62,6 @@ case $1 in
   style     ) check_and_call_tool casc        curry-style    ${1+"$@"} ;;
   verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
 esac
-
-# Add PAKCS bin directory to path so that currypp can be found:
-PATH=$PATH:$PAKCSHOME/bin
-export PATH
 
 REPL="$PAKCSHOME/curry2prolog/pakcs"
 if [ ! -x "$REPL" ] ; then
