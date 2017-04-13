@@ -842,7 +842,7 @@ processCommand("type",ExprInput) :- !,
 	numbersmallvars(97,_,Type), writeType(Type), nl.
 
 processCommand("usedimports",[]) :- !,
-	checkCurryUsedImports(UsedImports),
+	checkCpmTool('curry-usedimports','importusage',UsedImports),
         lastload(Prog),
 	(Prog="" -> write('ERROR: no program loaded for analysis'), nl, !, fail
                   ; true),
@@ -855,7 +855,7 @@ processCommand("interface",[]) :- !,
 	(Prog="" -> processCommand("interface","Prelude")
                   ; processCommand("interface",Prog)).
 processCommand("interface",IFTail) :- !,
-        checkCurryShowFlat(ShowFlat),
+        checkCpmTool('curry-showflat','showflatcurry',ShowFlat),
 	extractProgName(IFTail,Prog),
 	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
@@ -864,6 +864,7 @@ processCommand("interface",IFTail) :- !,
 
 processCommand("browse",[]) :- !,
         checkWish,
+        checkCpmTool('curry-browse','currybrowse',BrowseProg),
 	writeNQ('Starting Curry Browser in separate window...'), nlNQ,
 	lastload(LastProg),
 	(LastProg="" -> Prog="Prelude" ; Prog=LastProg),
@@ -876,9 +877,7 @@ processCommand("browse",[]) :- !,
 	      ; write('ERROR: program "'),
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
-        installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],
-                    BrowseCmd),
+	appendAtoms(['"',BrowseProg,'" ',RealProg,' & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
@@ -1055,18 +1054,10 @@ checkWish :-
         checkProgram(wish,
           'Windowing shell "wish" not found. Please install package "tk"!',_).
 
-checkCurryUsedImports(Prog) :-
-        checkProgram('curry-usedimports',
-          '"curry-usedimports" not found. Install it by: "cpm installbin importusage"!',Prog).
-
-checkCurryShowFlat(Prog) :-
-        checkProgram('curry-showflat',
-          '"curry-showflat" not found. Install it by: "cpm installbin showflatcurry"!',Prog).
-
-checkCurryShowSource(Prog) :-
-        checkProgram('curry-showsource',
-          '"curry-showflat" not found. Install it by: "cpm installbin sourceproggui"!',Prog).
-
+checkCpmTool(CpmBin,Package,Prog) :-
+        appendAtoms(['"',CpmBin,'" not found. Install it by: "cpm installbin ',
+                     Package,'"!'],ErrMsg),
+        checkProgram(CpmBin,ErrMsg,Prog).
 
 % call "shellCmd" and report its execution if verbosityIntermediate:
 shellCmdWithReport(Cmd) :-
@@ -1500,8 +1491,8 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	(pakcsrc(curryextensions,yes)
            -> appendAtom(CM4,' --extended',CM5)           ; CM5 = CM4 ),
 	getCurryPath(CP),
-	appendAtom(TCP,'/lib',TCPLib),
-	append(CP,[TCPLib],ImportPath),
+	getSysLibPath(SysLibPath),
+	append(CP,SysLibPath,ImportPath),
 	addImports(ImportPath,CM5,CM6),
 	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
@@ -2237,7 +2228,7 @@ showSourceCode(FCall) :- FCall =.. [QF|_],
 
 % show source code of a function via the simple GUI for showing complete fun's:
 showSourceCodeOfFunction(ModS,FunS) :-
-        checkCurryShowSource(_),
+        checkCpmTool('curry-showsource','sourceproggui',_),
         checkWish,
 	writeNQ('Showing source code of function "'),
 	concat([ModS,[46],FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
@@ -2262,7 +2253,7 @@ showSourceCodeOfFunction(ModS,FunS) :-
 getModStream(ModS,Stream) :-
 	sourceCodeGUI(ModS,Stream), !.
 getModStream(ModS,InStream) :-
-        checkCurryShowSource(ShowSource),
+        checkCpmTool('curry-showsource','sourceproggui',ShowSource),
 	atom_codes(ModA,ModS),
 	appendAtoms([ShowSource,' ',ModA,' 2>/dev/null'],Cmd),
    	execCommand(Cmd,InStream,_,std),

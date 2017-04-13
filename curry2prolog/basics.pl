@@ -27,7 +27,7 @@
 		  getNewFileName/2, mainPrologFileName/1,
 		  extendPath/3, path2String/2, pathString2loadPath/2,
 		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
-		  shellCmdWithCurryPath/1,
+		  getSysLibPath/1, shellCmdWithCurryPath/1,
 		  loadPath/2, findSourceFileInLoadPath/3,
 		  findFlatProgFileInLoadPath/2,
 		  findPrologTargetFileInLoadPath/2, findFilePropertyInPath/4,
@@ -357,11 +357,16 @@ setCurryPath(CP) :-
 	atom_codes(CP,CPS),
 	asserta(localCurryPath(CPS)).
 
-% execute a shell command where CURRYPATH is exported
+% execute a shell command where CURRYPATH is exported together with
+% the system library path
 shellCmdWithCurryPath(Cmd) :-
 	localCurryPath(CPS),
-	(CPS="" -> Export=[]
-                 ; concat(["CURRYPATH='",CPS,"' ; export CURRYPATH ; "],Export)),
+        getSysLibPath(SysLib), path2String(SysLib,SysLibS),
+        ((CPS="" ; SysLibS="") -> append(CPS,SysLibS,FullPathS)
+                                ; append(CPS,[58|SysLibS],FullPathS)),
+	(FullPathS="" -> Export=[]
+          ; concat(["CURRYPATH='",FullPathS,"' && export CURRYPATH && "],
+                   Export)),
 	atom_codes(Cmd,CmdS),
 	append(Export,CmdS,ECmdS),
 	atom_codes(ECmd,ECmdS),

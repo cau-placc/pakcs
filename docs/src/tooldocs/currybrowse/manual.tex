@@ -1,25 +1,46 @@
-\section{\texttt{curry browse}: A Tool for Analyzing and Browsing Curry Programs}
+\newcommand{\cb}{CurryBrowser\xspace}
+
+\section{\cb: A Tool for Analyzing and Browsing Curry Programs}
 \label{sec-currybrowser}
 
-\cb is a tool to browse through the modules and functions
+\cb is a tool to browse through the modules and operations
 of a Curry application, show them in various formats,
 and analyze their properties.\footnote{Although \cb is
 implemented in Curry, some functionalities of it require an
 installed graph visualization tool (dot \url{http://www.graphviz.org/}),
 otherwise they have no effect.}
 Moreover, it is constructed in a way so that
-new analyzers can be easily connected to \cb.
+new analyzers can easily be connected to \cb.
 A detailed description of the ideas behind this tool can be
 found in \cite{Hanus05WCFLP,Hanus06WLPE}.
 
-\cb is part of the \CYS distribution and can be
-started in two ways:
+\subsection{Installation}
+
+The current implementation of \cb is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of \cb, use the following commands:
+%
+\begin{curry}
+> cpm update
+> cpm installbin currybrowse
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{curry-browse} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to execute \cb as described below.
+
+\subsection{Basic Usage}
+
+When \cb is installed as described above, it can be started in two ways:
 \begin{itemize}
-\item
-In the command shell via the command: \code{\cyshome/bin/curry browse mod}
 \item
 In the \CYS environment after loading the module
 \code{mod} and typing the command \ccode{:browse}.
+\item
+As a shell command (provided that \code{\$HOME/.cpm/bin} is
+in your path): \code{curry-browse mod}
 \end{itemize}
 Here, \ccode{mod} is the name of the main module of a Curry application.
 After the start, \cb loads the interfaces of the main
@@ -28,7 +49,7 @@ for interactive browsing.
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[scale=0.7]{\curryhome/currytools/browser/docs/currybrowser.jpg}
+\includegraphics[scale=0.7]{tooldocs/currybrowse/currybrowser.jpg}
 \end{center}
 \caption{Snapshot of the main window of CurryBrowser\label{fig-currybrowser}}
 \end{figure}
