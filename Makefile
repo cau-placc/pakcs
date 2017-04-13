@@ -380,6 +380,7 @@ cleandist:
 	rm -rf .git .gitmodules .gitignore
 	rm -rf $(CURRYLIBSDIR)
 	rm -rf currytools/.git currytools/.gitignore
+	rm -f currytools/download_tools.sh
 	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
 	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
