@@ -43,11 +43,11 @@ but also tools with some binary. In order to install such tools,
 one can use the command
 %
 \begin{curry}
-> cpm installbin PACKAGE
+> cpm installapp PACKAGE
 \end{curry}
 %
 This command checks out the package in some internal directory
-(\code{\$HOME/.cpm/bin_packages})
+(\code{\$HOME/.cpm/app_packages})
 and installs the binary of the tool provided by the package
 in \code{\$HOME/.cpm/bin}.
 Hence it is recommended to add this directory to your path.
@@ -58,7 +58,7 @@ can be installed by the following commands:
 \begin{curry}
 > cpm update
 $\ldots$
-> cpm installbin cpm
+> cpm installapp cpm
 $\ldots$ Package 'cpm-xxx' checked out $\ldots$
 $\ldots$
 INFO  Installing executable 'cpm' into '/home/joe/.cpm/bin'

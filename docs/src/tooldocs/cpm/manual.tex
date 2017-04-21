@@ -235,27 +235,28 @@ if \code{\$HOME/.cpm/bin} is in your path
 of this default path).
 
 
-\subsection{Installing Binaries of Packages}
-\label{sec:installbin}
+\subsection{Installing Applications of Packages}
+\label{sec:installapp}
 
 Some packages do not contain only useful libraries
-but also tools. In order to install such tools without
+but also application programs or tools.
+In order to install the executables of such applications without
 explicitly using the source code of the package,
 one can use the command
 \begin{lstlisting}
-cpm installbin <package>
+cpm installapp <package>
 \end{lstlisting}
 This command checks out the package in some internal directory
-(default: \code{\$HOME/.cpm/bin_packages}, see
+(default: \code{\$HOME/.cpm/app_packages}, see
 Section~\ref{sec:config})
-and installs the binary of the tool provided by the package
+and installs the binary of the application provided by the package
 in \code{\$HOME/.cpm/bin} (see also Section~\ref{sec:checkout}).
 
 For instance, the most recent version of the web framework Spicey
 can be installed by the following command:
 %
 \begin{lstlisting}
-> cpm installbin spicey
+> cpm installapp spicey
 $\ldots$ Package 'spicey-xxx' checked out $\ldots$
 $\ldots$
 INFO  Installing executable 'spiceup' into '/home/joe/.cpm/bin'
@@ -507,10 +508,10 @@ Hence, in order to use such applications, one should have this path
 in the personal load path (environment variable \code{PATH}).
 Default value: \code{\$HOME/.cpm/bin}
 
-\item[\fbox{\code{bin_package_path}}]
+\item[\fbox{\code{app_package_path}}]
 The path to the package cache where packages are checked out if only
-their binaries are installed (see Section~\ref{sec:installbin}).
-Default value: \code{\$HOME/.cpm/bin_packages}.
+their binaries are installed (see Section~\ref{sec:installapp}).
+Default value: \code{\$HOME/.cpm/app_packages}.
 
 \item[\fbox{\code{curry_bin}}]
 The name of the executable of the Curry system used
@@ -525,7 +526,7 @@ For instance, to install the binary
 of the package \code{spicey} in the directory \code{\$HOME/bin},
 one can execute the command
 \begin{lstlisting}
-> cpm --define bin_install_path=$\$$HOME/bin installbin spicey
+> cpm --define bin_install_path=$\$$HOME/bin installapp spicey
 \end{lstlisting}
 
 
@@ -633,17 +634,19 @@ Checks out a specific version of a package
 into the local directory \code{$package$}
 in order to test its operations or install a binary of the package..
 
-\item[\fbox{\code{installbin $package$ [--$pre$]}}]
-Install the binary provided by the newest version
+\item[\fbox{\code{installapp $package$ [--$pre$]}}]
+Install the application provided by the newest version
 (compatible to the current compiler) of a package.
-The binary is installed into the directory \code{\$HOME/.cpm/bin}
+The binary of the application is installed into the directory
+\code{\$HOME/.cpm/bin}
 (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
 or by the CPM option \code{--define}, see Section~\ref{sec:config}).
 \code{--$pre$} enables the installation of pre-release versions.
 
-\item[\fbox{\code{installbin $package$ $version$}}]
-Install the binary provided by a specific version of a package.
-The binary is installed into the directory \code{\$HOME/.cpm/bin}
+\item[\fbox{\code{installapp $package$ $version$}}]
+Install the application provided by a specific version of a package.
+The binary of the application is installed into the directory
+\code{\$HOME/.cpm/bin}
 (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
 or by the CPM option \code{--define}, see Section~\ref{sec:config}).
 
@@ -792,7 +795,7 @@ in all versions.
 The compiler compatibility of a package is also relevant when
 some version of a package should be examined or installed
 (with CPM commands \code{info}, \code{checkout}, \code{install},
-\code{installbin}).
+\code{installapp}).
 If a newest package should be installed, i.e., no specific version
 number is provided, then only the newest version
 which is compatible to the current Curry compiler
@@ -859,7 +862,7 @@ For instance, a possible specification could be as follows:
 \end{lstlisting}
 %
 If a package contains an \code{executable} specification,
-the command \code{cpm install} compiles the main module
+the command \code{cpm install} also compiles the main module
 and installs the executable in the \code{bin} install directory of CPM
 (see Section~\ref{sec:config} for details).
 
