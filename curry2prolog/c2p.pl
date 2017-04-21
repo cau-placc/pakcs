@@ -956,10 +956,10 @@ processCommand("show",[]) :- !, % show source code of current module
 	    appendAtoms([Pager,' ',File],Cmd),
 	    shellCmdWithReport(Cmd)
 	  ; write('No source program file available, generating source from FlatCurry...'),
-	    nl, nl,
-	    installDir(PH), atom_codes(ProgA,Prog),
-	    appendAtoms(['"',PH,'/currytools/browser/GenInt" -mod ',ProgA],
-			ShowProgCmd),
+            nl, nl,
+            atom_codes(ProgA,Prog),
+            checkCpmTool('curry-showflat','showflatcurry',ShowFlat),
+	    appendAtoms([ShowFlat,' -mod ',ProgA],ShowProgCmd),
 	    shellCmdWithCurryPathWithReport(ShowProgCmd)).
 
 processCommand("show",ShTail) :- % show source of a module
@@ -1055,7 +1055,7 @@ checkWish :-
           'Windowing shell "wish" not found. Please install package "tk"!',_).
 
 checkCpmTool(CpmBin,Package,Prog) :-
-        appendAtoms(['"',CpmBin,'" not found. Install it by: "cpm installbin ',
+        appendAtoms(['"',CpmBin,'" not found. Install it by: "cpm installapp ',
                      Package,'"!'],ErrMsg),
         checkProgram(CpmBin,ErrMsg,Prog).
 
@@ -1064,13 +1064,6 @@ shellCmdWithReport(Cmd) :-
 	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
 	flush_output(user_output),
 	shellCmd(Cmd).
-
-% call "shellCmdWithCurryPath" and report its execution
-% if verbosityIntermediate:
-shellCmdWithCurryPathWithReport(Cmd) :-
-	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
-	flush_output(user_output),
-	shellCmdWithCurryPath(Cmd).
 
 
 % add a module to be imported in addition to the main module:
