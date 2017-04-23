@@ -591,6 +591,24 @@ ensure_lib_loaded(Lib) :-
                        ; true),
 	ensure_loaded(user:DirLib).
 ensure_lib_loaded(Lib) :-
+        % second, look into the directory of the current module:
+        loader:currentModule(Mod),
+        loader:loadedModule(Mod,PMod),
+        % drop last Prolog file name:
+        atom_codes(PMod,PModS), atom_codes(Mod,ModS),
+        append(PModwopl,".pl",PModS),
+        append(PModDirS,ModS,PModwopl),
+        atom_codes(PModDir,PModDirS),
+        % compute module directory by going up in the hierarchy:
+        appendAtom(PModDir,'../../',ModDir),
+        appendAtom(ModDir,Lib,ModDirLib),
+	appendAtom(ModDirLib,'.pl',ModDirLibPl),
+	existsFile(ModDirLibPl), !,
+	(verbosity(3) -> write('>>> Load Prolog library: '),
+                         write(ModDirLib), nl
+                       ; true),
+	ensure_loaded(user:ModDirLib).
+ensure_lib_loaded(Lib) :-
         % otherwise, look into the directory containing system run-time mods:
 	moduleDir(Dir),
 	appendAtom(Dir,Lib,DirLib),
