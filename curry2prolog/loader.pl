@@ -6,8 +6,7 @@
 	  [currentModule/1, loadedModule/2, initializationsInProg/1,
 	   currentCostCenters/1, curryModule/1, costCenters/1,
 	   initializeBeforeLoad/0, initializationsInModule/1,
-	   loadAndCompile/3, importModule/1, checkPrologTarget/2,
-	   startCPNSD/0]).
+	   loadAndCompile/3, importModule/1, checkPrologTarget/2]).
 
 :- dynamic currentModule/1, loadedModule/2, importedModule/1,
 	   initializationsInProg/1, currentCostCenters/1.
@@ -95,16 +94,3 @@ checkPrologTarget(Mod,_) :-
 	write(user_error,Mod),
 	write(user_error,' not found!'),
 	nl(user_error), !, fail.
-
-% start the CPNS demon (used in initialization of library CPNS):
-startCPNSD :-
-	currentModule('CPNS'),
-	% don't automatically start the CPNS demon if the main program is
-	% the CPNS demon itself (to avoid infinite recursion)
-	!.
-startCPNSD :-
-	installDir(TCP),
-        appendAtom(TCP,'/cpns/start',CPNSD),
-	shellCmd(CPNSD).
-
-

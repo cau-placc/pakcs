@@ -482,10 +482,10 @@ checkArityConsistency(FName,FArity,EArity) :-
 writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	append(MainTypes,ImpTypes,AllTypes),
 	append(MainOps,ImpOps,AllOps),
-	getExternalLibraries(MainFuncs,[],ExtLibs),
-	map1M(compiler:writeLibraryInclusion,ExtLibs), nl,
 	atom_codes(ModName,Mod),
 	writeClause((:- curryModule(ModName))), nl,
+	getExternalLibraries(MainFuncs,[],ExtLibs),
+	map1M(compiler:writeLibraryInclusion,ExtLibs), nl,
 	% redundant checking, could be omitted if front end is correct:
 	(retract(bugInFlcFile) -> true ; true),
 	map1M(compiler:check_flcFunction,MainFuncs),
