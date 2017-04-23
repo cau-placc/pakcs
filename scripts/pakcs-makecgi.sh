@@ -115,7 +115,7 @@ fi
 if [ -z "$WUIJS_PREPROCESSOR" -a $WUIJS = yes ] ; then
   echo "No support for JavaScript possible!"
   echo "Please install the Curry->JavaScript translator curry2js by:"
-  echo "> cpm update && cpm installbin curry2js"
+  echo "> cpm update && cpm installapp curry2js"
   exit 1
 fi
 

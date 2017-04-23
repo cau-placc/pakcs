@@ -32,7 +32,7 @@ check_and_call_tool() {
   else
     echo "Curry tool '$TOOLNAME' is not installed!"
     echo "Please install it with the Curry Package Manager by:"
-    echo "> cpm update && cpm installbin $TOOLPACKAGE"
+    echo "> cpm update && cpm installapp $TOOLPACKAGE"
     exit 1
   fi
 }
