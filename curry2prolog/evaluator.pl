@@ -467,7 +467,7 @@ writeCurryD(S,_,_,T) :- atom(T), !,
 	 ; revTransFunctor(T,ExtName),
 	    ((isId(ExtName) ; ExtName='()')
 	      -> write(S,ExtName)
-               ; write(S,'('), write(S,ExtName), write(S,')'))).
+	       ; write(S,'('), write(S,ExtName), write(S,')'))).
 writeCurryD(S,D,_,T) :-
 	isCompleteList(T,TL),
 	!,

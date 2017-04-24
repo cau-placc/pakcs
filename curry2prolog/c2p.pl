@@ -244,7 +244,7 @@ writeMainHelp :-
 % Compute the prompt of the interactive loop:
 pakcsPrompt('') :- quietmode(yes), !.
 pakcsPrompt(Prompt) :-
-	currentModule(MN),
+	currentModuleFile(MN,_),
 	currentprogram(CPS),
 	atom_codes(CP,CPS),
 	split2dirbase(CP,_,BaseProg),
@@ -434,7 +434,7 @@ classDict('TCons'(FCDictA,[A]),A,Dict) :-
         append(ModFCDictPrefixS,DictS,FCDictS),
         append(ModS,FCDictPrefixS,ModFCDictPrefixS), !,
         atom_codes(ModA,ModS),
-        currentModule(CurrMod),
+        currentModuleFile(CurrMod,_),
         ((ModA='Prelude' ; ModA=CurrMod)
           -> Dict = DictS
            ; append(ModS,[46|DictS],Dict)),
@@ -532,7 +532,7 @@ getMainProgPath(MainProgName,MainPath) :-
 	atom_codes(MainProg,MainProgS),
 	split2dirbase(MainProg,_,MainProgName).
 getMainProgPath(CurrMod,MainPath) :-
-	currentModule(CurrMod), atom_codes(CurrMod,CurrModS),
+	currentModuleFile(CurrMod,_), atom_codes(CurrMod,CurrModS),
 	findSourceProgPath(CurrModS,MainPath), !,
 	(verbosityQuiet -> true ;
 	    lastload(LoadProgS), atom_codes(LoadProg,LoadProgS),
@@ -563,7 +563,7 @@ deleteMainExpFiles(MainExprDir) :-
 compileMainExpression(MainExprMod) :-
 	prog2PrologFile(MainExprMod,PrologFile),
 	c2p(MainExprMod,PrologFile),
-	currentModule(CurrMod),
+	currentModuleFile(CurrMod,_),
 	on_exception(ErrorMsg,
                      (addImports(AddImps),
 		      loadAndCompile(PrologFile,AddImps,create)),
@@ -799,7 +799,7 @@ processCommand("set",[]) :- !,
 	write('path <path>     - set additional search path for loading modules'), nl,
 	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
 	write('v<n>            - verbosity level'), nl,
-	write('                   0: quiet (errors and warnings only)'), nl,
+	write('                   0: quiet (errors only)'), nl,
 	write('                   1: status messages (default)'), nl,
 	write('                   2: intermediate messages and commands'), nl,
 	write('                   3: all intermediate results'), nl,
@@ -1161,13 +1161,6 @@ shellCmdWithReport(Cmd) :-
 	flush_output(user_output),
 	shellCmd(Cmd).
 
-% call "shellCmdWithCurryPath" and report its execution
-% if verbosityIntermediate:
-shellCmdWithCurryPathWithReport(Cmd) :-
-	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
-	flush_output(user_output),
-	shellCmdWithCurryPath(Cmd).
-
 
 % add a module to be imported in addition to the main module:
 addImportModule(Arg) :-
@@ -1225,7 +1218,8 @@ writeModuleFile((M,F)) :-
 % compile a source program into Prolog code:
 processCompile(ProgS,PrologFile) :-
 	verbosity(Verbosity),
-	parser_warnings(Warnings),
+	parser_warnings(PWarnings),
+        (Verbosity=0 -> Warnings=no ; Warnings=PWarnings),
 	parseProgram(ProgS,Verbosity,Warnings),
 	atom_codes(Prog,ProgS),
 	prog2PrologFile(Prog,LocalPrologFile),
@@ -1581,13 +1575,13 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat'],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
-	(pakcsrc(warnoverlapping,no)
+	((Warnings=yes, pakcsrc(warnoverlapping,no))
            -> appendAtom(CM3,' --no-overlap-warn',CM4)    ; CM4 = CM3 ),
 	(pakcsrc(curryextensions,yes)
            -> appendAtom(CM4,' --extended',CM5)           ; CM5 = CM4 ),
 	getCurryPath(CP),
-	appendAtom(TCP,'/lib',TCPLib),
-	append(CP,[TCPLib],ImportPath),
+	getSysLibPath(SysLibPath),
+	append(CP,SysLibPath,ImportPath),
 	addImports(ImportPath,CM5,CM6),
 	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
@@ -1671,7 +1665,7 @@ writeTypeCons(TC) :-
 	append("Prelude.",NameS,TCS), !,
 	atom_codes(Name,NameS), write(Name).
 writeTypeCons(TC) :-
-	currentModule(Mod), atom_codes(Mod,ModS),
+	currentModuleFile(Mod,_), atom_codes(Mod,ModS),
 	atom_codes(TC,TCS),
 	(append(ModS,[46|NameS],TCS)
 	 -> atom_codes(Name,NameS), write(Name)
@@ -1847,7 +1841,7 @@ exit_debug_option(_) :- write('ERROR: wrong option!'), nl,
 
 % unqualified access to entities of main module is always allowed:
 transDefinedFunc(F,ModFAtom) :-
-	currentModule(Mod), atom_codes(Mod,ModS),
+	currentModuleFile(Mod,_), atom_codes(Mod,ModS),
 	atom_codes(F,Fs),
 	append(ModS,[46|Fs],ModFs),
 	%atom_codes(ModF,ModFs),

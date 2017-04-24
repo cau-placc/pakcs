@@ -31,7 +31,7 @@ prim_getHostname(String) :-
 prim_getPID(Pid) :- currentPID(Pid).
 
 prim_getProgName(String) :-
-        user:currentModule(Name),
+        user:currentModuleFile(Name,_),
         atom2String(Name,String).
 
 prim_system(S,Status) :-
