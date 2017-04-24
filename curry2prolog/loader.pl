@@ -3,12 +3,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(loader,
-	  [currentModule/1, loadedModule/2, initializationsInProg/1,
+	  [loadedModule/2, initializationsInProg/1,
 	   currentCostCenters/1, curryModule/1, costCenters/1,
 	   initializeBeforeLoad/0, initializationsInModule/1,
 	   loadAndCompile/3, importModule/1, checkPrologTarget/2]).
 
-:- dynamic currentModule/1, loadedModule/2, importedModule/1,
+:- dynamic loadedModule/2, importedModule/1,
 	   initializationsInProg/1, currentCostCenters/1.
 
 :- use_module(prologbasics).
@@ -16,15 +16,15 @@
 :- use_module(basics).
 %:- use_module(compiler). % for generateMainPlFile in interactive mode
 
-currentModule(''). % name of currently loaded module
 initializationsInProg(true). % intializations to be done after loading Curry program
 currentCostCenters(['']). % list of current cost centers
 
 
 % set name of current Curry module:
 curryModule(ModName) :-
-	retract(currentModule(_)),
-	asserta(currentModule(ModName)).
+        (loadedModule(ModName,ModFile) -> true ; ModFile=''),
+        retract(currentModuleFile(_,_)),
+        asserta(currentModuleFile(ModName,ModFile)).
 
 % set list of cost centers of the current Curry module:
 costCenters(CCs) :-
@@ -54,7 +54,7 @@ initializationsInModule(ModInit) :-
 loadAndCompile(PrologFile,AddImports,CreateMain) :-
 	initializeBeforeLoad,
 	compilePrologFileAndSave(PrologFile),
-	currentModule(MainMod),
+	currentModuleFile(MainMod,_),
 	assertz(loadedModule(MainMod,PrologFile)),
 	map1M(loader:importModule,AddImports),
 	loadAndCompileImports,

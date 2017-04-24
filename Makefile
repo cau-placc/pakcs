@@ -43,11 +43,11 @@ export PAKCSINSTALLDIR =
 # The major version numbers:
 MAJORVERSION=1
 # The minor version number:
-MINORVERSION=14
+MINORVERSION=15
 # The revision version number:
-REVISIONVERSION=3
+REVISIONVERSION=0
 # The build version number:
-BUILDVERSION=8
+BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -284,7 +284,6 @@ runtest:
 	cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
-	cd examples/CHR && ./test.sh $(RUNTESTPARAMS)
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
 

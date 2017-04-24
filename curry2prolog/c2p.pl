@@ -244,7 +244,7 @@ writeMainHelp :-
 % Compute the prompt of the interactive loop:
 pakcsPrompt('') :- quietmode(yes), !.
 pakcsPrompt(Prompt) :-
-	currentModule(MN),
+	currentModuleFile(MN,_),
 	currentprogram(CPS),
 	atom_codes(CP,CPS),
 	split2dirbase(CP,_,BaseProg),
@@ -356,6 +356,8 @@ process([58|Cs]) :- !, % 58=':'
 	processCommand(Cmd,Params),
 	!,
 	Cmd="quit".
+process(Input) :- % ignore inputs starting with a comment:
+        removeBlanks(Input,[45,45|_]), !, fail.
 process(Input) :-
 	processExpression(Input,ExprGoal),
 	call(ExprGoal).
@@ -462,7 +464,7 @@ getMainProgPath(MainProgName,MainPath) :-
 	atom_codes(MainProg,MainProgS),
 	split2dirbase(MainProg,_,MainProgName).
 getMainProgPath(CurrMod,MainPath) :-
-	currentModule(CurrMod), atom_codes(CurrMod,CurrModS),
+	currentModuleFile(CurrMod,_), atom_codes(CurrMod,CurrModS),
 	findSourceProgPath(CurrModS,MainPath), !,
 	(verbosityQuiet -> true ;
 	    lastload(LoadProgS), atom_codes(LoadProg,LoadProgS),
@@ -493,7 +495,7 @@ deleteMainExpFiles(MainExprDir) :-
 compileMainExpression(MainExprMod) :-
 	prog2PrologFile(MainExprMod,PrologFile),
 	c2p(MainExprMod,PrologFile),
-	currentModule(CurrMod),
+	currentModuleFile(CurrMod,_),
 	on_exception(ErrorMsg,
                      (addImports(AddImps),
 		      loadAndCompile(PrologFile,AddImps,create)),
@@ -1552,7 +1554,7 @@ writeTypeCons(TC) :-
 	append("Prelude.",NameS,TCS), !,
 	atom_codes(Name,NameS), write(Name).
 writeTypeCons(TC) :-
-	currentModule(Mod), atom_codes(Mod,ModS),
+	currentModuleFile(Mod,_), atom_codes(Mod,ModS),
 	atom_codes(TC,TCS),
 	(append(ModS,[46|NameS],TCS)
 	 -> atom_codes(Name,NameS), write(Name)
@@ -1728,7 +1730,7 @@ exit_debug_option(_) :- write('ERROR: wrong option!'), nl,
 
 % unqualified access to entities of main module is always allowed:
 transDefinedFunc(F,ModFAtom) :-
-	currentModule(Mod), atom_codes(Mod,ModS),
+	currentModuleFile(Mod,_), atom_codes(Mod,ModS),
 	atom_codes(F,Fs),
 	append(ModS,[46|Fs],ModFs),
 	%atom_codes(ModF,ModFs),

@@ -4,7 +4,7 @@
 :- module(prologbasics,
 	  [installDir/1,
            prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
-	   verbosity/1, fileOpenOptions/1,
+	   verbosity/1, fileOpenOptions/1, currentModuleFile/2,
 	   sicstus310orHigher/0, generatePrologBasics/0,
 %SICS3X	   append/3, member/2,
 %SICS37	   atom_codes/2, number_codes/2,
@@ -67,6 +67,11 @@ verbosity(1).
 fileOpenOptions(Options) :-
 	sicstus4 -> Options = [encoding('UTF-8')]
                   ; Options = [].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The name and file (if known, otherwise '') of the currently loaded module
+:- dynamic currentModuleFile/2.
+currentModuleFile('','').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set ISO language, if possible
@@ -819,8 +824,7 @@ ensure_lib_loaded(Lib) :-
 	ensure_loaded(user:DirLib).
 ensure_lib_loaded(Lib) :-
         % second, look into the directory of the current module:
-        loader:currentModule(Mod),
-        loader:loadedModule(Mod,PMod),
+        currentModuleFile(Mod,PMod),
         % drop last Prolog file name:
         atom_codes(PMod,PModS), atom_codes(Mod,ModS),
         append(PModwopl,".pl",PModS),
