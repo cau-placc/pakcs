@@ -108,11 +108,11 @@ Compile and load the program stored in \code{$prog$.curry}
 together with all its imported modules.
 If this file does not exist, the system looks for a FlatCurry
 file \code{$prog$.fcy} and compiles from this intermediate representation.
-If the file \code{$prog$.fcy} does not exists, too, the system looks
-for a file \code{$prog$_flat.xml} containing a FlatCurry program in
-XML representation (compare command \ccode{:xml}\pindex{:xml}),
-translates this into a FlatCurry file \code{$prog$.fcy}
-and compiles from this intermediate representation.
+% If the file \code{$prog$.fcy} does not exists, too, the system looks
+% for a file \code{$prog$_flat.xml} containing a FlatCurry program in
+% XML representation (compare command \ccode{:xml}\pindex{:xml}),
+%translates this into a FlatCurry file \code{$prog$.fcy}
+% and compiles from this intermediate representation.
 
 \item[\fbox{\code{:reload}}]\pindex{:reload}
 Recompile all currently loaded modules.
@@ -242,7 +242,7 @@ otherwise the environment variable \code{PAGER} or the standard command
 \ccode{cat} is used.
 If the source text is not available
 (since the program has been directly compiled from a FlatCurry
-or XML file), the loaded program is decompiled and
+file), the loaded program is decompiled and
 the decompiled Curry program text is shown.
 
 \item[\fbox{\code{:show $m$}}]\pindex{:show}
@@ -297,15 +297,15 @@ COOSy interface (under the ``Info'' button), and details
 about the general idea of observation debugging and the implementation
 of COOSy can be found in \cite{BrasselChitilHanusHuch04PADL}.
 
-\item[\fbox{\code{:xml}}]\pindex{:xml}
-Translate the currently loaded program module into an XML representation
-according to the format described in
-\url{http://www.informatik.uni-kiel.de/~curry/flat/}.
-Actually, this yields an implementation-independent
-representation of the corresponding FlatCurry program
-(see Appendix~\ref{sec-flatcurry} for a description of FlatCurry).
-If $prog$ is the name of the currently loaded program,
-the XML representation will be written into the file \ccode{$prog$_flat.xml}.
+% \item[\fbox{\code{:xml}}]\pindex{:xml}
+% Translate the currently loaded program module into an XML representation
+% according to the format described in
+% \url{http://www.informatik.uni-kiel.de/~curry/flat/}.
+% Actually, this yields an implementation-independent
+% representation of the corresponding FlatCurry program
+% (see Appendix~\ref{sec-flatcurry} for a description of FlatCurry).
+% If $prog$ is the name of the currently loaded program,
+% the XML representation will be written into the file \ccode{$prog$_flat.xml}.
 
 \item[\fbox{\code{:peval}}]\pindex{:peval}
 Translate the currently loaded program module into an equivalent

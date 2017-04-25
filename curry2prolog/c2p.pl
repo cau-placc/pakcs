@@ -296,7 +296,7 @@ prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 allCommands(["add","browse","cd","compile","coosy","define",
              "edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
-	     "save","set","show","source","type","usedimports","xml"]).
+	     "save","set","show","source","type","usedimports"]).
 
 % Expand an option that may be shortened to its full name:
 expandOption(ShortOpt,FullOpt) :-
@@ -667,7 +667,7 @@ processCommand("help",[]) :- !,
 	write(':save <expr>      - save executable with main expression <expr>'), nl,
 	write(':fork <expr>      - fork new process evaluating <expr> (of type "IO ()")'), nl,
 	write(':coosy            - start Curry Object Observation System'), nl,
-	write(':xml              - translate current program into XML format'), nl,
+	%write(':xml              - translate current program into XML format'), nl,
 	write(':peval            - partially evaluate current program'), nl,
 	write(':set <option>     - set a command line option'), nl,
 	write(':set              - help on :set command'), nl,
@@ -898,15 +898,15 @@ processCommand("coosy",[]) :- !,
 	 ; writeLnErr('ERROR: COOSy startup failed'), fail),
 	printCurrentLoadPath.
 
-processCommand("xml",[]) :- !,
-	lastload(Prog),
-	(Prog="" -> writeLnErr('ERROR: no program loaded for XML translation'),
-	            !, fail
-                  ; true),
-        atom_codes(ProgA,Prog),
-        installDir(PH),
-	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
-        shellCmdWithCurryPathWithReport(XmlCmd).
+% processCommand("xml",[]) :- !,
+% 	lastload(Prog),
+% 	(Prog="" -> writeLnErr('ERROR: no program loaded for XML translation'),
+% 	            !, fail
+%                   ; true),
+%         atom_codes(ProgA,Prog),
+%         installDir(PH),
+% 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
+%         shellCmdWithCurryPathWithReport(XmlCmd).
 
 processCommand("peval",[]) :- !,
 	lastload(Prog),
