@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.15.0 (April 24, 2017)
+Release notes for PAKCS Version 1.15.0 (April 25, 2017)
 -------------------------------------------------------
 
 Changes to version 1.14.2:
@@ -15,6 +15,8 @@ Changes to version 1.14.2:
     in the PAKCS manual.
   * Libraries CLPB and CHR removed since they are available as packages
     which can easily be installed via `cpm`.
+  * Libraries `tools/ui` removed since they are available as
+    CPM package `ui`.
 
 
 Release notes for PAKCS Version 1.14.2 (February 23, 2017)

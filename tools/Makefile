@@ -11,7 +11,6 @@ all:    curry2xml
 	@cd optimize  ; $(MAKE)
 	@cd Peval     ; $(MAKE)
 	@cd coosy     ; $(MAKE)
-	@cd ui        ; $(MAKE)
 
 
 # generate saved state for curry2xml program:
@@ -27,5 +26,4 @@ clean:
 	cd Peval          && $(MAKE) clean
 	cd coosy          && $(MAKE) clean
 	cd optimize       && $(MAKE) clean
-	cd ui             && $(MAKE) clean
 	cd lib_deprecated && $(CLEANCURRY) -r
