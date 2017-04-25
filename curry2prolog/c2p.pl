@@ -884,18 +884,21 @@ processCommand("browse",[]) :- !,
 
 processCommand("coosy",[]) :- !,
         checkWish,
+        checkCpmTool('coosy-gui','coosy',CoosyGuiProg),
 	writeNQ('Starting Curry Object Observation System in separate window...'),
         nlNQ,
-        installDir(PH),
-	appendAtom(PH,'/tools/coosy',CoosyHome),
-	getCurryPath(SLP),
-	(SLP=[] -> setCurryPath(CoosyHome)
-	         ; path2String([CoosyHome|SLP],PathS), atom_codes(Path,PathS),
-	           setCurryPath(Path)),
-	appendAtoms(['"',CoosyHome,'/CoosyGUI" ',CoosyHome,' &'],GuiCmd),
+	appendAtoms(['"',CoosyGuiProg,'" &'],GuiCmd),
         shellCmdWithCurryPathWithReport(GuiCmd),
 	(waitForFile('COOSYLOGS/READY',3) -> true
-	 ; writeLnErr('ERROR: COOSy startup failed'), fail),
+          ; writeLnErr('ERROR: COOSy startup failed'), fail),
+        readFileContents('COOSYLOGS/SRCPATH',CoosyPathNl),
+        (append(CoosyPath,[10],CoosyPathNl) -> true ; CoosyPath=CoosyPathNl),
+        !,
+        atom_codes(CoosySrc,CoosyPath),
+	getCurryPath(SLP),
+	(SLP=[] -> setCurryPath(CoosySrc)
+	         ; path2String([CoosySrc|SLP],PathS), atom_codes(Path,PathS),
+	           setCurryPath(Path)),
 	printCurrentLoadPath.
 
 % processCommand("xml",[]) :- !,
