@@ -28,6 +28,13 @@ check_and_call_tool() {
   shift
   if [ -x "$TOOLBIN" ] ; then
     echo "Executing CPM installed tool:" "$TOOLBIN" ${1+"$@"}
+    # Extend CURRYPATH with system libraries of this installation:
+    if [ -n "$CURRYPATH" ] ; then
+      CURRYPATH=$CURRYPATH:$PAKCSHOME/lib
+    else
+      CURRYPATH=$PAKCSHOME/lib
+    fi
+    export CURRYPATH
     exec "$TOOLBIN" ${1+"$@"}
   else
     echo "Curry tool '$TOOLNAME' is not installed!"
