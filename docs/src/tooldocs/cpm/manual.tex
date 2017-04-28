@@ -677,6 +677,23 @@ otherwise all modules in the directory \code{src}
 Using the option \code{--modules}, one can also specify a comma-separated
 list of module names to be tested.
 
+\item[\fbox{\code{doc}}]
+Generates an HTML documentation of the current package with CurryDoc.
+If the package specification contains a list of exported modules
+(see Section~\ref{sec:reference}),
+then these modules are documented.
+Otherwise, the main module (if the package specification contains
+the entry \code{executable}, see Section~\ref{sec:reference})
+or all modules in the directory \code{src}
+(including hierarchical modules stored in its subdirectories)
+are documented.
+Using the option \code{--modules}, one can also specify a comma-separated
+list of module names to be documented.
+Using the option \code{--docdir}, one can specify the
+target directory where the documentation should be stored.
+If this option is not provided, \ccode{cdoc} is used as the documentation
+directory.
+
 \item[\fbox{\code{diff [$version$]}}]
 Compares the API and behavior of the current package to another
 version of the same package.
