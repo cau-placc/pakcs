@@ -468,23 +468,31 @@ revision that represents the version:
 }
 \end{lstlisting}
 %
-There is also a shorthand, \code{\$version}, available to automatically use a 
-tag consisting of the letter \code{v} followed by the current version number,
-as in the example above. Specifying \code{\$version} as the tag and then tagging
-each version in the format \code{v1.2.3} is preferred, since it does not require
-changing the source location in the \code{package.json} file every time a new
+There is also a shorthand, \code{\$version}, available to
+automatically use a tag consisting of the letter \code{v} followed by
+the current version number, as in the example above. Specifying
+\code{\$version} as the tag and then tagging each version in the
+format \code{v1.2.3} is preferred, since it does not require changing
+the source location in the \code{package.json} file every time a new
 version is released.
+If one already has a repository with another tagging scheme,
+one can also place the string \code{\$version\$}
+in the tag, which will be automatically replaced by the current
+version number. Thus, the tag \ccode{\$version} is equivalent
+to the tag \ccode{v\$version\$}.
 
-After you have published the files for your new package version, you have to add
-the corresponding package specification to the central package index. The 
-central package index is just a Git repository containing a directory for each
-package, which contain subdirectories for all versions of that package which in
-turn contain the package specification files. So the specification for version 
-$1.0.5$ of the \code{json} package would be located in \code{json/1.0.5/package.json}.
-If you have access to the Git repository containing the central package index,
-then you can add the package specification yourself.
-Otherwise, send your package specification file to
-\url{packages@curry-language.org} in order to publish it.
+After you have published the files for your new package version, you
+have to add the corresponding package specification to the central
+package index. The central package index is just a Git repository
+containing a directory for each package, which contain subdirectories
+for all versions of that package which in turn contain the package
+specification files. So the specification for version $1.0.5$ of the
+\code{json} package would be located in
+\code{json/1.0.5/package.json}.  If you have access to the Git
+repository containing the central package index, then you can add the
+package specification yourself.  Otherwise, send your package
+specification file to \url{packages@curry-language.org} in order to
+publish it.
 
 
 \section{Configuration}
@@ -581,9 +589,13 @@ The option \code{--all} shows more information.
 Prints basic information on the given package version.
 The option \code{--all} shows more information.
 
-\item[\fbox{\code{list [--all] [--csv]}}] List the names and synopses of all 
-packages (compatible to the current compiler) of the central package index.
-The option \code{--all} shows also all package versions.
+\item[\fbox{\code{list [--versions] [--csv]}}]
+List the names and synopses of all packages of the central package index.
+Unless the option \code{--versions} is set, only the newest version
+of a package (compatible to the current compiler) is shown.
+The option \code{--versions} shows all versions of the packages.
+If a package is not compatible to the current compiler, then
+the package version is shown as \ccode{???}.
 The option \code{--csv} shows the information in CSV format.
 
 \item[\fbox{\code{list --category [--csv]}}]
@@ -592,9 +604,17 @@ category (see Section~\ref{sec:reference})
 of the central package index.
 The option \code{--csv} shows the information in CSV format.
 
-\item[\fbox{\code{search $query$}}] Searches the names and synopses of all 
-packages (compatible to the current compiler)
-of the central package index for a term.
+\item[\fbox{\code{search [--module] $query$}}]
+Searches the names, synopses, and exported module names of all 
+packages of the central package index for occurrences of the given
+search term.
+If the option \code{--module} is set, then the search is restricted
+to occurrences of an exported module. Thus, the package
+exporting the module \code{JSON.Data} can be found by the command
+%
+\begin{lstlisting}
+> cpm search --module JSON.Data
+\end{lstlisting}
 
 \item[\fbox{\code{update}}] Updates the local copy of the central package index
 to the newest available version.
@@ -678,7 +698,7 @@ Using the option \code{--modules}, one can also specify a comma-separated
 list of module names to be tested.
 
 \item[\fbox{\code{doc}}]
-Generates an HTML documentation of the current package with CurryDoc.
+Generates the HTML documentation of the current package with CurryDoc.
 If the package specification contains a list of exported modules
 (see Section~\ref{sec:reference}),
 then these modules are documented.
@@ -756,13 +776,17 @@ for semantic versioning version numbers.
 
 \item[\fbox{\code{author*}}] The package's author. This is a free-form field, 
 the suggested format is either a name or a name followed by an email address in
-angle brackets -- e.g. \code{John Doe <john@doe.com>}. Multiple authors should
+angle brackets, e.g., \code{John Doe <john@doe.com>}. Multiple authors should
 be separated by commas.
 
 \item[\fbox{\code{maintainer}}] The current maintainers of the package, if 
 different from the original authors. This field allows the current maintainers
 to indicate the best person or persons to contact about the package while 
 attributing the original authors.
+
+The suggested format is a name followed by an email address in
+angle brackets, e.g., \code{John Doe <john@doe.com>}.
+Multiple maintainers should be separated by commas.
 
 \item[\fbox{\code{synopsis*}}] A short form summary of the package's purpose.
 It should be kept as short as possible (ideally, less than 100 characters).
