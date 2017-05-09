@@ -27,8 +27,8 @@ if [ -x "$CURRYBIN/pakcs" ] ; then
     # additional library tests for PAKCS with various Prolog back ends:
     TESTPAKCSBACKEND=
     case "$BACKEND" in
-        sicstus3 ) TESTPAKCSBACKEND="TestIO TestCLPB " ;;
-        sicstus4 ) TESTPAKCSBACKEND="TestCLPB " ;;
+        sicstus3 ) TESTPAKCSBACKEND="TestIO " ;;
+        sicstus4 ) TESTPAKCSBACKEND="" ;;
         swi5     ) TESTPAKCSBACKEND="TestIO " ;;
     esac
     TESTPAKCS="TestFlatCurryXML TestGlobalVariable $TESTPAKCSBACKEND"
