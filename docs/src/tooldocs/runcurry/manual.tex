@@ -1,0 +1,127 @@
+\section{\texttt{runcurry}: Running Curry Programs}
+
+\code{runcurry}\pindex{runcurry}
+is a command usually stored in \code{\cyshome/bin}
+(where \cyshome is the installation directory of \CYS;
+see Section~\ref{sec-general}).
+This command supports the execution of Curry programs
+without explicitly invoking the interactive environment.
+Hence, it can be useful to write short scripts in Curry
+intended for direct execution.
+The Curry program must always contain the definition of an operation
+\code{main} of type \code{IO ()}.
+The execution of the program consists of the evaluation of this operation.
+
+Basically, the command \code{runcurry} supports three modes of operation:
+\begin{itemize}
+\item
+One can execute a Curry program whose file name
+is provided as an argument when \code{runcurry} is called.
+In this case, the suffix (\ccode{.curry} or \ccode{.lcurry})
+must be present and cannot be dropped.
+One can write additional commands for the interactive environment,
+typically settings of some options, before the Curry program name.
+All arguments after the Curry program name are passed as run-time
+arguments. For instance, consider the following program stored
+in the file \code{ShowArgs.curry}:
+\begin{curry}
+import System(getArgs)
+
+main = getArgs >>= print
+\end{curry}
+This program can be executed by the shell command
+\begin{curry}
+> runcurry ShowArgs.curry Hello World!
+\end{curry}
+which produces the output
+\begin{curry}
+["Hello","World!"]
+\end{curry}
+
+\item
+One can also execute a Curry program whose program text
+comes from the standard input. Thus, one can either ``pipe''
+the program text into this command or type the program text on
+the keyboard. For instance, if we type
+\begin{currynomath}
+> runcurry
+main = putStr . unlines . map show . take 8 $ [1..]
+\end{currynomath} % $
+(followed by the end-of-file marker Ctrl-D), the output
+\begin{curry}
+1
+2
+3
+4
+5
+6
+7
+8
+\end{curry}
+is produced.
+
+\item
+One can also write the program text in a script file to be executed
+like a shell script. In this case, the script must start with the line
+\begin{curry}
+#!/usr/bin/env runcurry
+\end{curry}
+followed by the source text of the Curry program.
+For instance, we can write a simple Curry script to count the
+number of code lines in a Curry program by removing all blank
+and comment lines and counting the remaining lines:
+\begin{currynomath}
+#!/usr/bin/env runcurry
+
+import Char(isSpace)
+import System(getArgs)
+
+-- count number of program lines in a file:
+countCLines :: String -> IO Int
+countCLines f =
+  readFile f >>=
+  return . length . filter (not . isEmptyLine) . map stripSpaces . lines
+ where
+  stripSpaces = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+
+  isEmptyLine []        = True
+  isEmptyLine [_]       = False
+  isEmptyLine (c1:c2:_) = c1=='-' && c2=='-'
+
+-- The main program reads Curry file names from arguments:
+main = do
+  args <- getArgs
+  mapIO_ (\f -> do ls <- countCLines f
+                   putStrLn $ "Stripped lines of file "++f++": " ++ show ls)
+         args
+\end{currynomath} % $
+%
+If this script is stored in the (executable) file \ccode{codelines.sh},
+we can count the code lines of the file \code{Prog.curry} by
+the shell command
+\begin{curry}
+> ./codelines.sh Prog.curry
+\end{curry}
+%
+When this command is executed, the command \code{runcurry}
+compiles the program and evaluates the expression \code{main}.
+Since the compilation might take some time in more complex scripts,
+one can also save the result of the compilation in a binary file.
+To obtain this behavior, one has to insert the line
+\begin{curry}
+#jit
+\end{curry}
+in the script file, e.g., in the second line.
+With this option, a binary of the compiled program is saved
+(in the same directory as the script).
+Now, when the same script is executed the next time,
+the stored binary file is executed (provided that it is still newer
+than the script file itself, otherwise it will be recompiled).
+This feature combines easy scripting with Curry together with
+fast execution.
+\end{itemize}
+
+%%% Local Variables:
+%%% mode: pdflatex
+%%% TeX-master: "manual"
+%%% End:

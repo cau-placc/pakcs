@@ -5,7 +5,7 @@ PAKCS=../../bin/pakcs
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: $(wildcard *.tex lib/*.tex ../../currytools/*/Docs/*.tex) \
+manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex) \
 	    markdown_syntax.tex
 	pdflatex manual
 	bibtex manual
@@ -38,9 +38,9 @@ markdown_syntax.tex: markdown_syntax.txt
 	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
 
 # format Curry style guide as HTML page
-../CurryStyleGuide.html: ../../currytools/casc/Docs/curry-style-guide.md
-	cd ../../currytools/casc/Docs && $(MAKE)
-	@if [ -f "../../currytools/casc/Docs/curry-style-guide.html" ] ; then cp ../../currytools/casc/Docs/curry-style-guide.html $@ ; fi
+../CurryStyleGuide.html: tooldocs/casc/curry-style-guide.md
+	cd tooldocs/casc && $(MAKE)
+	@if [ -f "tooldocs/casc/curry-style-guide.html" ] ; then cp tooldocs/casc/curry-style-guide.html $@ ; fi
 
 # generate documentation for all libraries
 .PHONY: libdoc

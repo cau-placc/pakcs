@@ -8,18 +8,19 @@
 --- @version January 2006
 ------------------------------------------------------------------------
 
+import Directory(doesFileExist,renameFile)
+import FileGoodies
 import FlatCurry.Types
 import FlatCurry.Files
 import FlatCurry.Read
-import Linearity
-import Dependency
-import FileGoodies
-import System
-import List(intersperse)
-import ReadShowTerm(showTerm)
-import Directory(doesFileExist,renameFile)
 import IO
+import List(intersperse)
 import Maybe(catMaybes)
+import ReadShowTerm(showTerm)
+import System
+
+import CurryBrowseAnalysis.Linearity
+import CurryBrowseAnalysis.Dependency
 
 -- Example: optimizeNonstrictEqualityInModule "last"
 

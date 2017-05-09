@@ -1,0 +1,33 @@
+Required value analysis
+-----------------------
+
+This analysis checks for each operation in a Curry program whether
+the arguments must have a particular shape in order to
+compute some value.
+For instance, the negation operation `not` defined by
+
+    not True  = False
+    not False = True
+
+requires the argument value `False` in order to compute the result
+`True` and it requires the argument `True` to compute the result
+`False`. This property is expressed by the following abstract type:
+
+    not : (True -> False) | (False -> True)
+
+Hence, each abstract type is a constructor which represents
+all expressions rooted by this constructor.
+Moreover, the abstract type `cons` denotes any constructor-rooted
+expression and the abstract type `any` denotes any expression.
+The abstract type `_|_` denotes an impossible required type, i.e.,
+an argument which is required but for which no applicable value exists.
+For instance, the operation
+
+    f x = solve (x && not x)
+
+has the required value typing
+
+    f: (_|_ -> {True})
+
+A detailed description of this analysis and its application can be found in the
+[LOPSTR'15 paper](http://www.informatik.uni-kiel.de/~mh/papers/LOPSTR15.html).

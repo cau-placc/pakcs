@@ -1,8 +1,8 @@
 PAKCS Tools
 ===========
 
-This directory contains various tools and libraries which are currently
-only available for the PAKCS system.
+This directory contains various tools and (deprecated) libraries
+which are currently only available for the PAKCS system.
 
 Currently it contains:
 
@@ -14,13 +14,6 @@ Peval:
 emacs:
    Emacs mode for editing Curry programs
 
-coosy:
-   A tool to observe the execution of Curry programs (command ":coosy").
-
-curry2xml.curry:
-   A translator for Curry programs into their
-   corresponding FlatCurry representation in XML.
-
 lib_deprecated:
    This directory contains some deprecated and, thus, unsupported libraries
    for PAKCS, and some older versions of existing libraries where the
@@ -29,6 +22,3 @@ lib_deprecated:
 optimize:
    Directory containing a simple optimizer for FlatCurry programs
    (integrated in PAKCS by the option "compact").
-
-ui:
-   This directory contains libraries to implement generic user interfaces.

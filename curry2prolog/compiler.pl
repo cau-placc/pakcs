@@ -348,7 +348,7 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 % Currently, the binding optimizer (replace =:=/2 by ==/2) is applied.
 preprocessFcyFile(FcyFile) :-
     installDir(PH),
-    appendAtoms([PH,'/currytools/optimize/bindingopt'],OptProg),
+    appendAtoms([PH,'/currytools/optimize/BindingOpt'],OptProg),
     existsFile(OptProg), \+ pakcsrc(bindingoptimization,no), !,
     verbosity(VL),
     (VL=0 -> OptVL=48 ; OptVL is VL+47),

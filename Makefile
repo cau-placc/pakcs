@@ -127,11 +127,27 @@ else
 	@echo "Make process logged in file $(MAKELOG)"
 endif
 
+# Check whether the value of PAKCSINSTALLDIR, if defined, is a non-existing
+# directory
+.PHONY: checkinstalldir
+checkinstalldir:
+	@if [ -n "$(PAKCSINSTALLDIR)" -a -d "$(PAKCSINSTALLDIR)" ] ; then \
+	  echo "ERROR: Variable PAKCSINSTALLDIR points to an existing directory!" && exit 1 ; \
+	fi
+
 #
 # Build all components of PAKCS
 #
 .PHONY: build
-build: checkinstalldir installscripts copylibs copytools
+build: checkinstalldir
+	$(MAKE) kernel
+	$(MAKE) tools
+	$(MAKE) manual
+	chmod -R go+rX .
+
+# install the kernel system (binaries and libraries)
+.PHONY: kernel
+kernel: scripts copylibs copytools
 	@echo "PAKCS installation configuration (file pakcsinitrc):"
 	@cat pakcsinitrc
 	# install front end:
@@ -147,17 +163,6 @@ build: checkinstalldir installscripts copylibs copytools
 	@cd currytools/optimize && $(MAKE)
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
-	$(MAKE) tools
-	$(MAKE) docs
-	chmod -R go+rX .
-
-# Check whether the value of PAKCSINSTALLDIR, if defined, is a non-existing
-# directory
-.PHONY: checkinstalldir
-checkinstalldir:
-	@if [ -n "$(PAKCSINSTALLDIR)" -a -d "$(PAKCSINSTALLDIR)" ] ; then \
-	  echo "ERROR: Variable PAKCSINSTALLDIR points to an existing directory!" && exit 1 ; \
-	fi
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
 .PHONY: cleanoldinfos
@@ -168,12 +173,12 @@ cleanoldinfos:
 
 # Configure installation w.r.t. variables in pakcsinitrc:
 .PHONY: config
-config: installscripts
+config: scripts
 	@scripts/configure-pakcs
 
 # install the scripts of PAKCS in the bin directory:
-.PHONY: installscripts
-installscripts:
+.PHONY: scripts
+scripts:
 	cd scripts && $(MAKE) all
 
 # remove the scripts of PAKCS in the bin directory:
@@ -232,10 +237,10 @@ CASS:
 
 # compile documentation if sources are available and it is not a
 # separate package distribution:
-.PHONY: docs
-docs:
-	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; \
-	 then $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
+.PHONY: manual
+manual:
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
+	 $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # Create file with version information for Curry2Prolog:
 $(C2PVERSION): Makefile
@@ -259,11 +264,9 @@ $(MANUALVERSION): Makefile
 #
 .PHONY: libdoc
 libdoc:
-	@if [ ! -r bin/pakcs-doc ] ; then \
-	  echo "Cannot create library documentation: currydoc not available!" ; exit 1 ; fi
 	@rm -f $(MAKELOG)
 	@echo "Make libdoc started at `date`" > $(MAKELOG)
-	@cd lib && $(MAKE) doc 2>&1 | tee -a ../$(MAKELOG)
+	@cd lib && $(MAKE) htmldoc 2>&1 | tee -a ../$(MAKELOG)
 	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
 	@echo "Make libdoc process logged in file $(MAKELOG)"
 
@@ -283,7 +286,6 @@ runtest: testsuite/test.sh
 	cd testsuite && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
-	cd examples/CHR && ./test.sh $(RUNTESTPARAMS)
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
 
@@ -379,6 +381,7 @@ cleandist:
 	rm -rf .git .gitmodules .gitignore
 	rm -rf $(CURRYLIBSDIR)
 	rm -rf currytools/.git currytools/.gitignore
+	rm -f currytools/download_tools.sh
 	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
 	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src

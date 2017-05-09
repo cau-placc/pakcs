@@ -1,0 +1,219 @@
+\section{SQL Syntax Supported by CurryPP}
+\label{app:sqlsyntax}
+
+This section contains a grammar in EBNF which specifies
+the SQL syntax recognized by the Curry preprocessor
+in integrated SQL code (see Sect.~\ref{sec:integratedsql}).
+%
+The grammar satisfies the LL(1) property and is influenced by the
+SQLite  dialect.\footnote{\url{https://sqlite.org/lang.html}}
+
+\begin{lstlisting} 
+--------------type of statements--------------------------------
+
+ statement ::= queryStatement | transactionStatement  
+ queryStatement ::= ( deleteStatement 
+                     | insertStatement 
+                     | selectStatement 
+                     | updateStatement )
+                     ';'
+
+ ------------- transaction -------------------------------------
+ 
+ transactionStatement ::= (BEGIN                                        
+                           |IN TRANSACTION '(' queryStatement 
+                                            { queryStatement }')'  
+                           |COMMIT                                       
+                           |ROLLBACK ) ';'
+
+-------------- delete ------------------------------------------
+
+ deleteStatement ::= DELETE FROM tableSpecification 
+                                 [ WHERE condition ]
+
+ -------------insert -------------------------------------------
+ 
+ insertStatement ::= INSERT INTO tableSpecification 
+                                 insertSpecification
+
+ insertSpecification ::= ['(' columnNameList ')' ] valuesClause
+
+ valuesClause ::= VALUES valueList
+
+  ------------update--------------------------------------------
+  
+ updateStatement ::= UPDATE tableSpecification 
+                     SET (columnAssignment {',' columnAssignment} 
+                                              [ WHERE condition ] 
+                         | embeddedCurryExpression )
+ 
+ columnAssignment ::= columnName '=' literal
+ 
+ 
+ -------------select statement ---------------------------------
+
+ selectStatement ::= selectHead { setOperator selectHead } 
+                                [ orderByClause ] 
+                                [ limitClause ]
+ selectHead ::= selectClause fromClause  
+                             [ WHERE condition ] 
+                             [ groupByClause [ havingClause ]]
+                                
+ setOperator ::= UNION | INTERSECT | EXCEPT    
+
+ selectClause ::= SELECT [( DISTINCT | ALL )] 
+                         ( selectElementList | '*' )
+
+ selectElementList ::=  selectElement { ',' selectElement }
+
+ selectElement ::= [ tableIdentifier'.' ] columnName 
+                  | aggregation 
+                  | caseExpression
+
+ aggregation ::= function '(' [ DISTINCT ] columnReference ')' 
+
+ caseExpression ::= CASE WHEN condition THEN operand 
+                                        ELSE operand END 
+
+ function ::= COUNT | MIN | MAX | AVG | SUM
+
+ fromClause ::= FROM tableReference  { ',' tableReference } 
+
+ groupByClause ::= GROUP BY columnList
+
+ havingClause ::= HAVING conditionWithAggregation 
+
+ orderByClause ::= ORDER BY columnReference [ sortDirection ] 
+                            {',' columnReference 
+                                 [ sortDirection ] }
+
+ sortDirection ::= ASC | DESC
+
+ limitClause = LIMIT integerExpression
+
+ -------------common elements-----------------------------------
+
+ columnList ::=  columnReference  { ',' columnReference } 
+ 
+ columnReference ::= [ tableIdentifier'.' ] columnName
+ 
+ columnNameList ::= columnName  { ',' columnName} 
+ 
+ tableReference ::=  tableSpecification [ AS tablePseudonym ] 
+                                        [ joinSpecification ]
+ tableSpecification ::= tableName
+   
+ condition ::=   operand operatorExpression 
+                         [logicalOperator condition]  
+               | EXISTS subquery [logicalOperator condition]             
+               | NOT condition                                           
+               | '(' condition  ')'                                      
+               | satConstraint [logicalOperator condition]
+              
+ operand ::=  columnReference 
+             | literal           
+             
+             
+ subquery ::= '(' selectStatement ')'            
+
+ operatorExpression ::=  IS NULL                      
+                       | NOT NULL                      
+                       | binaryOperator operand        
+                       | IN setSpecification           
+                       | BETWEEN operand operand       
+                       | LIKE quotes pattern quotes
+  
+ setSpecification ::=  literalList
+
+ binaryOperator ::= '>'| '<' | '>=' | '<=' | '=' | '!='
+
+ logicalOperator ::= AND | OR 
+
+ conditionWithAggregation ::= 
+         aggregation [logicalOperator disaggregation]                
+       | '(' conditionWithAggregation  ')'                                     
+       | operand operatorExpression 
+                [logicalOperator conditionWithAggregation] 
+       | NOT conditionWithAggregation                                          
+       | EXISTS subquery 
+                [logicalOperator conditionWithAggregation]                                                                   
+       | satConstraint
+                [logicalOperator conditionWithAggregation]
+
+ aggregation ::= function '('(ALL | DISTINCT) columnReference')' 
+                           binaryOperator 
+                           operand
+
+ satConstraint ::= SATISFIES tablePseudonym 
+                             relation 
+                             tablePseudonym
+
+ joinSpecification ::=  joinType tableSpecification
+                                [ AS tablePseudonym ] 
+                                [ joinCondition ] 
+                                [ joinSpecification ]
+
+ joinType ::= CROSS JOIN | INNER JOIN
+
+ joinCondition ::= ON condition                                        
+
+ -------------identifier and datatypes-------------------------
+
+ valueList ::= ( embeddedCurryExpression | literalList ) 
+                {',' ( embeddedCurryExpression | literalList )} 
+                
+ literalList ::= '(' literal  { ',' literal }  ')'
+
+ literal ::=   numericalLiteral                              
+             | quotes alphaNumericalLiteral quotes
+             | dateLiteral                                   
+             | booleanLiteral  
+             | embeddedCurryExpression                              
+             | NULL
+
+ numericalLiteral ::=  integerExpression 
+                      |floatExpression   
+
+ integerExpression ::= [ - ] digit { digit }
+
+ floatExpression := [ - ] digit { digit } '.' digit { digit } 
+
+ alphaNumericalLiteral ::=  character { character }  
+ character ::= digit | letter 
+
+ dateLiteral ::=  year ':' month ':' day ':' 
+                  hours ':' minutes ':' seconds
+
+ month ::= digit digit
+ day ::= digit digit
+ hours ::= digit digit
+ minutes ::= digit digit
+ seconds ::= digit digit
+ year ::= digit digit digit digit
+ 
+ booleanLiteral ::= TRUE | FALSE
+
+ embeddedCurryExpression ::= '{' curryExpression '}'
+
+ pattern ::= ( character | specialCharacter )
+              {( character | specialCharacter )}             
+ specialCharacter ::= '%' | '_'
+
+ digit ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 
+
+ letter ::= (a...z) | (A...Z)
+
+ tableIdentifier ::= tablePseudonym | tableName
+ columnName ::= letter [alphanumericalLiteral]
+ tableName ::= letter [alphanumericalLiteral]
+ tablePseudonym ::= letter
+ relation ::= letter [[alphanumericalLiteral] | '_' ]
+ quotes ::= ('"'|''')
+  
+\end{lstlisting}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../../../docs/src/manual"
+%%% End: 

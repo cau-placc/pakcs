@@ -1,6 +1,25 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.15.0 (April 25, 2017)
+-------------------------------------------------------
+
+Changes to version 1.14.2:
+
+  * Curry Package Manager added as tool `cpm`.
+  * Various tools (e.g., addtypes, currybrowser, currydoc, erd2curry,
+    spicey, verify, xmldata) have been removed from the distribution
+    since they are not necessary for the basic use of PAKCS and they can
+    easily be installed (by a one-line command) locally via `cpm`.
+    Instructions how to install these tools are included
+    in the PAKCS manual.
+  * Libraries CLPB and CHR removed since they are available as packages
+    which can easily be installed via `cpm`.
+  * Libraries `tools/ui` removed since they are available as
+    CPM package `ui`.
+  * Command `:xml` removed (since the XML format is deprecated).
+
+
 Release notes for PAKCS Version 1.14.2 (February 23, 2017)
 ----------------------------------------------------------
 

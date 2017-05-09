@@ -5,11 +5,10 @@ PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
 PAKCSINSTALLDIR=
 # Define the main directory where PAKCS is installed:
 if [ -d "$PAKCSINSTALLDIR" ] ; then
-  PAKCSHOME=$PAKCSINSTALLDIR
+  CURRYROOT=$PAKCSINSTALLDIR
 else
-  PAKCSHOME=$PAKCSBUILDDIR
+  CURRYROOT=$PAKCSBUILDDIR
 fi
-export PAKCSHOME
 
 # Standard suffix that will be added to the main script:
 CGISUFFIX="_CGIMAIN_$$"
@@ -19,12 +18,12 @@ MAINCALL="main_cgi_9999_$$"
 
 ERROR=
 HELP=no
-PAKCSDOPTIONS=
-PAKCSOPTIONS=":set -time :set -interactive :set -verbose"
+CURRYDOPTIONS=
+CURRYOPTIONS=":set -time :set -interactive :set -verbose"
 COMPACT=no
 DEBUG=no
 DEBUGFILE=
-ULIMIT="-t 60"
+ULIMIT="-t 120"
 MAIN=main
 CGIFILE=
 WUIJS=no
@@ -37,8 +36,7 @@ ARGS=
 while [ $# -gt 0 -a -z "$ERROR" ]; do
   case $1 in
    -help | -h | -\? ) HELP=yes ;;
-   -D*              ) PAKCSDOPTIONS="$PAKCSDOPTIONS $1" ;;
-   -noerror         ) echo "WARNING: option -noerror no longer supported!" ;;
+   -D*              ) CURRYDOPTIONS="$CURRYDOPTIONS $1" ;;
    -compact         ) COMPACT=yes ;;
    -debug           ) DEBUG=yes ;;
    -debugfile       ) shift ; DEBUGFILE=$1 ;;
@@ -87,6 +85,7 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "-debugfile f: include code for storing failure trace in file f"
   echo "             (= PAKCS options '+consfail file:f')"
   echo "-ulimit <l>: set 'ulimit <l>' when executing the cgi program"
+  echo "             (default: '-t 120')"
   echo "-servertimeout <ms>: set the timeout for the cgi server process to"
   echo "                     <ms> milliseconds (default: 7200000 / two hours)"
   echo "-loadbalance <t>: start new server process if load for one server is"
@@ -104,9 +103,21 @@ if [ $# != 1 -a $# != 3 ] ; then
   exit 1
 fi
 
-# Definitions for WUI/JavaScript generation:
-WUIJS_PREPROCESSOR=$PAKCSHOME/currytools/curry2js/Curry2JS
-WUIJS_DEFAULT_JS=$PAKCSHOME/include/wui_prims.js
+# Try to locate WUI/JavaScript translator:
+WUIJS_PREPROCESSOR=`which curry2js`
+if [ ! -x "$WUIJS_PREPROCESSOR" ] ; then
+  # try to set curry2js to the CPM standard location:
+  WUIJS_PREPROCESSOR=$HOME/.cpm/bin/curry2js
+  if [ ! -x "$WUIJS_PREPROCESSOR" ] ; then
+    WUIJS_PREPROCESSOR=
+  fi
+fi
+if [ -z "$WUIJS_PREPROCESSOR" -a $WUIJS = yes ] ; then
+  echo "No support for JavaScript possible!"
+  echo "Please install the Curry->JavaScript translator curry2js by:"
+  echo "> cpm update && cpm installapp curry2js"
+  exit 1
+fi
 
 # remove possible suffix:
 PROG=`expr $1 : '\(.*\)\.lcurry' \| $1`
@@ -129,7 +140,7 @@ fi
 # name of the server:
 CGIFILEPATHNAME=`(cd $CGIDIR > /dev/null ; pwd)`
 CGISERVERPROG=$CGIPROG.server
-CGISERVERFILE=$CGIFILEPATHNAME/$CGIPROG.server
+CGISERVEREXEC=$CGIFILEPATHNAME/$CGIPROG.server
 
 # unique key for this cgi script:
 CGIKEY="$CGIFILEPATHNAME/$CGIPROG `date '+%m/%d/%y/%H/%M/%S'`"
@@ -170,33 +181,33 @@ fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-$PAKCSHOME/bin/pakcs $PAKCSDOPTIONS $PAKCSOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
-STATE=$MAINMOD
+$CURRYROOT/bin/curry $CURRYDOPTIONS $CURRYOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
 
-# now the file $STATE should contain the saved state computing the HTML form:
-if test ! -f $STATE ; then
-  echo "Error: saved state '$STATE' does not exist!"
-  $PAKCSHOME/bin/cleancurry $MAINMOD
+# now the file $MAINMOD should contain the executable computing the HTML form:
+if test ! -f $MAINMOD ; then
+  echo "Error occurred, generation aborted."
+  $CURRYROOT/bin/cleancurry $MAINMOD
   rm -f $MAINMOD.curry
   exit 1
 fi
 
 # stop old server, if necessary:
-if [ -f $CGISERVERFILE ] ; then
-  echo "Stop old version of the server '$CGISERVERFILE'..."
-  $PAKCSHOME/currytools/www/Registry stopscript "$CGISERVERFILE"
+if [ -f $CGISERVEREXEC ] ; then
+  echo "Stop old version of the server '$CGISERVEREXEC'..."
+  $CURRYROOT/currytools/www/Registry stopscript "$CGISERVEREXEC"
 fi
 
-SUBMITFORM="$PAKCSHOME/currytools/www/SubmitForm"
-# copy executable from PAKCS system (if required):
+SUBMITFORM="$CURRYROOT/currytools/www/SubmitForm"
+# copy executable from the Curry system (if required):
 if [ $STANDALONE = yes ] ; then
   cp -p "$SUBMITFORM" $CGIFILEPATHNAME/SubmitForm
   SUBMITFORM="./SubmitForm"
 fi
+
 # generate cgi script:
 rm -f $CGIFILE
 echo "#!/bin/sh" >> $CGIFILE
-echo "$SUBMITFORM $SERVERTIMEOUT $LOADBALANCE \"$CGIPROG\" \"$CGIKEY\" \"$CGISERVERFILE\" 2> /dev/null" >> $CGIFILE
+echo "$SUBMITFORM $SERVERTIMEOUT $LOADBALANCE \"$CGIPROG\" \"$CGIKEY\" \"$CGISERVEREXEC\" 2> /dev/null" >> $CGIFILE
 chmod 755 $CGIFILE
 
 # move compiled executable to final position:
@@ -204,14 +215,14 @@ if test -n "$ULIMIT" ; then
   TMPFILE=TMPCGIPROLOG$$
   echo "#!/bin/sh" > $TMPFILE
   echo "ulimit $ULIMIT" >> $TMPFILE
-  cat $TMPFILE $STATE > $CGISERVERFILE
-  rm -f $TMPFILE $STATE
+  cat $TMPFILE $MAINMOD > $CGISERVEREXEC
+  rm -f $TMPFILE $MAINMOD
 else
-  mv $STATE $CGISERVERFILE
+  mv $MAINMOD $CGISERVEREXEC
 fi
-chmod 755 $CGISERVERFILE
+chmod 755 $CGISERVEREXEC
 
-$PAKCSHOME/bin/cleancurry $MAINMOD
+$CURRYROOT/bin/cleancurry $MAINMOD
 rm -f $MAINMOD.curry
 
 echo "`date`: cgi script compiled" > $CGIFILE.log

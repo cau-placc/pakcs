@@ -1,0 +1,582 @@
+\section{\texttt{curry check}: A Tool for Testing Properties of Curry Programs}
+\label{sec-currycheck}
+
+CurryCheck\index{CurryCheck}\index{testing programs}\index{program!testing}
+is a tool that supports the automation of
+testing Curry programs.
+The tests to be executed can be unit tests as well as
+property tests parameterized over some arguments.
+The tests can be part of any Curry source program
+and, thus, they are also useful to document the code.
+CurryCheck is based on EasyCheck \cite{ChristiansenFischer08FLOPS}.
+Actually, the properties to be tested are written
+by combinators proposed for EasyCheck, which are actually
+influenced by QuickCheck \cite{ClaessenHughes00}
+but extended to the demands of functional logic programming.
+
+\subsection{Testing Properties}
+
+To start with a concrete example, consider the following naive definition of
+reversing a list:
+\begin{curry}
+rev :: [a] -> [a]
+rev []     = []
+rev (x:xs) = rev xs ++ [x]
+\end{curry}
+To get some confidence in the code, we add some unit tests,
+i.e., test with concrete test data:
+\begin{curry}
+revNull = rev []      -=- []
+rev123  = rev [1,2,3] -=- [3,2,1]
+\end{curry}
+The operator \ccode{-=-} specifies a test where both sides must
+have a single identical value. Since this operator (as many more, see below)
+are defined in the library \code{Test.Prop}\pindex{Test.Prop},\footnote{%
+The library \code{Test.Prop} is a clone of the library
+\code{Test.EasyCheck}\pindex{Test.EasyCheck}
+which defines only the interface but not the actual test implementations.
+Thus, the library \code{Test.Prop} has less import dependencies.
+When CurryCheck generates programs to execute the tests,
+it automatically replaces references to \code{Test.Prop}
+by references to \code{Test.EasyCheck} in the generated programs.}
+we also have to import this library.
+Apart from unit tests, which are often tedious to write,
+we can also write a property, i.e., a test parameterized over
+some arguments. For instance, an interesting property of reversing a list
+is the fact that reversing a list two times provides the input list:
+\begin{curry}
+revRevIsId xs = rev (rev xs) -=- xs
+\end{curry}
+Note that each property is defined as a Curry operation
+where the arguments are the parameters of the property.
+Altogether, our program is as follows:
+\begin{curry}
+module Rev(rev) where
+
+import Test.Prop
+
+rev :: [a] -> [a]
+rev []     = []
+rev (x:xs) = rev xs ++ [x]
+
+revNull = rev []      -=- []
+rev123  = rev [1,2,3] -=- [3,2,1]
+
+revRevIsId xs = rev (rev xs) -=- xs
+\end{curry}
+Now we can run all tests by invoking the CurryCheck tool.
+If our program is stored in the file \code{Rev.curry},
+we can execute the tests as follows:
+\begin{curry}
+> curry check Rev
+...
+Executing all tests...
+revNull (module Rev, line 7):
+ Passed 1 test.
+rev123 (module Rev, line 8):
+ Passed 1 test.
+revRevIsId_ON_BASETYPE (module Rev, line 10):
+ OK, passed 100 tests.
+\end{curry}
+Since the operation \code{rev} is polymorphic,
+the property \code{revRevIsId} is also polymorphic in its argument.
+In order to select concrete values to test this property,
+CurryCheck replaces such polymorphic tests by defaulting the type
+variable to prelude type \code{Ordering}
+(the actual default type can also be set by a command-line flag).
+If we want to test this property on integers numbers,
+we can explicitly provide a type signature,
+where \code{Prop} denotes the type of a test:
+\begin{curry}
+revRevIsId :: [Int] -> Prop
+revRevIsId xs = rev (rev xs) -=- xs
+\end{curry}
+The command \code{curry check} has some options to influence
+the output, like \ccode{-q} for a quiet execution
+(only errors and failed tests are reported) or
+\ccode{-v} for a verbose execution where all generated test cases
+are shown.
+Moreover, the return code of \code{curry check} is \code{0}
+in case of successful tests, otherwise, it is \code{1}.
+Hence, CurryCheck can be easily integrated in tool chains
+for automatic testing.
+
+In order to support the inclusion of properties in the source code,
+the operations defined the properties do not have to be exported,
+as show in the module \code{Rev} above.
+Hence, one can add properties to any library and export only
+library-relevant operations. To test these properties,
+CurryCheck creates a copy of the library where all operations
+are public, i.e., CurryCheck requires write permission on the
+directory where the source code is stored.
+
+The library \code{Test.Prop} defines many combinators
+to construct properties. In particular, there are a couple of
+combinators for dealing with non-deterministic operations
+(note that this list is incomplete):
+\begin{itemize}
+\item
+The combinator \ccode{<\char126>} is satisfied if the set of values
+of both sides are equal.
+\item
+The property \code{$x$ \char126> $y$} is satisfied if $x$
+evaluates to every value of $y$.
+Thus, the set of values of $y$ must be a subset of the set of values of $x$.
+\item
+The property \code{$x$ <\char126 $y$} is satisfied if $y$
+evaluates to every value of $x$, i.e.,
+the set of values of $x$ must be a subset of the set of values of $y$.
+\item
+The combinator \ccode{<\char126\char126>} is satisfied
+if the multi-set of values of both sides are equal.
+Hence, this operator can be used to compare the number
+of computed solutions of two expressions.
+\item
+The property \code{always $x$} is satisfied if all values of $x$ are true.
+\item
+The property \code{eventually $x$} is satisfied if some value
+of $x$ is true.
+\item
+The property \code{failing $x$} is satisfied if $x$ has no value,
+i.e., its evaluation fails.
+\item
+The property \code{$x$ \# $n$} is satisfied if $x$ has $n$
+different values.
+\end{itemize}
+%
+For instance, consider the insertion of an element at an arbitrary
+position in a list:
+\begin{curry}
+insert :: a -> [a] -> [a]
+insert x xs     = x : xs
+insert x (y:ys) = y : insert x ys
+\end{curry}
+The following property states that the element is inserted
+(at least) at the beginning or the end of the list:
+\begin{curry}
+insertAsFirstOrLast :: Int -> [Int] -> Prop
+insertAsFirstOrLast x xs = insert x xs ~> (x:xs ? xs++[x])
+\end{curry}
+%
+A well-known application of \code{insert} is to use it to define
+a permutation of a list:
+\begin{curry}
+perm :: [a] -> [a]
+perm []     = []
+perm (x:xs) = insert x (perm xs)
+\end{curry}
+We can check whether the length of a permuted lists is unchanged:
+\begin{curry}
+permLength :: [Int] -> Prop
+permLength xs = length (perm xs) <~> length xs
+\end{curry}
+Note that the use of \ccode{<\char126>} is relevant since
+we compare non-deterministic values. Actually, the left argument
+evaluates to many (identical) values.
+
+One might also want to check whether \code{perm} computes the
+correct number of solutions. Since we know that a list of length $n$
+has $n!$ permutations, we write the following property:
+\begin{curry}
+permCount :: [Int] -> Prop
+permCount xs = perm xs # fac (length xs)
+\end{curry}
+where \code{fac} is the factorial function.
+However, this test will be falsified with the argument \code{[1,1]}.
+Actually, this list has only one permuted value since the two
+possible permutations are identical and the combinator \ccode{\#}
+counts the number of \emph{different} values.
+The property would be correct if all elements in the input list \code{xs}
+are different.
+This can be expressed by a conditional property:
+the property \code{$b$ ==> $p$} is satisfied if $p$
+is satisfied for all values where $b$ evaluates to \code{True}.
+Therefore, if we define a predicate \code{allDifferent} by
+\begin{curry}
+allDifferent []     = True
+allDifferent (x:xs) = x `notElem` xs && allDifferent xs
+\end{curry}
+then we can reformulate our property as follows:
+\begin{curry}
+permCount xs = allDifferent xs ==> perm xs # fac (length xs)
+\end{curry}
+%
+Now consider a predicate to check whether a list is sorted:
+\begin{curry}
+sorted :: [Int] -> Bool
+sorted []       = True
+sorted [_]      = True
+sorted (x:y:zs) = x<=y && sorted (y:zs)
+\end{curry}
+This predicate is useful to test whether there are also sorted permutations:
+\begin{curry}
+permIsEventuallySorted :: [Int] -> Prop
+permIsEventuallySorted xs = eventually $\code{\$}$ sorted (perm xs)
+\end{curry}
+%
+The previous operations can be exploited to provide
+a high-level specification of sorting a list:
+\begin{curry}
+psort :: [Int] -> [Int}
+psort xs | sorted ys = ys
+ where ys = perm xs
+\end{curry}
+Again, we can write some properties:
+\begin{curry}
+psortIsAlwaysSorted xs = always $\code{\$}$ sorted (psort xs)$\listline$
+psortKeepsLength xs = length (psort xs) <~> length xs
+\end{curry}
+Of course, the sort specification via permutations is not useful
+in practice. However, it can be used as an oracle to test
+more efficient sorting algorithms like quicksort:
+\begin{curry}
+qsort :: [Int] -> [Int] 
+qsort []     = []
+qsort (x:l)  = qsort (filter (<x) l) ++ x : qsort (filter (>x) l)
+\end{curry}
+The following property specifies the correctness of quicksort:
+\begin{curry}
+qsortIsSorting xs = qsort xs <~> psort xs
+\end{curry}
+Actually, if we test this property, we obtain a failure:
+%
+\begin{curry}
+> curry check ExampleTests
+...
+qsortIsSorting (module ExampleTests, line 53) failed
+Falsified by third test.
+Arguments:
+[1,1]
+Results:
+[1]
+\end{curry}
+%
+The result shows that, for the given argument \code{[1,1]},
+an element has been dropped in the result.
+Hence, we correct our implementation, e.g., by replacing
+\code{(>x)} with \code{(>=x)}, and obtain a successful test execution.
+
+For I/O operations, it is difficult to execute them with random data.
+Hence, CurryCheck only supports specific I/O unit tests:
+\begin{itemize}
+\item \code{$a$ `returns` $x$} is satisfied if the I/O action $a$
+returns the value $x$.
+\item \code{$a$ `sameReturns` $b$} is satisfied if the I/O actions
+$a$ and $b$ return identical values.
+\end{itemize}
+%
+Since CurryCheck executes the tests written in a source program
+in their textual order, one can write several I/O tests that are
+executed in a well-defined order.
+
+
+\subsection{Generating Test Data}
+
+CurryCheck test properties by enumerating test data and
+checking a given property with these values.
+Since these values are generated in a systematic way,
+one can even prove a property if the number of test cases
+is finite. For instance, consider the following property
+from Boolean logic:
+\begin{curry}
+neg_or b1 b2 = not (b1 || b2) -=- not b1 && not b2
+\end{curry}
+This property is validated by checking it with all possible values:
+%
+\begin{curry}
+> curry check -v ExampleTests
+...
+0:
+False
+False
+1:
+False
+True
+2:
+True
+False
+3:
+True
+True
+neg_or (module ExampleTests, line 67):
+ Passed 4 tests.
+\end{curry}
+%
+However, if the test data is infinite, like lists of integers,
+CurryCheck stops checking after a given limit for all tests.
+As a default, the limit is 100 tests but it can be changed
+by the command-line flag \ccode{-m}. For instance, to test
+each property with 200 tests, CurryCheck can be invoked by
+%
+\begin{curry}
+> curry check -m 200 ExampleTests
+\end{curry}
+%
+For a given type, CurryCheck automatically enumerates all values
+of this type (except for function types).
+In KiCS2, this is done by exploiting the functional logic features
+of Curry, i.e., by simply collecting all values of a free variable.
+For instance, the library \code{Test.EasyCheck}\pindex{Test.EasyCheck}
+defines an operation
+\begin{curry}
+valuesOf :: a -> [a]
+\end{curry}
+which computes the list of all values of the given argument
+according to a fixed strategy (in the current implementation:
+randomized level diagonalization \cite{ChristiansenFischer08FLOPS}).
+For instance, we can get 20 values for a list of integers by
+%
+\begin{curry}
+Test.EasyCheck> take 20 (valuesOf (_::[Int]))
+[[],[-1],[-3],[0],[1],[-1,0],[-2],[0,0],[3],[-1,1],[-3,0],[0,1],[2],
+[-1,-1],[-5],[0,-1],[5],[-1,2],[-9],[0,2]]
+\end{curry}
+%
+Since the features of PAKCS for search space exploration are more limited,
+PAKCS uses in CurryCheck explicit generators for search tree structures
+which are defined in the module \code{SearchTreeGenerators}.
+For instance, the operations
+%
+\begin{curry}
+genInt :: SearchTree Int$\listline$
+genList :: SearchTree a -> SearchTree [a]
+\end{curry}
+generates (infinite) trees of integer and lists values.
+To extract all values in a search tree, the library \code{Test.EasyCheck}
+also defines an operation
+\begin{curry}
+valuesOfSearchTree :: SearchTree a -> [a]
+\end{curry}
+so that we obtain 20 values for a list of integers in PAKCS by
+%
+\begin{curry}
+...> take 20 (valuesOfSearchTree (genList genInt))
+[[],[1],[1,1],[1,-1],[2],[6],[3],[5],[0],[0,1],[0,0],[-1],[-1,0],[-2],
+[-3],[1,5],[1,0],[2,-1],[4],[3,-1]]
+\end{curry}
+%
+Apart from the different implementations,
+CurryCheck can test properties on predefined types, as already shown,
+as well as on user-defined types.
+For instance, we can define our own Peano representation of
+natural numbers with an addition operation and two properties as follows:
+%
+\begin{curry}
+data Nat = Z | S Nat$\listline$
+add :: Nat -> Nat -> Nat
+add Z     n = n
+add (S m) n = S(add m n)$\listline$
+addIsCommutative x y = add x y -=- add y x$\listline$
+addIsAssociative x y z = add (add x y) z -=- add x (add y z)
+\end{curry}
+%
+Properties can also be defined for polymorphic types.
+For instance, we can define general polymorphic trees,
+operations to compute the leaves of a tree and mirroring a tree
+as follows:
+\begin{curry}
+data Tree a = Leaf a | Node [Tree a]$\listline$
+leaves (Leaf x) = [x]
+leaves (Node ts) = concatMap leaves ts$\listline$
+mirror (Leaf x) = Leaf x
+mirror (Node ts) = Node (reverse (map mirror ts))
+\end{curry}
+Then we can state and check two properties on mirroring:
+\begin{curry}
+doubleMirror t = mirror (mirror t) -=- t$\listline$
+leavesOfMirrorAreReversed t = leaves t -=- reverse (leaves (mirror t))
+\end{curry}
+%
+In some cases, it might be desirable to define own test data
+since the generated structures are not appropriate for testing
+(e.g., balanced trees to check algorithms that require work
+on balanced trees).
+Of course, one could drop undesired values by an explicit condition.
+For instance, consider the following operation that adds all numbers
+from 0 to a given limit:
+%
+\begin{curry}
+sumUp n = if n==0 then 0 else n + sumUp (n-1)
+\end{curry}
+%
+Since there is also a simple formula to compute this sum,
+we can check it:
+%
+\begin{curry}
+sumUpIsCorrect n = n>=0 ==> sumUp n -=- n * (n+1) `div` 2
+\end{curry}
+Note that the condition is important since \code{sumUp}
+diverges on negative numbers.
+CurryCheck tests this property by enumerating integers,
+i.e., also many negative numbers which are dropped for the tests.
+In order to generate only valid test data, we define
+our own generator for a search tree containing only valid data:
+%
+\begin{curry}
+genInt = genCons0 0 ||| genCons1 (+1) genInt
+\end{curry}
+%
+The combinator \code{genCons0} constructs a search tree
+containing only this value, whereas \code{genCons1}
+constructs from a given search tree a new tree where the function
+given in the first argument is applied to all values.
+Similarly, there are also combinators \code{genCons2},
+\code{genCons3} etc.\ for more than one argument.
+The combinator \ccode{|||} combines two search trees.
+
+If the Curry program containing properties defines a generator
+operation with the name \code{gen$\tau$},
+then CurryCheck uses this generator to test properties
+with argument type $\tau$.
+Hence, if we put the definition of \code{genInt}
+in the Curry program where \code{sumUpIsCorrect} is defined,
+the values to check this property are only non-negative integers.
+Since these integers are slowly increasing, i.e., the search tree
+is actually degenerated to a list, we can also use
+the following definition to obtain a more balanced search tree:
+%
+\begin{curry}
+genInt = genCons0 0 ||| genCons1 (\n -> 2*(n+1)) genInt
+                    ||| genCons1 (\n -> 2*n+1)   genInt
+\end{curry}
+The library \code{SearchTree} defines the structure of search trees
+as well as operations on search trees, like limiting the depth
+of a search tree (\code{limitSearchTree}) or showing a search tree
+(\code{showSearchTree}). For instance, to structure
+of the generated search tree up to some depth
+can be visualized as follows:
+\begin{curry}
+...SearchTree> putStr (showSearchTree (limitSearchTree 6 genInt))
+\end{curry}
+%
+If we want to use our own generator only for specific properties,
+we can do so by introducing a new data type and defining a generator
+for this data type.
+For instance, to test only the operation \code{sumUpIsCorrect} with non-negative
+integers, we do not define a generator \code{genInt} as above,
+but define a wrapper type for non-negative integers and
+a generator for this type:
+%
+\begin{curry}
+data NonNeg = NonNeg { nonNeg :: Int }$\listline$
+genNonNeg = genCons1 NonNeg genNN
+ where
+   genNN = genCons0 0 ||| genCons1 (\n -> 2*(n+1)) genNN
+                      ||| genCons1 (\n -> 2*n+1)   genNN
+\end{curry}
+Now we can either redefine \code{sumUpIsCorrect} on this type
+\begin{curry}
+sumUpIsCorrectOnNonNeg (NonNeg n) = sumUp n -=- n * (n+1) `div` 2
+\end{curry}
+or we simply reuse the old definition by
+\begin{curry}
+sumUpIsCorrectOnNonNeg = sumUpIsCorrect . nonNeg
+\end{curry}
+
+\subsection{Checking Contracts and Specifications}
+\label{sec:currycheck:contracts}
+
+The expressive power of Curry supports
+writing high-level specifications
+as well as efficient implementations for a given problem
+in the same programming language,
+as discussed in \cite{AntoyHanus12PADL}.
+If a specification or contract is provided for some function,
+then CurryCheck automatically generates properties
+to test this specification or contract.
+
+Following the notation proposed in \cite{AntoyHanus12PADL},
+a \emph{specification}\index{specification}
+for an operation $f$ is an operation \code{$f$'spec}
+of the same type as $f$.
+A \emph{contract}\index{constract} consists
+of a pre- and a postcondition, where the precondition could be omitted.
+A \emph{precondition}\index{precondition} for an operation $f$
+of type $\tau \to \tau'$ is an operation
+\begin{curry}
+$f$'pre :: $\tau$ ->$~$Bool
+\end{curry}
+whereas
+a \emph{postcondition}\index{postcondition} for $f$
+is an operation
+\begin{curry}
+$f$'post :: $\tau$ ->$~\tau'$ ->$~$Bool
+\end{curry}
+which relates input and output values
+(the generalization to operations with more than one argument
+is straightforward).
+
+As a concrete example, consider again the problem of sorting a list.
+We can write a postcondition and a specification for
+a sort operation \code{sort} and an implementation via quicksort
+as follows (where \code{sorted} and \code{perm}
+are defined as above):
+
+\begin{curry}
+-- Postcondition: input and output lists should have the same length
+sort'post xs ys = length xs == length ys
+
+-- Specification:
+-- A correct result is a permutation of the input which is sorted.
+sort'spec :: [Int] -> [Int]
+sort'spec xs | ys == perm xs && sorted ys = ys  where ys free
+
+-- An implementation of sort with quicksort:
+sort :: [Int] -> [Int]
+sort []     = []
+sort (x:xs) = sort (filter (<x) xs) ++ [x] ++ sort (filter (>=x) xs)
+\end{curry}
+%
+If we process this program with CurryCheck,
+properties to check the specification and postcondition
+are automatically generated. For instance,
+a specification is satisfied if it yields the same values as
+the implementation, and a postcondition is satisfied
+if each value computed for some input satisfies the postcondition
+relation between input and output. For our example, CurryCheck generates
+the following properties (if there are also
+preconditions for some operation, these preconditions are used
+to restrict the test cases via the condition operater \ccode{==>}):
+
+\begin{curry}
+sortSatisfiesPostCondition :: [Int] -> Prop
+sortSatisfiesPostCondition x =
+  let r = sort x
+  in (r == r) ==> always (sort'post x r)
+
+sortSatisfiesSpecification :: [Int] -> Prop
+sortSatisfiesSpecification x = sort x <~> sort'spec x
+\end{curry}
+
+\subsection{Checking Usage of Specific Operations}
+
+In addition to testing dynamic properties of programs,
+CurryCheck also examines the source code of the given
+program for unintended uses of specific operations
+(these checks can be omitted via the option \ccode{--nosource}).
+Currently, the following source code checks are performed:
+
+\begin{itemize}
+\item
+The prelude operation \ccode{=:<=} is used to implement
+functional patterns \cite{AntoyHanus05LOPSTR}. It should not be
+used in source programs to avoid unintended uses.
+Hence, CurryCheck reports such unintended uses.
+\item
+Set functions \cite{AntoyHanus09} are used to encapsulate
+all non-deterministic results of some function in a set structure.
+Hence, for each top-level function $f$ of arity $n$,
+the corresponding set function can be expressed in Curry
+(via operations defined in the module
+\code{SetFunctions}, see Section~\ref{Library:SetFunctions})
+by the application \ccode{set$n$ $f$} (this application is used
+in order to extend the syntax of Curry with a specific notation
+for set functions).
+However, it is not intended to apply the operator \ccode{set$n$}
+to lambda abstractions, locally defined operations
+or operations with an arity different from $n$.
+Hence, CurryCheck reports such unintended uses of set functions.
+\end{itemize}
+
+
+% LocalWords: CurryCheck

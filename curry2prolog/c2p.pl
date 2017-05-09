@@ -296,7 +296,7 @@ prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 allCommands(["add","browse","cd","compile","coosy","define",
              "edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
-	     "save","set","show","source","type","usedimports","xml"]).
+	     "save","set","show","source","type","usedimports"]).
 
 % Expand an option that may be shortened to its full name:
 expandOption(ShortOpt,FullOpt) :-
@@ -768,7 +768,7 @@ processCommand("help",[]) :- !,
 	write(':save <expr>      - save executable with main expression <expr>'), nl,
 	write(':fork <expr>      - fork new process evaluating <expr> (of type "IO ()")'), nl,
 	write(':coosy            - start Curry Object Observation System'), nl,
-	write(':xml              - translate current program into XML format'), nl,
+	%write(':xml              - translate current program into XML format'), nl,
 	write(':peval            - partially evaluate current program'), nl,
 	write(':set <option>     - set a command line option'), nl,
 	write(':set              - help on :set command'), nl,
@@ -946,13 +946,12 @@ processCommand("type",ExprInput) :- !,
 	numbersmallvars(97,_,Type), writeType(Type), nl.
 
 processCommand("usedimports",[]) :- !,
-	lastload(Prog),
+	checkCpmTool('curry-usedimports','importusage',UsedImports),
+        lastload(Prog),
 	(Prog="" -> write('ERROR: no program loaded for analysis'), nl, !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-	installDir(PH),
-	appendAtoms(['"',PH,'/currytools/importcalls/ImportCalls" ',ProgA],
-		    AnaCmd),
+	appendAtoms([UsedImports,' ',ProgA],AnaCmd),
         shellCmdWithCurryPathWithReport(AnaCmd).
 
 processCommand("interface",[]) :- !,
@@ -960,16 +959,16 @@ processCommand("interface",[]) :- !,
 	(Prog="" -> processCommand("interface","Prelude")
                   ; processCommand("interface",Prog)).
 processCommand("interface",IFTail) :- !,
+        checkCpmTool('curry-showflat','showflatcurry',ShowFlat),
 	extractProgName(IFTail,Prog),
 	isValidProgramName(Prog),
         atom_codes(ProgA,Prog),
-        installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/ShowFlatCurry" -int ',ProgA],
-		    GenIntCmd),
+	appendAtoms([ShowFlat,' -int ',ProgA],GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
 processCommand("browse",[]) :- !,
         checkWish,
+        checkCpmTool('curry-browse','currybrowse',BrowseProg),
 	writeNQ('Starting Curry Browser in separate window...'), nlNQ,
 	lastload(LastProg),
 	(LastProg="" -> Prog="Prelude" ; Prog=LastProg),
@@ -982,36 +981,37 @@ processCommand("browse",[]) :- !,
 	      ; write('ERROR: program "'),
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
-        installDir(PH),
-	appendAtoms(['"',PH,'/currytools/browser/BrowserGUI" ',RealProg,' & '],
-                    BrowseCmd),
+	appendAtoms(['"',BrowseProg,'" ',RealProg,' & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
         checkWish,
+        checkCpmTool('coosy-gui','coosy',CoosyGuiProg),
 	writeNQ('Starting Curry Object Observation System in separate window...'),
         nlNQ,
-        installDir(PH),
-	appendAtom(PH,'/tools/coosy',CoosyHome),
-	getCurryPath(SLP),
-	(SLP=[] -> setCurryPath(CoosyHome)
-	         ; path2String([CoosyHome|SLP],PathS), atom_codes(Path,PathS),
-	           setCurryPath(Path)),
-	appendAtoms(['"',CoosyHome,'/CoosyGUI" ',CoosyHome,' &'],GuiCmd),
+	appendAtoms(['"',CoosyGuiProg,'" &'],GuiCmd),
         shellCmdWithCurryPathWithReport(GuiCmd),
 	(waitForFile('COOSYLOGS/READY',3) -> true
-	 ; writeLnErr('ERROR: COOSy startup failed'), fail),
+          ; writeLnErr('ERROR: COOSy startup failed'), fail),
+        readFileContents('COOSYLOGS/SRCPATH',CoosyPathNl),
+        (append(CoosyPath,[10],CoosyPathNl) -> true ; CoosyPath=CoosyPathNl),
+        !,
+        atom_codes(CoosySrc,CoosyPath),
+	getCurryPath(SLP),
+	(SLP=[] -> setCurryPath(CoosySrc)
+	         ; path2String([CoosySrc|SLP],PathS), atom_codes(Path,PathS),
+	           setCurryPath(Path)),
 	printCurrentLoadPath.
 
-processCommand("xml",[]) :- !,
-	lastload(Prog),
-	(Prog="" -> writeLnErr('ERROR: no program loaded for XML translation'),
-	            !, fail
-                  ; true),
-        atom_codes(ProgA,Prog),
-        installDir(PH),
-	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
-        shellCmdWithCurryPathWithReport(XmlCmd).
+% processCommand("xml",[]) :- !,
+% 	lastload(Prog),
+% 	(Prog="" -> writeLnErr('ERROR: no program loaded for XML translation'),
+% 	            !, fail
+%                   ; true),
+%         atom_codes(ProgA,Prog),
+%         installDir(PH),
+% 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
+%         shellCmdWithCurryPathWithReport(XmlCmd).
 
 processCommand("peval",[]) :- !,
 	lastload(Prog),
@@ -1063,10 +1063,10 @@ processCommand("show",[]) :- !, % show source code of current module
 	    appendAtoms([Pager,' ',File],Cmd),
 	    shellCmdWithReport(Cmd)
 	  ; write('No source program file available, generating source from FlatCurry...'),
-	    nl, nl,
-	    installDir(PH), atom_codes(ProgA,Prog),
-	    appendAtoms(['"',PH,'/currytools/browser/GenInt" -mod ',ProgA],
-			ShowProgCmd),
+            nl, nl,
+            atom_codes(ProgA,Prog),
+            checkCpmTool('curry-showflat','showflatcurry',ShowFlat),
+	    appendAtoms([ShowFlat,' -mod ',ProgA],ShowProgCmd),
 	    shellCmdWithCurryPathWithReport(ShowProgCmd)).
 
 processCommand("show",ShTail) :- % show source of a module
@@ -1144,16 +1144,27 @@ processCommand(_,_) :- !,
 
 % Check for existence of a binary in the path, e.g., 'wish'.
 % If the binary does not exist, print the error message (2nd argument) and fail.
-checkProgram(Program,_) :-
+checkProgram(Program,_,CProgram) :-
         appendAtoms(['which ',Program,' > /dev/null'],CheckCmd),
         shellCmd(CheckCmd,ECode),
-        ECode=0, !.
-checkProgram(_,ErrMsg) :-
+        ECode=0, !, Program=CProgram.
+checkProgram(Program,_,CProgram) :-
+        getHomeDirectory(Home),
+        appendAtoms([Home,'/.cpm/bin/',Program],CPMProg),
+        appendAtoms(['which ',CPMProg,' > /dev/null'],CheckCmd),
+        shellCmd(CheckCmd,ECode),
+        ECode=0, !, CProgram=CPMProg.
+checkProgram(_,ErrMsg,_) :-
         writeErr(ErrMsg), nlErr, !, fail.
 
 checkWish :-
         checkProgram(wish,
-          'Windowing shell "wish" not found. Please install package "tk"!').
+          'Windowing shell "wish" not found. Please install package "tk"!',_).
+
+checkCpmTool(CpmBin,Package,Prog) :-
+        appendAtoms(['"',CpmBin,'" not found. Install it by: "cpm installapp ',
+                     Package,'"!'],ErrMsg),
+        checkProgram(CpmBin,ErrMsg,Prog).
 
 % call "shellCmd" and report its execution if verbosityIntermediate:
 shellCmdWithReport(Cmd) :-
@@ -2334,6 +2345,7 @@ showSourceCode(FCall) :- FCall =.. [QF|_],
 
 % show source code of a function via the simple GUI for showing complete fun's:
 showSourceCodeOfFunction(ModS,FunS) :-
+        checkCpmTool('curry-showsource','sourceproggui',_),
         checkWish,
 	writeNQ('Showing source code of function "'),
 	concat([ModS,[46],FunS],QFS), atom_codes(QF,QFS), writeNQ(QF),
@@ -2358,10 +2370,9 @@ showSourceCodeOfFunction(ModS,FunS) :-
 getModStream(ModS,Stream) :-
 	sourceCodeGUI(ModS,Stream), !.
 getModStream(ModS,InStream) :-
-	installDir(PH),
+        checkCpmTool('curry-showsource','sourceproggui',ShowSource),
 	atom_codes(ModA,ModS),
-	appendAtoms(['"',PH,'/currytools/browser/SourceProgGUI" ',ModA,
-		     ' 2>/dev/null'],Cmd),
+	appendAtoms([ShowSource,' ',ModA,' 2>/dev/null'],Cmd),
    	execCommand(Cmd,InStream,_,std),
 	assertz(sourceCodeGUI(ModS,InStream)).
 
