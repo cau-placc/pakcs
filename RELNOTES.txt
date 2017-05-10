@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.15.0 (April 25, 2017)
--------------------------------------------------------
+Release notes for PAKCS Version 1.15.0 (May 10, 2017)
+-----------------------------------------------------
 
 Changes to version 1.14.2:
 
@@ -13,8 +13,14 @@ Changes to version 1.14.2:
     easily be installed (by a one-line command) locally via `cpm`.
     Instructions how to install these tools are included
     in the PAKCS manual.
-  * Libraries CLPB and CHR removed since they are available as packages
-    which can easily be installed via `cpm`.
+  * Some libraries removed since they are available as packages
+    which can easily be installed via `cpm`:
+
+      - `CLPB` (package `clpbool`)
+      - `CHR` (package `chr-curry`)
+      - `CurryStringClassifier` (package `addtypes`)
+      - `Prolog` (package `prolog`)
+
   * Libraries `tools/ui` removed since they are available as
     CPM package `ui`.
   * Command `:xml` removed (since the XML format is deprecated).
