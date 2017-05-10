@@ -9,6 +9,15 @@
 # Hence, this script should be executed whenever some tool documentation
 # is updated.
 
+# use local Curry executable if it exists (e.g., we are inside the distro):
+CURRYBIN=`pwd`/../../bin/curry
+if [ -x "$CURRYBIN" ] ; then
+  CPMOPTS="-d curry_bin=$CURRYBIN"
+else
+  CPMOPTS=
+fi
+CPM="cpm $CPMOPTS"
+
 # the directory where all tool documentations are stored:
 TOOLDOCDIR=tooldocs
 
@@ -23,7 +32,7 @@ echo "It has been automatically generated from the tool packages." >> $README
 
 for T in $TOOLPKGS ; do
     echo "Downloading $T..."
-    cpm checkout $T
+    $CPM checkout $T
     rm -rf $TOOLDOCDIR/$T
     cp -r $T/docs $TOOLDOCDIR/$T
     rm -rf $T

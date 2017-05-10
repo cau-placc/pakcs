@@ -272,12 +272,13 @@ of this default path).
 
 To use the dependencies of a package, the Curry compiler needs to be
 started via CPM so that the compiler will know where to search for the
-modules provided. You can use the \code{cpm curry} command to start the
+modules provided. You can use the command \ccode{cpm curry} to start the
 Curry compiler (which is either the compiler used to install CPM
-or specified with the configuration option \code{curry_bin},
+or specified with the configuration option \code{CURRY_BIN},
 see Section~\ref{sec:config}).
-Any parameters given to \code{cpm curry} will be passed along verbatim to
-the Curry compiler, for example the following will start the Curry
+Any parameters given to \ccode{cpm curry} will be passed along verbatim to
+the Curry compiler.
+For example, the following will start the Curry
 compiler, print the result of evaluating the expression \code{39+3}
 and then quit.
 
@@ -285,10 +286,12 @@ and then quit.
 > cpm curry :eval "39+3" :quit
 \end{lstlisting}
 %
-To execute other Curry commands such as \code{curry check} with the package's
-dependencies available, you can use the \code{cpm exec} command. \code{cpm exec}
-will set the \code{CURRYPATH} environment variable and then execute the command
-it is given.
+To execute other Curry commands, such as \ccode{curry check},
+with the package's dependencies available,
+you can use the \ccode{cpm exec} command.
+This command will set the \code{CURRYPATH} environment variable
+and then execute the command given after \ccode{exec}.
+
 
 \subsection{Replacing Dependencies with Local Versions}
 \label{sec:cpm-link}
@@ -502,33 +505,36 @@ CPM can be configured via the \code{\$HOME/.cpmrc} configuration file. The
 following list shows all configuration options and their default values.
 
 \begin{description}
-\item[\fbox{\code{repository_path}}] The path to the index repository.
+\item[\fbox{\code{REPOSITORY_PATH}}] The path to the index repository.
 Default value: \code{\$HOME/.cpm/index}.
 
-\item[\fbox{\code{package_install_path}}] The path to the global package cache.
+\item[\fbox{\code{PACKAGE_INSTALL_PATH}}] The path to the global package cache.
 This is where all downloaded packages are stored.
 Default value: \code{\$HOME/.cpm/packages}
 
-\item[\fbox{\code{bin_install_path}}] The path to the executables
+\item[\fbox{\code{BIN_INSTALL_PATH}}] The path to the executables
 of packages. This is the location where the compiled executables
 of packages containing full applications are stored.
 Hence, in order to use such applications, one should have this path
 in the personal load path (environment variable \code{PATH}).
 Default value: \code{\$HOME/.cpm/bin}
 
-\item[\fbox{\code{app_package_path}}]
+\item[\fbox{\code{APP_PACKAGE_PATH}}]
 The path to the package cache where packages are checked out if only
 their binaries are installed (see Section~\ref{sec:installapp}).
 Default value: \code{\$HOME/.cpm/app_packages}.
 
-\item[\fbox{\code{curry_bin}}]
+\item[\fbox{\code{CURRY_BIN}}]
 The name of the executable of the Curry system used
 to compile and test packages.
 The default value is the binary of the Curry system which has been used
 to compile CPM.
 \end{description}
 %
-Note that one can override the values of these configuration options
+Note that one write the option names also in lowercase or omit
+the underscores. For instance, one can also write \code{currybin}
+instead of \code{CURRY_BIN}.
+Moreover, one can override the values of these configuration options
 by the CPM options \code{-d} or \code{--define}.
 For instance, to install the binary
 of the package \code{spicey} in the directory \code{\$HOME/bin},
@@ -544,7 +550,7 @@ one can execute the command
 CPM's central package index is a Git repository containing package specification
 files. A copy of this Git repository is stored on your local system in the 
 \code{\$HOME/.cpm/index} directory, unless you changed the location using the
-\code{repository_path} setting. CPM uses the package index when searching for 
+\code{REPOSITORY_PATH} setting. CPM uses the package index when searching for 
 and installing packages and during dependency resolution. 
 
 When a package is installed on the system, it is stored in the
@@ -840,7 +846,7 @@ some version of a package should be examined or installed
 If a newest package should be installed, i.e., no specific version
 number is provided, then only the newest version
 which is compatible to the current Curry compiler
-(see also Section~\ref{sec:config} for configuration option \code{curry_bin})
+(see also Section~\ref{sec:config} for configuration option \code{CURRY_BIN})
 is considered.
 Similarly, the current package is executed
 (CPM commands \code{curry} and \code{test})
