@@ -7,9 +7,7 @@ export ROOT=$(CURDIR)
 # binary directory and executables
 export BINDIR=$(ROOT)/bin
 # The frontend binary
-export CYMAKE = $(BINDIR)/cymake
-# after merging with new frontend master branch:
-# export CYMAKE = $(BINDIR)/curry-frontend
+export CYMAKE = $(BINDIR)/curry-frontend
 
 # GHC and CABAL configuration (for installing the front end)
 # ----------------------------------------------------------

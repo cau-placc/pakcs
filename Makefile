@@ -222,9 +222,7 @@ endif
 compilefrontend:
 	rm -f $(CYMAKE)
 	cd $(FRONTENDDIR) && $(MAKE)
-	cd $(BINDIR) && ln -s ../frontend/bin/cymake $(notdir $(CYMAKE))
-	# after merging with new frontend master branch:
-	#cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(notdir $(CYMAKE))
+	cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(notdir $(CYMAKE))
 
 # compile the tools:
 .PHONY: tools
