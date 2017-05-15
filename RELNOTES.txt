@@ -20,8 +20,10 @@ Changes to version 1.14.2:
       - `CHR` (now in package `chr-curry`)
       - `CurryStringClassifier` (now in package `addtypes`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
+      - `JavaScript` (now in package `javascript`)
       - `Prolog` (now in package `prolog`)
       - `Rewriting.*` (now in package `rewriting`)
+      - `WUIjs` (now in package `wui`)
 
   * Libraries `tools/ui` removed since they are available as
     CPM package `ui`.
