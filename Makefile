@@ -83,6 +83,8 @@ export FRONTENDDIR   = $(ROOT)/frontend
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
+# Executable of CurryDoc:
+CURRYDOC := $(shell which curry-doc)
 # The version information file for Curry2Prolog:
 C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
@@ -239,7 +241,7 @@ CASS:
 # separate package distribution:
 .PHONY: manual
 manual:
-	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" -a -x "$(CURRYDOC)" ] ; then \
 	 $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # Create file with version information for Curry2Prolog:
@@ -264,6 +266,13 @@ $(MANUALVERSION): Makefile
 #
 .PHONY: libdoc
 libdoc:
+	@if [ ! -x "$(CURRYDOC)" ] ; then \
+	  echo "Executable 'curry-doc' is not installed!" && echo "Install it by > cpm installapp currydoc" ; \
+	else $(MAKE) genlibdoc ; \
+	fi
+
+.PHONY: genlibdoc
+genlibdoc:
 	@rm -f $(MAKELOG)
 	@echo "Make libdoc started at `date`" > $(MAKELOG)
 	@cd lib && $(MAKE) htmldoc 2>&1 | tee -a ../$(MAKELOG)
