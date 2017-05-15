@@ -30,7 +30,7 @@ idCons = trCons cons
  where
   cons name arity vis args = Cons name arity vis (map idTypeExpr args)
 
-idTypeExpr = trTypeExpr TVar TCons FuncType
+idTypeExpr = trTypeExpr TVar TCons FuncType ForallType
 
 idFunc = trFunc func
  where
