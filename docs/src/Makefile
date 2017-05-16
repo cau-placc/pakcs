@@ -2,6 +2,9 @@
 
 PAKCS=../../bin/pakcs
 
+# Executable of the markdown translator:
+MD2PDF := $(shell which md2pdf)
+
 .PHONY: pdf
 pdf : manual.pdf
 
@@ -20,22 +23,22 @@ manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex) \
 	cp $< $@
 
 markdown_syntax.tex: markdown_syntax.txt
-	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2LaTeX' :quit
+	$(MD2PDF) --include --tex -o "$@" "$<"
 
 ../markdown_syntax.html: markdown_syntax.txt
-	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "Markdown Syntax"' :quit
+	$(MD2PDF) -t "Markdown Syntax" --html -o "$@" "$<"
 
 # format installation description as HTML page
 ../INSTALL.html: ../../INSTALL.txt
-	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Installation Instructions"' :quit
+	$(MD2PDF) -t "PAKCS Installation Instructions" --html -o "$@" "$<"
 
 # format repository installation description as HTML page
 ../GITINSTALL.html: ../../GITINSTALL.txt
-	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Repository"' :quit
+	$(MD2PDF) -t "PAKCS Repository" --html -o "$@" "$<"
 
 # format release notes as HTML page
 ../RELNOTES.html: ../../RELNOTES.txt
-	$(PAKCS) :l Markdown :eval 'readFile "$<" >>= writeFile "$@" . markdownText2CompleteHTML "PAKCS Release Notes"' :quit
+	$(MD2PDF) -t "PAKCS Release Notes" --html -o "$@" "$<"
 
 # format Curry style guide as HTML page
 ../CurryStyleGuide.html: tooldocs/casc/curry-style-guide.md
