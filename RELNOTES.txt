@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.15.0 (May 15, 2017)
+Release notes for PAKCS Version 1.15.0 (May 16, 2017)
 -----------------------------------------------------
 
 Changes to version 1.14.2:
@@ -18,9 +18,11 @@ Changes to version 1.14.2:
 
       - `CLPB` (now in package `clpbool`)
       - `CHR` (now in package `chr-curry`)
+      - `CategorizedHtmlList` (now in package `html`)
       - `CurryStringClassifier` (now in package `addtypes`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `JavaScript` (now in package `javascript`)
+      - `Mail` (now in package `mail`)
       - `Prolog` (now in package `prolog`)
       - `Rewriting.*` (now in package `rewriting`)
       - `WUIjs` (now in package `wui`)
