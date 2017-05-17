@@ -83,8 +83,12 @@ export FRONTENDDIR   = $(ROOT)/frontend
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
+
 # Executable of CurryDoc:
 CURRYDOC := $(shell which curry-doc)
+# Executable of the markdown translator (required for documentation generation):
+MD2PDF := $(shell which md2pdf)
+
 # The version information file for Curry2Prolog:
 C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
 # The version information file for the manual:
@@ -239,7 +243,7 @@ CASS:
 # separate package distribution:
 .PHONY: manual
 manual:
-	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" -a -x "$(CURRYDOC)" ] ; then \
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" -a -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
 	 $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
 # Create file with version information for Curry2Prolog:
