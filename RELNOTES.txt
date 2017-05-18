@@ -16,6 +16,7 @@ Changes to version 1.14.2:
   * Some libraries removed since they are available as packages
     which can easily be installed via `cpm`:
 
+      - `Bootstrap3Style` (now in package `html`)
       - `CLPB` (now in package `clpbool`)
       - `CHR` (now in package `chr-curry`)
       - `CategorizedHtmlList` (now in package `html`)
