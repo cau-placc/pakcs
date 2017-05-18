@@ -21,13 +21,15 @@ Changes to version 1.14.2:
       - `CategorizedHtmlList` (now in package `html`)
       - `CurryStringClassifier` (now in package `addtypes`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
+      - `GraphInductive` (now in package `graph-inductive`)
       - `HtmlParser` (now in package `html`)
       - `JavaScript` (now in package `javascript`)
       - `Mail` (now in package `mail`)
       - `Markdown` (now in package `markdown`)
       - `Prolog` (now in package `prolog`)
       - `Rewriting.*` (now in package `rewriting`)
-      - `WUIjs` (now in package `wui`)
+      - `URL` (now in package `url`)
+      - `WUI` and `WUIjs` (now in package `wui`)
 
   * Libraries `tools/ui` removed since they are available as
     CPM package `ui`.
