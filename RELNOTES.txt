@@ -1,6 +1,13 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 2.0.0 (May 22, 2017)
+-----------------------------------------------------
+
+This version has almost the same functionality as Version 1.15.0
+but adds type classes similar to Haskell 98.
+
+
 Release notes for PAKCS Version 1.15.0 (May 16, 2017)
 -----------------------------------------------------
 
