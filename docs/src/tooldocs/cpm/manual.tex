@@ -437,6 +437,32 @@ In this case, one can mark those functions with the compiler pragma
 so that CPM will not generate tests for them.
 
 
+\subsection{Adding Packages to the Central Package Index}
+\label{sec:adding-a-package}
+
+When you have your package ready and want to use it in other packages,
+it must be added to the central package index so that CPM can find it
+when searching for packages. For this purpose, you can use the
+\ccode{cpm add} command:
+%
+\begin{lstlisting}
+> cpm add mypackage
+\end{lstlisting}
+%
+In this case, \code{mypackage} is the name of the directory containing
+you package. In particular, the JSON file \ccode{mypackage/package.json} must
+contain the metadata of the package (see also Section~\ref{sec:reference}).
+This command copies your package into your local copy of the central package
+index so that it can be used in other packages.
+If you want to replace this copy by an improved version
+of the same package, you have to provide the option
+\code{-f} or \code{--force}.
+
+Note that this command makes your package only available on your local
+system. If you want to publish your package so that it can be used
+by other CPM users, follow the instruction described next.
+
+
 \subsection{Publishing a Package}
 \label{sec:publishing-a-package}
 
@@ -486,14 +512,12 @@ to the tag \ccode{v\$version\$}.
 
 After you have published the files for your new package version, you
 have to add the corresponding package specification to the central
-package index. The central package index is just a Git repository
-containing a directory for each package, which contain subdirectories
-for all versions of that package which in turn contain the package
-specification files. So the specification for version $1.0.5$ of the
-\code{json} package would be located in
-\code{json/1.0.5/package.json}.  If you have access to the Git
-repository containing the central package index, then you can add the
-package specification yourself.  Otherwise, send your package
+package index. This can be done with the \ccode{cpm add} command
+(see Section~\ref{sec:adding-a-package}).
+If you have access to the Git
+repository containing the central package index, then you can push
+the modified version of this Git repository.
+Otherwise, send your package
 specification file to \url{packages@curry-language.org} in order to
 publish it.
 
@@ -547,11 +571,17 @@ one can execute the command
 \section{Some CPM Internals}
 \label{sec:internals}
 
-CPM's central package index is a Git repository containing package specification
-files. A copy of this Git repository is stored on your local system in the 
-\code{\$HOME/.cpm/index} directory, unless you changed the location using the
-\code{REPOSITORY_PATH} setting. CPM uses the package index when searching for 
-and installing packages and during dependency resolution. 
+CPM's central package index is a Git repository containing package
+specification files. A copy of this Git repository is stored on your
+local system in the \code{\$HOME/.cpm/index} directory, unless you
+changed the location using the \code{REPOSITORY_PATH} setting. CPM
+uses the package index when searching for and installing packages and
+during dependency resolution.
+This index contains a directory for each package, which contain subdirectories
+for all versions of that package which in turn contain the package
+specification files. So the specification for version $1.0.5$ of the
+\code{json} package would be located in
+\code{json/1.0.5/package.json}.  
 
 When a package is installed on the system, it is stored in the
 \emph{global package cache}.
@@ -601,7 +631,7 @@ Unless the option \code{--versions} is set, only the newest version
 of a package (compatible to the current compiler) is shown.
 The option \code{--versions} shows all versions of the packages.
 If a package is not compatible to the current compiler, then
-the package version is shown as \ccode{???}.
+the package version is shown in brackets (e.g., \ccode{(1.5.4)}).
 The option \code{--csv} shows the information in CSV format.
 
 \item[\fbox{\code{list --category [--csv]}}]
@@ -753,6 +783,14 @@ Any arguments are passed verbatim to the compiler.
 
 \item[\fbox{\code{link $source$}}] Can be used to replace a dependency of the 
 current package using a local copy, see Section~\ref{sec:cpm-link} for details.
+
+\item[\fbox{\code{add $source$ [--force]}}]
+Copies the package contained in $source$ into the local copy
+of the central package index so that it can be used by other packages
+in the local environment
+(see Section~\ref{sec:adding-a-package} for details).
+The option \ccode{--force} allows to overwrite existing copies
+in the central package index.
 
 \item[\fbox{\code{clean}}] Cleans the current package from the
 generated auxiliariy files, e.g., intermediate Curry files,
