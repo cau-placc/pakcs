@@ -604,13 +604,22 @@ caches.
 \section{Command Reference}
 \label{sec:cmd-reference}
 
-This section gives a short description of all available CPM commands. In 
-addition to the commands listed here, there is a global parameter
-\code{--verbosity}
-which defaults to \code{info} but can be increased to \code{debug} for
-more output.
-Furthermore, there is a global parameter \code{--define} to override
-the configuration options of CPM, see Section~\ref{sec:config}.
+This section gives a short description of all available CPM commands.
+In addition to the commands listed below, there are some global options
+which can be placed in front of the CPM command:
+\begin{description}
+\item[\code{-v$\,|\,$--verbosity [info|debug]}:]
+The default value is \code{info}.
+The value \code{debug} provides more output messages in order to see
+what CPM is doing.
+\item[\code{-t$\,|\,$--time}:]
+This option adds the elapsed time to every info or debug output line.
+\item[\code{-d$\,|\,$--define $option$=$value$}:]
+This option overrides the configuration options of CPM,
+ see Section~\ref{sec:config}.
+\end{description}
+%
+The available commands of CPM are:
 
 \begin{description}
 \item[\fbox{\code{info}}] Gives information on the current package, e.g. the
@@ -859,8 +868,9 @@ text of the license. The suggested name for this file is \code{LICENSE}.
 \item[\fbox{\code{homepage}}] The package's web site. This field should contain
 a valid URL.
 
-\item[\fbox{\code{bugReports}}] A place to report bugs found int he package. The
-suggested formats are either a valid URL to a bug tracker or an email address.
+\item[\fbox{\code{bugReports}}] A place to report bugs found in the package.
+The suggested formats are either a valid URL to a bug tracker
+or an email address.
 
 \item[\fbox{\code{repository}}] The location of a SCM repository containing the
 package's source code. Should be a valid URL to either a repository (e.g. a Git
@@ -934,6 +944,9 @@ if this package contains also an executable application.
 The name of the executable must be defined (with key \code{name})
 whereas the name of the main module (key \code{main}) is optional.
 If the latter is missing, CPM assumes that the main module is \code{Main}.
+Furthermore, the executable specification can also contain
+options for various Curry compilers. The options must be a JSON object
+consisting of compiler names as keys and an option string for the compiler.
 For instance, a possible specification could be as follows:
 %
 \begin{lstlisting}
@@ -941,8 +954,9 @@ For instance, a possible specification could be as follows:
   ...,
   "executable": {
     "name": "cpm",
-    "main": "CPM.Main"
-  }
+    "main": "CPM.Main",
+    "options": { "kics2" : ":set rts -T" }
+   }
 }
 \end{lstlisting}
 %
@@ -998,7 +1012,7 @@ directories \code{test} and \code{examples} could be as follows:
   "testsuite": [
      { "src-dir": "test",
        "options": "-v",
-       "script": [ "test.sh" ]
+       "script": "test.sh"
      },
      { "src-dir": "examples",
        "options": "-m80",
@@ -1009,6 +1023,63 @@ directories \code{test} and \code{examples} could be as follows:
 \end{lstlisting}
 
 \end{description}
+%
+In order to provide a compact overview over all metadata fields,
+we provide an example of a package specification where all fields
+are used:
+%
+\begin{lstlisting}
+{
+    "name": "PACKAGE_NAME",
+    "version": "0.0.1",
+    "author": "YOUR NAME <YOUR EMAIL ADDRESS>",
+    "maintainer": "ANOTHER NAME <ANOTHER EMAIL ADDRESS>",
+    "synopsis": "A ONE-LINE SUMMARY ABOUT THE PACKAGE",
+    "synopsis": "A MORE DEATILED SUMMARY ABOUT THE PACKAGE",
+    "category": [ "Category1", "Category2" ],
+    "license": "BSD-3-Clause",
+    "licenseFile": "LICENSE",
+    "copyright": "COPYRIGHT INFORMATION",
+    "homepage": "THE URL OF THE WEB SITE OF THE PACKAGE",
+    "bugReports": "EMAIL OR BUG TRACKER URL FOR REPORTING BUGS",
+    "repository": "THE (GIT) URL OF THE WEB SITE REPOSITORY",
+    "dependencies": {
+        "PACKAGE1" : ">= 0.0.1, < 1.5.0",
+        "PACKAGE2" : "~> 1.2.3",
+        "PACKAGE3" : ">= 2.1.4, < 3.0.0 || >= 4.0.0"
+    },
+    "compilerCompatibility": {
+        "pakcs": ">= 1.14.0, < 2.0.0",
+        "kics2": ">= 0.5.0, < 2.0.0"
+    },
+    "sourceDirs" : [ "src", "include" ],
+    "exportedModules": [ "Module1", "Module2" ],
+    "configModule": "ConfigPackage",
+    "executable": {
+        "name": "NAME_OF_BINARY",
+        "main": "Main",
+        "options": {
+            "kics2" : ":set rts -T",
+            "pakcs" : ":set printdepth 100"
+        }
+    },
+    "testsuite": [
+       { "src-dir": "src",
+         "options": "-m80",
+         "modules": [ "Module1", "Module2" ]
+       },
+       { "src-dir": "examples",
+         "options": "-v",
+         "script" : "test.sh"
+       }
+    ],
+    "source": {
+        "git": "URL OF THE GIT REPOSITORY",
+        "tag": "$\$$version"
+    }
+}
+\end{lstlisting}
+
 
 \section{Error Recovery}
 \label{sec:recovery}
