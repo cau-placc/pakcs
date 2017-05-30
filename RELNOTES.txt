@@ -8,7 +8,7 @@ This version has almost the same functionality as Version 1.15.0
 but adds type classes similar to Haskell 98.
 
 
-Release notes for PAKCS Version 1.15.0 (May 16, 2017)
+Release notes for PAKCS Version 1.15.0 (May 30, 2017)
 -----------------------------------------------------
 
 Changes to version 1.14.2:
@@ -28,6 +28,7 @@ Changes to version 1.14.2:
       - `CHR` (now in package `chr-curry`)
       - `CategorizedHtmlList` (now in package `html`)
       - `CurryStringClassifier` (now in package `addtypes`)
+      - `Database.ERDGoodies` (now in package `ertools`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `GraphInductive` (now in package `graph-inductive`)
       - `HtmlParser` (now in package `html`)
