@@ -1460,6 +1460,7 @@ processSetOption(Option) :-
 processSetOption(_) :- !,
 	writeLnErr('ERROR: unknown option. Type :set for help').
 
+printCurrentLoadPath :- verbosityQuiet, !.
 printCurrentLoadPath :-
 	loadPath('.',LP),
 	write('Current search path for loading modules: '), nl,
