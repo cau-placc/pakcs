@@ -383,14 +383,22 @@ readDecimalChar(N,[M|S],T,C) :- M>=48, M<58, !,
 	readDecimalChar(NM,S,T,C).
 
 readString([34|T],T,[]) :- !.
-readString([92,N|Ns],T,Str) :- N>=48, N<58, !,
-        V is N-48, readDecimalCharInString(V,Ns,T,Str).
-readString([92,N|Ns],T,[C|Str]) :- !,
-	readStringChar(N,NS),
-	char_int(C,NS),
-	readString(Ns,T,Str).
+readString([92|Ns],T,Str) :- !, readStringEscape(Ns,T,Str).
 readString([N|Ns],T,[C|Str]) :-
 	char_int(C,N),
+	readString(Ns,T,Str).
+
+readStringEscape([N|Ns],T,Str) :- N>=48, N<58, !,
+        V is N-48, readDecimalCharInString(V,Ns,T,Str).
+readStringEscape([69,83,67|Ns],T,[C|Str]) :- !, % '\ESC' character
+        char_int(C,27),
+        readString(Ns,T,Str).
+readStringEscape([68,69,76|Ns],T,[C|Str]) :- !, % '\DEL' character
+        char_int(C,127),
+        readString(Ns,T,Str).
+readStringEscape([N|Ns],T,[C|Str]) :- !,
+	readStringChar(N,NS),
+	char_int(C,NS),
 	readString(Ns,T,Str).
 
 % read a character with decimal number representation, e.g., '\243'
