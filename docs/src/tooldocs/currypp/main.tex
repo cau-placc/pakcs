@@ -1,0 +1,119 @@
+\documentclass[11pt,fleqn]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{latexsym}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage{graphicx}
+
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{23cm}
+\renewcommand{\baselinestretch}{1.1}
+\setlength{\topmargin}{-1cm}
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\marginparwidth}{0.0cm}
+\setlength{\marginparsep}{0.0cm}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.4cm}
+
+% font for program texts
+\renewcommand{\tt}{\usefont{OT1}{cmtt}{m}{n}\selectfont}
+\newcommand{\codefont}{\small\tt}
+
+\usepackage{listings}
+\lstset{aboveskip=1.5ex,
+        belowskip=1.5ex,
+        showstringspaces=false, % no special string space
+        mathescape=true,
+        flexiblecolumns=false,
+        xleftmargin=2ex,
+        basewidth=0.52em,
+        basicstyle=\small\ttfamily}
+
+\lstset{literate={->}{{$\rightarrow{}\!\!\!$}}3
+       }
+
+\lstnewenvironment{curry}{}{}
+\lstnewenvironment{currynomath}{\lstset{mathescape=false}}{} % Curry w/o math
+\newcommand{\listline}{\vrule width0pt depth1.75ex}
+
+% program text in normal text
+\newcommand{\code}[1]{\mbox{\codefont #1}}
+
+% program text in normal text with apostrophs
+\newcommand{\ccode}[1]{``\code{#1}''}
+
+\newcommand{\pindex}[1]{\index{#1@{\tt #1}}}  % program elements in index
+
+\newcommand{\todo}[1]{\fbox{\sc To do: #1}}
+\newcommand{\CYS}{Curry\xspace} % name of the Curry system described here
+\newcommand{\cyshome}{\mbox{\textit{curryhome}}\xspace} % symbolic installation directory
+
+\newcommand{\us}{\char95\xspace} % underscore
+
+\begin{document}
+\sloppy
+
+\newcommand{\curryppdocs}{.}
+\input{manual.tex}
+\clearpage
+\appendix
+\input{sqlsyntax}
+
+% Bibliography
+\begin{thebibliography}{10}
+
+\bibitem{AntoyHanus12PADL}
+S.~Antoy and M.~Hanus.
+\newblock Contracts and specifications for functional logic programming.
+\newblock In {\em Proc. of the 14th International Symposium on Practical
+  Aspects of Declarative Languages (PADL 2012)}, pages 33--47. Springer LNCS
+  7149, 2012.
+
+\bibitem{AntoyHanus14}
+S.~Antoy and M.~Hanus.
+\newblock Curry without {Success}.
+\newblock In {\em Proc.\ of the 23rd International Workshop on Functional and
+  (Constraint) Logic Programming (WFLP 2014)}, volume 1335 of {\em {CEUR}
+  Workshop Proceedings}, pages 140--154. CEUR-WS.org, 2014.
+
+\bibitem{AntoyHanus16PADL}
+S.~Antoy and M.~Hanus.
+\newblock Default rules for {Curry}.
+\newblock In {\em Proc. of the 18th International Symposium on Practical
+  Aspects of Declarative Languages (PADL 2016)}, pages 65--82. Springer LNCS
+  9585, 2016.
+
+\bibitem{BrasselHanusMueller08PADL}
+B.~Bra{\ss}el, M.~Hanus, and M.~M{\"u}ller.
+\newblock High-level database programming in {Curry}.
+\newblock In {\em Proc. of the Tenth International Symposium on Practical
+  Aspects of Declarative Languages (PADL'08)}, pages 316--332. Springer LNCS
+  4902, 2008.
+
+\bibitem{Hanus01PADL}
+M.~Hanus.
+\newblock High-level server side web scripting in {C}urry.
+\newblock In {\em Proc.\ of the Third International Symposium on Practical
+  Aspects of Declarative Languages (PADL'01)}, pages 76--92. Springer LNCS
+  1990, 2001.
+
+\bibitem{HanusKrone17EPTCS}
+M.~Hanus and J.~Krone.
+\newblock A typeful integration of {SQL} into {Curry}.
+\newblock In {\em Proceedings of the 24th International Workshop on Functional
+  and (Constraint) Logic Programming}, volume 234 of {\em Electronic
+  Proceedings in Theoretical Computer Science}, pages 104--119. Open Publishing
+  Association, 2017.
+
+\bibitem{Krone15}
+J.~Krone.
+\newblock Integration of {SQL} into {Curry}.
+\newblock Master's thesis, University of Kiel, 2015.
+
+\end{thebibliography}
+
+\end{document}

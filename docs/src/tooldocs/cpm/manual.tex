@@ -743,7 +743,17 @@ Using the option \code{--modules}, one can also specify a comma-separated
 list of module names to be tested.
 
 \item[\fbox{\code{doc}}]
-Generates the HTML documentation of the current package with CurryDoc.
+Generates the documentation of the current package.
+The documentation consists of the API documentation (in HTML format)
+and the manual (if provided) in PDF format.
+The options \code{--programs} and \code{--text} forces to generate
+only the API documentation and the manual, respectively.
+Using the option \code{--docdir}, one can specify the
+target directory where the documentation should be stored.
+If this option is not provided, \ccode{cdoc} is used as the documentation
+directory.
+
+The API documentation in HTML format is generated with CurryDoc.
 If the package specification contains a list of exported modules
 (see Section~\ref{sec:reference}),
 then these modules are documented.
@@ -754,10 +764,10 @@ or all modules in the directory \code{src}
 are documented.
 Using the option \code{--modules}, one can also specify a comma-separated
 list of module names to be documented.
-Using the option \code{--docdir}, one can specify the
-target directory where the documentation should be stored.
-If this option is not provided, \ccode{cdoc} is used as the documentation
-directory.
+
+The manual is generated only if the package specification contains
+a field \code{documentation} where the main file of the manual
+is specified (see Section~\ref{sec:reference} for more details).
 
 \item[\fbox{\code{diff [$version$]}}]
 Compares the API and behavior of the current package to another
@@ -1022,10 +1032,53 @@ directories \code{test} and \code{examples} could be as follows:
 }
 \end{lstlisting}
 
+\item[\fbox{\code{documentation}}]
+A JSON object specifying the name of the directory
+which contains the sources of the documentation (e.g., a manual)
+of the package, the main file of the documentation, and an optional command
+to generate the documentation.
+For instance, a possible specification could be as follows:
+%
+\begin{lstlisting}
+{
+  ...,
+  "documentation": {
+    "src-dir": "docs",
+    "main"   : "manual.tex",
+    "command": "pfdlatex -output-directory=OUTDIR manual.tex"
+  }
+  ...
+}
+\end{lstlisting}
+%
+In this case, the directory \code{docs} contains the sources of
+the manual and \code{manual.tex} is its main file which will be
+processed with the specified command.
+Occurrences of the string \code{OUTDIR} in the command string
+will be replaced by the actual documentation directory
+(see description of the command \code{cpm doc}).
+If the command is omitted, the following commands are used
+(and you have to ensure that these programs are installed):
+\begin{itemize}
+\item
+If the main file has the extension \code{.tex},
+e.g., \code{manual.tex}, the command is
+\begin{lstlisting}
+pdflatex -output-directory=OUTDIR manual.tex
+\end{lstlisting}
+and it will be executed twice.
+\item
+If the main file has the extension \code{.md},
+e.g., \code{manual.md}, the command is
+\begin{lstlisting}
+pandoc manual.md -o OUTDIR/manual.pdf
+\end{lstlisting}
+\end{itemize}
+
 \end{description}
 %
-In order to provide a compact overview over all metadata fields,
-we provide an example of a package specification where all fields
+In order to get a compact overview over all metadata fields,
+we show an example of a package specification where all fields
 are used:
 %
 \begin{lstlisting}
@@ -1073,6 +1126,11 @@ are used:
          "script" : "test.sh"
        }
     ],
+    "documentation": {
+        "src-dir": "docs",
+        "main"   : "manual.tex",
+        "command": "pfdlatex -output-directory=OUTDIR manual.tex"
+    },
     "source": {
         "git": "URL OF THE GIT REPOSITORY",
         "tag": "$\$$version"
@@ -1095,7 +1153,7 @@ Here are some suggestions how to do this:
 \begin{description}
 \item[\code{cpm clean}]~\\
 This command cleans the current package from
-generated auxiliariy files (see Section~\ref{sec:cmd-reference}).
+generated auxiliary files (see Section~\ref{sec:cmd-reference}).
 Then you can re-install the package and packages on which it depends
 by the command \code{cpm install}.
 \item[\code{rm -rf \$HOME/.cpm/packages}] ~\\
