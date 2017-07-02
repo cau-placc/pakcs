@@ -216,20 +216,20 @@ cpm checkout <package>
 \end{lstlisting}
 to install a local copy of a package.
 This is also useful to install some tool distributed as a package.
-For instance, to install \code{curry-genmake},
-a tool to generate a \code{make} file for a Curry application,
+For instance, to install \code{curry-check},
+a property-testing tool for Curry,
 one can check out the most recent version and install the tool:
 %
 \begin{lstlisting}
-> cpm checkout makefile
-$\ldots$ Package 'makefile-1.3.4' checked out into directory 'makefile'.
-> cd makefile
+> cpm checkout currycheck
+$\ldots$ Package 'currycheck-1.0.1' checked out into directory 'currycheck'.
+> cd currycheck
 > cpm install
 $\ldots$
-INFO  Installing executable 'curry-genmake' into '/home/joe/.cpm/bin'
+INFO  Installing executable 'curry-check into '/home/joe/.cpm/bin'
 \end{lstlisting}
 %
-Now, the tool \code{curry-genmake} is ready to use
+Now, the tool \code{curry-check} is ready to use
 if \code{\$HOME/.cpm/bin} is in your path
 (see Section~\ref{sec:config} for details about changing the location
 of this default path).
@@ -241,10 +241,10 @@ of this default path).
 Some packages do not contain only useful libraries
 but also application programs or tools.
 In order to install the executables of such applications without
-explicitly using the source code of the package,
+explicitly checking out the package in some local directory,
 one can use the command
 \begin{lstlisting}
-cpm installapp <package>
+cpm install <package>
 \end{lstlisting}
 This command checks out the package in some internal directory
 (default: \code{\$HOME/.cpm/app_packages}, see
@@ -256,7 +256,7 @@ For instance, the most recent version of the web framework Spicey
 can be installed by the following command:
 %
 \begin{lstlisting}
-> cpm installapp spicey
+> cpm install spicey
 $\ldots$ Package 'spicey-xxx' checked out $\ldots$
 $\ldots$
 INFO  Installing executable 'spiceup' into '/home/joe/.cpm/bin'
@@ -564,7 +564,7 @@ For instance, to install the binary
 of the package \code{spicey} in the directory \code{\$HOME/bin},
 one can execute the command
 \begin{lstlisting}
-> cpm --define bin_install_path=$\$$HOME/bin installapp spicey
+> cpm --define bin_install_path=$\$$HOME/bin install spicey
 \end{lstlisting}
 
 
@@ -608,15 +608,15 @@ This section gives a short description of all available CPM commands.
 In addition to the commands listed below, there are some global options
 which can be placed in front of the CPM command:
 \begin{description}
+\item[\code{-d$\,|\,$--define $option$=$value$}:]
+This option overrides the configuration options of CPM,
+ see Section~\ref{sec:config}.
 \item[\code{-v$\,|\,$--verbosity [info|debug]}:]
 The default value is \code{info}.
 The value \code{debug} provides more output messages in order to see
 what CPM is doing.
 \item[\code{-t$\,|\,$--time}:]
 This option adds the elapsed time to every info or debug output line.
-\item[\code{-d$\,|\,$--define $option$=$value$}:]
-This option overrides the configuration options of CPM,
- see Section~\ref{sec:config}.
 \end{description}
 %
 The available commands of CPM are:
@@ -664,28 +664,50 @@ exporting the module \code{JSON.Data} can be found by the command
 \item[\fbox{\code{update}}] Updates the local copy of the central package index
 to the newest available version.
 
-\item[\fbox{\code{install}}] Installs all dependencies of the current package.
+\item[\fbox{\code{install}}]
+Installs all dependencies of the current package.
 Furthermore, if the current package contains an executable application,
 the application is compiled and the executable is installed
 (unless the option \code{-n} or \code{--noexec} is set).
+With the option \code{-x} or \code{--exec}, the executable
+is installed without installing all dependencies again.
+This is useful to speed up the re-installation of a previously
+installed application.
 
-\item[\fbox{\code{install $package$ [--$pre$]}}] Installs the newest version
-(compatible to the current compiler) of 
-a package to the global package cache. \code{--$pre$} enables the installation
-of pre-release versions.
+\item[\fbox{\code{install $package$ [--$pre$]}}]
+Installs the application provided by the newest version
+(compatible to the current compiler) of a package.
+The binary of the application is installed into the directory
+\code{\$HOME/.cpm/bin}
+(this location can be changed via the \code{\$HOME/.cpmrc} configuration file
+or by the CPM option \code{--define}, see Section~\ref{sec:config}).
+\code{--$pre$} enables the installation of pre-release versions.
 
-\item[\fbox{\code{install $package$ $version$}}] Installs a specific version of
-a package to the global package cache.
+\item[\fbox{\code{install $package$ $version$}}]
+Install the application provided by a specific version of a package.
+The binary of the application is installed into the directory
+\code{\$HOME/.cpm/bin}
+(this location can be changed via the \code{\$HOME/.cpmrc} configuration file
+or by the CPM option \code{--define}, see Section~\ref{sec:config}).
 
 \item[\fbox{\code{install $package$.zip}}] Installs a package from a ZIP file
 to the global package cache. The ZIP file must contain at least the
 package description file \code{package.json} and the directory \code{src}
 containing the Curry source files.
 
-\item[\fbox{\code{uninstall}}] Uninstall the executable installed
-for this package.
+\item[\fbox{\code{uninstall}}]
+Uninstalls the executable installed for the current package.
 
-\item[\fbox{\code{uninstall $package$ $version$}}] Uninstalls a specific version
+\item[\fbox{\code{uninstall $package$}}]
+Uninstalls the executable and the cached copy of a package
+which has been installed by the \code{install} command.
+
+\item[\fbox{\code{uninstall $package$ $version$}}]
+Uninstalls a specific version
+of a package from the global package cache.
+
+\item[\fbox{\code{uninstall $package$ $version$}}]
+Uninstalls a specific version
 of a package from the global package cache.
 
 \item[\fbox{\code{checkout $package$ [--$pre$]}}]
@@ -699,21 +721,21 @@ Checks out a specific version of a package
 into the local directory \code{$package$}
 in order to test its operations or install a binary of the package..
 
-\item[\fbox{\code{installapp $package$ [--$pre$]}}]
-Install the application provided by the newest version
-(compatible to the current compiler) of a package.
-The binary of the application is installed into the directory
-\code{\$HOME/.cpm/bin}
-(this location can be changed via the \code{\$HOME/.cpmrc} configuration file
-or by the CPM option \code{--define}, see Section~\ref{sec:config}).
-\code{--$pre$} enables the installation of pre-release versions.
-
-\item[\fbox{\code{installapp $package$ $version$}}]
-Install the application provided by a specific version of a package.
-The binary of the application is installed into the directory
-\code{\$HOME/.cpm/bin}
-(this location can be changed via the \code{\$HOME/.cpmrc} configuration file
-or by the CPM option \code{--define}, see Section~\ref{sec:config}).
+% \item[\fbox{\code{installapp $package$ [--$pre$]}}]
+% Install the application provided by the newest version
+% (compatible to the current compiler) of a package.
+% The binary of the application is installed into the directory
+% \code{\$HOME/.cpm/bin}
+% (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
+% or by the CPM option \code{--define}, see Section~\ref{sec:config}).
+% \code{--$pre$} enables the installation of pre-release versions.
+% 
+% \item[\fbox{\code{installapp $package$ $version$}}]
+% Install the application provided by a specific version of a package.
+% The binary of the application is installed into the directory
+% \code{\$HOME/.cpm/bin}
+% (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
+% or by the CPM option \code{--define}, see Section~\ref{sec:config}).
 
 \item[\fbox{\code{upgrade}}]
 Upgrades all dependencies of the current package to
@@ -899,8 +921,7 @@ in all versions.
 
 The compiler compatibility of a package is also relevant when
 some version of a package should be examined or installed
-(with CPM commands \code{info}, \code{checkout}, \code{install},
-\code{installapp}).
+(with CPM commands \code{info}, \code{checkout}, \code{install}).
 If a newest package should be installed, i.e., no specific version
 number is provided, then only the newest version
 which is compatible to the current Curry compiler
