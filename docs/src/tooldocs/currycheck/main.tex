@@ -1,0 +1,99 @@
+\documentclass[11pt,fleqn]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{latexsym}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage{graphicx}
+
+\setlength{\textwidth}{16.5cm}
+\setlength{\textheight}{23cm}
+\renewcommand{\baselinestretch}{1.1}
+\setlength{\topmargin}{-1cm}
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\marginparwidth}{0.0cm}
+\setlength{\marginparsep}{0.0cm}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.4cm}
+
+% font for program texts
+\renewcommand{\tt}{\usefont{OT1}{cmtt}{m}{n}\selectfont}
+\newcommand{\codefont}{\small\tt}
+
+\usepackage{listings}
+\lstset{aboveskip=1.5ex,
+        belowskip=1.5ex,
+        showstringspaces=false, % no special string space
+        mathescape=true,
+        flexiblecolumns=false,
+        xleftmargin=2ex,
+        basewidth=0.52em,
+        basicstyle=\small\ttfamily}
+
+\lstset{literate={->}{{$\rightarrow{}\!\!\!$}}3
+       }
+
+\lstnewenvironment{curry}{}{}
+\lstnewenvironment{currynomath}{\lstset{mathescape=false}}{} % Curry w/o math
+\newcommand{\listline}{\vrule width0pt depth1.75ex}
+
+% program text in normal text
+\newcommand{\code}[1]{\mbox{\codefont #1}}
+
+% program text in normal text with apostrophs
+\newcommand{\ccode}[1]{``\code{#1}''}
+
+\newcommand{\pindex}[1]{\index{#1@{\tt #1}}}  % program elements in index
+
+\newcommand{\CYS}{Curry\xspace} % name of the Curry system described here
+\newcommand{\cyshome}{\mbox{\textit{curryhome}}\xspace} % symbolic installation directory
+
+\begin{document}
+\sloppy
+
+\input{manual.tex}
+
+% Bibliography
+\begin{thebibliography}{10}
+
+\bibitem{AntoyHanus05LOPSTR}
+S.~Antoy and M.~Hanus.
+\newblock Declarative programming with function patterns.
+\newblock In {\em Proceedings of the International Symposium on Logic-based
+  Program Synthesis and Transformation (LOPSTR'05)}, pages 6--22. Springer LNCS
+  3901, 2005.
+
+\bibitem{AntoyHanus09}
+S.~Antoy and M.~Hanus.
+\newblock Set functions for functional logic programming.
+\newblock In {\em Proceedings of the 11th ACM SIGPLAN International Conference
+  on Principles and Practice of Declarative Programming (PPDP'09)}, pages
+  73--82. ACM Press, 2009.
+
+\bibitem{AntoyHanus12PADL}
+S.~Antoy and M.~Hanus.
+\newblock Contracts and specifications for functional logic programming.
+\newblock In {\em Proc. of the 14th International Symposium on Practical
+  Aspects of Declarative Languages (PADL 2012)}, pages 33--47. Springer LNCS
+  7149, 2012.
+
+\bibitem{ChristiansenFischer08FLOPS}
+J.~Christiansen and S.~Fischer.
+\newblock {EasyCheck} - test data for free.
+\newblock In {\em Proc. of the 9th International Symposium on Functional and
+  Logic Programming (FLOPS 2008)}, pages 322--336. Springer LNCS 4989, 2008.
+
+\bibitem{ClaessenHughes00}
+K.~Claessen and J.~Hughes.
+\newblock Quickcheck: A lightweight tool for random testing of haskell
+  programs.
+\newblock In {\em International Conference on Functional Programming
+  (ICFP'00)}, pages 268--279. ACM Press, 2000.
+
+
+\end{thebibliography}
+
+\end{document}
