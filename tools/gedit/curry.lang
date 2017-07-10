@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Authors: Finn Teegen
- Copyright (C) 2016 Finn Teegen <fte@informatik.uni-kiel.de>
+ Author: Finn Teegen
+ Copyright (c) 2016-2017 Finn Teegen <fte@informatik.uni-kiel.de>
 -->
 <language id="curry" _name="Curry" version="2.0" _section="Source">
   <metadata>
@@ -177,6 +177,7 @@
     </context>
     <context id="curry" class="no-spell-check">
       <include>
+        <context ref="c:preprocessor"/>
         <context ref="body"/>
       </include>
     </context>
