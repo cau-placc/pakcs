@@ -358,8 +358,8 @@ assumed to start in column 0.
 
 % Data type
 \production{DataDecl}{
-     \term{data} SimpleType \margtext{external data type}
-\alt \term{data} SimpleType \term{=} ConstrDecls \extension{\opt{\term{deriving} DerivingDecl}}
+     \extension{\term{external}} \term{data} SimpleType \margtext{external data type}
+\alt \term{data} SimpleType \extension{\opt{\term{=} ConstrDecls} \opt{\term{deriving} DerivingDecl}}
 }\\
 \production{ConstrDecls}{\gseq{ConstrDecl}{|}{n} \margin{n \geq 1}}\\
 \production{ConstrDecl}{
