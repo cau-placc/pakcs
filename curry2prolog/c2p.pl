@@ -1584,7 +1584,14 @@ failprint(Exp,E,E) :-
 parseProgram(ProgS,Verbosity,Warnings) :-
 	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
-	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat'],CM1),
+	compilerMajorVersion(MajorVersion),
+	versionAtom(MajorVersion, MajorVersionAtom),
+	compilerMinorVersion(MinorVersion),
+	(MinorVersion < 100 -> true
+	  ; writeLnErr('ERROR minor version too large!'), fail),
+	padVersionAtom(MinorVersion, PaddedMinorVersionAtom),
+	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat -D__PAKCS__=',
+	  MajorVersionAtom,PaddedMinorVersionAtom],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	((Warnings=yes, pakcsrc(warnoverlapping,no))
@@ -1624,6 +1631,22 @@ addImports([],CY,CY).
 addImports([I|Is],CY1,CY3) :-
 	appendAtoms([CY1,' -i',I],CY2),
 	addImports(Is,CY2,CY3).
+
+versionAtom(Version,Atom) :-
+	number_chars(Version,Chars),
+	atom_chars(Atom,Chars).
+
+padVersionAtom(Version,PaddedAtom) :-
+	number_chars(Version,Chars),
+	padList(Chars,'0',2,PaddedChars),
+	atom_chars(PaddedAtom,PaddedChars).
+
+padList(List,_,Length,PaddedList) :-
+	length(List,Length), !,
+	PaddedList = List.
+padList(List,Pad,Length,PaddedList) :-
+	length(List, Length2), Length2 < Length,
+	padList([Pad|List],Pad,Length,PaddedList).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % small pretty printer for type expressions:
