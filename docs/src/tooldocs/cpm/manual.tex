@@ -5,7 +5,7 @@
 \usepackage{listings}
 \usepackage{amsmath}
 \lstset{aboveskip=1.5ex,
-        belowskip=1.5ex,
+        belowskip=1.2ex,
         showstringspaces=false,
         mathescape=true,
         flexiblecolumns=false,
@@ -649,7 +649,7 @@ category (see Section~\ref{sec:reference})
 of the central package index.
 The option \code{--csv} shows the information in CSV format.
 
-\item[\fbox{\code{search [--module] $query$}}]
+\item[\fbox{\code{search [--module|--exec] $query$}}]
 Searches the names, synopses, and exported module names of all 
 packages of the central package index for occurrences of the given
 search term.
@@ -660,6 +660,17 @@ exporting the module \code{JSON.Data} can be found by the command
 \begin{lstlisting}
 > cpm search --module JSON.Data
 \end{lstlisting}
+%
+If the option \code{--exec} is set, then the search is restricted
+to the name of the executable provided by the package.
+For instance, the command
+%
+\begin{lstlisting}
+> cpm search --exec show
+\end{lstlisting}
+%
+lists all packages where the name of the executable contains the
+string \ccode{show}.
 
 \item[\fbox{\code{update}}] Updates the local copy of the central package index
 to the newest available version.
