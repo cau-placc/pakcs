@@ -1,14 +1,14 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.0 (May 22, 2017)
+Release notes for PAKCS Version 2.0.0 (July 24, 2017)
 -----------------------------------------------------
 
 This version has almost the same functionality as Version 1.15.0
 but adds type classes similar to Haskell 98.
 
 
-Release notes for PAKCS Version 1.15.0 (May 30, 2017)
+Release notes for PAKCS Version 1.15.0 (July 24, 2017)
 -----------------------------------------------------
 
 Changes to version 1.14.2:
@@ -20,6 +20,8 @@ Changes to version 1.14.2:
     easily be installed (by a one-line command) locally via `cpm`.
     Instructions how to install these tools are included
     in the PAKCS manual.
+  * Operation `RegExp.match`: order of arguments swapped
+  * Curry preprocessor does not generate implicit `match` for regexps.
   * Some libraries removed since they are available as packages
     which can easily be installed via `cpm`:
 
