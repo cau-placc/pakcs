@@ -41,9 +41,9 @@ export PAKCSINSTALLDIR =
 
 ########################################################################
 # The major version numbers:
-MAJORVERSION=2
+export MAJORVERSION=2
 # The minor version number:
-MINORVERSION=0
+export MINORVERSION=0
 # The revision version number:
 REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
