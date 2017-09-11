@@ -3,7 +3,8 @@
 
 :- module(prologbasics,
 	  [installDir/1,
-           prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
+	   prolog/1, prologMajorVersion/1, prologMinorVersion/1,
+	   swi7orHigher/0,
 	   verbosity/1, fileOpenOptions/1,
 	   sicstus310orHigher/0, generatePrologBasics/0,
 %SICS3X	   append/3, member/2,
@@ -212,6 +213,7 @@ sicstus4 :-
 	getSicstusVersion(SV),
 	atom_codes(SV,[52|_]). % 52 = '4'
 
+swi7orHigher :- fail.
 
 generatePrologBasics :- sicstus37orLower, !,
 	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl | sed "s/%SICS37/ /g" > prologbasics.pl').

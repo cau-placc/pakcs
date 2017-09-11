@@ -18,6 +18,8 @@
 :- use_module(basics).
 :- ensure_lib_loaded(prim_readshowterm).
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dynamic numberOfCalls/1, numberOfExits/1, singlestep/0, tracemode/0,
 	   spypoints/1, spymode/0, spyFail/0, printDepth/1,
