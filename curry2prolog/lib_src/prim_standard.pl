@@ -28,6 +28,8 @@
 :- (current_module(basics)       -> true ; use_module('../basics')).
 :- (current_module(evaluator)    -> true ; use_module('../evaluator')).
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 % dereference a function's argument, i.e., remove all top-level sharing structures:
 %derefRoot(R,V) :- var(R), !, V=R.
 %derefRoot(share(M),V) :- !,

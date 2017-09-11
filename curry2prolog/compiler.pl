@@ -20,6 +20,8 @@
 :- use_module(readFlcFromFcy).
 :- use_module(loader).
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 :- dynamic numberOfShares/1,
 	   maxTupleArity/1, includePrelude/0,
 	   bugInFlcFile/0,
@@ -51,7 +53,7 @@ allFunctions([]).     % list of all defined functions
 allConstructors([]).  % list of all constructors
 externalFuncs([]).    % list of all external functions
 currentFunction(unknown). % name of currently translated function (for errors)
-newFunctionCounter("",0). % counter for generating new function names
+newFunctionCounter([],0). % counter for generating new function names
 newAuxFunctions([]). % list of generated auxiliary functions
                      % (for nested case/or)
 dynamicPredNames([]). % list of pred names/file names for dynamic predicates
@@ -405,7 +407,7 @@ mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg) :-
 	    RT is RT2-RT1,
 	    writeErr(RT), writeLnErr(' ms.')
 	  ; true),
-        append(ModName,".",ModNameDotS), atom_codes(ModNameDot,ModNameDotS),
+        append(ModName,[46],ModNameDotS), atom_codes(ModNameDot,ModNameDotS),
 	map2partialM(compiler:addModuleName2PrimSpecs(ModNameDot),PrimSpecs,QPrimSpecs),
 	addPrimitiveSpecs2FlatProg(PlainFlatProg,QPrimSpecs,FlatProg).
 mergeWithPrimitiveSpecs(PlainFlatProg,_,FlatProg) :-
@@ -2245,18 +2247,14 @@ transCases(F_I,VarsX,['Branch'('Pattern'(Name,ConsVars),Exp)|Cases],
 	flatName2Atom(Name,Cons),
 	Pattern =.. [Cons|ConsVars],
 	append(ConsVars,VarsX,NewVars),
-	(number(Cons) -> number_codes(Cons,ConsS),
-	                 atom_codes(ConsA,ConsS)  % transform number into atom
-		       ; ConsA=Cons),
+	atomic2Atom(Cons,ConsA),
 	appendAtom('_',ConsA,Aux),
 	(noFurtherNonFailingCase(CType,Cases) -> Cut=withcut ; Cut=nocut),
 	transExp(F_I,Aux,[Pattern|VarsX],NewVars,Cut,Exp),
 	transCases(F_I,VarsX,Cases,NCType,FName).
 transCases(F_I,VarsX,['Branch'('LPattern'(Lit),Exp)|Cases],CType,FName) :-
 	transCaseLit2Cons(Lit,Cons),
-	(number(Cons) -> number_codes(Cons,ConsS),
-	                 atom_codes(ConsA,ConsS)  % transform number into atom
-		       ; ConsA=Cons),
+	atomic2Atom(Cons,ConsA),
 	appendAtom('_',ConsA,Aux),
 	transExp(F_I,Aux,[Cons|VarsX],VarsX,nocut,Exp),
 	transCases(F_I,VarsX,Cases,CType,FName).
@@ -2645,13 +2643,6 @@ deleteLastTrue(Head,Head).
 deleteLastTrueInBody((L,true),L) :- !.
 deleteLastTrueInBody((L,B),(L,B1)) :- deleteLastTrueInBody(B,B1).
 
-
-% check whether an atom consists only of alphanum chars:
-isAlphaNumAtom(A) :- atom_codes(A,AS), isAlphaNumString(AS).
-isAlphaNumString([]).
-isAlphaNumString([C|Cs]) :-
-	(65=<C, C=<90 ; C=95 ; 97=<C, C=<122),
-	isAlphaNumString(Cs).
 
 % replace all dots by underscores in an atom:
 replaceDotByUnderscore(DA,UA) :-

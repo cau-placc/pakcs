@@ -11,6 +11,8 @@
 :- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 :- (current_module(basics)       -> true ; use_module('../basics')).
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion of Curry data terms into string representation in
 % standard prefix notation
