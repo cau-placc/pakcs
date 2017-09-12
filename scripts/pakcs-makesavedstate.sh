@@ -74,6 +74,13 @@ else
   TMPSTATE=$STATE
 fi
 
+if [ -z "$SICSTURDIR" ] ; then
+  # patch SWI-Prolog saved state with unlimited memory option
+  # so that the generated binaries have the same behavior as PAKCS:
+  sed "3s/-x/-L0 -G0 -T0 -x/" < $TMPSTATE > $TMPSTATE$$
+  mv $TMPSTATE$$ $TMPSTATE
+fi
+
 TMPFILE=TMPSAVEDSTATE$$
 echo "#!/bin/sh" > $TMPFILE
 if test -n "$LANG" ; then
