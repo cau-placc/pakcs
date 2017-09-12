@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.15.0 (July 24, 2017)
------------------------------------------------------
+Release notes for PAKCS Version 1.15.0 (September 12, 2017)
+-----------------------------------------------------------
 
 Changes to version 1.14.2:
 
@@ -38,6 +38,7 @@ Changes to version 1.14.2:
   * Libraries `tools/ui` removed since they are available as
     CPM package `ui`.
   * Command `:xml` removed (since the XML format is deprecated).
+  * Compatibility with newer version of SWI-Prolog (7.x) improved.
 
 
 Release notes for PAKCS Version 1.14.2 (February 23, 2017)
