@@ -7,6 +7,8 @@
 :- use_module(prologbasics).
 :- use_module(basics).
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 % The XML parser:
 % Argument 1: XML string
 % Argument 2: XML documents, i.e., list with elements of the form

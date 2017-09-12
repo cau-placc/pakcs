@@ -10,6 +10,8 @@
 :- use_module(evaluator).
 :- use_module(compiler). % compiler from FlatCurry into Prolog
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic compileWithCompact/1,
@@ -428,7 +430,8 @@ flatType2Atom(Type,CurryType) :-
 % of some class contexts and return the context type in the second
 % argument and the class name (string) in the third argument:
 classDict(T,_,_) :- var(T), !, fail.
-classDict('TCons'(FCDictA,[A]),A,Dict) :-
+classDict('TCons'(FCDict,[A]),A,Dict) :-
+        atomic2Atom(FCDict,FCDictA), % hack for SWI 7.x if FCDict == []
         atom_codes(FCDictA,FCDictS),
         atom_codes('._Dict\'23',FCDictPrefixS),
         append(ModFCDictPrefixS,DictS,FCDictS),

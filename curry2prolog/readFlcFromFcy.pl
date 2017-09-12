@@ -8,6 +8,8 @@
 :- use_module(basics).
 :- ensure_lib_loaded(prim_readshowterm).  % for term en/decoding
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 readFlcFromFcy(FileName,FlatProg) :-
 	(verbosityIntermediate
 	 -> write(user_error,'>>> Reading '),

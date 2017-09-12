@@ -3,7 +3,9 @@
 
 :- module(prologbasics,
 	  [installDir/1,
-           prolog/1, prologMajorVersion/1, prologMinorVersion/1, pakcsrc/2,
+           prolog/1, prologMajorVersion/1, prologMinorVersion/1,
+           swi7orHigher/0,
+           pakcsrc/2,
 	   verbosity/1, fileOpenOptions/1, currentModuleFile/2,
 	   sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
@@ -80,6 +82,10 @@ prologMajorVersion(MV) :-
 prologMinorVersion(MV) :-
 	current_prolog_flag(version,VN),
 	MV is (VN mod 10000)//100.
+
+swi7orHigher :-
+        prologMajorVersion(Major),
+        Major>=7.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- multifile pakcsrc/2. % relevant for createSavedState
@@ -600,7 +606,7 @@ ensure_lib_loaded(Lib) :-
         currentModuleFile(Mod,PMod),
         % drop last Prolog file name:
         atom_codes(PMod,PModS), atom_codes(Mod,ModS),
-        append(PModwopl,".pl",PModS),
+        append(PModwopl,[46,112,108],PModS), % append suffix ".pl"
         append(PModDirS,ModS,PModwopl),
         atom_codes(PModDir,PModDirS),
         % compute module directory by going up in the hierarchy:

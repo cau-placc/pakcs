@@ -22,7 +22,7 @@
 		  evaluateDynamicPredInfo/3, checkDynamicAccessMethod/2,
 		  resetDynamicPreds/0, clearDynamicPreds/0,
 		  isCharCons/1, isString/1, char_int/2, cp_string/2,
-		  string2Atom/2, atom2String/2,
+		  string2Atom/2, atom2String/2, atomic2Atom/2,
 		  removeShares/2, term2partcall/3, isCompleteList/2,
 		  getNewFileName/2, mainPrologFileName/1,
 		  extendPath/3, path2String/2, pathString2loadPath/2,
@@ -56,6 +56,8 @@
 
 :- use_module(prologbasics).
 :- use_module(pakcsversion).
+
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -825,13 +827,25 @@ atom2String(Atom,String) :-
 	atom_codes(Atom,Ints), map2M(basics:char_int,String,Ints), !.
 
 
+% translate a Prolog atomic value (atom, number, empty list) into a
+% Prolog atom:
+atomic2Atom([],'[]') :- !.                     % for SWI-Prolog >= 7
+atomic2Atom(Atomic,Atom) :- number(Atomic), !, % transform number into atom
+	number_codes(Atomic,AtomicS),
+	atom_codes(Atom,AtomicS).
+atomic2Atom(A,A).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % auxiliaries for handling FlatCurry names in the Prolog code:
 
 % transform a FlatCurry name (list of character codes) into an atom used
 % in the Prolog target code:
-flatName2Atom("Prelude.:",'.') :- !. % translate Curry list cons into Prolog list cons
-flatName2Atom("Prelude.[]",'[]') :- !. % keep name of list (type) constructor
+flatName2Atom("Prelude.:",ConsAtom) :- !,
+        % translate Curry list cons into Prolog list cons:
+        (swi7orHigher -> ConsAtom='[|]' ; ConsAtom='.').
+flatName2Atom("Prelude.[]",[]) :- !. % keep name of list (type) constructor
+%flatName2Atom("Prelude.[]",'[]') :- !. % keep name of list (type) constructor
 flatName2Atom(Name,Atom) :- % keep name of tuple (type) constructor
 	isTupleConsString(Name), !, atom_codes(Atom,Name).
 %flatName2Atom(Name,Atom) :- atom_codes(Atom,Name).

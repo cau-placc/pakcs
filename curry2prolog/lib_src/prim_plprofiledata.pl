@@ -62,7 +62,7 @@ prim_getHnfDefinitions(HnfInfos) :-
 	checkPlProfiling,
 	lastload(ProgS),
 	atom_codes(Prog,ProgS),
-	(Prog="" -> write('ERROR: no program loaded for profiling'), nl,
+	(Prog=[] -> write('ERROR: no program loaded for profiling'), nl,
 	            !, fail
                   ; true),
 	% this does no longer work since the main Prolog file is deleted
