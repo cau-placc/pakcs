@@ -3,9 +3,9 @@
 
 :- module(prologbasics,
 	  [installDir/1,
-<<<<<<< HEAD
-	   prolog/1, prologMajorVersion/1, prologMinorVersion/1,
-	   swi7orHigher/0,
+           prolog/1, prologMajorVersion/1, prologMinorVersion/1,
+           swi7orHigher/0,
+           pakcsrc/2,
 	   verbosity/1, fileOpenOptions/1,
 	   sicstus310orHigher/0,
 	   atomCodes/2, atEndOfStream/1,
