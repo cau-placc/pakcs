@@ -10,6 +10,8 @@
 :- use_module(evaluator).
 :- use_module(compiler). % compiler from FlatCurry into Prolog
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic compileWithCompact/1,
