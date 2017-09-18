@@ -52,19 +52,40 @@
 
 \maketitle
 
-\begin{abstract}
+\tableofcontents
+
+\clearpage
+
+
+\section{Introduction}
+
 This document describes the Curry package manager (CPM), a tool to
 distribute and install Curry libraries and manage version dependencies
 between these libraries.
-\end{abstract}
+
+A distinguishing feature of CPM is its ability to perform
+\emph{semantic versioning checking}, i.e., CPM provides a command
+to check the semantics of a new package version against an
+older version of the same package.
+
+
+\bigskip\bigskip
 
 \section{Installing the Curry Package Manager}
 
-To install and use CPM, a working installation of either the
+CPM is part of recent distributions of the Curry systems
 PAKCS\footnote{\url{https://www.informatik.uni-kiel.de/~pakcs/}}
-compiler in version 1.14.1 or greater, or the
+(since version 1.15.0)
+and
 KiCS2\footnote{\url{https://www-ps.informatik.uni-kiel.de/kics2/}}
-compiler in version 0.5.1 or greater is required. Additionally, CPM requires 
+(since version 0.6.0).
+If you use an older release of PAKCS or KiCS2 or you want to
+install the most recent CPM version from the source repository,
+this section contains some hints about the installation of CPM.
+
+To install and use CPM, a working installation of either
+PAKCS in version 1.14.1 or greater, or
+KiCS2 in version 0.5.1 or greater is required. Additionally, CPM requires 
 \emph{Git}\footnote{\url{http://www.git-scm.com}},
 \emph{curl}\footnote{\url{https://curl.haxx.se}}
 and \emph{unzip} to be available on the \code{PATH} during installation and 
@@ -82,8 +103,46 @@ Then type \code{make} to compile CPM which generates
 a binary called \code{cpm} in the \code{bin} subdirectory. Put
 this binary somewhere on your path.
 
-Afterwards, run \code{cpm update} to pull down a copy of the central package 
-index to your system.
+
+\clearpage
+
+\section{Starting the Curry Package Manager}
+
+If the binary \code{cpm} is on your path, execute the command
+%
+\begin{lstlisting}
+> cpm update
+\end{lstlisting}
+%
+to pull down a copy of the central package index to your system.
+You can use the same command to update later
+your copy of the central package index to the newest version.
+
+Afterwards, you can show a short list of all packages in this index by
+%
+\begin{lstlisting}
+> cpm list
+\end{lstlisting}
+%
+The command
+%
+\begin{lstlisting}
+> cpm info PACKAGE
+\end{lstlisting}
+%
+can be used to show more information about a package.
+There is also a command
+%
+\begin{lstlisting}
+> cpm search QUERY
+\end{lstlisting}
+%
+to search inside the central package index.
+
+Section~\ref{sec:cmd-reference} contains a complete list of all
+available CPM commands.
+
+\clearpage
 
 \section{Package Basics}
 \label{sec:package-basics}
@@ -139,6 +198,8 @@ $\geq 2.0.0, < 3.0.0 || \geq 4.0.0$ would match any version within major version
 $2$ and from major version $4$ onwards, but no version within major version $3$.
 
 
+\clearpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Using Packages}
 
@@ -186,14 +247,6 @@ installed on previous runs of \code{cpm install}, you can use the
 \code{cpm upgrade} command to upgrade all dependencies to their newest 
 compatible versions, or \code{cpm upgrade <package>} to update a specific 
 package and all its transitive dependencies to the newest compatible version.
-
-Note that there is also a \code{cpm update} command, which will update
-your copy of the central package index to the newest version. You can
-list all packages of the central package index via the
-\code{cpm list} command, or you can
-search the central package index via the \code{cpm search}
-command. See Section~\ref{sec:cmd-reference} for a reference of all
-commands.
 
 If the package also contains an implementation of a complete executable,
 e.g., some useful tool,
@@ -268,18 +321,18 @@ if \code{\$HOME/.cpm/bin} is in your path
 of this default path).
 
 
-\subsection{Executing the Curry Compiler}
+\subsection{Executing the Curry System in a Package}
 
-To use the dependencies of a package, the Curry compiler needs to be
-started via CPM so that the compiler will know where to search for the
+To use the dependencies of a package, the Curry system needs to be
+started via CPM so that it will know where to search for the
 modules provided. You can use the command \ccode{cpm curry} to start the
-Curry compiler (which is either the compiler used to install CPM
+Curry system (which is either the compiler used to install CPM
 or specified with the configuration option \code{CURRY_BIN},
 see Section~\ref{sec:config}).
 Any parameters given to \ccode{cpm curry} will be passed along verbatim to
-the Curry compiler.
-For example, the following will start the Curry
-compiler, print the result of evaluating the expression \code{39+3}
+the Curry system.
+For example, the following will start the Curry system,
+print the result of evaluating the expression \code{39+3}
 and then quit.
 
 \begin{lstlisting}
@@ -292,6 +345,31 @@ you can use the \ccode{cpm exec} command.
 This command will set the \code{CURRYPATH} environment variable
 and then execute the command given after \ccode{exec}.
 
+
+\subsection{Using Packages Without a Package}
+
+In principle, packages can be used only inside another package
+by declaring dependencies.
+Thus, if you develop a Curry application which is not a package
+but you want to use some package, you have to put
+a package specification file into the source directory of
+your application where you define the required packages.
+As a shortcut for this, you can use the CPM command
+\code{cpm add --dependency} (short: \code{cpm add -d})
+to install the package specification file.
+
+For instance, to use the libraries of the JSON package
+in your application, one can use the following commands:
+%
+\begin{lstlisting}
+> cpm add -d json  # generate package specification with 'json' dependency
+> cpm install      # download and install all dependencies
+> cpm curry        # start Curry system with JSON libraries in load path
+...
+Prelude> :load JSON.Data
+JSON.Data>
+\end{lstlisting}
+%
 
 \subsection{Replacing Dependencies with Local Versions}
 \label{sec:cpm-link}
@@ -320,6 +398,9 @@ arguments, which will clear the local package cache. See
 Section~\ref{sec:internals} for more information on the global and local package
 caches.
 
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Authoring Packages}
 
 If you want to create packages for other people to use, you should consider 
@@ -446,7 +527,7 @@ when searching for packages. For this purpose, you can use the
 \ccode{cpm add} command:
 %
 \begin{lstlisting}
-> cpm add mypackage
+> cpm add --package mypackage
 \end{lstlisting}
 %
 In this case, \code{mypackage} is the name of the directory containing
@@ -522,6 +603,8 @@ specification file to \url{packages@curry-language.org} in order to
 publish it.
 
 
+\clearpage
+
 \section{Configuration}
 \label{sec:config}
 
@@ -568,6 +651,8 @@ one can execute the command
 \end{lstlisting}
 
 
+\clearpage
+
 \section{Some CPM Internals}
 \label{sec:internals}
 
@@ -600,6 +685,9 @@ local package cache to the \emph{run-time cache}, which is stored in
 \code{foo/.cpm/packages}. Ultimately, the Curry compiler only sees the package
 copies in the run-time cache, and never those from the local or global package
 caches.
+
+
+\clearpage
 
 \section{Command Reference}
 \label{sec:cmd-reference}
@@ -695,7 +783,7 @@ or by the CPM option \code{--define}, see Section~\ref{sec:config}).
 \code{--$pre$} enables the installation of pre-release versions.
 
 \item[\fbox{\code{install $package$ $version$}}]
-Install the application provided by a specific version of a package.
+Installs the application provided by a specific version of a package.
 The binary of the application is installed into the directory
 \code{\$HOME/.cpm/bin}
 (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
@@ -836,16 +924,25 @@ Any arguments are passed verbatim to the compiler.
 \item[\fbox{\code{link $source$}}] Can be used to replace a dependency of the 
 current package using a local copy, see Section~\ref{sec:cpm-link} for details.
 
-\item[\fbox{\code{add $source$ [--force]}}]
-Copies the package contained in $source$ into the local copy
+\item[\fbox{\code{add --package $dir$ [--force]}}]
+Copies the package contained in directory $dir$ into the local copy
 of the central package index so that it can be used by other packages
 in the local environment
 (see Section~\ref{sec:adding-a-package} for details).
 The option \ccode{--force} allows to overwrite existing copies
 in the central package index.
 
+\item[\fbox{\code{add --dependency $package$ [--force]}}]
+Adds the package $package$ as a new dependency of the current package.
+This command either modifies the package description file (\code{package.json})
+of the current package and adds a dependency to the given package
+in this file or, if there is no package description file,
+generates a new one with this dependency.
+The option \ccode{--force} allows to overwrite existing dependencies
+in the package description file.
+
 \item[\fbox{\code{clean}}] Cleans the current package from the
-generated auxiliariy files, e.g., intermediate Curry files,
+generated auxiliary files, e.g., intermediate Curry files,
 installed dependent packages, etc.
 Note that a binary installed in the CPM \code{bin} directory
 (by the \code{install} command) will not be removed.
@@ -856,6 +953,8 @@ after installing the application.
 Creates a new project package with the given name and some template files.
 \end{description}
 
+
+\clearpage
 
 \section{Package Specification Reference}
 \label{sec:reference}
@@ -872,8 +971,11 @@ for semantic versioning version numbers.
 
 \item[\fbox{\code{author*}}] The package's author. This is a free-form field, 
 the suggested format is either a name or a name followed by an email address in
-angle brackets, e.g., \code{John Doe <john@doe.com>}. Multiple authors should
-be separated by commas.
+angle brackets, e.g.,
+\begin{lstlisting}
+John Doe <john@doe.com>
+\end{lstlisting}
+Multiple authors should be separated by commas.
 
 \item[\fbox{\code{maintainer}}] The current maintainers of the package, if 
 different from the original authors. This field allows the current maintainers
@@ -881,7 +983,10 @@ to indicate the best person or persons to contact about the package while
 attributing the original authors.
 
 The suggested format is a name followed by an email address in
-angle brackets, e.g., \code{John Doe <john@doe.com>}.
+angle brackets, e.g.,
+\begin{lstlisting}
+John Doe <john@doe.com>
+\end{lstlisting}
 Multiple maintainers should be separated by commas.
 
 \item[\fbox{\code{synopsis*}}] A short form summary of the package's purpose.
@@ -1171,6 +1276,8 @@ are used:
 \end{lstlisting}
 
 
+\clearpage
+
 \section{Error Recovery}
 \label{sec:recovery}
 
@@ -1203,3 +1310,5 @@ by the command \code{cpm update}.
 
 
 \end{document}
+
+%  LocalWords:  CPM versioning
