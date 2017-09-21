@@ -15,6 +15,7 @@
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
+           readLine/1,
 	   waitConcurrentConjunction/6,
 	   appendAtom/3,
 	   map1M/2, map2M/3, map1partialM/2, map2partialM/3,
@@ -229,7 +230,7 @@ generatePrologBasics :-	sicstus38orHigher, !,
 	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl > prologbasics.pl').
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % import the right libraries:
 :- sicstus37orLower -> true ;
    (sicstus4
@@ -240,7 +241,15 @@ generatePrologBasics :-	sicstus38orHigher, !,
 :- use_module(library(system)).
 :- use_module(library(sockets)).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% read a single line from stdin (return end_of_file if there is no more input)
+readLine(Input) :-
+	get_code(C),
+	(C=10 -> Input = []
+               ; (C= -1 -> Input= end_of_file ; readLine(Cs), Input=[C|Cs])).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of suspension for concurrent conjunction (&)
 
 ?- block waitConcurrentConjunction(?,?,?,-,-,?).

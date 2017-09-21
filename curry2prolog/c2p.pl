@@ -265,7 +265,7 @@ main :-
 	flush_output(user_output),
 	flush_output(user_error),
 	readLine(Input),
-	(Input = -1 -> true
+	(Input = end_of_file -> true
             ; removeBlanks(Input,ShortInput),
 	      process(ShortInput)),
 	cleanupAtEnd,
