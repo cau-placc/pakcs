@@ -58,7 +58,6 @@
 :- use_module(pakcsversion).
 
 :- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
-:- use_module(library(readline)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
