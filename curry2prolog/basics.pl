@@ -50,7 +50,7 @@
 		  ensureDirOfFile/1, prog2DirProg/2, prog2PrologFile/2,
 		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
 		  prog2ICurryFile/2, hierarchical2dirs/2,
-		  readLine/1, readStreamLine/2, removeBlanks/2, skipblanks/2,
+		  readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
 		  printError/1, prologError2Atom/2]).
 
@@ -58,6 +58,7 @@
 :- use_module(pakcsversion).
 
 :- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+:- use_module(library(readline)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -708,12 +709,6 @@ hierarchical2dirs(HModName,DModName) :-
 dot2slash(C1,C2) :- C1=46 -> C2=47 ; C2=C1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% read a single line from stdin:
-readLine(Input) :-
-	get_code(C),
-	(C=10 -> Input = []
-               ; (C= -1 -> Input= -1 ; readLine(Cs), Input=[C|Cs])).
-
 % read a line from a stream:
 readStreamLine(Str,[]) :-
 	atEndOfStream(Str), !.
