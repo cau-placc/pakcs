@@ -1,0 +1,80 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+VERBOSE=1
+
+DISTPKGINSTALL=yes
+CURRYFRONTEND=/usr/bin/curry-frontend
+CURRYLIBSDIR=$(CURDIR)/debian/build/curry-libs
+CURRYTOOLSDIR=$(CURDIR)/debian/build/curry-tools
+PAKCSINSTALLDIR=/usr/lib/pakcs
+
+# Only run unit tests on 64bit architectures for the reason given below.
+#
+# Quoting... http://www.swi-prolog.org/pldoc/man?section=64bits
+#
+# First of all, SWI-Prolog's addressing of the Prolog stacks does not
+# cover the whole address space due to the use of type tag bits and
+# garbage collection flags. On 32-bit hardware the stacks are limited to
+# 128 MB each. This tends to be too low for demanding applications on
+# modern hardware. On 64-bit hardware the limit is 2^32 times higher,
+# exceeding the addressing capabilities of today's CPUs and operating
+# systems. This implies Prolog can be started with stack sizes that use
+# the full capabilities of your hardware.
+
+ifeq (,$(filter 32,$(DEB_HOST_ARCH_BITS)))
+DEB_MAKE_CHECK_TARGET = runtestverbose
+else
+DEB_MAKE_CHECK_TARGET =
+endif
+DEB_MAKE_BUILD_TARGET = all DISTPKGINSTALL=$(DISTPKGINSTALL) CURRYFRONTEND=$(CURRYFRONTEND) CURRYLIBSDIR=$(CURRYLIBSDIR) CURRYTOOLSDIR=$(CURRYTOOLSDIR) PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)
+DEB_MAKE_CLEAN_TARGET = cleanall
+
+DEB_DH_INSTALLCHANGELOGS_ARGS = RELNOTES.txt
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/makefile.mk
+
+pre-build::
+	# obtain lib-trunk folder content...
+	if [ ! -d "debian/build/curry-libs" ]; then \
+	    mkdir -p debian/build/curry-libs/; \
+	    cd debian/build/curry-libs && tar xf /usr/src/curry-libs-source.tar.xz && cd - 1>/dev/null; \
+	fi
+
+	# obtain currytools folder content...
+	if [ ! -d "debian/build/curry-tools" ]; then \
+	    mkdir -p debian/build/curry-tools/; \
+	    cd debian/build/curry-tools && tar xf /usr/src/curry-tools-source.tar.xz && cd - 1>/dev/null; \
+	fi
+
+	# deploy Debianic pakcsinitrc into source tree...
+	cp debian/pakcsinitrc .
+
+	# make sure cleancurry is available in PAKCSHOME/bin, required for test suite
+	mkdir -p bin/
+	ln -fs ../scripts/cleancurry.sh bin/cleancurry
+
+binary-post-install/pakcs::
+	chmod a+x debian/pakcs/usr/lib/pakcs/bin/cleancurry
+	chmod a+x debian/pakcs/usr/lib/pakcs/bin/pakcs
+	chmod a+x debian/pakcs/usr/lib/pakcs/bin/pakcs-fcypp
+	chmod a+x debian/pakcs/usr/lib/pakcs/bin/pakcs-makecgi
+	chmod a+x debian/pakcs/usr/lib/pakcs/scripts/*.sh
+	chmod a+x debian/pakcs/usr/lib/pakcs/scripts/configure-pakcs
+	chmod a+x debian/pakcs/usr/lib/pakcs/scripts/makesavedstate
+
+	# remove superfluous LICENSE files
+	rm debian/pakcs/usr/lib/pakcs/currytools/LICENSE
+
+	# remove superfluous upstream VCS related files
+	rm debian/pakcs/usr/lib/pakcs/currytools/peval/.gitignore
+
+clean::
+	-rm -R bin/
+	-rm -R currytools/
+	-rm -R debian/build/
+	-rm  scripts/makesavedstate
+
+get-orig-source:
+	uscan --noconf --force-download --rename --download-current-version --destdir=..
