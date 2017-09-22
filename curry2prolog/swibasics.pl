@@ -130,7 +130,7 @@ sicstus310orHigher :- fail.
 % read a single line from stdin (return end_of_file if there is no more input)
 readLine(Input) :-
         read_line_to_codes(current_input,Input),
-        (Input = end_of_file -> true
+        (Input = end_of_file -> nl
          ; atom_codes(InputA,Input), rl_add_history(InputA)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
