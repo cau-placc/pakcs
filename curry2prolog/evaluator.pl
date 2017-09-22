@@ -147,7 +147,7 @@ evaluateMainExp(E,Vs,RTime1,ETime1) :-
 	       !,
 	       % store command (beginning with ":") for processing:
 	       (More=[58|_] -> storeFirstCmds([More]) ; true),
-	       More = -1)).   % do not fail if user types end-of-file
+	       More = end_of_file)).   % do not fail if user types end-of-file
 evaluateMainExp(_,_,_,_) :-
 	% no further message ("no more values") in case of abort:
 	retract(errorAbort),
@@ -215,8 +215,9 @@ writeMoreSolutions :-
 
 readMore(More) :-
 	readLine(Line),
-	(Line = -1 -> More=Line
-	            ; removeBlanks(Line,Input), processReadMore(Input,More)).
+	(Line = end_of_file
+         -> More=Line
+	  ; removeBlanks(Line,Input), processReadMore(Input,More)).
 
 processReadMore([58|Cs],[58|Cs]) :- !. % 58=':'
 processReadMore("y","y") :- !.
