@@ -5,8 +5,8 @@ VERBOSE=1
 
 DISTPKGINSTALL=yes
 CURRYFRONTEND=/usr/bin/curry-frontend
-CURRYLIBSDIR=$(CURDIR)/debian/build/curry-libs
-CURRYTOOLSDIR=$(CURDIR)/debian/build/curry-tools
+CURRYLIBSDIR=$(CURDIR)/lib-trunk
+CURRYTOOLSDIR=$(CURDIR)/currytools
 PAKCSINSTALLDIR=/usr/lib/pakcs
 
 # Only run unit tests on 64bit architectures for the reason given below.
@@ -37,16 +37,16 @@ include /usr/share/cdbs/1/class/makefile.mk
 
 pre-build::
 	# obtain lib-trunk folder content...
-	if [ ! -d "debian/build/curry-libs" ]; then \
-	    mkdir -p debian/build/curry-libs/; \
-	    cd debian/build/curry-libs && tar xf /usr/src/curry-libs-source.tar.xz && cd - 1>/dev/null; \
-	fi
+	#if [ ! -d "debian/build/curry-libs" ]; then \
+	#    mkdir -p debian/build/curry-libs/; \
+	#    cd debian/build/curry-libs && tar xf /usr/src/curry-libs-source.tar.xz && cd - 1>/dev/null; \
+	#fi
 
 	# obtain currytools folder content...
-	if [ ! -d "debian/build/curry-tools" ]; then \
-	    mkdir -p debian/build/curry-tools/; \
-	    cd debian/build/curry-tools && tar xf /usr/src/curry-tools-source.tar.xz && cd - 1>/dev/null; \
-	fi
+	#if [ ! -d "debian/build/curry-tools" ]; then \
+	#    mkdir -p debian/build/curry-tools/; \
+	#    cd debian/build/curry-tools && tar xf /usr/src/curry-tools-source.tar.xz && cd - 1>/dev/null; \
+	#fi
 
 	# deploy Debianic pakcsinitrc into source tree...
 	cp debian/pakcsinitrc .
