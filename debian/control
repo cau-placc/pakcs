@@ -1,0 +1,46 @@
+Source: pakcs
+Section: devel
+Priority: extra
+Maintainer: Debian Curry Maintainers <pkg-curry-maintainers@lists.alioth.debian.org>
+Uploaders:
+ Mike Gabriel <sunweaver@debian.org>,
+ Michael Hanus <mh@informatik.uni-kiel.de>,
+Build-Depends: cdbs,
+ debhelper (>= 9),
+ quilt,
+ curry-frontend (>= 0.4.2-2~),
+# curry-libs-source (>= 1.0.3-1~),
+# curry-tools-source (>= 1.0.3+dfsg1-1~),
+ swi-prolog-nox (>= 7.2.3),
+ sqlite3,
+ lockfile-progs,
+Standards-Version: 4.1.0
+Homepage: https://www-ps.informatik.uni-kiel.de/~pakcs/
+Vcs-Browser: https://anonscm.debian.org/git/pkg-curry/pakcs.git
+Vcs-Git: https://anonscm.debian.org/git/pkg-curry/pakcs.git
+
+Package: pakcs
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ curry-frontend (>= 0.4.2-2~),
+ libjs-prototype (>= 1.6),
+ swi-prolog-nox (>= 7.2.3),
+ lockfile-progs,
+Recommends:
+ sqlite3,
+Suggests:
+ tk
+Description: Portland Aachen Kiel Curry Compiler
+ PAKCS is an implementation of the multi-paradigm declarative language
+ Curry jointly developed by the Portland State University, the Aachen
+ University of Technology, and the University of Kiel. Although this is
+ not a highly optimized implementation but based on a high-level
+ compilation of Curry programs into Prolog programs, it is not a toy
+ implementation: PAKCS has been used for a variety of applications so far
+ (e.g., graphical programming environments, an object-oriented front-end
+ for Curry, partial evaluators, database applications, HTML programming
+ with dynamic web pages, prototyping embedded systems). The size of all
+ current Curry applications implemented with PAKCS amounts to more than
+ 150,000 lines (or 8 mbytes) of program code. 

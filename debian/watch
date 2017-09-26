@@ -1,0 +1,3 @@
+version=3
+opts=dversionmangle=s/\+dfsg[0-9]*//,filenamemangle=s/.*\/v(\d\S+)\/archive\.tar\.gz/pakcs-$1\.tar\.gz/g \
+  https://git.ps.informatik.uni-kiel.de/curry/pakcs/tags?sort=updated_desc .*/v?(\d\S+)/archive\.tar\.gz

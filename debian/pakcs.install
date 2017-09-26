@@ -1,0 +1,16 @@
+bin usr/lib/pakcs/
+curry2prolog usr/lib/pakcs/
+currytools usr/lib/pakcs/
+docs usr/lib/pakcs/
+examples usr/lib/pakcs/
+include usr/lib/pakcs/
+lib usr/lib/pakcs/
+Makefile usr/lib/pakcs/
+pakcsrc.default usr/lib/pakcs/
+README usr/lib/pakcs/
+RELNOTES.txt usr/lib/pakcs/
+RESOURCES.html usr/lib/pakcs/
+scripts usr/lib/pakcs/
+testsuite2 usr/lib/pakcs/
+tools usr/lib/pakcs/
+debian/bin/cleancurry usr/lib/pakcs/bin/

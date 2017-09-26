@@ -1,0 +1,33 @@
+.TH PAKCS "1" "December 2016" "1.14.1" "Compiler"
+.SH NAME
+runcurry \- execute a Curry program without explicit compilation
+
+.SH SYNOPSIS
+\fBruncurry\fR \fI[OPTIONS] MODULE RTARGS\fR
+
+.SH DESCRIPTION
+The runcurry command is intended to execute Curry programs without
+explicitly invoking the interactive environment PAKCS.
+.PP
+It can be useful to write short scripts in Curry
+intended for direct execution.
+.PP
+For further information, please check
+https://www.informatik.uni-kiel.de/~pakcs/
+
+.SH OPTIONS
+
+.TP
+\fBOPTIONS\fR
+options passed to the Curry compiler PAKCS
+.TP  
+\fBMODULE\fR
+name of the Curry module to be executed (with suffix .curry)
+.TP
+\fBRTARGS\fR
+run-time arguments passed to the Curry program
+
+.SH "AUTHOR"
+This manual page has been written by Michael Hanus and
+converted to nroff format by Mike Gabriel <mike.gabriel@das-netzwerkteam.de>.
+This man page has been written for the Debian project initially, but may also be used by others.
