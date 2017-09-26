@@ -5,7 +5,6 @@
 
 .PHONY: all
 all:
-	@cd optimize  ; $(MAKE)
 	@cd Peval     ; $(MAKE)
 
 
@@ -13,5 +12,4 @@ all:
 clean:
 	$(CLEANCURRY)
 	cd Peval          && $(MAKE) clean
-	cd optimize       && $(MAKE) clean
 	cd lib_deprecated && $(CLEANCURRY) -r
