@@ -85,6 +85,8 @@ export LIBDIR        = $(ROOT)/lib
 export DOCDIR        = $(ROOT)/docs
 
 # Executable of CurryDoc:
+CURRYCHECK := $(shell which curry-check)
+# Executable of CurryDoc:
 CURRYDOC := $(shell which curry-doc)
 # Executable of the markdown translator (required for documentation generation):
 MD2PDF := $(shell which md2pdf)
@@ -269,7 +271,7 @@ $(MANUALVERSION): Makefile
 .PHONY: libdoc
 libdoc:
 	@if [ ! -x "$(CURRYDOC)" ] ; then \
-	  echo "Executable 'curry-doc' is not installed!" && echo "Install it by > cpm installapp currydoc" ; \
+	  echo "Executable 'curry-doc' is not installed!" && echo "Install it by > cpm install currydoc" ; \
 	else $(MAKE) genlibdoc ; \
 	fi
 
@@ -294,9 +296,15 @@ endif
 # run the test suites to check the installation
 .PHONY: runtest
 runtest:
-	cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
+	@if [ ! -x "$(CURRYCHECK)" ] ; then \
+	  echo "Executable 'curry-check' is not installed!" && echo "To run the tests, install it by > cpm install currycheck" ; \
+	else $(MAKE) runalltests ; fi
+
+.PHONY: runalltests
+runalltests:
+	#cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
-	cd currytools && $(MAKE) runtest
+	#cd currytools && $(MAKE) runtest
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
 
