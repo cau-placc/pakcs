@@ -302,9 +302,9 @@ runtest:
 
 .PHONY: runalltests
 runalltests:
-	#cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
+	cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
-	#cd currytools && $(MAKE) runtest
+	cd currytools && $(MAKE) runtest
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
 
