@@ -31,7 +31,7 @@ if [ -x "$CURRYBIN/pakcs" ] ; then
         sicstus4 ) TESTPAKCSBACKEND="" ;;
         swi5     ) TESTPAKCSBACKEND="TestIO " ;;
     esac
-    TESTPAKCS="TestFlatCurryXML TestGlobalVariable $TESTPAKCSBACKEND"
+    TESTPAKCS="TestGlobalVariable $TESTPAKCSBACKEND"
 elif [ -x "$CURRYBIN/kics2" ] ; then
     TESTKICS2="TestExpTypeInference TestPolySubExp TestUnification TestUnsafeSearchTree"
 fi
