@@ -8,15 +8,15 @@ This version has almost the same functionality as Version 1.15.0
 but adds type classes similar to Haskell 98.
 
 
-Release notes for PAKCS Version 1.15.0 (September 26, 2017)
+Release notes for PAKCS Version 1.15.0 (September 27, 2017)
 -----------------------------------------------------------
 
 Changes to version 1.14.2:
 
   * Readline editing added to REPL in SWI-Prolog (thanks to Jan Wielemaker)
   * Curry Package Manager added as tool `cpm`.
-  * Various tools (e.g., addtypes, currybrowser, currydoc, erd2curry,
-    spicey, verify, xmldata) have been removed from the distribution
+  * Various tools (e.g., addtypes, currybrowser, currycheck, currydoc,
+    erd2curry, spicey, verify, xmldata) have been removed from the distribution
     since they are not necessary for the basic use of PAKCS and they can
     easily be installed (by a one-line command) locally via `cpm`.
     Instructions how to install these tools are included
@@ -32,8 +32,7 @@ Changes to version 1.14.2:
       - `CategorizedHtmlList` (now in package `html`)
       - `CurryStringClassifier` (now in package `addtypes`)
       - `Database.ERDGoodies` (now in package `ertools`)
-      - `FlatCurry.Compact`, `FlatCurry.FlexRigid`, `FlatCurry.Pretty`,
-        `FlatCurry.Show`, `FlatCurry.XML` (now in package `flatcurry`)
+      - `FlatCurry.*` (now in package `flatcurry`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `GraphInductive` (now in package `graph-inductive`)
       - `HtmlParser` (now in package `html`)

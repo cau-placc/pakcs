@@ -47,7 +47,7 @@ export MINORVERSION=0
 # The revision version number:
 REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=10
+BUILDVERSION=11
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -84,6 +84,8 @@ export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
 
+# Executable of CurryDoc:
+CURRYCHECK := $(shell which curry-check)
 # Executable of CurryDoc:
 CURRYDOC := $(shell which curry-doc)
 # Executable of the markdown translator (required for documentation generation):
@@ -269,7 +271,7 @@ $(MANUALVERSION): Makefile
 .PHONY: libdoc
 libdoc:
 	@if [ ! -x "$(CURRYDOC)" ] ; then \
-	  echo "Executable 'curry-doc' is not installed!" && echo "Install it by > cpm installapp currydoc" ; \
+	  echo "Executable 'curry-doc' is not installed!" && echo "Install it by > cpm install currydoc" ; \
 	else $(MAKE) genlibdoc ; \
 	fi
 
@@ -293,7 +295,13 @@ endif
 
 # run the test suites to check the installation
 .PHONY: runtest
-runtest: testsuite/test.sh
+runtest:
+	@if [ ! -x "$(CURRYCHECK)" ] ; then \
+	  echo "Executable 'curry-check' is not installed!" && echo "To run the tests, install it by > cpm install currycheck" ; \
+	else $(MAKE) runalltests ; fi
+
+.PHONY: runalltests
+runalltests: testsuite/test.sh
 	cd testsuite && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
