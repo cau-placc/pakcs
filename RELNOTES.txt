@@ -8,7 +8,7 @@ This version has almost the same functionality as Version 1.15.0
 but adds type classes similar to Haskell 98.
 
 
-Release notes for PAKCS Version 1.15.0 (September 21, 2017)
+Release notes for PAKCS Version 1.15.0 (September 26, 2017)
 -----------------------------------------------------------
 
 Changes to version 1.14.2:
@@ -32,6 +32,8 @@ Changes to version 1.14.2:
       - `CategorizedHtmlList` (now in package `html`)
       - `CurryStringClassifier` (now in package `addtypes`)
       - `Database.ERDGoodies` (now in package `ertools`)
+      - `FlatCurry.Compact`, `FlatCurry.FlexRigid`, `FlatCurry.Pretty`,
+        `FlatCurry.Show`, `FlatCurry.XML` (now in package `flatcurry`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `GraphInductive` (now in package `graph-inductive`)
       - `HtmlParser` (now in package `html`)
@@ -42,6 +44,7 @@ Changes to version 1.14.2:
       - `Rewriting.*` (now in package `rewriting`)
       - `URL` (now in package `url`)
       - `WUI` and `WUIjs` (now in package `wui`)
+      - `XmlConv` (now in package `xml`)
 
   * Libraries `tools/ui` removed since they are available as
     CPM package `ui`.
