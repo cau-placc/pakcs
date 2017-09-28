@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.15.0 (September 27, 2017)
+Release notes for PAKCS Version 1.15.0 (September 28, 2017)
 -----------------------------------------------------------
 
 Changes to version 1.14.2:
@@ -19,6 +19,7 @@ Changes to version 1.14.2:
   * Some libraries removed since they are available as packages
     which can easily be installed via `cpm`:
 
+      - `AbstractCurry.*` (now in package `abstract-curry`)
       - `Bootstrap3Style` (now in package `html`)
       - `CLPB` (now in package `clpbool`)
       - `CHR` (now in package `chr-curry`)
