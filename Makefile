@@ -84,7 +84,7 @@ export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
 
-# Executable of CurryDoc:
+# Executable of CurryCheck:
 CURRYCHECK := $(shell which curry-check)
 # Executable of CurryDoc:
 CURRYDOC := $(shell which curry-doc)
