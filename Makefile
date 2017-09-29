@@ -45,7 +45,7 @@ MAJORVERSION=1
 # The minor version number:
 MINORVERSION=14
 # The revision version number:
-REVISIONVERSION=3
+REVISIONVERSION=4
 # The build version number:
 BUILDVERSION=0
 # Complete version:
