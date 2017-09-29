@@ -11,6 +11,7 @@
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
+           readLine/1,
 	   waitConcurrentConjunction/6,
 	   append/3, member/2,
 	   appendAtom/3,
@@ -116,13 +117,23 @@ isRem(X,Y,Z) :- X is Y rem Z.
 
 sicstus310orHigher :- fail.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % import the right libraries:
 
 :- use_module(library(unix)).
 :- use_module(library(socket)).
+:- use_module(library(readline)).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implementation of terminal readline (with readline editing functionality)
+
+% read a single line from stdin (return end_of_file if there is no more input)
+readLine(Input) :-
+        read_line_to_codes(current_input,Input),
+        (Input = end_of_file -> true
+         ; atom_codes(InputA,Input), rl_add_history(InputA)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of suspension for concurrent conjunction (&)
 
 waitConcurrentConjunction(S1,S2,R,E1,E2,E) :-

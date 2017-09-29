@@ -1,10 +1,19 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 1.14.4 (September 29, 2017)
+-----------------------------------------------------------
+
+Changes to version 1.14.3:
+
+  * Readline editing added to REPL in SWI-Prolog (thanks to Jan Wielemaker)
+
+
 Release notes for PAKCS Version 1.14.3 (September 12, 2017)
 -----------------------------------------------------------
 
 Changes to version 1.14.2:
+
   * Compatibility with newer version of SWI-Prolog (7.x) improved.
 
 
