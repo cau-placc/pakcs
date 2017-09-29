@@ -304,7 +304,7 @@ runtest:
 runalltests: testsuite/test.sh
 	cd testsuite && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
-	cd currytools && $(MAKE) runtest
+	cd currytools && $(MAKE) runtest $(RUNTESTPARAMS)
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
 
