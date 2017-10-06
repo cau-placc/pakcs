@@ -106,6 +106,11 @@ if [ $# != 1 -a $# != 3 ] ; then
   exit 1
 fi
 
+CPMEXEC=
+if [ $CPM = yes ] ; then
+  CPMEXEC="cpm exec"
+fi
+
 # Try to locate WUI/JavaScript translator:
 WUIJS_PREPROCESSOR=`which curry2js`
 if [ ! -x "$WUIJS_PREPROCESSOR" ] ; then
@@ -118,7 +123,7 @@ fi
 if [ -z "$WUIJS_PREPROCESSOR" -a $WUIJS = yes ] ; then
   echo "No support for JavaScript possible!"
   echo "Please install the Curry->JavaScript translator curry2js by:"
-  echo "> cpm update && cpm installapp curry2js"
+  echo "> cpm update && cpm install curry2js"
   exit 1
 fi
 
@@ -164,7 +169,7 @@ if [ $WUIJS = no ] ; then
 else
   CGIBASE=`expr $CGIPROG : '\(.*\)\.cgi' \| $CGIPROG`
   JSFILE=$CGIBASE\_wui.js
-  $WUIJS_PREPROCESSOR -wui -o $JSFILE $PROG $WUIMODULES
+  $CPMEXEC $WUIJS_PREPROCESSOR -wui -o $JSFILE $PROG $WUIMODULES
   if [ $? != 0 ] ; then
     rm -f $MAINCURRY
     exit $?
@@ -189,12 +194,7 @@ fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-if [ $CPM = yes ] ; then
-  COMPILER="cpm exec $CURRYROOT/bin/curry"
-else
-  COMPILER="$CURRYROOT/bin/curry"
-fi
-$COMPILER $CURRYDOPTIONS $CURRYOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
+$CPMEXEC $CURRYROOT/bin/curry $CURRYDOPTIONS $CURRYOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
 
 # now the file $MAINMOD should contain the executable computing the HTML form:
 if test ! -f $MAINMOD ; then
