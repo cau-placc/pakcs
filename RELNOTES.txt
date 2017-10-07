@@ -12,6 +12,7 @@ only the additional differences:
     which can easily be installed via `cpm`:
 
       - `HTML` (now in package `html` as library `HTML.Base`)
+      - `XML` (now in package `xml`)
 
 
 Release notes for PAKCS Version 1.15.0 (September 28, 2017)
