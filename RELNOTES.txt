@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 1.15.0 (September 28, 2017)
------------------------------------------------------------
+Release notes for PAKCS Version 1.15.0 (October 8, 2017)
+--------------------------------------------------------
 
 Changes to version 1.14.2:
 
@@ -29,6 +29,7 @@ Changes to version 1.14.2:
       - `FlatCurry.*` (now in package `flatcurry`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `GraphInductive` (now in package `graph-inductive`)
+      - `HTML` (now in package `html` as library `HTML.Base`)
       - `HtmlParser` (now in package `html`)
       - `JavaScript` (now in package `javascript`)
       - `Mail` (now in package `mail`)
@@ -37,6 +38,7 @@ Changes to version 1.14.2:
       - `Rewriting.*` (now in package `rewriting`)
       - `URL` (now in package `url`)
       - `WUI` and `WUIjs` (now in package `wui`)
+      - `XML` (now in package `xml`)
       - `XmlConv` (now in package `xml`)
 
   * Libraries `tools/ui` removed since they are available as
