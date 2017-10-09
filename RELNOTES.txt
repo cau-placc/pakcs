@@ -29,6 +29,7 @@ Changes to version 1.14.2:
       - `FlatCurry.*` (now in package `flatcurry`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `GraphInductive` (now in package `graph-inductive`)
+      - `GUI` (now in package `gui`)
       - `HTML` (now in package `html` as library `HTML.Base`)
       - `HtmlParser` (now in package `html`)
       - `JavaScript` (now in package `javascript`)
