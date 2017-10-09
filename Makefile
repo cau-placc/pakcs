@@ -47,7 +47,7 @@ MINORVERSION=15
 # The revision version number:
 REVISIONVERSION=0
 # The build version number:
-BUILDVERSION=12
+BUILDVERSION=13
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
