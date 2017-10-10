@@ -14,8 +14,6 @@
 :- (current_module(version)      -> true ; use_module('../version')).
 :- (current_module(pakcsversion) -> true ; use_module('../pakcsversion')).
 
-:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
-
 :- dynamic dynamicTime/1, dynamicVersion/3, insideTransaction/0.
 
 dynamicTime(1).
@@ -316,9 +314,8 @@ translateDynFactArg('GT','Prelude.GT') :- !.
 translateDynFactArg('EQ','Prelude.EQ') :- !.
 translateDynFactArg(Name,NewName) :-
 	atomic(Name),
-	atom_codes(Name,[40|Cs]), !, % tuple constructor
-	append("Prelude.(",Cs,NewCs),
-	atom_codes(NewName,NewCs).
+	atom_codes(Name,[40|_]), !, % tuple constructor
+	appendAtom('Prelude.',Name,NewName).
 translateDynFactArg(Char,NewChar) :-
 	atom(Char), atom_codes(Char,[39|L]), !, % old character representation
 	(L=[N]
