@@ -12,4 +12,3 @@ all:
 clean:
 	$(CLEANCURRY)
 	cd Peval          && $(MAKE) clean
-	cd lib_deprecated && $(CLEANCURRY) -r
