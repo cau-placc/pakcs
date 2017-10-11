@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.0 (October 8, 2017)
-----------------------------------------------------------
+Release notes for PAKCS Version 2.0.0 (October 11, 2017)
+--------------------------------------------------------
 
 This version has almost the same functionality as Version 1.15.0
 but adds type classes similar to Haskell 98.
@@ -33,11 +33,14 @@ Changes to version 1.14.2:
       - `CategorizedHtmlList` (now in package `html`)
       - `CurryStringClassifier` (now in package `addtypes`)
       - `Database.ERDGoodies` (now in package `ertools`)
+      - `Database.ERD` and `Database.CDBI.*` (now in package `cdbi`)
       - `FlatCurry.*` (now in package `flatcurry`)
       - `FlatCurry.Annotated.*` (now in package `flatcurry-annotated`)
       - `GraphInductive` (now in package `graph-inductive`)
+      - `GUI` (now in package `gui`)
       - `HTML` (now in package `html` as library `HTML.Base`)
       - `HtmlParser` (now in package `html`)
+      - `KeyDatabaseSQLite` (now in package `keydb`)
       - `JavaScript` (now in package `javascript`)
       - `Mail` (now in package `mail`)
       - `Markdown` (now in package `markdown`)
