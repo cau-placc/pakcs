@@ -8,7 +8,7 @@ CURRYBIN=$CURRYHOME/bin
 TESTLANG="testFunctional testInfinite testHigher testNarrowing testNondet testCase testFCase testLetRec testRecords testNonLinearPattern testFuncPattern testAsPattern"
 
 # test for standard libraries
-TESTLIBS="testPrelude testArray testCombinatorial testDequeue testDirectory testFiniteMap testFormat testGlobal testInteger testIOExts testKeyDatabaseSQLite testList testRedBlackTree testRegExp testSetFunctions testSort testSystem testTraversal"
+TESTLIBS="testPrelude testArray testCombinatorial testDequeue testDirectory testFiniteMap testFormat testGlobal testInteger testIOExts testList testRedBlackTree testRegExp testSetFunctions testSort testSystem testTraversal"
 
 if [ -x "$CURRYBIN/pakcs" ] ; then
     BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
@@ -19,7 +19,7 @@ if [ -x "$CURRYBIN/pakcs" ] ; then
         sicstus4 ) TESTPAKCSBACKEND=" " ;;
         swi5     ) TESTPAKCSBACKEND="testIO " ;;
     esac
-    TESTPAKCS="testDatabase testGlobalVariable $TESTPAKCSBACKEND"
+    TESTPAKCS="testGlobalVariable $TESTPAKCSBACKEND"
 elif [ -x "$CURRYBIN/kics2" ] ; then
     TESTKICS2="testExpTypeInference testPolySubExp testUnification testUnsafeSearchTree"
 fi
