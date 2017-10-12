@@ -1673,7 +1673,15 @@ writeType('FuncType'(S,T),nested) :-
 	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
 	write('('), writeType(S,S_Tag), write(' -> '), writeType(T,top),
 	write(')').
-writeType('TCons'([],['TCons'('Prelude.Char',[])]),_) :- !,% print "[Char]" as "String"
+writeType('TCons'('Prelude.Apply',[S,T]),top) :-
+        !, % print type constructor "Prelude.Apply" as type application
+	writeType(S,nested), write(' '), writeType(T,nested).
+writeType('TCons'('Prelude.Apply',[S,T]),nested) :-
+        !, % print type constructor "Prelude.Apply" as type application
+	write('('), writeType(S,nested), write(' '), writeType(T,nested),
+	write(')').
+writeType('TCons'([],['TCons'('Prelude.Char',[])]),_) :-
+        !, % print "[Char]" as "String"
 	write('String').
 writeType('TCons'([],[T]),_) :- !,  % list type
 	write('['), writeType(T,top), write(']').
