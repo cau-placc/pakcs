@@ -378,7 +378,7 @@ processExpression(Input,ExprGoal) :-
         processExpressionWithType(Input,none,ExprGoal).
 processExpressionWithType(Input,InitMainExpType,ExprGoal) :-
 	parseMainExpression(Input,InitMainExpType,Term,Type,Vs,
-                            MainExpType,Overloaded),
+                            _,MainExpType,Overloaded),
 	processOrDefaultMainExpression(Input,Term,Type,Vs,MainExpType,
                                        Overloaded,ExprGoal).
 
@@ -446,11 +446,14 @@ classDict('TCons'(FCDict,[A]),A,Dict) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-parseMainExpression(Input,InitMainExpType,Term,Type,Vs,MainExpType,Ovld) :-
+parseMainExpression(Input,InitMainExpType,Term,Type,Vs,
+                    MainExpType,DfltMainExpType,Ovld) :-
 	(freeVarsUndeclared(yes)
-	  -> parseExpressionSimple(Input,Term,Type,Vs,Ovld), MainExpType=none
+         -> parseExpressionSimple(Input,Term,Type,Vs,Ovld),
+            MainExpType=Type,
+            DfltMainExpType=none
           ; parseExpressionWithFrontend(Input,InitMainExpType,Term,Type,Vs,
-                                        MainExpType,Ovld)),
+                                        MainExpType,DfltMainExpType,Ovld)),
 	(verbosityDetailed
           -> write('Translated expression: '), writeq(Term), nl
            ; true).
@@ -468,14 +471,15 @@ parseExpressionSimple(Input,Term,Type,Vs,false) :-
 % process a given main expression by writing it into a main module
 % and calling the front end:
 parseExpressionWithFrontend(Input,InitMainExpType,MainExp,Type,Vs,
-                            MainExpType,Ovld) :-
+                            MainExpType,DfltMainExpType,Ovld) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
 	parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,
-                                         MainExp,Type,Vs,MainExpType,Ovld).
+                                         MainExp,Type,Vs,
+                                         MainExpType,DfltMainExpType,Ovld).
 
 parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,MainExp,
-                                 Type,Vs,MainExpType,Ovld) :-
+                                 Type,Vs,MainExpType,DfltMainExpType,Ovld) :-
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
@@ -512,10 +516,11 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,MainExp,
 	     FlatExp = 'Comb'('FuncCall',
 	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
         flatType2MainType([],FuncType,_,MFuncType),
+        copy_term(MFuncType,MainExpType),
         defaultNumType(MFuncType,DefNumType),
         removeDefaultedTypes(DefNumType,DType),
-        (isOverloadedType(DType) -> MainExpType=none    % can't default
-                                  ; flatType2Atom(DType,MainExpType)),
+        (isOverloadedType(DType) -> DfltMainExpType=none    % can't default
+                                  ; flatType2Atom(DType,DfltMainExpType)),
         stripFuncTypes(NumVars,DType,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
@@ -523,7 +528,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,InitMainExpType,MainExp,
 	(FVL=RAL -> Ovld=false ; Ovld=true),
 	!,
 	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_,_,_) :-
+parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
 	!, failWithExitCode.
 
@@ -942,7 +947,7 @@ processCommand("define",BindingS) :- !,
 	asserta(varDefines([Var=Exp|OldDefs])).
 
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(ExprInput,none,Term,Type,Vs,_,Ovld),
+	parseMainExpression(ExprInput,none,Term,_,Vs,Type,_,Ovld),
 	(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
                     ; writeCurryTermWithFreeVarNames(Vs,Term)),
 	write(' :: '),
@@ -1093,7 +1098,7 @@ processCommand("source",Arg) :-
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	parseMainExpression(ExprInput,none,Term,_Type,_Vs,_,_),
+	parseMainExpression(ExprInput,none,Term,_Type,_Vs,_,_,_),
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
@@ -1474,7 +1479,7 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	parseMainExpression(ExprInput,none,_Term,Type,_Vs,_,_),
+	parseMainExpression(ExprInput,none,_Term,Type,_Vs,_,_,_),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
