@@ -136,10 +136,8 @@ in the configuration file \ccode{\curryrc} file
 (see Section~\ref{sec-customization}).
 
 \textbf{Free variables in initial expressions} must be declared as
-in Curry programs
-(if the free variable mode\index{free variable mode} is not turned on,
-see option \ccode{+free} below).
-Thus, in order to see the results of their bindings,
+in Curry programs.
+In order to see the results of their bindings,
 they must be introduced by a \ccode{where\ldots{}free} declaration.
 For instance, one can write
 \begin{curry}
@@ -158,10 +156,10 @@ by typos.
 Same as $expr$. This command might be useful when putting
 commands as arguments when invoking \code{pakcs}.
 
-\item[\fbox{:define $x$=$expr$}]
-Define the identifier $x$ as an abbreviation for the expression $expr$
-which can be used in subsequent expressions. The identifier $x$
-is visible until the next \code{load} or \code{reload} command.
+% \item[\fbox{:define $x$=$expr$}]
+% Define the identifier $x$ as an abbreviation for the expression $expr$
+% which can be used in subsequent expressions. The identifier $x$
+% is visible until the next \code{load} or \code{reload} command.
 
 \item[\fbox{\code{:quit}}]\pindex{:quit} Exit the system.
 \end{description}
@@ -344,20 +342,6 @@ are currently supported:
 In the debug mode, one can trace the evaluation of an expression,
 setting spy points (break points) etc.\ (see the commands
 for the debug mode described below).
-
-\item[\fbox{\code{+/-free}}]\pindex{free}
-Free variable mode.\index{free variable mode}
-If the free variable mode is off (default), then
-free variables occurring in initial expressions entered in the
-\CYS environment must always be declared by \ccode{where\ldots{}free}.
-This avoids the introduction of free variables in initial expressions
-by typos (which might lead to the exploration of infinite search spaces).
-If the free variable mode is on, each undefined symbol occurring
-in an initial expression is considered as a free variable.
-In this case, the syntax of accepted initial expressions
-is more restricted.
-In particular, lambda abstractions, \code{let}s and list comprehensions
-are not allowed if the free variable mode is on.
 
 \item[\fbox{\code{+/-printfail}}]\pindex{printfail} Print failures.
 If this option is set, failures occurring during evaluation
