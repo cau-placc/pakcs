@@ -109,14 +109,6 @@ expression val "(10+5*2)/4" =:= []  where val free
 pali "abaaba" =:= []
 pali5
 :cd ..
-:cd CLP
-:l mortgage
-mortgage 100000.0 180.0 0.01 r 0.0  where r free
-:l smm
-smm l  where l free
-:l smm2
-smm
-:cd ..
 :cd distcurry
 :l accountport
 goal1 b  where b free
@@ -146,11 +138,7 @@ SWI=`pwd`/../bin/swiprolog
 
 # Check differences:
 DIFF=diff$$
-if [ -x "$SICSTUS" ] ; then
-  diff TESTRESULT.sicstus $LOGFILE > $DIFF
-elif [ -x "$SWI" ] ; then
-  diff TESTRESULT.swi     $LOGFILE > $DIFF
-fi
+diff TESTRESULT.txt $LOGFILE > $DIFF
 if [ "`cat $DIFF`" = "" ] ; then
   echo
   echo "Regression test successfully executed!"
