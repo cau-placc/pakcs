@@ -14,6 +14,8 @@
 :- (current_module(version)      -> true ; use_module('../version')).
 :- (current_module(pakcsversion) -> true ; use_module('../pakcsversion')).
 
+:- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
+
 :- dynamic dynamicTime/1, dynamicVersion/3, insideTransaction/0.
 
 dynamicTime(1).

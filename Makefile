@@ -41,13 +41,13 @@ export PAKCSINSTALLDIR =
 
 ########################################################################
 # The major version numbers:
-MAJORVERSION=1
+export MAJORVERSION=2
 # The minor version number:
-MINORVERSION=15
+export MINORVERSION=0
 # The revision version number:
 REVISIONVERSION=0
-# The build version number:
-BUILDVERSION=14
+# The build version number (if >0, then it is a pre-release)
+BUILDVERSION=16
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -301,8 +301,8 @@ runtest:
 	else $(MAKE) runalltests ; fi
 
 .PHONY: runalltests
-runalltests:
-	cd testsuite2 && ./test.sh $(RUNTESTPARAMS)
+runalltests: testsuite/test.sh
+	cd testsuite && ./test.sh $(RUNTESTPARAMS)
 	cd lib && ./test.sh $(RUNTESTPARAMS)
 	cd currytools && $(MAKE) runtest
 	# remove .curry (might contain analysis results if home is missing)
@@ -404,4 +404,5 @@ cleandist:
 	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
 	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist
 	rm -rf docs/src
+	rm -rf debian
 	rm -f KNOWN_BUGS CHANGELOG.html

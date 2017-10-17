@@ -16,7 +16,7 @@
 -}
 
 data Color = Red | Green | Yellow | Blue
-
+ deriving Eq
 
 isColor :: Color -> Bool
 isColor Red    = True

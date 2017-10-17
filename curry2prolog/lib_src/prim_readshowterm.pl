@@ -5,6 +5,8 @@
 
 :- module(prim_readshowterm,
 	  [prim_showQTerm/2, prim_showTerm/2, show_term/4,
+           prim_readNatLiteral/2, prim_readFloatLiteral/2,
+           prim_readCharLiteral/2, prim_readStringLiteral/2,
 	   prim_readsQTerm/2, prim_readsUnqualifiedTerm/3, readTerm/4,
 	   skipWhiteSpace/2, isShowableArg/1]).
 
@@ -91,7 +93,7 @@ showNumber(N,S,E) :-
 	       ; % enclose negative number in parentheses:
 	         char_int(Op,40), char_int(Cl,41),
 	         append([Op|String],[Cl|E],S)).
-	       
+
 show_termstring([],[Quot|E],E) :- char_int(Quot,34).
 show_termstring([C|T],S,E) :-
 	char_int(C,N),
@@ -184,6 +186,61 @@ diffList([H|T],[H|DT],DTE) :- diffList(T,DT,DTE).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% conversion of string representations of nat literals into Curry terms:
+prim_readNatLiteral([CC|String],['Prelude.(,)'(Num,TailString)]) :-
+	char_int(CC,C), C>47, C<58,
+        natconst(NumStr,String,TailString),
+        number_codes(Num,[C|NumStr]), !.
+prim_readNatLiteral(_,[]). % parse error
+
+natconst([C|Cs]) --> [CC],
+        { char_int(CC,C), C>47, C<58 }, !,
+        natconst(Cs).
+natconst([]) --> skipblanks.
+
+% conversion of string representations of float literals into Curry terms:
+prim_readFloatLiteral([CC|String],['Prelude.(,)'(Num,TailString)]) :-
+	char_int(CC,C), C>47, C<58,
+        floatconst(NumStr,String,TailString),
+        number_codes(Num,[C|NumStr]), !.
+prim_readFloatLiteral(_,[]). % parse error
+
+floatconst([C|Cs]) --> [CC],
+        { char_int(CC,C), C>47, C<58 }, !,
+        floatconst(Cs).
+floatconst([46,C|Cs]) --> [PC], { char_int(PC,46) }, [CC],
+        { char_int(CC,C), C>47, C<58 }, !,
+        floatconstrest(Cs).
+
+floatconstrest([C|Cs]) --> [CC],
+        { char_int(CC,C), C>47, C<58 }, !,
+        floatconstrest(Cs).
+floatconstrest([C|Cs]) --> [CC], {char_int(CC,C), C=69 ; C=101}, !, % exponent
+	intconst(Cs).
+floatconstrest([]) --> skipblanks.
+
+intconst(Cs) --> ( [CC], {char_int(CC,45)}, natconst(NCs), {Cs=[45|NCs]}
+		  ; natconst(Cs)
+		  ).
+
+% conversion of string representations of char literals into Curry terms:
+% TODO: avoid char_int conversion
+prim_readCharLiteral(String,['Prelude.(,)'(Char,TailString)]) :-
+	map2M(basics:char_int,String,[C|PrologString]),
+	C=39, readChar(PrologString,Tail,Char),
+	map2M(basics:char_int,TailString,Tail), !.
+prim_readCharLiteral(_,[]). % parse error
+
+% conversion of string representations of string literals into Curry terms:
+% TODO: avoid char_int conversion
+prim_readStringLiteral(String,['Prelude.(,)'(Result,TailString)]) :-
+	map2M(basics:char_int,String,[C|PrologString]),
+	C=34, readString(PrologString,Tail,Result),
+	map2M(basics:char_int,TailString,Tail), !.
+prim_readStringLiteral(_,[]). % parse error
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % conversion of standard prefix string representations of Curry terms
 % into Curry terms:
 
@@ -229,6 +286,7 @@ readTerm0([36|Cs],Q,T,Term) :-
 	Term =.. [Func|Args].
 readTerm0(S,Q,T,Term) :-
 	readTermS(S,Q,T,Term).
+
 
 % special case for Unsafe.readAny(Q)Term:
 readTermS([95|S],Q,T,'_'(Num)) :- % variable encoding
@@ -345,7 +403,7 @@ addQualifier([_|Prefixes],Id,QId) :- addQualifier(Prefixes,Id,QId).
 addQualifier([],Id,_) :-
 	writeErr('ERROR: Unknown unqualified symbol: '),
 	writeErr(Id), nlErr, fail.
-	
+
 readCompList(S,Q,T,[Elem|Tail]) :-
 	readTerm(S,Q,SA1,Elem), skipWhiteSpace(SA1,SA2),
 	(SA2=[93|SA3] -> T=SA3, Tail=[] ;
@@ -375,7 +433,46 @@ readChar([92,N|S],T,C) :- N>=48, N<58, !, % read decimal numeric char
 readChar([92,N,39|T],T,C) :- !,
 	readStringChar(N,NS),
 	char_int(C,NS).
-readChar([92,69,83,67,39|T],T,C) :- !, char_int(C,27).  % '\ESC' character
+readChar([92,78,85,76,39|T],T,C) :- !, char_int(C,0). % '\NUL' character
+readChar([92,83,79,72,39|T],T,C) :- !, char_int(C,1). % '\SOH' character
+readChar([92,83,84,88,39|T],T,C) :- !, char_int(C,2). % '\STX' character
+readChar([92,69,84,88,39|T],T,C) :- !, char_int(C,3). % '\ETX' character
+readChar([92,69,79,84,39|T],T,C) :- !, char_int(C,4). % '\EOT' character
+readChar([92,69,78,81,39|T],T,C) :- !, char_int(C,5). % '\ENQ' character
+readChar([92,65,67,75,39|T],T,C) :- !, char_int(C,6). % '\ACK' character
+readChar([92,97,39|T],T,C) :- !, char_int(C,7). % '\a' character
+readChar([92,66,69,76,39|T],T,C) :- !, char_int(C,7). % '\BEL' character
+readChar([92,98,39|T],T,C) :- !, char_int(C,8). % '\b' character
+readChar([92,66,83,39|T],T,C) :- !, char_int(C,8). % '\BS' character
+readChar([92,116,39|T],T,C) :- !, char_int(C,9). % '\t' character
+readChar([92,72,84,39|T],T,C) :- !, char_int(C,9). % '\HT' character
+readChar([92,110,39|T],T,C) :- !, char_int(C,10). % '\n' character
+readChar([92,76,70,39|T],T,C) :- !, char_int(C,10). % '\LF' character
+readChar([92,118,39|T],T,C) :- !, char_int(C,11). % '\v' character
+readChar([92,86,84,39|T],T,C) :- !, char_int(C,11). % '\VT' character
+readChar([92,102,39|T],T,C) :- !, char_int(C,12). % '\f' character
+readChar([92,70,70,39|T],T,C) :- !, char_int(C,12). % '\FF' character
+readChar([92,114,39|T],T,C) :- !, char_int(C,13). % '\r' character
+readChar([92,67,82,39|T],T,C) :- !, char_int(C,13). % '\CR' character
+readChar([92,83,79,39|T],T,C) :- !, char_int(C,14). % '\SO' character
+readChar([92,83,73,39|T],T,C) :- !, char_int(C,15). % '\SI' character
+readChar([92,68,76,69,39|T],T,C) :- !, char_int(C,16). % '\DLE' character
+readChar([92,68,67,49,39|T],T,C) :- !, char_int(C,17). % '\DC1' character
+readChar([92,68,67,50,39|T],T,C) :- !, char_int(C,18). % '\DC2' character
+readChar([92,68,67,51,39|T],T,C) :- !, char_int(C,19). % '\DC3' character
+readChar([92,68,67,52,39|T],T,C) :- !, char_int(C,20). % '\DC4' character
+readChar([92,78,65,75,39|T],T,C) :- !, char_int(C,21). % '\NAK' character
+readChar([92,83,89,78,39|T],T,C) :- !, char_int(C,22). % '\SYN' character
+readChar([92,69,84,66,39|T],T,C) :- !, char_int(C,23). % '\ETB' character
+readChar([92,67,65,78,39|T],T,C) :- !, char_int(C,24). % '\CAN' character
+readChar([92,69,77,39|T],T,C) :- !, char_int(C,25). % '\EM' character
+readChar([92,83,85,66,39|T],T,C) :- !, char_int(C,26). % '\SUB' character
+readChar([92,69,83,67,39|T],T,C) :- !, char_int(C,27). % '\ESC' character
+readChar([92,70,83,39|T],T,C) :- !, char_int(C,28). % '\FS' character
+readChar([92,71,83,39|T],T,C) :- !, char_int(C,29). % '\GS' character
+readChar([92,82,83,39|T],T,C) :- !, char_int(C,30). % '\RS' character
+readChar([92,85,83,39|T],T,C) :- !, char_int(C,31). % '\US' character
+readChar([92,83,80,39|T],T,C) :- !, char_int(C,32). % '\SP' character
 readChar([92,68,69,76,39|T],T,C) :- !, char_int(C,127). % '\DEL' character
 readChar([N,39|T],T,C) :- char_int(C,N).
 

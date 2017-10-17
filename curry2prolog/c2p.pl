@@ -295,7 +295,7 @@ prefixOf(Prefix,[Full|_],Full) :- append(Prefix,_,Full).
 prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
-allCommands(["add","browse","cd","compile","coosy","define",
+allCommands(["add","browse","cd","compile","coosy",
              "edit","eval","fork","help",
 	     "interface","load","modules","peval","programs","quit","reload",
 	     "save","set","show","source","type","usedimports"]).
@@ -375,7 +375,19 @@ ioAdmissible.
 % process a given main expression:
 
 processExpression(Input,ExprGoal) :-
-	parseMainExpression(Input,Term,Type,Vs),
+        processExpressionWithType(Input,none,ExprGoal).
+
+processExpressionWithType(Input,InitMainExpType,ExprGoal) :-
+	parseMainExpression(Input,InitMainExpType,Term,Type,Vs,
+                            _,DfltTypeAtom,Overloaded),
+	processOrDefaultMainExpression(Input,Term,Type,Vs,DfltTypeAtom,
+                                       Overloaded,ExprGoal).
+
+% If the main expression is overloaded, try to default it to some
+% numeric type:
+processOrDefaultMainExpression(_Input,Term,Type,Vs,_,false,ExprGoal) :-
+	% we can directly process non-overloaded expressions:
+	!,
 	(isIoType(Type) -> ioAdmissible ; true),
 	(verbosemode(yes) ->
 	    (verbosityQuiet -> writeCurryTermWithFreeVarNames(Vs,Term), nl
@@ -387,38 +399,74 @@ processExpression(Input,ExprGoal) :-
 		writeFreeVars(Vs))
 	 ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
+processOrDefaultMainExpression(Input,_,_,_,DfltTypeAtom,_,ExprGoal) :-
+        \+ DfltTypeAtom=none, !,
+	(verbosityDetailed -> write('Defaulted type of main expression: '),
+                              write(DfltTypeAtom), nl
+                            ; true),
+	processExpressionWithType(Input,DfltTypeAtom,ExprGoal).
+processOrDefaultMainExpression(_,_,Type,_,_,_,_) :-
+	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
+                            ; true),
+        writeErr('Cannot handle arbitrary overloaded top-level expressions'),
+	nlErr,
+        writeErr('Hint: add type annotation to overloaded entity'), nlErr,
+        fail.
 
-parseMainExpression(Input,Term,Type,Vs) :-
-	(freeVarsUndeclared(yes)
-	  -> parseExpressionSimple(Input,Term,Type,Vs)
-	   ; parseExpressionWithFrontend(Input,Term,Type,Vs)),
-	(verbosityDetailed
-          -> write('Translated expression: '), writeq(Term), nl
-           ; true).
+% translate a flat type into an atom in Curry syntax:
+flatType2Atom(Type,CurryType) :-
+        % small hack to avoid redefinition of writeType/2 to writeType/3...
+        getNewFileName("maintype",NewFile),
+        tell(NewFile),
+	  numbersmallvars(97,_,Type), writeType(Type), nl, 
+	told,
+	open(NewFile,read,Stream),
+	  readStreamLine(Stream,TypeString),
+	close(Stream),
+	appendAtoms(['rm -rf ',NewFile],RmCmd), shellCmd(RmCmd),
+	atom_codes(CurryType,TypeString).
 
-parseExpressionSimple(Input,Term,Type,Vs) :-
-	(mainexpr(Exp,FreeVars,Input,[])
-          -> true
-           ; write('*** Syntax error'), nl, setExitCode(1), !, fail),
-	%write('Type expression: '), writeq(Exp), nl,
-	typecheck(Exp,Type),
-	exp2Term(Exp,[],Term,Vs),
-	checkFreeVars(FreeVars,Vs),
-	!.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check whether the first argument is the (FlatCurry) representation
+% of some class contexts and return the context type in the second
+% argument and the class name (string) in the third argument:
+classDict(T,_,_) :- var(T), !, fail.
+classDict('TCons'(FCDict,[A]),A,Dict) :-
+        atomic2Atom(FCDict,FCDictA), % hack for SWI 7.x if FCDict == []
+        atom_codes(FCDictA,FCDictS),
+        atom_codes('._Dict\'23',FCDictPrefixS),
+        append(ModFCDictPrefixS,DictS,FCDictS),
+        append(ModS,FCDictPrefixS,ModFCDictPrefixS), !,
+        atom_codes(ModA,ModS),
+        currentModuleFile(CurrMod,_),
+        ((ModA='Prelude' ; ModA=CurrMod)
+          -> Dict = DictS
+           ; append(ModS,[46|DictS],Dict)),
+        !.
 
-% process a given main expression by writing it into a main module
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% process a given expression by writing it into a main module
 % and calling the front end:
-parseExpressionWithFrontend(Input,MainExp,Type,Vs) :-
+parseMainExpression(Input,InitMainExpType,MainExp,Type,Vs,
+                    MainExpType,DfltTypeAtom,Ovld) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
-	parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs).
+	parseExpressionWithFrontend(MainExprDir,Input,InitMainExpType,
+                                    MainExp,Type,Vs,
+                                    MainExpType,DfltTypeAtom,Ovld),
+	(verbosityDetailed
+          -> write('Translated expression: '), writeq(MainExp), nl
+           ; true).
 
-parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
+parseExpressionWithFrontend(MainExprDir,Input,InitMainFuncType,MainExp,
+                            Type,Vs,MainFuncType,DfltTypeAtom,Ovld) :-
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
 	splitWhereFree(Input,InputExp,FreeVars),
-	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars),
+	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars,
+                          InitMainFuncType),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
 	toAbsPath(MainPath,AbsMainPath),
@@ -437,7 +485,7 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	setCurryPath(LCP), % restore old settings
 	setWorkingDirectory(CurDir),
 	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
-	length(FreeVars,NumVars),
+	length(FreeVars,NumFreeVars),
 	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,RuleExp))|MoreFs],
 	!,
 	((MoreFs=[], simpleFlatExp(RuleExp))
@@ -448,13 +496,17 @@ parseExpressionWithFrontendInDir(MainExprDir,Input,MainExp,Type,Vs) :-
 	     map2M(compiler:varIndex2VarExp,RuleArgs,RuleVars),
 	     FlatExp = 'Comb'('FuncCall',
 	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
-	stripFuncTypes(NumVars,FuncType,FType),
-	flatType2MainType([],FType,_,Type),
+        flatType2MainType([],FuncType,_,MFuncType),
+        copy_term(MFuncType,MainFuncType),
+        defaultTypeExpr(MFuncType,DfltType,DfltTypeAtom),
+        stripFuncTypes(NumFreeVars,DfltType,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
+	length(FreeVars,FVL), length(RuleArgs,RAL),
+	(FVL=RAL -> Ovld=false ; Ovld=true),
 	!,
 	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontendInDir(MainExprDir,_,_,_,_) :-
+parseExpressionWithFrontend(MainExprDir,_,_,_,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
 	!, failWithExitCode.
 
@@ -504,8 +556,50 @@ compileMainExpression(MainExprMod) :-
 	             printError(ErrorMsg) ),
 	curryModule(CurrMod).
 
+% Try to default a type by instantiating type context variables
+% to default types (e.g., numeric types) and removing such type contexts.
+% The defaulted type is returned in the second argument.
+% The third argument contains the defaulted type as an atom
+% or 'none' if the type is still overloaded.
+defaultTypeExpr(OrgType,DfltType,DfltTypeAtom) :-
+        defaultNumType(OrgType,DefNumType),
+        removeDefaultedTypes(DefNumType,DfltType),
+        (isOverloadedType(DfltType) -> DfltTypeAtom=none    % can't default
+                                     ; flatType2Atom(DfltType,DfltTypeAtom)).
 
-% strip the first n function types from a type expression:
+% try to default overloaded numerical types:
+defaultNumType(Type,Type) :- var(Type), !.
+defaultNumType('FuncType'(AType,RType),DType) :-
+	classDict(AType,TVar,DictName),
+	member(DictName,["Num","Integral","Fractional"]), !,
+	(DictName="Fractional"
+         -> (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
+	    defaultNumType(RType,DType)
+	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),
+	    defaultNumType(RType,DType)).
+defaultNumType('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
+        defaultNumType(RType,DType).
+defaultNumType(Type,Type).
+
+% remove type class context of defaulted types:
+removeDefaultedTypes(Type,Type) :- var(Type), !.
+removeDefaultedTypes('FuncType'(AType,RType),DType) :-
+	classDict(AType,TVar,DictName),
+	member(DictName,["Eq","Ord","Show"]),
+        nonvar(TVar), !,
+        removeDefaultedTypes(RType,DType).
+removeDefaultedTypes('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
+        removeDefaultedTypes(RType,DType).
+removeDefaultedTypes(Type,Type).
+
+% Is the type overloaded, i.e., does it contain class dictioniary parameters?
+isOverloadedType(Type) :- var(Type), !, fail.
+isOverloadedType('FuncType'(AType,_)) :- classDict(AType,_,_), !.
+isOverloadedType('FuncType'(_,RType)) :- !, isOverloadedType(RType).
+isOverloadedType(_) :- fail.
+
+% strip the first n function types (except for class dictionaries)
+% from a type expression:
 stripFuncTypes(0,Type,Type) :- !.
 stripFuncTypes(N,'FuncType'(_,RType),Type) :-
         N1 is N-1, stripFuncTypes(N1,RType,Type).
@@ -516,7 +610,7 @@ replaceFreeVarInEnv(FreeVars,RuleArgs,[(EVN=EV)|Env],[(EVN1=EV)|TEnv]) :-
 	replaceFreeEnvVar(FreeVars,RuleArgs,V,EVN1),
         replaceFreeVarInEnv(FreeVars,RuleArgs,Env,TEnv).
 
-replaceFreeEnvVar([],[],V,NV) :-
+replaceFreeEnvVar([],_,V,NV) :- !,
         number_codes(V,Vs), atom_codes(NV,[95|Vs]).
 replaceFreeEnvVar([FV|FreeVars],[RA|RuleArgs],V,NV) :-
         (V=RA -> appendAtoms(['_',FV],NV)
@@ -604,7 +698,7 @@ flatExps2MainExps(Vs,[FE|FEs],Vs2,[E|Es]) :-
 	flatExp2MainExp(Vs,FE,Vs1,E),
 	flatExps2MainExps(Vs1,FEs,Vs2,Es).
 
-writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
+writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainFuncType) :-
 	(verbosityIntermediate
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
@@ -615,6 +709,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars) :-
 	(MainProg='Prelude' -> true
           ; write(S,'import '), write(S,MainProg), nl(S)),
 	addImports(Imps), writeMainImports(S,Imps),
+        (InitMainFuncType = none -> true
+         ; write(S,'pakcsMainGoal :: '), write(S,InitMainFuncType), nl(S)),
 	write(S,'pakcsMainGoal'),
 	writeFreeVarArgs(S,FreeVars),
 	write(S,' = '),
@@ -649,7 +745,7 @@ processCommand("help",[]) :- !,
 	write(':reload           - recompile currently loaded modules'),nl,
 	write(':compile <prog>   - alias for ":load <prog>"'),nl,
 	write(':eval <expr>      - evaluate expression <expr>'), nl,
-	write(':define <v>=<exp> - define variable binding for subsequent expressions'), nl,
+	%write(':define <v>=<exp> - define variable binding for subsequent expressions'), nl,
 	write(':type <expr>      - show the type of <expression>'),nl,
 	write(':browse           - browse program and its imported modules'),nl,
 	write(':interface        - show interface of current program'),nl,
@@ -687,7 +783,6 @@ processCommand("set",[]) :- !,
 	write('                  ("+consfail all": show complete fail trace)'), nl,
 	write('                  ("+consfail file:F": store complete fail trace in file F)'), nl,
 	write('+/-debug        - debug mode (compile with debugging information)'), nl,
-	write('+/-free         - free variables need not be declared in initial expressions'), nl,
 	write('+/-interactive  - turn on/off interactive execution of initial expression'), nl,
 	write('+/-first        - turn on/off printing only first value'), nl,
 	write('+/-plprofile    - use Prolog profiler'), nl,
@@ -722,14 +817,12 @@ processCommand("set",[]) :- !,
 	printConsFailure(PrintConsFail),
 	(PrintConsFail=no -> write('-') ; write('+')),
 	write(consfail),
-	(PrintConsFail=no -> write('   ')
+	(PrintConsFail=no -> write('    ')
 	  ; write('('), write(PrintConsFail), write(') ')),
 	(compileWithDebug -> write('+') ; write('-')),
 	write(debug),	write('    '),
 	(firstSolutionMode(yes) -> write('+') ; write('-')),
 	write(first), write('  '),
-	(freeVarsUndeclared(yes) -> write('+') ; write('-')),
-	write(free),	write('     '),
 	(interactiveMode(yes) -> write('+') ; write('-')),
 	write(interactive), write('  '),
 	nl,
@@ -824,24 +917,10 @@ processCommand("eval",ExprInput) :- !,
 	processExpression(ExprInput,ExprGoal),
 	call(ExprGoal).
 
-processCommand("define",BindingS) :- !,
-	mainbinding(Var,Exp,BindingS,[]),
-	!, ioAdmissible,
-	typecheck(Exp,_Type),
-	exp2Term(Exp,[],_Term,Vs),
-	(Vs=[(V=_)|Bs]
-	 -> write('ERROR: free variables in top-level binding: '),
-	    writeVar(user_output,V), writeVars(user_output,Bs), nl, fail
-	  ; true),
-	retract(varDefines(Lets)),
-	(append(Defs1,[Var=_|Defs2],Lets)
-          -> append(Defs1,Defs2,OldDefs) % delete old definition
-           ; OldDefs = Lets),
-	asserta(varDefines([Var=Exp|OldDefs])).
-
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(ExprInput,Term,Type,Vs),
-	writeCurryTermWithFreeVarNames(Vs,Term),
+	parseMainExpression(ExprInput,none,Term,_,Vs,Type,_,Ovld),
+	(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
+                    ; writeCurryTermWithFreeVarNames(Vs,Term)),
 	write(' :: '),
 	numbersmallvars(97,_,Type), writeType(Type), nl.
 
@@ -990,7 +1069,7 @@ processCommand("source",Arg) :-
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	parseMainExpression(ExprInput,Term,_Type,_Vs),
+	parseMainExpression(ExprInput,none,Term,_Type,_Vs,_,_,_),
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
@@ -1195,12 +1274,6 @@ processSetOption("+error") :- !,
 	writeLnErr('WARNING: option "error" no longer supported!').
 processSetOption("-error") :- !,
 	writeLnErr('WARNING: option "error" no longer supported!').
-processSetOption("+free") :- !,
-	retract(freeVarsUndeclared(_)),
-	asserta(freeVarsUndeclared(yes)).
-processSetOption("-free") :- !,
-	retract(freeVarsUndeclared(_)),
-	asserta(freeVarsUndeclared(no)).
 processSetOption("+interactive") :- !,
 	retract(interactiveMode(_)),
 	asserta(interactiveMode(yes)).
@@ -1371,7 +1444,7 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	parseMainExpression(ExprInput,_Term,Type,_Vs),
+	parseMainExpression(ExprInput,none,_Term,Type,_Vs,_,_,_),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
@@ -1381,28 +1454,6 @@ processFork(ExprString) :-
 	forkProcessForGoal(evaluator:evaluateGoalAndExit(ExecGoal)),
 	setVerboseMode(QM),
 	sleepSeconds(1). % wait a little bit for starting up the new process
-
-% check whether all free vars are declared, if required:
-checkFreeVars(FreeVars,Vs) :-
-	freeVarsUndeclared(no),
-	filterUndeclaredFreeVars(FreeVars,Vs,NUVs),
-	NUVs = [(V=_)|RVs],
-	!,
-	writeErr('ERROR: Expression contains unknown symbols: '),
-	writeVar(user_error,V), writeVars(user_error,RVs), nlErr,
-	writeLnErr('(Note: free variables should be declared with "where...free" in initial goals)'),
-	failWithExitCode.
-checkFreeVars(_,_).
-
-filterUndeclaredFreeVars(_,[],[]).
-filterUndeclaredFreeVars(FreeVars,[(V=_)|Bs],FBs) :-
-	atom_codes(V,[_,C|Cs]), % first char always '_'
-	atom_codes(RV,[C|Cs]),
-	member(RV,FreeVars), !,
-	filterUndeclaredFreeVars(FreeVars,Bs,FBs).
-filterUndeclaredFreeVars(FreeVars,[(V=VB)|Bs],[(V=VB)|FBs]) :-
-	filterUndeclaredFreeVars(FreeVars,Bs,FBs).
-
 
 % write free variables, if there are any:
 writeFreeVars([]).
@@ -1484,7 +1535,14 @@ failprint(Exp,E,E) :-
 parseProgram(ProgS,Verbosity,Warnings) :-
 	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
-	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat'],CM1),
+	compilerMajorVersion(MajorVersion),
+	versionAtom(MajorVersion, MajorVersionAtom),
+	compilerMinorVersion(MinorVersion),
+	(MinorVersion < 100 -> true
+	  ; writeLnErr('ERROR minor version too large!'), fail),
+	padVersionAtom(MinorVersion, PaddedMinorVersionAtom),
+	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat -D__PAKCS__=',
+	  MajorVersionAtom,PaddedMinorVersionAtom],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	((Warnings=yes, pakcsrc(warnoverlapping,no))
@@ -1525,6 +1583,22 @@ addImports([I|Is],CY1,CY3) :-
 	appendAtoms([CY1,' -i',I],CY2),
 	addImports(Is,CY2,CY3).
 
+versionAtom(Version,Atom) :-
+	number_chars(Version,Chars),
+	atom_chars(Atom,Chars).
+
+padVersionAtom(Version,PaddedAtom) :-
+	number_chars(Version,Chars),
+	padList(Chars,'0',2,PaddedChars),
+	atom_chars(PaddedAtom,PaddedChars).
+
+padList(List,_,Length,PaddedList) :-
+	length(List,Length), !,
+	PaddedList = List.
+padList(List,Pad,Length,PaddedList) :-
+	length(List, Length2), Length2 < Length,
+	padList([Pad|List],Pad,Length,PaddedList).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % small pretty printer for type expressions:
 
@@ -1532,7 +1606,14 @@ writeType(T) :- writeType(T,top).
 % the second argument is 'top' or 'nested':
 % in case of 'nested', brackets are written around complex type expressions
 
+writeType(A,_) :- var(A), !, write(A).
 writeType(A,_) :- atom(A), !, write(A).
+% write standard type contexts in their source form, if possible:
+writeType('FuncType'(S,T),top) :-
+	classDict(S,A,ClsName), !,
+	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,nested),
+	write(' => '), writeType(T,top).
+% write other functional types:
 writeType('FuncType'(S,T),top) :-
 	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
 	writeType(S,S_Tag), write(' -> '), writeType(T,top).
@@ -1540,7 +1621,15 @@ writeType('FuncType'(S,T),nested) :-
 	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
 	write('('), writeType(S,S_Tag), write(' -> '), writeType(T,top),
 	write(')').
-writeType('TCons'([],['TCons'('Prelude.Char',[])]),_) :- !,% print "[Char]" as "String"
+writeType('TCons'('Prelude.Apply',[S,T]),top) :-
+        !, % print type constructor "Prelude.Apply" as type application
+	writeType(S,nested), write(' '), writeType(T,nested).
+writeType('TCons'('Prelude.Apply',[S,T]),nested) :-
+        !, % print type constructor "Prelude.Apply" as type application
+	write('('), writeType(S,nested), write(' '), writeType(T,nested),
+	write(')').
+writeType('TCons'([],['TCons'('Prelude.Char',[])]),_) :-
+        !, % print "[Char]" as "String"
 	write('String').
 writeType('TCons'([],[T]),_) :- !,  % list type
 	write('['), writeType(T,top), write(']').
@@ -1549,11 +1638,21 @@ writeType('TCons'(TC,[Type|Types]),_) :-
 	!,
 	write('('), writeType(Type,top), writeTupleType(Types), write(')').
 writeType('TCons'(TC,[]),_) :- writeTypeCons(TC), !.
+writeType('TCons'(TC,[T1,T2]),top) :- isTypeApplyCons(TC), !,
+	writeType(T1,nested), write(' '), writeType(T2,nested), !.
+writeType('TCons'(TC,[T1,T2]),nested) :- isTypeApplyCons(TC), !,
+	write('('),
+        writeType(T1,nested), write(' '), writeType(T2,nested),
+        write(')'), !.
 writeType('TCons'(TC,Ts),top) :-
 	writeTypeCons(TC), writeTypes(Ts), !.
 writeType('TCons'(TC,Ts),nested) :-
 	write('('), writeTypeCons(TC),
 	writeTypes(Ts), write(')'), !.
+
+isTypeApplyCons(TC) :-
+        atom_codes(TC,TCS),
+        append(_,[46,64],TCS), !. % 64 = @
 
 writeTypeCons(TC) :-
 	atom_codes(TC,TCS),
@@ -1783,66 +1882,7 @@ hasfixity(O,Fixity) :-
 mainbinding(X,E) --> id(XS), skipblanks, "=", skipblanks,
 	             expr(E), {atom_codes(X,XS)}.
 
-% parser for expressions:
-mainexpr(E,Vars) --> skipblanks, letfree(LVars), expr(E), wherefree(WVars),
-	             {append(LVars,WVars,Vars)}.
 
-letfree(Vars) --> "let", !, skipblanks, varList(Vars), "free",
-	          skipblanks, "in", skipblanks
-	        ; {Vars=[]}.
-
-wherefree(Vars) --> "where", !, skipblanks, varList(Vars), "free" ; {Vars=[]}.
-
-varList([V|Vs]) --> id(Name), skipblanks,  {atom_codes(V,Name)},
-	            (",", skipblanks, varList(Vs)
-                     ; skipblanks, {Vs=[]}).
-
-expr(comb('Prelude.if_then_else',[E1,E2,E3])) -->
-	"if", skipblanks, expr(E1), "then", skipblanks, expr(E2),
-	"else", skipblanks, expr(E3), !. 
-expr(E) --> exprlist(EL), {resolvePrios(EL,E)}.
-
-% resolve the priorities between operators:
-resolvePrios([int(N)],int(N)) :- !.
-resolvePrios([float(N)],float(N)) :- !.
-resolvePrios([char(N)],char(N)) :- !.
-resolvePrios(Es,E) :-
-	append3(Es1,[opid(Op)],Es2,Es),
-	minprio(Es1,P1),
-	minprio(Es2,P2),
-	transDefinedFunc(Op,TOp),
-	hasfixity(TOp,Fix),
-	(Fix=infix(PO) -> P1>PO, P2>PO
-         ; (Fix=infixl(PO) -> P1>=PO, P2>PO
-                            ; Fix=infixr(PO), P1>PO, P2>=PO)),
-	E = comb(TOp,[E1,E2]),
-	!,
-	resolvePrios(Es1,E1),
-	resolvePrios(Es2,E2).
-resolvePrios([opid(-)|Es],E) :- % special case for unary minus
-	minprio(Es,P),
-	P>6,
-	E = comb('Prelude.-',[int(0),E2]), !,
-	resolvePrios(Es,E2).
-resolvePrios([var(F)|Args],E) :-
-	transDefinedFunc(F,TF), !,
-	map2M(user:var2comb,Args,TArgs),
-	fixOverApplications(TF,TArgs,E).
-resolvePrios([var(V)],var(UV)) :- !,
-	(atom_codes(V,[95|_])  % 95 = '_'
-	 -> V=UV
-	  ; appendAtom('_',V,UV)).
-resolvePrios([E],E) :- \+ E=opid(_), !.
-resolvePrios([E1,E2|Es],E) :- \+ E1=opid(_), !,
-	var2comb(E1,TE1),
-	var2comb(E2,TE2),
-	resolvePrios(['Prelude.apply'(TE1,TE2)|Es],E).
-
-% compute minimal priority of an expression list:
-minprio([opid(Op)],PO) :- !,
-	transDefinedFunc(Op,TOp), hasfixity(TOp,Fix), arg(1,Fix,PO).
-minprio([_],10) :- !. % anything else has highest priority
-minprio([E|Es],P) :- minprio([E],PE), minprio(Es,PEs), min(PE,PEs,P).
 
 min(X,Y,Z) :- X<Y -> Z=X ; Z=Y.
 
@@ -1856,14 +1896,6 @@ var2comb(var(V),var(UV)) :- !,
 	  ; appendAtom('_',V,UV)).
 var2comb(E,E) :- \+ E=opid(_).
 
-fixOverApplications(F,Args,E) :-
-	constructorOrFunctionType(F,_,_,FType),
-	getArityFromType(FType,Arity),
-	length(Args,N),
-	(N>Arity -> splitAt(Arity,Args,FirstArgs,LastArgs),
-	            generateApply(comb(F,FirstArgs),LastArgs,E)
-	          ; E=comb(F,Args)).
-
 generateApply(T,[],T).
 generateApply(T,[X|Xs],E) :- generateApply('Prelude.apply'(T,X),Xs,E).
 		   
@@ -1872,124 +1904,6 @@ getArityFromType('FuncType'(_,T2),N) :-
 	getArityFromType(T2,N2), N is N2+1.
 getArityFromType('TCons'(TC,_),N) :- TC="IO" -> N=1 ; N=0.
 
-
-exprlist([BE|E]) --> bexpr(BE), !, (exprlist(E) ; {E=[]}).
-
-getBinding(Var,[(Var=E)|_],E).
-getBinding(Var,[_|Bs],E) :- getBinding(Var,Bs,E).
-
-% basic expressions:
-bexpr(Exp) --> id(S), {atom_codes(Name,S),
-		       varDefines(Lets), getBinding(Name,Lets,Exp)}.
-bexpr(var(Name)) --> id(S), {atom_codes(Name,S)}.
-bexpr(var(Name)) --> "(", skipblanks, opid(S), ")", skipblanks,
-                     {(S="=" ; S="|") -> !, fail ; atom_codes(Name,S)}.
-bexpr(Num) --> numberconst(S), !,
-	       {number_codes(N,S), (integer(N) -> Num=int(N) ; Num=float(N))}.
-bexpr(opid(Name)) --> opid(S),
-	              {(S="=" ; S="|") -> !, fail ; atom_codes(Name,S)}.
-bexpr(opid(Name)) --> "`", id(S), "`", skipblanks, {atom_codes(Name,S)}.
-bexpr(char(C)) --> "'", escape(C), "'", skipblanks. % escape characters
-bexpr(char(C)) --> "'", [C], "'", skipblanks. % simple characters
-bexpr(comb('Prelude.()',[])) --> "()", !, skipblanks.
-bexpr(E) --> "(", skipblanks, exprlist(EL), ")", skipblanks,
-             {transformOpSection(EL,E)}, !.
-bexpr(E) --> "(", skipblanks, tupleElems(Es), {elems2tuple(Es,E)}.
-bexpr(comb([],[])) --> "[]", !, skipblanks. % emptylist
-
-% arithmetic sequences:
-bexpr(comb('Prelude.enumFrom',[E])) --> "[", skipblanks,
-             expr(E), "..", skipblanks, "]", skipblanks, !.
-bexpr(comb('Prelude.enumFromTo',[E1,E2])) --> "[", skipblanks,
-             expr(E1), "..", skipblanks, expr(E2), "]", skipblanks, !.
-bexpr(comb('Prelude.enumFromThen',[E1,E2])) --> "[", skipblanks,
-             expr(E1), ",", skipblanks, expr(E2), "..", skipblanks,
-	     "]", skipblanks, !.
-bexpr(comb('Prelude.enumFromThenTo',[E1,E2,E3])) --> "[", skipblanks,
-             expr(E1), ",", skipblanks, expr(E2), "..", skipblanks,
-	     expr(E3), "]", skipblanks, !.
-
-bexpr(E) --> "[", skipblanks, listelems(E). % lists
-bexpr(E) --> "\"", stringelems(E).  % strings
-
-tupleElems([E|Es]) --> expr(E), (  ",", skipblanks, tupleElems(Es)
-                                 ; ")", skipblanks, {Es=[]}).
-
-transformOpSection(Section,comb(TOp,[E])) :-
-	append(EL,[opid(Op)],Section), % left section
-	!,
-	transDefinedFunc(Op,TOp),
-	resolvePrios(EL,E).
-transformOpSection([opid(Op)|EL],
-		   comb('Prelude.flip',[comb(TOp,[]),E])) :- % right section
-	transDefinedFunc(Op,TOp),
-	resolvePrios(EL,E).
-
-elems2tuple([E],E) :- !.
-elems2tuple(Exprs,comb(TupleCons,Exprs)) :-
-	length(Exprs,N),
-	Cons=")",
-	prefixComma(Cons,N,ConsComma),
-	append("Prelude.(",ConsComma,TupleConsString),
-	atom_codes(TupleCons,TupleConsString).
-
-listelems(comb((.),[E,Es])) --> expr(E), (",", skipblanks, listelems(Es)
-                                        ; "]", skipblanks, {Es=comb([],[])}).
-
-stringelems(comb((.),[char(C),Es])) --> escape(C), !, stringelems(Es).
-stringelems(comb([],[])) --> "\"", skipblanks, !.
-stringelems(comb((.),[char(C),Es])) --> [C], stringelems(Es).
-
-
-id([C|Cs]) --> [C],
-        { C >= "A", C =< "Z"
-         ;C >= "a", C =< "z" },!,
-        idrest(Cs), !, {\+ member([C|Cs],["where","free","let"])}.
-
-idrest([C|Cs]) --> [C],
-        { C >= "0", C =< "9"
-         ;C >= "A", C =< "Z"
-         ;C >= "a", C =< "z"
-         ;[C] == "."  % here we accept dots to support module qualifications
-         ;[C] == "_"
-         ;[C] == "'" },!,
-        idrest(Cs).
-idrest([]) --> skipblanks.
-
-opid([C|Cs]) --> specialchar([C]), opidrest(Cs).
-opidrest([C|Cs]) --> specialchar([C]), !, opidrest(Cs).
-opidrest([]) --> skipblanks.
-
-specialchar("~") --> "~".
-specialchar("!") --> "!".
-specialchar("@") --> "@".
-specialchar("#") --> "#".
-specialchar("$") --> "$".
-specialchar("%") --> "%".
-specialchar("^") --> "^".
-specialchar("&") --> "&".
-specialchar("*") --> "*".
-specialchar("+") --> "+".
-specialchar("-") --> "-".
-specialchar("=") --> "=".
-specialchar("<") --> "<".
-specialchar(">") --> ">".
-specialchar("?") --> "?".
-specialchar(".") --> ".".
-specialchar("/") --> "/".
-specialchar("|") --> "|".
-specialchar("\\") --> "\\".
-specialchar(":") --> ":".
-
-escape(34) --> "\\\"".
-escape(92) --> "\\\\".
-escape(10) --> "\\n".
-escape(8)  --> "\\b".
-escape(9)  --> "\\t".
-escape(13) --> "\\r".
-escape(N)  --> "\\", [C1,C2,C3], 
-        { isDigit(C1), isDigit(C2), isDigit(C3),
-	  N is (C1-48)*100+(C2-48)*10+C3-48 }.
 
 % extract the program name from a given input, i.e., remove all blanks,
 % replace leading "~" by current home directory,

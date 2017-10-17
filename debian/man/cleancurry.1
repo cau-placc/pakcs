@@ -1,0 +1,35 @@
+.TH PAKCS "1" "December 2016" "1.14.1" "Compiler"
+.SH NAME
+cleancurry \- clean intermediate Curry files
+
+.SH SYNOPSIS
+\fBcleancurry\fR \fI[OPTIONS] [MODULE]\fR
+
+.SH DESCRIPTION
+The cleancurry command removes all intermediate files produced
+when Curry programs are compiled with the PAKCS compiler.
+.PP
+For further information, please check
+http://currry-language.org
+and
+https://www.informatik.uni-kiel.de/~pakcs/
+
+.SH OPTIONS:
+.TP
+\fB\-r\fR
+Apply cleancurry recursively to all subdirectories
+.TP
+\fB\-a\fR
+Remove all intermediate Curry files (even those without a source file)
+
+.TP
+\fBMODULE\fR
+Remove only intermediate Curry files for program MODULE. If this option
+is missing, the intermediate files for all Curry modules in the current
+directory are removed.
+
+.SH "AUTHOR"
+This manual page has been written by Michael Hanus and
+converted to nroff format by Mike Gabriel <mike.gabriel@das-netzwerkteam.de>.
+This man page has been written for the Debian project initially, but may also be used by others.
+

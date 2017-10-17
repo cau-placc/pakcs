@@ -8,8 +8,8 @@ LOGFILE=xxx$$
 $CURRYBIN/cleancurry -r
 cat << EOM | $CURRYBIN/curry -q :set parser -W none :set -interactive :set -time :set +verbose :set v0 :set printdepth 0 | tee $LOGFILE
 :l rev
-append [1,2] [3,4]
-rev [1,2,3,4,5,6,7,8,9,10]
+append [1,2] [3,4] :: [Int]
+rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 :l higher
 g1
 g2
@@ -17,9 +17,9 @@ g3
 g4
 g5
 :l quicksort
-qsort [2,3,1,0]
+qsort [2,3,1,0] :: [Int]
 :l qsortlet
-qsort [2,3,1,0]
+qsort [2,3,1,0] :: [Int]
 :l inflists
 goal1
 goal2
@@ -85,9 +85,9 @@ goal2
 goal3
 :l psort
 goal 6
-:l default
-abs 0
-abs 3
+:l Default
+pabs 0
+pabs 3
 swap [3]
 swap [3,4]
 swap [3,4,5]
@@ -108,14 +108,6 @@ expression val "(10+5*2)/4" =:= []  where val free
 :l palindrome
 pali "abaaba" =:= []
 pali5
-:cd ..
-:cd CLP
-:l mortgage
-mortgage 100000.0 180.0 0.01 r 0.0  where r free
-:l smm
-smm l  where l free
-:l smm2
-smm
 :cd ..
 :cd distcurry
 :l accountport
@@ -146,11 +138,7 @@ SWI=`pwd`/../bin/swiprolog
 
 # Check differences:
 DIFF=diff$$
-if [ -x "$SICSTUS" ] ; then
-  diff TESTRESULT.sicstus $LOGFILE > $DIFF
-elif [ -x "$SWI" ] ; then
-  diff TESTRESULT.swi     $LOGFILE > $DIFF
-fi
+diff TESTRESULT.txt $LOGFILE > $DIFF
 if [ "`cat $DIFF`" = "" ] ; then
   echo
   echo "Regression test successfully executed!"

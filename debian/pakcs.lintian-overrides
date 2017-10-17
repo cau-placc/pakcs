@@ -1,0 +1,12 @@
+# unusual interpreter, because PAKCS is an unusual Compiler for an unusual programming language
+pakcs: unusual-interpreter usr/lib/pakcs/currytools/runcurry/Examples/curryscript.sh #!runcurry
+
+# pakcsinitrc.sh is a to-be-sourced shell file...
+pakcs: executable-not-elf-or-script usr/lib/pakcs/scripts/pakcsinitrc.sh
+
+# let's ignore this for now, the installation style of PAKCS can by far be improved... but for now...
+pakcs: image-file-in-usr-lib usr/lib/pakcs/currytools/browser/Docs/currybrowser.jpg
+pakcs: image-file-in-usr-lib usr/lib/pakcs/currytools/currytest/Docs/currytest.jpg
+pakcs: image-file-in-usr-lib usr/lib/pakcs/docs/src/pakcs_overview.jpg
+pakcs: image-file-in-usr-lib usr/lib/pakcs/tools/ui/Throbber.gif
+pakcs: image-file-in-usr-lib usr/lib/pakcs/tools/ui/Throbber.png

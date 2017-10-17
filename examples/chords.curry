@@ -27,11 +27,12 @@ import Findall(allValues)
 
 -- The notes (C major scale, R denotes a rest)
 data Note = C | D | E | F | G | A | B | R
+ deriving Eq
 
 -- The chords
 data Chord = C_maj | D_maj | E_maj | F_maj | G_maj | G_maj7 | A_maj | B_maj |
              C_min | D_min | E_min | F_min | G_min | A_min | B_min
-
+  deriving Eq
 
 -------------------------- Auxiliary functions -----------------------------
 
@@ -407,6 +408,7 @@ run melody = do
 -- Our program finds this solution, up to a few slight differences.
 
 -- The melody.
+sounds :: [[(Note, Int)]]
 sounds = [
   [(R,2),(A,1),(A,1),(C,1),(C,1),(E,1),(E,1)], [(D,8)],
   [(R,2),(G,1),(G,1),(B,1),(B,1),(D,1),(D,1)], [(C,8)],
@@ -434,6 +436,7 @@ sounds = [
 -- for this half-bar.
 
 -- The melody.
+nicolas :: [[(Note, Int)]]
 nicolas = [
   [(E,6),(C,2)], [(D,6),(B,2)], [(C,2),(B,2),(A,4)], [(B,6),(R,2)],
   [(E,6),(C,2)], [(D,6),(B,2)], [(C,2),(B,2),(A,4)], [(D,6),(R,2)],

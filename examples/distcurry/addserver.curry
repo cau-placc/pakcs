@@ -41,6 +41,7 @@ addServeSocket socket = do
               hClose h
               addServeSocket socket
 
+addClient :: String -> Int -> Int -> IO ()
 addClient host x y = do
   h <- connectToSocket host portnr
   hPutStr h (unlines (map show [x,y]))

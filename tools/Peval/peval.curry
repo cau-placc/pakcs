@@ -20,16 +20,19 @@ import Distribution(inCurrySubdir)
 ------------------------------------------------------------------------------
 -- some global definitions:
 
+printVersion :: IO ()
 printVersion =
   do putStrLn "Curry Partial Evaluator (Version 1.2 of 28/05/2003)"
      putStrLn "(UP Valencia, CAU Kiel)\n"
 
 -- should some debug information be printed during partial evaluation?
+pevalDebug :: Bool
 pevalDebug = False
 
 -- which kind of abstraction operator:
 --pevalAbs = 0     -- no generalization (termination is not ensured)
 --pevalAbs = 1     -- generalization based on a well-founded order (termination ensured)
+pevalAbs :: Int
 pevalAbs = 2     -- generalization based on a well-quasi order 
                  -- (termination is ensured even for integers by translating them to expressions)
 
@@ -38,19 +41,23 @@ pevalAbs = 2     -- generalization based on a well-quasi order
 -- maximal number of variables occurring in each unfolded expression
 
 -- (used in getMatchedRHS to produce a safe renaming):
+maxExpVars :: Int
 maxExpVars = 1000
 
 -- special variable:
+varBottom :: Expr
 varBottom = Var (-1)
 
 -- treatment of PEVAL annotations in the program to be partially evaluated:
 -- is this call a PEVAL annotations?
+isPevalAnnot :: Expr -> Bool
 isPevalAnnot (Comb ctype name args) =
   if ctype==FuncCall && length args == 1 && take 5 (reverse name) == "LAVEP"
   then True  -- this is a call annotated with PEVAL
   else False
 
 -- get the annotation expression (provided that this is a PEVAL annotation):
+getPevalAnnotExpr :: Expr -> Expr
 getPevalAnnotExpr (Comb _ _ args) = head args
 
 ------------------------------------------------------------------------------
@@ -58,6 +65,7 @@ getPevalAnnotExpr (Comb _ _ args) = head args
 
 -- data type for substitutions:
 data Subst = Sub [Int] [Expr] | FSub
+  deriving Eq
 
 -- encapsulating the state during the peval process:
 -- the state contains:
@@ -66,10 +74,15 @@ data Subst = Sub [Int] [Expr] | FSub
 -- * number of allowed unfoldings of function calls
 
 data PEvalState = PEState [Expr] [FuncDecl] Int Int
+ deriving Eq
 
+getExps :: PEvalState -> [Expr]
 getExps          (PEState exps _ _ _) = exps
+getFuncDecls :: PEvalState -> [FuncDecl]
 getFuncDecls     (PEState _ fds _ _) = fds
+getRenamingIndex :: PEvalState -> Int
 getRenamingIndex (PEState _ _ i _) = i
+getDepth :: PEvalState -> Int
 getDepth         (PEState _ _ _ d) = d
 
 -- update peval state with new index for renamed variables:
@@ -116,6 +129,7 @@ getArityF funs f
 ------------------------------------------------------------------------------
 
 -- Top-level function for calling the partial evaluator as a saved state:
+main :: IO ()
 main = do
   args <- getArgs
   if length args /= 1
@@ -124,6 +138,7 @@ main = do
                    "Usage: peval.state <module_name>"
    else mainProg (stripCurrySuffix (head args))
 
+stripCurrySuffix :: String -> String
 stripCurrySuffix n = let rn = reverse n in
   if take 6 rn == "yrruc." then reverse (drop 6 rn) else
   if take 7 rn == "yrrucl." then reverse (drop 7 rn) else n
@@ -211,6 +226,7 @@ addPEFuncDecls renaming
 
 -- replace all function declarations of a given program by new ones:
 -- (to do: modify also operator and translation tables correctly)
+replaceFuncDecls :: Expr -> [FuncDecl] -> Expr
 replaceFuncDecls (Prog modname imports types oldfuns ops trans) newfuns =
     Prog modname imports types newfuns ops (typetrans++newtrans)
   where
@@ -241,6 +257,7 @@ getFuncEvalExprs (Func name arity ftype (Rule lhs rhs)) =
  where
    (newrhs,evalexps) = getEvalExprsInExp rhs
 
+getEvalExprsInExp :: Expr -> (Expr,[Expr])
 getEvalExprsInExp (Var i) = (Var i, [])
 getEvalExprsInExp (Lit l) = (Lit l, [])
 getEvalExprsInExp (Comb ctype name args)
@@ -272,11 +289,13 @@ getEvalExprsInExp (GuardedExpr vars e1 e2) =
      (ne2,pe2) = getEvalExprsInExp e2
   in (GuardedExpr vars ne1 ne2, pe1++pe2)
 
+getEvalExprsInExps :: [Expr] -> ([Expr],[Expr])
 getEvalExprsInExps [] = ([],[])
 getEvalExprsInExps (e:es) = let (ne,pe1) = getEvalExprsInExp e
                                 (nes,pe2) = getEvalExprsInExps es
                              in (ne:nes, pe1++pe2)
 
+getEvalExprsInBranches :: [BranchExpr] -> ([BranchExpr],[Expr])
 getEvalExprsInBranches [] = ([],[])
 getEvalExprsInBranches (Branch p e : bs) =
    let (ne,pe1) = getEvalExprsInExp e
@@ -293,6 +312,7 @@ replacePevalAnnotInFunc _ _ (Func name arity ftype (External ename)) =
 replacePevalAnnotInFunc funs ren (Func name arity ftype (Rule lhs rhs)) =
   Func name arity ftype (Rule lhs (replacePevalAnnotInExp funs ren rhs))
 
+replacePevalAnnotInExp :: [FuncDecl] -> [(Expr,Expr)] -> Expr -> Expr
 replacePevalAnnotInExp _ _ (Var i) = Var i
 replacePevalAnnotInExp _ _ (Lit l) = Lit l
 replacePevalAnnotInExp funs ren (Comb ctype name args)
@@ -502,10 +522,12 @@ countFC (Or e1 e2) f = (countFC e1 f) + (countFC e2 f)
 countFC (Choice e) f = countFC e f
 --countFC (SQ e) f = countFC e f
 
+countFCList :: [Expr] -> String -> Int
 countFCList [] _ = 0
 countFCList (e:es) f =
    (countFC e f) + (countFCList es f)
    
+removeRedundantRules :: [(Expr,a)] -> [(Expr,Expr)] -> [String] -> [(Expr,a)]
 removeRedundantRules [] _ _ = []
 removeRedundantRules (rule:es) prog funcs =
   if (funcRule rule) `elem` funcs then rule : (removeRedundantRules es prog funcs)
@@ -513,6 +535,7 @@ removeRedundantRules (rule:es) prog funcs =
           then removeRedundantRules es prog funcs
           else rule : (removeRedundantRules es prog funcs)
 
+funcRule :: (Expr,_) -> String
 funcRule ((Comb FuncCall f _),_) = f
 
 removeFails :: [(Expr,Expr)] -> [(Expr,Expr)]
@@ -588,9 +611,11 @@ pevalL_aux funs n (e:es) pairs
  where spe = peval (PEState (map snd pairs) funs (maxVarIndex e) 0) n e
 -- if we replace "strict" by "id" above, the computation is lazy
 -- but needs much more time (90 times longer for KMP benchmark)!
-strict x | x==x = x
+strict :: a -> a
+strict x = id $!! x
 
 --recover the stored partial evaluation of a given term (or returns varBottom)
+searchPair :: Expr -> [(Expr,Expr)] -> Expr
 searchPair _ [] = varBottom
 searchPair e ((x,xpe) : es) = if e==x then xpe else searchPair e es
 
@@ -693,6 +718,7 @@ absFunWqo funs n e es
 --note that above there is no call to the closedness test: it is embedded
 --into the call to msg..
 
+absFunWqoAux :: [FuncDecl] -> Int -> [Expr] -> Expr -> [Expr]
 absFunWqoAux funs n es e
   | emb==Var (-1)               = e : es     --it doesn't embed a previous term: added
   | definedFunc2 funs (headF e) = abstract funs n (msgT e emb) res  --es instead of res??
@@ -770,6 +796,7 @@ constructorInstance funs e es =
 isConstructor :: [FuncDecl] -> Subst -> Bool
 isConstructor funs (Sub _ expr) = andL (map (isCons funs) expr)
 --this definition considers any non-defined symbol as constructor..
+isCons :: [FuncDecl] -> Expr -> Bool
 isCons _ (Var _) = True
 isCons _ (Lit _) = True
 isCons funs (Comb FuncCall f e) = if (definedFunc2 funs f) || (legalBuiltin f)
@@ -789,6 +816,7 @@ isCons funs (GuardedExpr _ e1 e2) = andL (map (isCons funs) [e1,e2])
 isCons funs (Choice e) = isCons funs e
 --isCons _ (SQ _) = False  --isCons funs e
 
+isConsCase :: [FuncDecl] -> [BranchExpr] -> Bool
 isConsCase _ [] = True
 isConsCase funs (Branch _ e : les) =
   if (isCons funs e)
@@ -921,8 +949,8 @@ msgT e f = (w:(subTerms sigma))++(subTerms theta)
 computeMsg :: Expr -> Expr -> (Expr,Subst,Subst)
 computeMsg e1 e2 = (w, sub1, sub2)
   where (w,_) = msg e1 e2 (max (maxVarIndex e1) (maxVarIndex e2))
-        sub1 = instance e1 w
-        sub2 = instance e2 w
+        sub1 = instanceOf e1 w
+        sub2 = instanceOf e2 w
 
 -- msg e1 e2 i = (w,i')
 -- w is the msg of e1 and e2 and i' is the last number used in the 
@@ -1158,6 +1186,7 @@ build_ren ((Choice e) : es) n =
 
 -- return the non-local variables of an expression
 
+nonLocalVarsInExp :: Expr -> [Int]
 nonLocalVarsInExp (Var v) = [v]
 nonLocalVarsInExp (Lit _) = []
 nonLocalVarsInExp (Comb _ _ exps) = concat (map nonLocalVarsInExp exps)
@@ -1170,6 +1199,7 @@ nonLocalVarsInExp (Choice e) = nonLocalVarsInExp e
 nonLocalVarsInExp (SQ e) = nonLocalVarsInExp e
 
 -- return the non-local variables of the different scrutinees of a case expression
+varsNonLocal :: BranchExpr -> [Int]
 varsNonLocal (Branch (Pattern _ as) e) = delArgs as (nonLocalVarsInExp e) 
 varsNonLocal (Branch (LPattern _) e)   = nonLocalVarsInExp e
 
@@ -1211,6 +1241,7 @@ vars2index = map (\(Var i)->i)
 -- the above unfolding rules do NOT work (since the current expressions
 -- are also in the set of partially evaluated expressions... I guess..)
 
+proceedUnfold :: PEvalState -> _ -> Bool
 proceedUnfold pst _ = getDepth pst < 1
 
 --peval implements our non-standard metainterpreter..
@@ -2007,9 +2038,11 @@ maxVarIndex (Choice e)      = maxVarIndex e
 maxVarIndex (SQ e)      = maxVarIndex e
 
 -- maximum of two numbers:
+max :: Int -> Int -> Int
 max i j = if i<=j then j else i
 
 -- maximum of a list of naturals (-1 if list is empty):
+maxList :: [Int] -> Int
 maxList xs = foldr max (-1) xs
 
 
@@ -2040,11 +2073,13 @@ varsInExp (Choice e) = varsInExp e
 
 varsInExp (SQ e) = varsInExp e
 
+varsInCase :: BranchExpr -> [Int]
 varsInCase (Branch (Pattern _ as) e) = as ++ varsInExp e
 varsInCase (Branch (LPattern _)   e) = varsInExp e
 
 
 -- delete argument variables in a list of variables
+delArgs :: [Int] -> [Int] -> [Int]
 delArgs [] vs = vs
 delArgs (x:xs) vs = delArgs xs (deleteAll x vs)
 
@@ -2057,6 +2092,7 @@ delArgs (x:xs) vs = delArgs xs (deleteAll x vs)
 ------------------------------------------------------------------------------
 
 -- pretty printer for expressions (first argument: indentation):
+ppExpr :: Int -> Expr -> String
 ppExpr _ (Var n) = ppVar n
 ppExpr _ (Lit l) = ppLit l
 ppExpr b (Comb _ cf es) =
@@ -2080,18 +2116,22 @@ ppExpr b (Choice e) = "(Choice " ++ ppExpr b e ++ ")"
 
 ppExpr b (SQ e) = "(SQ " ++ ppExpr b e ++ ")"
 
+ppVar :: Int -> String
 ppVar i = "v" ++ show i
 
+ppLit :: Literal -> String
 ppLit (Intc   i) = show i
 ppLit (Floatc f) = show f
 ppLit (Charc  c) = "'" ++ show (ord c) ++ "'"
 
+ppCase :: Int -> BranchExpr -> String
 ppCase b (Branch (Pattern l xs) e) = blanks b ++ "(" ++ l ++ " "
                                      ++ ppList ppVar xs
                                      ++ " -> " ++ ppExpr b e ++ ")\n"
 ppCase b (Branch (LPattern l) e) = blanks b ++ "(" ++ ppLit l ++ " "
                                    ++ " -> " ++ ppExpr b e ++ ")\n"
 
+blanks :: Int -> String
 blanks b = take b (repeat ' ')
 
 -- format a finite list of elements (with a format function for list elems):
@@ -2102,6 +2142,7 @@ ppFormatList format elems = " [" ++ ppElems elems ++ "] "
    ppElems [x] = format x
    ppElems (x1:x2:xs) = format x1 ++ "," ++ ppElems (x2:xs)
 
+ppList :: (a -> String) -> [a] -> String
 ppList format elems = ppListElems elems
   where
     ppListElems [] = ""
@@ -2136,6 +2177,7 @@ pprenLHS e ((s,ns):rest) =
   if e == s then ns else pprenLHS e rest
 
 -- pretty print for substitutions..
+pprintSub :: Subst -> IO ()
 pprintSub FSub = putStrLn "FSub"
 pprintSub (Sub vars exps) =
    putStrLn (concatMap show vars) >>
@@ -2170,7 +2212,7 @@ ppRule fname (External ename) =
 ------------------------------------------------------------------------------
 
 -- delete all occurrences of an element in a list:
-deleteAll          :: a -> [a] -> [a]
+deleteAll :: Eq a => a -> [a] -> [a]
 deleteAll _ []     = []
 deleteAll x (y:ys) = if x==y then deleteAll x ys else y : deleteAll x ys
 
@@ -2189,15 +2231,15 @@ existsRen :: [Expr] -> Expr -> Bool
 
 existsRen [] _ = False
 existsRen (e1:es) e = 
-  if  not (instance e1 e == FSub) &&  
-      not (instance e e1 == FSub)
+  if  not (instanceOf e1 e == FSub) &&  
+      not (instanceOf e e1 == FSub)
                       then True
                       else existsRen es e
 
 -- check whether one expression is an instance of another and compute
 -- the corresponding substitution:
-instance :: Expr -> Expr -> Subst
-instance a b =
+instanceOf :: Expr -> Expr -> Subst
+instanceOf a b =
   if a==b then Sub [] []
           else if isVar b 
                   then instanceVar a b
@@ -2216,10 +2258,10 @@ instanceS (Comb c1 f1 e1) (Comb c2 f2 e2) =
   if c1==c2 && f1==f2 then instanceL e1 e2 (Sub [] [])
                       else FSub
 instanceS (Case c1 e1 ces1) (Case c2 e2 ces2) =
-  if c1==c2 then instanceCase ces1 ces2 (instance e1 e2)
+  if c1==c2 then instanceCase ces1 ces2 (instanceOf e1 e2)
             else FSub
-instanceS (Constr _ e1) (Constr _ e2) = instance e1 e2
-instanceS (Choice e1) (Choice e2) = instance e1 e2
+instanceS (Constr _ e1) (Constr _ e2) = instanceOf e1 e2
+instanceS (Choice e1) (Choice e2) = instanceOf e1 e2
 instanceS (GuardedExpr _ c1 e1) (GuardedExpr _ c2 e2) =
   instanceL [c1,e1] [c2,e2] (Sub [] [])
 instanceS (Or e1 e2) (Or f1 f2) = instanceL [e1,e2] [f1,f2] (Sub [] [])
@@ -2231,17 +2273,20 @@ instanceL (e1:es1) (e2:es2) subs
   | newsub == FSub    =  FSub
   | clash newsub subs =  FSub
   | otherwise         =  instanceL es1 es2 (composeSubs subs newsub)
-  where newsub = instance e1 e2
+  where newsub = instanceOf e1 e2
 
 --
+clash :: Subst -> Subst -> Bool
 clash (Sub vs es) sub2 = clash_ vs es sub2
 
+clash_ :: [Int] -> [Expr] -> Subst -> Bool
 clash_ [] [] _ = False
 clash_ (v:vs) (e:es) (Sub vs2 es2) =
   if ve==varBottom then clash_ vs es (Sub vs2 es2) 
                    else not (e==ve)
   where ve = findVal v vs2 es2
   
+findVal :: Int -> [Int] -> [Expr] -> Expr
 findVal _ [] [] = varBottom
 findVal w (v:vs) (e:es) = if w==v then e else findVal w vs es
 --
@@ -2261,10 +2306,10 @@ instanceCaseL (e1:es1) (e2:es2) subs
 
 instanceCaseBranch :: BranchExpr -> BranchExpr -> Subst
 instanceCaseBranch (Branch (Pattern c1 _) e1) (Branch (Pattern c2 _) e2) = 
-  if c1 == c2 then instance e1 e2
+  if c1 == c2 then instanceOf e1 e2
               else FSub
 instanceCaseBranch (Branch (LPattern c1) e1) (Branch (LPattern c2) e2) = 
-  if c1 == c2 then instance e1 e2
+  if c1 == c2 then instanceOf e1 e2
               else FSub
 
 -- composition of substitutions:
@@ -2307,7 +2352,7 @@ search_instance _ [] = (FSub, Var (-1))
 search_instance e (e1:es) = 
   if sub==FSub then search_instance e es
                else (sub,e)
-  where sub = instance e e1
+  where sub = instanceOf e e1
 
 --printSubs FSub = "FSub"
 --printSubs (Sub vars exps) =
@@ -2321,13 +2366,13 @@ searchInstance _ [] = (FSub, Var (-1))
 searchInstance e ((e1,e2):es) =
   if sub /= FSub then (sub, e2)
                  else searchInstance e es
-  where sub = instance e e1
+  where sub = instanceOf e e1
 --searchInstance e (_:es) = searchInstance e es
 --deterministic version follows:
 --  if sub==FSub 
 --     then searchInstance funs e es 
 --     else (sub,e2)
---  where sub = instance e e1
+--  where sub = instanceOf e e1
 
 
 --checks whether a term is a constructor instance of the renaming set.. 
@@ -2339,9 +2384,10 @@ searchConstrInstance funs e ((e1,e2):es) =
   if (sub /= FSub) && (isConstructor funs sub)
                          then (sub,e2)
                          else searchConstrInstance funs e es
-  where sub = instance e e1
+  where sub = instanceOf e e1
 
 --used to pretty print a list of expressions:
+concatBlank :: [String] -> String
 concatBlank [] = []
 concatBlank (e:es) = e++"\n"++(concatBlank es)
 

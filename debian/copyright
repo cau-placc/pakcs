@@ -1,0 +1,457 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PAKCS
+Upstream-Contact: Michael Hanus <mh@informatik.uni-kiel.de>
+Source: https://git.ps.informatik.uni-kiel.de/curry/pakcs
+
+Files: curry2prolog/Makefile
+ curry2prolog/c2p.pl
+ curry2prolog/evaluator.pl
+ curry2prolog/loader.pl
+ curry2prolog/lib_src/prim_clpb.pl
+ curry2prolog/lib_src/prim_readshowterm.pl
+ curry2prolog/lib_src/prim_chr.pl
+ curry2prolog/lib_src/prim_dynamic.pl
+ curry2prolog/lib_src/prim_globalvar.pl
+ curry2prolog/lib_src/prim_unsafe.pl
+ curry2prolog/lib_src/prim_ioexts.pl
+ curry2prolog/lib_src/prim_socket.pl
+ curry2prolog/lib_src/prim_system.pl
+ curry2prolog/lib_src/prim_time.pl
+ curry2prolog/lib_src/prim_distribution.pl
+ curry2prolog/lib_src/prim_directory.pl
+ curry2prolog/lib_src/prim_standard.pl
+ curry2prolog/lib_src/prim_float.pl
+ curry2prolog/lib_src/prim_clpfd.pl
+ curry2prolog/lib_src/prim_profile.pl
+ curry2prolog/lib_src/prim_ports.pl
+ curry2prolog/lib_src/prim_global.pl
+ curry2prolog/lib_src/prim_io.pl
+ curry2prolog/lib_src/prim_plprofiledata.pl
+ curry2prolog/lib_src/prim_flat.pl
+ curry2prolog/lib_src/prim_clpr.pl
+ curry2prolog/swibasics.pl
+ curry2prolog/version.pl
+ curry2prolog/readXml.pl
+ curry2prolog/compiler.pl
+ curry2prolog/block2freeze.pl
+ curry2prolog/sicstusbasics.pl
+ curry2prolog/sicstus_processing.pl
+ curry2prolog/external.pl
+ curry2prolog/readFlcFromFcy.pl
+ curry2prolog/basics.pl
+ docs/src/Makefile
+ docs/src/libraries.tex
+ docs/src/overview.tex
+ docs/src/pakcs_overview.jpg
+ docs/src/ui.tex
+ docs/src/problems.tex
+ docs/src/distribution.tex
+ docs/src/pakcs_overview.fig
+ docs/src/markdown_syntax.txt
+ docs/src/currybrowser.eps
+ docs/src/preprocessing.tex
+ docs/src/usage.tex
+ docs/src/extensions.tex
+ docs/src/pakcs_overview.eps
+ docs/src/syntax.tex
+ docs/src/auxiliary_files.tex
+ docs/src/syntax.sty
+ docs/src/external_ops.tex
+ docs/src/manual.bib
+ docs/src/manual.tex
+ docs/src/preface.tex
+ docs/src/currytest.eps
+ docs/flatcurry.dtd
+ docs/README
+ examples/allsols.curry
+ examples/sportsdb.curry
+ examples/iodemo.curry
+ examples/maxtree.curry
+ examples/inflists.curry
+ examples/mergesort.curry
+ examples/family_nd.curry
+ examples/exchange.curry
+ examples/optmatch.curry
+ examples/account.curry
+ examples/GUI/scrollbar.curry
+ examples/GUI/counter_controlled.curry
+ examples/GUI/textstyledappend.curry
+ examples/GUI/hilbert.curry
+ examples/GUI/fractal.curry
+ examples/GUI/mail.curry
+ examples/GUI/counter_stdin_controlled.curry
+ examples/GUI/textappend.curry
+ examples/GUI/temperature.curry
+ examples/GUI/calc.curry
+ examples/GUI/menu.curry
+ examples/GUI/hello.curry
+ examples/GUI/events.curry
+ examples/GUI/counter.curry
+ examples/GUI/sierpinski.curry
+ examples/GUI/inputmask.curry
+ examples/GUI/config.curry
+ examples/GUI/radiotraffic.curry
+ examples/GUI/checkbutton.curry
+ examples/mergesort_or.curry
+ examples/rigidor.curry
+ examples/parsing/palindrome.curry
+ examples/parsing/expr_parser.curry
+ examples/assembler.curry
+ examples/colormap.curry
+ examples/higher.curry
+ examples/benchmark_pakcs.curry
+ examples/relational.curry
+ examples/rigidadd.curry
+ examples/escher_higher.curry
+ examples/rev.curry
+ examples/quicksort.curry
+ examples/distcurry/philo_ext.curry
+ examples/distcurry/philo.curry
+ examples/distcurry/philo_start
+ examples/distcurry/sema.curry
+ examples/distcurry/counter.curry
+ examples/distcurry/nameserver.curry
+ examples/distcurry/accountport.curry
+ examples/distcurry/addserver.curry
+ examples/distcurry/addtimeoutserver.curry
+ examples/distcurry/addnamedserver.curry
+ examples/distcurry/httpget.curry
+ examples/distcurry/talk.curry
+ examples/colormap_nd.curry
+ examples/search.curry
+ examples/nats.curry
+ examples/first.curry
+ examples/queens.curry
+ examples/escher_perm.curry
+ examples/casetest.curry
+ examples/prolog.curry
+ examples/benchmark.curry
+ examples/last.curry
+ examples/tctest.curry
+ examples/unittest.curry
+ examples/TESTRESULT.sicstus
+ examples/diamond.curry
+ examples/escher_cond.curry
+ examples/qsortlet.curry
+ examples/england.curry
+ examples/family_con.curry
+ examples/family_rel.curry
+ examples/CHR/GCD.curry
+ examples/CHR/Leq.curry
+ examples/CHR/Bool.curry
+ examples/CHR/UnionFind.curry
+ examples/CHR/TESTRESULT
+ examples/CHR/Fib.curry
+ examples/CHR/FD.curry
+ examples/CHR/Primes.curry
+ examples/CHR/Gauss.curry
+ examples/CHR/test.sh
+ examples/modules/UseConc2.curry
+ examples/modules/ModConc.curry
+ examples/modules/UseConc1.curry
+ examples/member.curry
+ examples/TESTRESULT.swi
+ examples/README
+ examples/daVinciTest.curry
+ examples/ralign.curry
+ examples/CLP/queens.curry
+ examples/CLP/queens2.curry
+ examples/CLP/mortgage.curry
+ examples/CLP/smm.curry
+ examples/CLP/circuit.curry
+ examples/CLP/sudoku2.curry
+ examples/CLP/magicseries2.curry
+ examples/CLP/smm2.curry
+ examples/CLP/sudoku.curry
+ examples/CLP/magicseries.curry
+ examples/infresiduate.curry
+ examples/rectype.curry
+ examples/listcomp/default.lcurry
+ examples/listcomp/multgen.curry
+ examples/listcomp/psort.curry
+ examples/listcomp/arithseq.curry
+ examples/horseman.curry
+ examples/family_fun.curry
+ examples/index.html
+ examples/test.sh
+ examples/chords.curry
+ examples/meta/putModuleHead.curry
+ examples/meta/Imports.curry
+ examples/digit.curry
+ examples/nondetfunc.curry
+ examples/best.curry
+ include/curry2js_prims.js
+ include/currydoc.tex
+ include/currydoc.css
+ include/wui_prims.js
+ scripts/Makefile
+ scripts/configure-pakcs
+ scripts/*.sh
+ testsuite/testAbstractCurry.curry
+ testsuite/testCLPB.curry
+ testsuite/testSystem.curry
+ testsuite/testNonLinearPattern.curry
+ testsuite/testFiniteMap.curry
+ testsuite/testCase.curry
+ testsuite/doTest
+ testsuite/testFlatCurryGoodies.curry
+ testsuite/RandomTest.curry
+ testsuite/testDynamic.curry
+ testsuite/testNonStrictUnif.curry
+ testsuite/testSort.curry
+ testsuite/testIOExts.curry
+ testsuite/rev.curry
+ testsuite/testGlobalVariable.curry
+ testsuite/testFCase.curry
+ testsuite/testFunctional.curry
+ testsuite/testRegExp.curry
+ testsuite/testGlobal.curry
+ testsuite/testList.curry
+ testsuite/testCombinatorial.curry
+ testsuite/testPrelude.curry
+ testsuite/testDatabase.curry
+ testsuite/testDequeue.curry
+ testsuite/testNarr.curry
+ testsuite/testNondet.curry
+ testsuite/testRecords.curry
+ testsuite/testAsPattern.curry
+ testsuite/testTraversal.curry
+ testsuite/testRedBlackTree.curry
+ testsuite/testInfinite.curry
+ testsuite/testSetFunctions.curry
+ testsuite/testDirectory.curry
+ testsuite/testInteger.curry
+ testsuite/testFuncPattern.curry
+ testsuite/testFormat.curry
+ testsuite/testArray.curry
+ testsuite/testFlatCurryXML.curry
+ testsuite/testHigher.curry
+ testsuite/testIO.curry
+ testsuite/testLetRec.curry
+ testsuite2/testAbstractCurry.curry
+ testsuite2/testCLPB.curry
+ testsuite2/testSystem.curry
+ testsuite2/testPolySubExp.curry
+ testsuite2/testNonLinearPattern.curry
+ testsuite2/testFiniteMap.curry
+ testsuite2/testCase.curry
+ testsuite2/testFlatCurryGoodies.curry
+ testsuite2/RandomTest.curry
+ testsuite2/testNarrowing.curry
+ testsuite2/testSort.curry
+ testsuite2/testIOExts.curry
+ testsuite2/rev.curry
+ testsuite2/testGlobalVariable.curry
+ testsuite2/testFCase.curry
+ testsuite2/testFunctional.curry
+ testsuite2/testRegExp.curry
+ testsuite2/testGlobal.curry
+ testsuite2/testList.curry
+ testsuite2/testCombinatorial.curry
+ testsuite2/testExpTypeInference.curry
+ testsuite2/testPrelude.curry
+ testsuite2/testUnification.curry
+ testsuite2/testDatabase.curry
+ testsuite2/testKeyDatabaseSQLite.curry
+ testsuite2/testDequeue.curry
+ testsuite2/testNondet.curry
+ testsuite2/testRecords.curry
+ testsuite2/testUnsafeSearchTree.curry
+ testsuite2/testAsPattern.curry
+ testsuite2/testTraversal.curry
+ testsuite2/README
+ testsuite2/testRedBlackTree.curry
+ testsuite2/testInfinite.curry
+ testsuite2/testSetFunctions.curry
+ testsuite2/testDirectory.curry
+ testsuite2/testInteger.curry
+ testsuite2/test.sh
+ testsuite2/testFuncPattern.curry
+ testsuite2/testFormat.curry
+ testsuite2/testArray.curry
+ testsuite2/testFlatCurryXML.curry
+ testsuite2/testHigher.curry
+ testsuite2/testIO.curry
+ testsuite2/testLetRec.curry
+ tools/Makefile
+ tools/curry2xml.curry
+ tools/lib_deprecated/FlatCurryTools.curry
+ tools/lib_deprecated/Flat.curry
+ tools/lib_deprecated/DaVinci.curry
+ tools/lib_deprecated/AbsCurryIO.curry
+ tools/lib_deprecated/FlatXML.curry
+ tools/lib_deprecated/TableRBT0.curry
+ tools/lib_deprecated/FlatTools.curry
+ tools/lib_deprecated/AbsCurry.curry
+ tools/lib_deprecated/Flat2Fcy.curry
+ tools/lib_deprecated/Tk.curry
+ tools/lib_deprecated/GUI_2012_11.curry
+ tools/lib_deprecated/Flat.prim_c2p
+ tools/lib_deprecated/SetRBT0.curry
+ tools/emacs/README
+ tools/optimize/Makefile
+ tools/optimize/NonStrictOpt.curry
+ tools/optimize/CompactFlat.curry
+ tools/rlwrap
+ tools/ui/Makefile
+ tools/ui/UI.curry
+ tools/ui/Throbber.gif
+ tools/ui/SpicyWeb.curry
+ tools/ui/ajaxrequest.js
+ tools/ui/HTML.curry
+ tools/ui/Throbber.png
+ tools/ui/default.css
+ tools/ui/examples/calcui.curry
+ tools/ui/examples/tcounter.curry
+ tools/ui/examples/counterui.curry
+ tools/ui/examples/counter4.curry
+ tools/ui/Action.js
+ tools/ui/Json.curry
+ tools/ui/GUI.curry
+ tools/ui/GUI2HTML.curry
+ tools/ui/TypedUI2HTML.curry
+ tools/ui/UI2GUI.curry
+ tools/ui/README
+ tools/ui/TypedUI2GUI.curry
+ tools/ui/UI2HTML.curry
+ tools/ui/Parse.curry
+ tools/README
+ tools/Peval/Makefile
+ tools/Peval/Flat.curry
+ tools/Peval/peval.curry
+ tools/Peval/Flat2Fcy.curry
+ tools/Peval/README
+ tools/Peval/Flat.prim_c2p
+ tools/coosy/Makefile
+ tools/coosy/README.txt
+ tools/coosy/Observe.curry
+ tools/coosy/CoosyTrace.curry
+ tools/coosy/CoosyShowObserve.curry
+ tools/coosy/CoosyGUI.curry
+ tools/coosy/CoosyPrettier.curry
+ tools/coosy/examples.curry
+ tools/coosy/Help.txt
+ tools/coosy/CoosyDerive.curry
+ .gitignore
+ .gitmodules
+ CHANGELOG.html
+ GITINSTALL.txt
+ INSTALL.txt
+ KNOWN_BUGS
+ Makefile
+ OLDRELNOTES.html
+ pakcsrc.default
+ README
+ RELNOTES.txt
+ RESOURCES.html
+Copyright: 2000-2016, Michael Hanus <mh@informatik.uni-kiel.de>
+License: BSD-3-clause
+Comment:
+ Missing license headers in files. Assume license and copyright holdership as
+ found in LICENSE file.
+
+Files: frontend/*
+Copyright: 1998-2004, Wolfgang Lux
+  2005-2016, Michael Hanus
+License: BSD-3-clause
+Comment:
+ Assuming frontend/{Makefile,README.md} license from
+ frontend/LICENSE file.
+
+Files: tools/emacs/curry-decl-scan.el
+Copyright: 1997-1998, Graeme E Moss
+License: GPL-2+
+
+Files: tools/emacs/curry-doc.el
+Copyright: 1997, Hans-Wolfgang Loidl
+License: GPL-2+
+
+Files: tools/emacs/curry-font-lock.el
+Copyright: 1997-1998, Graeme E Moss, and Tommy Thorn
+License: GPL-2+
+
+Files: tools/emacs/curry-indent.el
+ tools/emacs/curry-pakcs.el
+Copyright: 1997-1998, Guy Lapalme
+  1999, Guy Lapalme
+License: GPL-2+
+
+Files: tools/emacs/curry-mode.el
+Copyright: 1992, 1997-1998, Simon Marlow, Graeme E Moss, and Tommy Thorn
+License: GPL-2+
+
+Files: tools/emacs/curry-simple-indent.el
+Copyright: 1998, Heribert Schuetz, Graeme E Moss
+License: GPL-2+
+
+Files: tools/ui/prototype.js
+Copyright: 2005-2007, Sam Stephenson
+License: Expat
+Comment:
+ This file stays unused, the version in Debian gets used insead.
+
+Files: debian/*
+Copyright: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+License: BSD-3-clause
+
+License: BSD-3-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+ .
+ - Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ .
+ - Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ .
+ - None of the names of the copyright holders and contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the Free
+ Software Foundation; either version 2 of the License, or (at your option)
+ any later version.
+ .
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ more details.
+ .
+ You should have received a copy of the GNU General Public License along with
+ this program; if not, write to the Free Software Foundation, Inc., 51
+ Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in `/usr/share/common-licenses/GPL-2'.

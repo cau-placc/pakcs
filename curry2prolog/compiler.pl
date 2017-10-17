@@ -147,7 +147,7 @@ readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
 readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
 		     ImpTypes,ImpFuncs,ImpOps,AllImpTypes,AllImpFuncs,AllImpOps) :-
 	%write('*** read next: '), write(Imp), nl,
-	readInterface(LoadPath,Imp,ImpInterface,DirProg),
+        readInterface(LoadPath,Imp,ImpInterface,DirProg),
 	ImpInterface = 'Prog'(_,ImportStrings,Types,Funcs,Ops),
 	map2M(prologbasics:atomCodes,NewImports,ImportStrings),
 	union(Imps,NewImports,AllImports),
@@ -953,12 +953,17 @@ computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,_,'Rule'(Args,RHS))|Funs],
  	%writeErr(TEnv), nlErr,
 	tenvtype2funtype(TEnv,EType,Type),
 	freevars2tvars(Type,0,_),
-	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)),
+	NewFun='Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)), !,
 	computeCorrectType([NewFun|AllFunData],Funs,NewFuns).
 computeCorrectType(AllFunData,['Func'(Name,Arity,Vis,Type,'External'(EName))|Funs],
 		   [NewFun|NewFuns]) :-
-	NewFun='Func'(Name,Arity,Vis,Type,'External'(EName)),
+	NewFun='Func'(Name,Arity,Vis,Type,'External'(EName)), !,
 	computeCorrectType([NewFun|AllFunData],Funs,NewFuns).
+computeCorrectType(AllFunData,[FunDecl|Funs],[FunDecl|NewFuns]) :-
+        FunDecl = 'Func'(Name,_,_,_,_),
+        writeErr('*** Internal error during compilation of operation: '),
+	atom_codes(NameA,Name), writeLnErr(NameA),
+	computeCorrectType([FunDecl|AllFunData],Funs,NewFuns).
 
 % for testing:
 writeFunTypes([]).
@@ -1982,6 +1987,10 @@ transNf(Suffix) :-
 	NfHnf_IORefA_IORefA_E0_E =..
                            [NfHnf,'IOExts.IORef'(A),'IOExts.IORef'(A),E0,E],
         writeClause((NfHnf_IORefA_IORefA_E0_E :- !, E0=E)),
+	% do not normalize partcall arguments:
+	NfHnf_partcall_partcall_E0_E =..
+                           [NfHnf,partcall(A,B,C),partcall(A,B,C),E0,E],
+        writeClause((NfHnf_partcall_partcall_E0_E :- !, E0=E)),
 	(printConsFailure(no) -> true
 	 ; NfHnf_FailA_FailA_E0_E =.. [NfHnf,'FAIL'(A),'FAIL'(A),E0,E],
 	   writeClause((NfHnf_FailA_FailA_E0_E :- !, E0=E))),

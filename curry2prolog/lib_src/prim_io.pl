@@ -9,7 +9,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %:- module(prim_io,
-%	  [prim_stdin/1,prim_stdout/1,prim_stderr/1,prim_openFile/3,
+%	  [handle_eq/2,
+%          prim_stdin/1,prim_stdout/1,prim_stderr/1,prim_openFile/3,
 %	   prim_hClose/2,prim_hFlush/2,prim_hIsEOF/2,prim_hSeek/4,
 %	   prim_hWaitForInput/5,prim_hWaitForInputs/5,
 %          prim_hWaitForInputsOrMsg/5,
@@ -19,6 +20,9 @@
 :- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 :- (current_module(basics)       -> true ; use_module('../basics')).
 :- (current_module(prim_ports)   -> true ; ensure_loaded(prim_ports)). % to implement IO.prim_hWaitForInputsOrMsg
+
+% equality of two handles:
+handle_eq(H1,H2,B) :- (H1=H2 -> B='Prelude.True' ; B='Prelude.False').
 
 prim_stdin(Stream) :- prolog_flag(user_input,Stream).
 

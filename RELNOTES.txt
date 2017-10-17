@@ -1,6 +1,23 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 2.0.0 (October 17, 2017)
+--------------------------------------------------------
+
+This version has almost the same functionality as version 1.15.0
+but adds type classes similar to Haskell 98.
+In addition to version 1.15.0 and type classes,
+this version contains the following changes:
+
+  * `define` command removed (since it was based on a quite restricted parser)
+  * Free variable mode (option `+free`) removed since it has many restrictions
+    and is no longer compatible with type classes.
+  * Some libraries removed since they are available as packages
+    which can easily be installed via `cpm`:
+
+      - `CLP*` (now in package `clp-pakcs`)
+ 
+
 Release notes for PAKCS Version 1.15.0 (October 11, 2017)
 ---------------------------------------------------------
 

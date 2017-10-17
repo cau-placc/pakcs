@@ -8,12 +8,13 @@ data County = Avon | Bedfordshire | Berkshire | Buckinghamshire |
               Hertfordshire |Kent |London |Northamptonshire | Oxfordshire |
               Somerset | Surrey | Sussex | Warwickshire | Wiltshire |
               Worcestershire
+ deriving Eq
 
 data City = Bath | Bournemouth | Bristol | Cheltenham | Cirencester |
             Dorchester | Exeter | Gloucester | Penzance | Plymouth |
             Salisbury | Shaftesbury | Sherbourne | Taunton | Torquay |
             Truro | Winchester
-
+ deriving Eq
 
 neighbours :: County -> County -> Bool
 neighbours Devon           Cornwall          = True

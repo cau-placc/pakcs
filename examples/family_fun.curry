@@ -14,6 +14,7 @@
 
 data Person = Christine | Maria | Monica | Alice | Susan |
               Antony | Bill | John | Frank | Peter | Andrew
+ deriving Eq
 
 husband Christine  = Antony
 husband Maria      = Bill

@@ -15,10 +15,19 @@ inc x = x+1
 
 -- goals:
 -- increment list elements:
+g1 :: [Int]
 g1 = map inc [0,2,1]
+
+g2 :: [Int]
 g2 = map (+ 1) [0,2,1]
+
 -- sum of all list elements:
+g3 :: Int
 g3 = foldr (+) 0 [1,0,2]
+
 -- product of all list elements:
+g4 :: Int
 g4 = foldr (*) 1 [1,2,3,4,5]
+
+g5 :: Int
 g5 = foldr (\ x y -> x * y) 1 [1,2,3,4,5]

@@ -1,5 +1,6 @@
 -- Some tests for case expressions
 
+swap :: [Int] -> [Int]
 swap l = case l of
   [x,y] -> [y,x]
   _     -> l
@@ -9,7 +10,7 @@ swap l = case l of
 -- swap [1,2]   -> [2,1]
 -- swap [1,2,3] -> [1,2,3]
 
-
+f :: [Int] -> Int
 f l = case l of
         []   -> 0
         _:xs -> 100 + case xs of
@@ -20,6 +21,7 @@ f l = case l of
 -- f [1]   -> undefined
 -- f [1,2] -> 152
 
+g :: Maybe String -> Bool
 g x = case x of
         Just "abc" -> True
         Just "xyz" -> True
@@ -28,6 +30,7 @@ g x = case x of
 -- g (Just "xyz") -> True
 -- g (Just "ab")  -> False
 
+h :: [Int] -> Bool
 h x = case x of
         [1,2] -> True
         _     -> False
