@@ -13,4 +13,4 @@ RESOURCES.html usr/lib/pakcs/
 scripts usr/lib/pakcs/
 testsuite2 usr/lib/pakcs/
 tools usr/lib/pakcs/
-debian/bin/cleancurry usr/lib/pakcs/bin/
+bin/cleancurry usr/lib/pakcs/bin/
