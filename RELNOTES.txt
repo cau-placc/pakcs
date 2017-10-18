@@ -15,7 +15,12 @@ this version contains the following changes:
   * Some libraries removed since they are available as packages
     which can easily be installed via `cpm`:
 
+      - `Assertion`
+        (no longer used since `currytest` has been replaced by `currycheck`)
       - `CLP*` (now in package `clp-pakcs`)
+      - `CSV` (now available as `Text.CSV` in package `csv`)
+      - `Parser` (now available in package `fl-parser`)
+      - `RegExp` (now available in package `regexp`)
  
 
 Release notes for PAKCS Version 1.15.0 (October 11, 2017)

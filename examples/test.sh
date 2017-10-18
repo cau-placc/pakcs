@@ -102,13 +102,6 @@ g (Just "ab")
 h [1,2]
 h [1,3]
 h [2,div 1 0]
-:cd parsing
-:l expr_parser
-expression val "(10+5*2)/4" =:= []  where val free
-:l palindrome
-pali "abaaba" =:= []
-pali5
-:cd ..
 :cd distcurry
 :l accountport
 goal1 b  where b free
