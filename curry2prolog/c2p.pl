@@ -1141,7 +1141,7 @@ checkWish :-
           'Windowing shell "wish" not found. Please install package "tk"!',_).
 
 checkCpmTool(CpmBin,Package,Prog) :-
-        appendAtoms(['"',CpmBin,'" not found. Install it by: "cpm install ',
+        appendAtoms(['"',CpmBin,'" not found. Install it by: "cypm install ',
                      Package,'"!'],ErrMsg),
         checkProgram(CpmBin,ErrMsg,Prog).
 
