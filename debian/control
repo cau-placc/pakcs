@@ -1,6 +1,6 @@
 Source: pakcs
 Section: devel
-Priority: extra
+Priority: optional
 Maintainer: Debian Curry Maintainers <pkg-curry-maintainers@lists.alioth.debian.org>
 Uploaders:
  Mike Gabriel <sunweaver@debian.org>,
