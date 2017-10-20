@@ -14,7 +14,7 @@ Build-Depends: cdbs,
  swi-prolog-nox (>= 7.2.3),
  sqlite3,
  lockfile-progs,
-Standards-Version: 4.1.0
+Standards-Version: 4.1.1
 Homepage: https://www-ps.informatik.uni-kiel.de/~pakcs/
 Vcs-Browser: https://anonscm.debian.org/git/pkg-curry/pakcs.git
 Vcs-Git: https://anonscm.debian.org/git/pkg-curry/pakcs.git
