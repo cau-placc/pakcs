@@ -11,6 +11,6 @@ README usr/lib/pakcs/
 RELNOTES.txt usr/lib/pakcs/
 RESOURCES.html usr/lib/pakcs/
 scripts usr/lib/pakcs/
-testsuite2 usr/lib/pakcs/
+testsuite usr/lib/pakcs/
 tools usr/lib/pakcs/
 bin/cleancurry usr/lib/pakcs/bin/
