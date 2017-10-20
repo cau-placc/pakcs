@@ -1,4 +1,4 @@
-\section{\texttt{cpm}: The Curry Package Manager}
+\section{\texttt{cypm}: The Curry Package Manager}
 \label{sec-cpm}
 
 The Curry package manager (CPM) is a tool to
@@ -8,18 +8,18 @@ Since CPM offers a lot of functionality, there is a separate
 manual available.\footnote{\url{http://curry-language.org/tools/cpm}}
 Therefore, we describe here only some basic CPM commands.
 
-The executable \code{cpm} is located in the \code{bin} directory
+The executable \code{cypm} is located in the \code{bin} directory
 of \CYS. Hence, if you have this directory in your path,
 you can start CPM by cloning a copy of the central package index repository:
 %
 \begin{curry}
-> cpm update
+> cypm update
 \end{curry}
 %
 Now you can show a short list of all packages in this index by
 %
 \begin{curry}
-> cpm list
+> cypm list
 Name             Synopsis                                             Version   
 ----             --------                                             -------   
 addtypes         A tool to add missing type signatures in a Curry     0.0.1     
@@ -32,7 +32,7 @@ $\ldots$
 The command
 %
 \begin{curry}
-> cpm info PACKAGE
+> cypm info PACKAGE
 \end{curry}
 %
 can be used to show more information about the package with name
@@ -43,7 +43,7 @@ but also tools with some binary. In order to install such tools,
 one can use the command
 %
 \begin{curry}
-> cpm install PACKAGE
+> cypm install PACKAGE
 \end{curry}
 %
 This command checks out the package in some internal directory
@@ -56,15 +56,15 @@ For instance, the most recent version of CPM
 can be installed by the following commands:
 %
 \begin{curry}
-> cpm update
+> cypm update
 $\ldots$
-> cpm install cpm
+> cypm install cpm
 $\ldots$ Package 'cpm-xxx' checked out $\ldots$
 $\ldots$
-INFO  Installing executable 'cpm' into '/home/joe/.cpm/bin'
+INFO  Installing executable 'cypm' into '/home/joe/.cpm/bin'
 \end{curry}
 %
-Now, the binary \code{cpm} of the most recent CPM version can be used
+Now, the binary \code{cypm} of the most recent CPM version can be used
 if \code{\$HOME/.cpm/bin} is in your path
 (before \code{\cyshome{}/bin}!).
 

@@ -100,7 +100,7 @@ The main executable \code{curry} of your Curry system must be in your
 path (otherwise, you can also specify the root location of your Curry system
 by modifying the definition of \code{CURRYROOT} in the \code{Makefile}).
 Then type \code{make} to compile CPM which generates
-a binary called \code{cpm} in the \code{bin} subdirectory. Put
+a binary called \code{cypm} in the \code{bin} subdirectory. Put
 this binary somewhere on your path.
 
 
@@ -108,10 +108,10 @@ this binary somewhere on your path.
 
 \section{Starting the Curry Package Manager}
 
-If the binary \code{cpm} is on your path, execute the command
+If the binary \code{cypm} is on your path, execute the command
 %
 \begin{lstlisting}
-> cpm update
+> cypm update
 \end{lstlisting}
 %
 to pull down a copy of the central package index to your system.
@@ -121,20 +121,20 @@ your copy of the central package index to the newest version.
 Afterwards, you can show a short list of all packages in this index by
 %
 \begin{lstlisting}
-> cpm list
+> cypm list
 \end{lstlisting}
 %
 The command
 %
 \begin{lstlisting}
-> cpm info PACKAGE
+> cypm info PACKAGE
 \end{lstlisting}
 %
 can be used to show more information about a package.
 There is also a command
 %
 \begin{lstlisting}
-> cpm search QUERY
+> cypm search QUERY
 \end{lstlisting}
 %
 to search inside the central package index.
@@ -214,7 +214,7 @@ To use a Curry package in your project, create a
 \code{package.json} file in the root, fill it with the minimum amount of 
 information discussed in the previous session, and move your Curry code to a
 \code{src} directory inside your project's directory. Alternatively, if you are
-starting a new project, use the \code{cpm new <project-name>} command, which 
+starting a new project, use the \code{cypm new <project-name>} command, which 
 creates a new project directory with a 
 \code{package.json} file for you.\footnote{The \code{new} command
 also creates some other useful template files. Look into the
@@ -230,33 +230,33 @@ Declare a dependency inside the new \code{package.json} file, e.g.:
 }
 \end{lstlisting}
 %
-Then run \code{cpm install} to install all dependencies of the current package
-and start your interactive Curry environment with \code{cpm curry}. You will be
+Then run \code{cypm install} to install all dependencies of the current package
+and start your interactive Curry environment with \code{cypm curry}. You will be
 able to load the JSON package's modules in your Curry session.
 
 
 \subsection{Installing and Updating Dependencies}
 
-To install the current package's dependencies, run \code{cpm install}. This will
+To install the current package's dependencies, run \code{cypm install}. This will
 install the most recent version of all dependencies that are compatible to the
 package's dependency constraints. Note that a subsequent run of 
-\code{cpm install} will always prefer the versions it installed on a previous
+\code{cypm install} will always prefer the versions it installed on a previous
 run, if they are still compatible to the package's dependencies. If you want to
 explicitly install the newest compatible version regardless of what was 
-installed on previous runs of \code{cpm install}, you can use the 
-\code{cpm upgrade} command to upgrade all dependencies to their newest 
-compatible versions, or \code{cpm upgrade <package>} to update a specific 
+installed on previous runs of \code{cypm install}, you can use the 
+\code{cypm upgrade} command to upgrade all dependencies to their newest 
+compatible versions, or \code{cypm upgrade <package>} to update a specific 
 package and all its transitive dependencies to the newest compatible version.
 
 If the package also contains an implementation of a complete executable,
 e.g., some useful tool,
 which can be specifed in the \code{package.json} file
 (see Section~\ref{sec:reference}),
-then the command \code{cpm install} also compiles the application
+then the command \code{cypm install} also compiles the application
 and installs the executable in the \code{bin} install directory of CPM
 (see Section~\ref{sec:config} for details).
 The installation of executables can be suppressed by the
-\code{cpm install} option \code{-n} or \code{--noexec}.
+\code{cypm install} option \code{-n} or \code{--noexec}.
 
 
 \subsection{Checking out Packages}
@@ -265,7 +265,7 @@ The installation of executables can be suppressed by the
 In order to use, experiment with or modify an existing package,
 one can use the command
 \begin{lstlisting}
-cpm checkout <package>
+cypm checkout <package>
 \end{lstlisting}
 to install a local copy of a package.
 This is also useful to install some tool distributed as a package.
@@ -274,10 +274,10 @@ a property-testing tool for Curry,
 one can check out the most recent version and install the tool:
 %
 \begin{lstlisting}
-> cpm checkout currycheck
+> cypm checkout currycheck
 $\ldots$ Package 'currycheck-1.0.1' checked out into directory 'currycheck'.
 > cd currycheck
-> cpm install
+> cypm install
 $\ldots$
 INFO  Installing executable 'curry-check into '/home/joe/.cpm/bin'
 \end{lstlisting}
@@ -297,7 +297,7 @@ In order to install the executables of such applications without
 explicitly checking out the package in some local directory,
 one can use the command
 \begin{lstlisting}
-cpm install <package>
+cypm install <package>
 \end{lstlisting}
 This command checks out the package in some internal directory
 (default: \code{\$HOME/.cpm/app_packages}, see
@@ -309,7 +309,7 @@ For instance, the most recent version of the web framework Spicey
 can be installed by the following command:
 %
 \begin{lstlisting}
-> cpm install spicey
+> cypm install spicey
 $\ldots$ Package 'spicey-xxx' checked out $\ldots$
 $\ldots$
 INFO  Installing executable 'spiceup' into '/home/joe/.cpm/bin'
@@ -325,23 +325,23 @@ of this default path).
 
 To use the dependencies of a package, the Curry system needs to be
 started via CPM so that it will know where to search for the
-modules provided. You can use the command \ccode{cpm curry} to start the
+modules provided. You can use the command \ccode{cypm curry} to start the
 Curry system (which is either the compiler used to install CPM
 or specified with the configuration option \code{CURRY_BIN},
 see Section~\ref{sec:config}).
-Any parameters given to \ccode{cpm curry} will be passed along verbatim to
+Any parameters given to \ccode{cypm curry} will be passed along verbatim to
 the Curry system.
 For example, the following will start the Curry system,
 print the result of evaluating the expression \code{39+3}
 and then quit.
 
 \begin{lstlisting}
-> cpm curry :eval "39+3" :quit
+> cypm curry :eval "39+3" :quit
 \end{lstlisting}
 %
 To execute other Curry commands, such as \ccode{curry check},
 with the package's dependencies available,
-you can use the \ccode{cpm exec} command.
+you can use the \ccode{cypm exec} command.
 This command will set the \code{CURRYPATH} environment variable
 and then execute the command given after \ccode{exec}.
 
@@ -355,16 +355,16 @@ but you want to use some package, you have to put
 a package specification file into the source directory of
 your application where you define the required packages.
 As a shortcut for this, you can use the CPM command
-\code{cpm add --dependency} (short: \code{cpm add -d})
+\code{cypm add --dependency} (short: \code{cypm add -d})
 to install the package specification file.
 
 For instance, to use the libraries of the JSON package
 in your application, one can use the following commands:
 %
 \begin{lstlisting}
-> cpm add -d json  # generate package specification with 'json' dependency
-> cpm install      # download and install all dependencies
-> cpm curry        # start Curry system with JSON libraries in load path
+> cypm add -d json  # generate package specification with 'json' dependency
+> cypm install      # download and install all dependencies
+> cypm curry        # start Curry system with JSON libraries in load path
 ...
 Prelude> :load JSON.Data
 JSON.Data>
@@ -384,16 +384,16 @@ able to investigate, find and fix the bug. Since you are not the the author of
 $A$, however, you cannot release a new version with the bug fixed. So you send
 off your patch to $A$'s maintainer and wait for $1.0.4$ to be released. In the
 meantime, you want to use your local, fixed copy of version $1.0.3$ from your 
-package. The \code{cpm link} command allows you to replace a dependency with
+package. The \code{cypm link} command allows you to replace a dependency with
 your own local copy.
 
-\code{cpm link} takes a directory containing a copy of one of the current 
+\code{cypm link} takes a directory containing a copy of one of the current 
 package's dependencies as its argument. It creates a symbolic link from that
 directory the the current package's local package cache. If you had a copy of
 \code{A-1.0.3} in the \code{~/src/A-1.0.3} directory, you could use 
-\code{cpm link ~/src/A-1.0.3} to ensure that any time \code{A-1.0.3} is used 
+\code{cypm link ~/src/A-1.0.3} to ensure that any time \code{A-1.0.3} is used 
 from the current package, your local copy is used instead of the one from the
-global package cache. To remove any links, use \code{cpm upgrade} without any
+global package cache. To remove any links, use \code{cypm upgrade} without any
 arguments, which will clear the local package cache. See 
 Section~\ref{sec:internals} for more information on the global and local package
 caches.
@@ -446,10 +446,10 @@ whether they are acceptable under semantic versioning for the difference in
 version numbers between the two package versions. To use \code{diff}, you need
 to be in the directory of one of the versions, i.e., your copy for development,
 and have the other version installed in CPM's global package cache (see the
-\code{cpm install} command). For example, if you are developing version $1.3.0$
+\code{cypm install} command). For example, if you are developing version $1.3.0$
 of the JSON package and want to make sure you have not introduced any breaking
 changes when compared to the previous version $1.2.6$, you can use the 
-\code{cpm diff 1.2.6} command while in the directory of version $1.3.0$. 
+\code{cypm diff 1.2.6} command while in the directory of version $1.3.0$. 
 
 CPM will then check the types of all public functions and data types in all
 exported modules of both versions (see the \code{exportedModules} field of the
@@ -524,10 +524,10 @@ so that CPM will not generate tests for them.
 When you have your package ready and want to use it in other packages,
 it must be added to the central package index so that CPM can find it
 when searching for packages. For this purpose, you can use the
-\ccode{cpm add} command:
+\ccode{cypm add} command:
 %
 \begin{lstlisting}
-> cpm add --package mypackage
+> cypm add --package mypackage
 \end{lstlisting}
 %
 In this case, \code{mypackage} is the name of the directory containing
@@ -593,7 +593,7 @@ to the tag \ccode{v\$version\$}.
 
 After you have published the files for your new package version, you
 have to add the corresponding package specification to the central
-package index. This can be done with the \ccode{cpm add} command
+package index. This can be done with the \ccode{cypm add} command
 (see Section~\ref{sec:adding-a-package}).
 If you have access to the Git
 repository containing the central package index, then you can push
@@ -647,7 +647,7 @@ For instance, to install the binary
 of the package \code{spicey} in the directory \code{\$HOME/bin},
 one can execute the command
 \begin{lstlisting}
-> cpm --define bin_install_path=$\$$HOME/bin install spicey
+> cypm --define bin_install_path=$\$$HOME/bin install spicey
 \end{lstlisting}
 
 
@@ -746,7 +746,7 @@ to occurrences of an exported module. Thus, the package
 exporting the module \code{JSON.Data} can be found by the command
 %
 \begin{lstlisting}
-> cpm search --module JSON.Data
+> cypm search --module JSON.Data
 \end{lstlisting}
 %
 If the option \code{--exec} is set, then the search is restricted
@@ -754,7 +754,7 @@ to the name of the executable provided by the package.
 For instance, the command
 %
 \begin{lstlisting}
-> cpm search --exec show
+> cypm search --exec show
 \end{lstlisting}
 %
 lists all packages where the name of the executable contains the
@@ -1060,8 +1060,8 @@ source directory.
 
 \item[\fbox{\code{exportedModules}}] A list of modules intended for use by 
 consumers of the package.
-These are the modules compared by the \code{cpm diff}
-command (and tested by the \code{cpm test} command if a list of
+These are the modules compared by the \code{cypm diff}
+command (and tested by the \code{cypm test} command if a list of
 test modules is not provided).
 Note that modules not in this list are still accessible to consumers
 of the package.
@@ -1100,7 +1100,7 @@ For instance, a possible specification could be as follows:
 {
   ...,
   "executable": {
-    "name": "cpm",
+    "name": "cypm",
     "main": "CPM.Main",
     "options": { "kics2" : ":set rts -T" }
    }
@@ -1108,7 +1108,7 @@ For instance, a possible specification could be as follows:
 \end{lstlisting}
 %
 If a package contains an \code{executable} specification,
-the command \code{cpm install} also compiles the main module
+the command \code{cypm install} also compiles the main module
 and installs the executable in the \code{bin} install directory of CPM
 (see Section~\ref{sec:config} for details).
 
@@ -1131,7 +1131,7 @@ For instance, a possible test suite specification could be as follows:
 \end{lstlisting}
 %
 All these modules are tested with CurryCheck
-by the command \code{cpm test}.
+by the command \code{cypm test}.
 If no test suite is defined, all (exported) modules are tested
 in the directory \code{src}.
 A test suite can also contain a field \code{options}
@@ -1193,7 +1193,7 @@ the manual and \code{manual.tex} is its main file which will be
 processed with the specified command.
 Occurrences of the string \code{OUTDIR} in the command string
 will be replaced by the actual documentation directory
-(see description of the command \code{cpm doc}).
+(see description of the command \code{cypm doc}).
 If the command is omitted, the following commands are used
 (and you have to ensure that these programs are installed):
 \begin{itemize}
@@ -1225,7 +1225,7 @@ are used:
     "author": "YOUR NAME <YOUR EMAIL ADDRESS>",
     "maintainer": "ANOTHER NAME <ANOTHER EMAIL ADDRESS>",
     "synopsis": "A ONE-LINE SUMMARY ABOUT THE PACKAGE",
-    "synopsis": "A MORE DEATILED SUMMARY ABOUT THE PACKAGE",
+    "description": "A MORE DETAILED SUMMARY ABOUT THE PACKAGE",
     "category": [ "Category1", "Category2" ],
     "license": "BSD-3-Clause",
     "licenseFile": "LICENSE",
@@ -1290,11 +1290,11 @@ that something is wrong.
 In such cases, it might be a good idea to clean up your package file system.
 Here are some suggestions how to do this:
 \begin{description}
-\item[\code{cpm clean}]~\\
+\item[\code{cypm clean}]~\\
 This command cleans the current package from
 generated auxiliary files (see Section~\ref{sec:cmd-reference}).
 Then you can re-install the package and packages on which it depends
-by the command \code{cpm install}.
+by the command \code{cypm install}.
 \item[\code{rm -rf \$HOME/.cpm/packages}] ~\\
 This cleans all packages which have been previously installed
 in the global package cache (see Section~\ref{sec:internals}).
@@ -1305,7 +1305,7 @@ are downloaded again when they are needed.
 This removes the central package index of CPM
 (see Section~\ref{sec:internals}).
 You can simply re-install the newest version of this index
-by the command \code{cpm update}.
+by the command \code{cypm update}.
 \end{description}
 
 
