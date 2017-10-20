@@ -108,7 +108,7 @@ fi
 
 CPMEXEC=
 if [ $CPM = yes ] ; then
-  CPMEXEC="cpm exec"
+  CPMEXEC="cypm exec"
 fi
 
 # Try to locate WUI/JavaScript translator:
@@ -123,7 +123,7 @@ fi
 if [ -z "$WUIJS_PREPROCESSOR" -a $WUIJS = yes ] ; then
   echo "No support for JavaScript possible!"
   echo "Please install the Curry->JavaScript translator curry2js by:"
-  echo "> cpm update && cpm install curry2js"
+  echo "> cypm update && cypm install curry2js"
   exit 1
 fi
 
