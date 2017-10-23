@@ -27,7 +27,12 @@ check_and_call_tool() {
   shift
   shift
   if [ -x "$TOOLBIN" ] ; then
-    echo "Executing CPM installed tool:" "$TOOLBIN" ${1+"$@"}
+    if [ "$TOOLNAME" = cypm ] ; then
+      TOOLOPTS="-d curry_bin=$PAKCSHOME/bin/pakcs"
+    else
+      TOOLOPTS=
+    fi
+    echo "Executing CPM installed tool:" "$TOOLBIN" $TOOLOPTS ${1+"$@"}
     # Extend CURRYPATH with system libraries of this installation:
     if [ -n "$CURRYPATH" ] ; then
       CURRYPATH=$CURRYPATH:$PAKCSHOME/lib
@@ -35,7 +40,7 @@ check_and_call_tool() {
       CURRYPATH=$PAKCSHOME/lib
     fi
     export CURRYPATH
-    exec "$TOOLBIN" ${1+"$@"}
+    exec "$TOOLBIN" $TOOLOPTS ${1+"$@"}
   else
     echo "Curry tool '$TOOLNAME' is not installed!"
     echo "Please install it with the Curry Package Manager by:"
@@ -59,6 +64,7 @@ case $1 in
   analyze   ) check_and_call_tool cass        cass           ${1+"$@"} ;;
   browse    ) check_and_call_tool currybrowse curry-browse   ${1+"$@"} ;;
   check     ) check_and_call_tool currycheck  curry-check    ${1+"$@"} ;;
+  cypm      ) check_and_call_tool cpm         cypm           ${1+"$@"} ;;
   data2xml  ) check_and_call_tool xmldata     curry-data2xml ${1+"$@"} ;;
   doc       ) check_and_call_tool currydoc    curry-doc      ${1+"$@"} ;;
   erd2curry ) check_and_call_tool ertools     erd2curry      ${1+"$@"} ;;
