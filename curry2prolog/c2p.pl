@@ -1604,18 +1604,37 @@ padList(List,Pad,Length,PaddedList) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % small pretty printer for type expressions:
 
-writeType(T) :- writeType(T,top).
+writeType(T) :- writeTypeWithClassContext(T).
+
+% write standard type contexts in their source form, if possible:
+writeTypeWithClassContext('FuncType'(C1,'FuncType'(C2,T))) :-
+	classDict(C1,A1,Cls1Name),
+	classDict(C2,A2,Cls2Name), !,
+        write('('),
+        writeClassContext(Cls1Name,A1), write(', '),
+        writeClassContext(Cls2Name,A2),
+        writeTypeWithRemainingClassContexts(T).
+writeTypeWithClassContext('FuncType'(C,T)) :-
+	classDict(C,A,ClsName), !,
+        writeClassContext(ClsName,A), write(' => '),
+        writeType(T,top).
+writeTypeWithClassContext(T) :- writeType(T,top).
+
+writeTypeWithRemainingClassContexts('FuncType'(C,T)) :-
+	classDict(C,A,ClsName), !, write(', '),
+        writeClassContext(ClsName,A),
+        writeTypeWithRemainingClassContexts(T).
+writeTypeWithRemainingClassContexts(T) :-
+        write(') => '),
+        writeType(T,top).
+
+writeClassContext(ClsName,A) :-
+	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,nested).
+
 % the second argument is 'top' or 'nested':
 % in case of 'nested', brackets are written around complex type expressions
-
 writeType(A,_) :- var(A), !, write(A).
 writeType(A,_) :- atom(A), !, write(A).
-% write standard type contexts in their source form, if possible:
-writeType('FuncType'(S,T),top) :-
-	classDict(S,A,ClsName), !,
-	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,nested),
-	write(' => '), writeType(T,top).
-% write other functional types:
 writeType('FuncType'(S,T),top) :-
 	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
 	writeType(S,S_Tag), write(' -> '), writeType(T,top).
