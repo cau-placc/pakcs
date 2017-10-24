@@ -123,6 +123,8 @@ processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
 processArgs([]).
+processArgs(['--nocypm'|Args]) :-
+	processArgs(Args).            % ignore since already processed
 processArgs(['--noreadline'|Args]) :-
 	processArgs(Args).            % ignore since already processed
 processArgs([Arg|_]) :-
