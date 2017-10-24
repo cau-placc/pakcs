@@ -90,15 +90,18 @@ while [ "$CURDIR" != "/" -a $PKGFOUND = no ] ; do
     fi
 done
 
+# check whether we do not need to call CPM:
 USECPM=yes
 if [ "$1" = "nocypm" ] ; then
     shift
     USECPM=no
 fi
 for i in $* ; do
-  if [ $i = "--nocypm" ] ; then
-    USECPM=no
-  fi
+  case $i in
+    --help | -h | -\? ) USECPM=no ;;
+    --version | -V    ) USECPM=no ;;
+    --nocypm | --numeric-version | --compiler-name ) USECPM=no ;;
+  esac
 done
 
 if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
