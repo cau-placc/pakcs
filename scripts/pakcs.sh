@@ -78,7 +78,14 @@ case $1 in
   verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
 esac
 
-# check whether we are inside a packge by searching for `package.json`
+QUIET=no
+for i in $* ; do
+  case $i in
+    --quiet | -q ) QUIET=yes ;;
+  esac
+done
+
+# check whether we are inside a package by searching for `package.json`
 # in some parent directory
 CURDIR=`pwd`
 PKGFOUND=no
@@ -92,10 +99,6 @@ done
 
 # check whether we do not need to call CPM:
 USECPM=yes
-if [ "$1" = "nocypm" ] ; then
-    shift
-    USECPM=no
-fi
 for i in $* ; do
   case $i in
     --help | -h | -\? ) USECPM=no ;;
@@ -105,8 +108,10 @@ for i in $* ; do
 done
 
 if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
-    echo "Executing: $0 cypm curry nocypm ${1+"$@"}"
-    exec $0 cypm curry nocypm ${1+"$@"}
+  if [ $QUIET = no ] ; then
+    echo "Executing: "$0" cypm exec "$0" --nocypm ${1+"$@"}"
+  fi
+  exec "$0" cypm exec "$0" --nocypm ${1+"$@"}
 fi
 
 REPL="$PAKCSHOME/curry2prolog/pakcs"
