@@ -78,13 +78,6 @@ case $1 in
   verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
 esac
 
-QUIET=no
-for i in $* ; do
-  case $i in
-    --quiet | -q ) QUIET=yes ;;
-  esac
-done
-
 # check whether we are inside a package by searching for `package.json`
 # in some parent directory
 CURDIR=`pwd`
@@ -108,9 +101,6 @@ for i in $* ; do
 done
 
 if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
-  if [ $QUIET = no ] ; then
-    echo "Executing: "$0" cypm exec "$0" --nocypm ${1+"$@"}"
-  fi
   exec "$0" cypm exec "$0" --nocypm ${1+"$@"}
 fi
 
