@@ -62,7 +62,7 @@ with arity $n$ has the form
 \end{curry}
 where \code{lib} is the Prolog library (stored in the directory of the
 Curry module or in the global directory
-\code{\cyshome/curry2prolog/lib_src}) containing the code implementing this
+\code{\cyshome/src/lib_src}) containing the code implementing this
 function and \code{pred} is a predicate name in this library
 implementing this function. Note that the function $f$ must be
 declared in module \code{Mod}: either as an external function
@@ -194,7 +194,7 @@ complex structures).
 The Prolog code implementing the external functions must be accessible to the run-time
 system of \CYS by putting it into the directory containing the corresponding
 Curry module or into the system directory
-\code{\cyshome/curry2prolog/lib_src}.
+\code{\cyshome/src/lib_src}.
 Then it will be automatically loaded into the run-time environment
 of each compiled Curry program.
 

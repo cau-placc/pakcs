@@ -1,5 +1,4 @@
 bin usr/lib/pakcs/
-curry2prolog usr/lib/pakcs/
 currytools usr/lib/pakcs/
 docs usr/lib/pakcs/
 examples usr/lib/pakcs/
@@ -11,6 +10,7 @@ README usr/lib/pakcs/
 RELNOTES.txt usr/lib/pakcs/
 RESOURCES.html usr/lib/pakcs/
 scripts usr/lib/pakcs/
+src usr/lib/pakcs/
 testsuite usr/lib/pakcs/
 tools usr/lib/pakcs/
 bin/cleancurry usr/lib/pakcs/bin/

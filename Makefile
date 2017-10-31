@@ -91,8 +91,8 @@ CURRYDOC := $(shell which curry-doc)
 # Executable of the markdown translator (required for documentation generation):
 MD2PDF := $(shell which md2pdf)
 
-# The version information file for Curry2Prolog:
-C2PVERSION=$(ROOT)/curry2prolog/pakcsversion.pl
+# The version information file for PAKCS:
+PAKCSVERSION=$(ROOT)/src/pakcsversion.pl
 # The version information file for the manual:
 MANUALVERSION=$(DOCDIR)/src/version.tex
 
@@ -162,9 +162,9 @@ kernel: scripts copylibs copytools
 	$(MAKE) frontend
 	# pre-compile all libraries:
 	@cd lib && $(MAKE) fcy
-	# build the Curry2Prolog compiler as a saved system:
-	$(MAKE) $(C2PVERSION)
-	cd curry2prolog && $(MAKE)
+	# build the PAKCS compiler as a saved system:
+	$(MAKE) $(PAKCSVERSION)
+	cd src && $(MAKE)
 	# compile all libraries:
 	@cd lib && $(MAKE) acy
 	# compile optimization tools:
@@ -248,8 +248,8 @@ manual:
 	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" -a -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
 	 $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
 
-# Create file with version information for Curry2Prolog:
-$(C2PVERSION): Makefile
+# Create file with version information for PAKCS:
+$(PAKCSVERSION): Makefile
 	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1]).' > $@
 	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
 	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
@@ -337,7 +337,7 @@ clean: $(CLEANCURRY)
 # Clean the generated PAKCS tools
 .PHONY: cleantools
 cleantools: $(CLEANCURRY)
-	cd curry2prolog && $(MAKE) clean
+	cd src && $(MAKE) clean
 	cd currytools && $(MAKE) uninstall
 	cd tools && $(MAKE) clean
 	cd bin && rm -f pakcs

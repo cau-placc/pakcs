@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Information about version of Curry2Prolog.
+% Information about version of PAKCS.
 
 :- module(version,[prologMajor/1, printPakcsHeader/0, printVersionNumber/0]).
 

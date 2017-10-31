@@ -60,30 +60,30 @@ start_phil i =
 Shell commands to start all semaphores:
 
 echo ':l philo_ext
-      start_room' | curry2prolog &
+      start_room' | pakcs &
 echo ':l philo_ext
-      start_fork0' | curry2prolog &
+      start_fork0' | pakcs &
 echo ':l philo_ext
-      start_fork1' | curry2prolog &
+      start_fork1' | pakcs &
 echo ':l philo_ext
-      start_fork2' | curry2prolog &
+      start_fork2' | pakcs &
 echo ':l philo_ext
-      start_fork3' | curry2prolog &
+      start_fork3' | pakcs &
 echo ':l philo_ext
-      start_fork4' | curry2prolog &
+      start_fork4' | pakcs &
 
 Shell commands to start all philosophers (after starting the semaphores!):
 
 echo ':l philo_ext
-      start_phil 0' | curry2prolog &
+      start_phil 0' | pakcs &
 echo ':l philo_ext
-      start_phil 1' | curry2prolog &
+      start_phil 1' | pakcs &
 echo ':l philo_ext
-      start_phil 2' | curry2prolog &
+      start_phil 2' | pakcs &
 echo ':l philo_ext
-      start_phil 3' | curry2prolog &
+      start_phil 3' | pakcs &
 echo ':l philo_ext
-      start_phil 4' | curry2prolog &
+      start_phil 4' | pakcs &
 
 -}
 

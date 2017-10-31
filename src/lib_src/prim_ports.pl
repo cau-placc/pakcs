@@ -729,6 +729,6 @@ extractVarsList([Arg|Args],[NArg|NArgs],VIs,NVIs) :-
 	extractVarsList(Args,NArgs,VIs1,NVIs).
 
 
-% not yet implemented in Curry2Prolog:
+% not yet implemented in PAKCS:
 ?- block 'prim_after'(?,?,-,?).
 prim_after(_,_,E,E) :- raise_exception('Ports.after not implemented!').

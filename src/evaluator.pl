@@ -449,7 +449,7 @@ profileRedo(P) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % write a (Prolog) term in Curry syntax:
-% (used in curry2prolog for printing results or during debugging)
+% (used in PAKCS for printing results or during debugging)
 
 writeCurry(T) :- writeCurryOnStream(user_output,T).
 

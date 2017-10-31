@@ -27,7 +27,7 @@ This directory contains:
   A directory containing various executables
   to execute the components of PAKCS.
 
-`curry2prolog`:
+`src`:
   This directory contains the compiler from Curry into Prolog which
   is the basis of the main component of PAKCS: the interactive
   development environment.

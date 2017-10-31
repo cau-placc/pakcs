@@ -26,7 +26,7 @@ pakcsinitrc
 # intermediate files
 *.bak
 make.log
-curry2prolog/pakcsversion.pl
+src/pakcsversion.pl
 docs/src/version.tex
 docs/src/tooldocs/casc/curry-style-guide.html
 lib/
@@ -37,10 +37,10 @@ scripts/makesavedstate
 *.state
 bin/
 cpns/CPNSD
-curry2prolog/prologbasics.pl
-curry2prolog/libsicstus
-curry2prolog/libswi
-curry2prolog/pakcs
+src/prologbasics.pl
+src/libsicstus
+src/libswi
+src/pakcs
 tools/Peval/peval
 tools/coosy/CoosyGUI
 tools/curry2xml

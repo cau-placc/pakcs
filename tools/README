@@ -7,8 +7,8 @@ which are currently only available for the PAKCS system.
 Currently it contains:
 
 Peval:
-   Directory containing a partial evaluator (integrated in the
-   Curry2Prolog compiler environment by the command ":peval").
+   Directory containing a partial evaluator
+   (integrated in PAKCS by the command ":peval").
    See the README there for more details.
 
 emacs:

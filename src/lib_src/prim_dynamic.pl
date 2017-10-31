@@ -268,7 +268,7 @@ writePAKCSVersion(Dir) :-
 	compilerVersion(PakcsV), prologMajor(PrologV),
 	writePrologTermFile(PakcsVersionFile,pakcsVersion(PakcsV,PrologV)).
 
-% update facts of dynamic predicates w.r.t. new Curry2Prolog compiler version:
+% update facts of dynamic predicates w.r.t. new PAKCS compiler version:
 updateDynFactsIfNecessary(Dir,_) :- isCurrentPakcsVersion(Dir), !.
 updateDynFactsIfNecessary(Dir,P/N) :-
 	compilerVersion(Version),

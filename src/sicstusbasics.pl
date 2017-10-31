@@ -182,7 +182,7 @@ getSicstusVersion(SV) :-
 	 app("SICStus 4.3",_,Vs)  -> SV='4.3' ;
 	 write(user_error,'ERROR: UNKNOWN SICSTUS PROLOG VERSION:'),
 	 nl(user_error),
-	 write(user_error,'PLEASE MODIFY pakcs/curry2prolog/sicstusbasics.pl'),
+	 write(user_error,'PLEASE MODIFY pakcs/src/sicstusbasics.pl'),
 	 nl(user_error), halt(1)).
 
 % special handling since atom_codes are not available in these versions:
@@ -821,7 +821,7 @@ consultPrologorPOFile(PrologFileName,POFileName) :-
 % directory containing the system run-time modules:
 moduleDir(MD) :-
         installDir(TCP),
-        appendAtom(TCP,'/curry2prolog/libsicstus/',MD).
+        appendAtom(TCP,'/src/libsicstus/',MD).
 
 % ensure that run-time library is loaded:
 ensure_lib_loaded(Lib) :-

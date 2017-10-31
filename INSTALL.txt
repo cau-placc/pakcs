@@ -144,7 +144,7 @@ two system files and install your system as follows:
 
 1. Change the definition of the constant `maxTupleArity` in the files
    `pakcshome/frontend/curry-frontend/src/Generators/GenFlatCurry.hs`
-   and `pakcshome/curry2prolog/compiler.pl`
+   and `pakcshome/src/compiler.pl`
    according to your required maximal arity.
 2. Delete the file `pakcshome/lib/Prelude.fcy`.
 3. Re-install PAKCS by `make`.

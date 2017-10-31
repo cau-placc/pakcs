@@ -466,7 +466,7 @@ switchOrdering('Prelude.GT','Prelude.LT') :- !.
 switchOrdering(X,X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% encapsulated search not yet implemented in Curry2Prolog:
+% encapsulated search not yet implemented in PAKCS:
 ?- block prim_try(?,?,-,?).
 prim_try(_,_,E,E) :-
         raise_exception('Prelude.try not yet implemented!').

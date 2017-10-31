@@ -596,7 +596,7 @@ consultPrologorPOFile(PrologFileName,_POFileName) :-
 % directory containing the system run-time modules:
 moduleDir(MD) :-
         installDir(TCP),
-        appendAtom(TCP,'/curry2prolog/libswi/',MD).
+        appendAtom(TCP,'/src/libswi/',MD).
 
 % ensure that run-time library is loaded:
 ensure_lib_loaded(Lib) :-

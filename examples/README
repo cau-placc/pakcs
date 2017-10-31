@@ -4,10 +4,10 @@ most of these programs are contained in the file "index.html".
 
 Further useful files:
 
-CPTEST: a shell script to test the curry2prolog system.
-        In order to test the system after some modifications, run
+test.sh: a shell script to test PAKCS.
+         In order to test the system after some modifications, run
 
-           > ./CPTEST
+           > ./test.sh
 
         This shell commands run a couple of tests and report the
 	difference to previous executions.

@@ -104,7 +104,7 @@ if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
   exec "$0" cypm exec "$0" --nocypm ${1+"$@"}
 fi
 
-REPL="$PAKCSHOME/curry2prolog/pakcs"
+REPL="$PAKCSHOME/src/pakcs"
 if [ ! -x "$REPL" ] ; then
   echo "ERROR: executable '$REPL' not found!" >&2
   echo "Run: cd $PAKCSHOME && make" >&2

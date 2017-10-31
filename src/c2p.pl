@@ -431,20 +431,16 @@ flatType2Atom(Type,CurryType) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Check whether the first argument is the (FlatCurry) representation
 % of some class contexts and return the context type in the second
-% argument and the class name (string) in the third argument:
-classDict(T,_,_) :- var(T), !, fail.
-classDict('TCons'(FCDict,[A]),A,Dict) :-
+% argument and the qualified class name (string) in the third (module)
+% and fourth (class name) argument:
+classDict(T,_,_,_) :- var(T), !, fail.
+classDict('TCons'(FCDict,[A]),A,ModS,DictS) :-
         atomic2Atom(FCDict,FCDictA), % hack for SWI 7.x if FCDict == []
         atom_codes(FCDictA,FCDictS),
+        % dictionary argument types are prefixed by "_Dict#":
         atom_codes('._Dict\'23',FCDictPrefixS),
         append(ModFCDictPrefixS,DictS,FCDictS),
-        append(ModS,FCDictPrefixS,ModFCDictPrefixS), !,
-        atom_codes(ModA,ModS),
-        currentModuleFile(CurrMod,_),
-        ((ModA='Prelude' ; ModA=CurrMod)
-          -> Dict = DictS
-           ; append(ModS,[46|DictS],Dict)),
-        !.
+        append(ModS,FCDictPrefixS,ModFCDictPrefixS), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -572,8 +568,8 @@ defaultTypeExpr(OrgType,DfltType,DfltTypeAtom) :-
 % try to default overloaded numerical types:
 defaultNumType(Type,Type) :- var(Type), !.
 defaultNumType('FuncType'(AType,RType),DType) :-
-	classDict(AType,TVar,DictName),
-	member(DictName,["Num","Integral","Fractional"]), !,
+	classDict(AType,TVar,ModName,DictName),
+        ModName="Prelude", member(DictName,["Num","Integral","Fractional"]), !,
 	(DictName="Fractional"
          -> (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
 	    defaultNumType(RType,DType)
@@ -586,8 +582,9 @@ defaultNumType(Type,Type).
 % remove type class context of defaulted types:
 removeDefaultedTypes(Type,Type) :- var(Type), !.
 removeDefaultedTypes('FuncType'(AType,RType),DType) :-
-	classDict(AType,TVar,DictName),
-	member(DictName,["Eq","Ord","Show"]),
+	classDict(AType,TVar,ModName,DictName),
+        ModName="Prelude",
+	member(DictName,["Eq","Ord","Read","Show"]),
         nonvar(TVar), !,
         removeDefaultedTypes(RType,DType).
 removeDefaultedTypes('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
@@ -596,7 +593,7 @@ removeDefaultedTypes(Type,Type).
 
 % Is the type overloaded, i.e., does it contain class dictioniary parameters?
 isOverloadedType(Type) :- var(Type), !, fail.
-isOverloadedType('FuncType'(AType,_)) :- classDict(AType,_,_), !.
+isOverloadedType('FuncType'(AType,_)) :- classDict(AType,_,_,_), !.
 isOverloadedType('FuncType'(_,RType)) :- !, isOverloadedType(RType).
 isOverloadedType(_) :- fail.
 
@@ -1253,7 +1250,7 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 	appendAtom(ProgPl,'.save',TmpSavePl),
 	tell(TmpSavePl),
 	installDir(PH),
-	appendAtom(PH,'/curry2prolog/',PHCP),
+	appendAtom(PH,'/src/',PHCP),
 	appendAtom(PHCP,'prologbasics.pl',PrologBasicsPl),
 	appendAtom(PHCP,'basics.pl',BasicsPl),
 	appendAtom(PHCP,'evaluator.pl',EvalPl),
@@ -1608,27 +1605,32 @@ writeType(T) :- writeTypeWithClassContext(T).
 
 % write standard type contexts in their source form, if possible:
 writeTypeWithClassContext('FuncType'(C1,'FuncType'(C2,T))) :-
-	classDict(C1,A1,Cls1Name),
-	classDict(C2,A2,Cls2Name), !,
+	classDict(C1,A1,Mod1Name,Cls1Name),
+	classDict(C2,A2,Mod2Name,Cls2Name), !,
         write('('),
-        writeClassContext(Cls1Name,A1), write(', '),
-        writeClassContext(Cls2Name,A2),
+        writeClassContext(Mod1Name,Cls1Name,A1), write(', '),
+        writeClassContext(Mod2Name,Cls2Name,A2),
         writeTypeWithRemainingClassContexts(T).
 writeTypeWithClassContext('FuncType'(C,T)) :-
-	classDict(C,A,ClsName), !,
-        writeClassContext(ClsName,A), write(' => '),
+	classDict(C,A,ModName,ClsName), !,
+        writeClassContext(ModName,ClsName,A), write(' => '),
         writeType(T,top).
 writeTypeWithClassContext(T) :- writeType(T,top).
 
 writeTypeWithRemainingClassContexts('FuncType'(C,T)) :-
-	classDict(C,A,ClsName), !, write(', '),
-        writeClassContext(ClsName,A),
+	classDict(C,A,ModName,ClsName), !, write(', '),
+        writeClassContext(ModName,ClsName,A),
         writeTypeWithRemainingClassContexts(T).
 writeTypeWithRemainingClassContexts(T) :-
         write(') => '),
         writeType(T,top).
 
-writeClassContext(ClsName,A) :-
+writeClassContext(ModName,ClsName,A) :-
+        atom_codes(ModN,ModName),
+        currentModuleFile(CurrMod,_),
+        ((ModN='Prelude' ; ModN=CurrMod)
+          -> true % don't print module prefix if prelude or current module
+           ; write(ModN), write('.')),
 	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,nested).
 
 % the second argument is 'top' or 'nested':
