@@ -102,7 +102,7 @@ done
 
 if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
   # set CURRYPATH with 'deps' command of CPM
-  CURRYPATH=`"$0" cypm -d CURRYBIN="$0" deps -p`
+  CURRYPATH=`"$0" cypm -v quiet -d CURRYBIN="$0" deps -p`
   if [ $? -gt 0 ] ; then
     echo $CURRYPATH
     exit 1
