@@ -101,7 +101,13 @@ for i in $* ; do
 done
 
 if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
-  exec "$0" cypm exec "$0" --nocypm ${1+"$@"}
+  # set CURRYPATH with 'deps' command of CPM
+  CURRYPATH=`"$0" cypm -d CURRYBIN="$0" deps -p`
+  if [ $? -gt 0 ] ; then
+    echo $CURRYPATH
+    exit 1
+  fi
+  export CURRYPATH
 fi
 
 REPL="$PAKCSHOME/src/pakcs"
