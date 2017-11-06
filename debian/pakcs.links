@@ -1,6 +1,3 @@
 usr/lib/pakcs/bin/cleancurry				usr/bin/cleancurry
 usr/lib/pakcs/bin/pakcs					usr/bin/pakcs
-usr/lib/pakcs/bin/runcurry				usr/bin/runcurry
 usr/lib/pakcs/bin/cypm					usr/bin/cypm
-
-usr/share/javascript/prototype/prototype.js		usr/lib/pakcs/tools/ui/prototype.js
