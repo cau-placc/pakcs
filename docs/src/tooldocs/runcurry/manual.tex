@@ -1,16 +1,32 @@
 \section{\texttt{runcurry}: Running Curry Programs}
 
 \code{runcurry}\pindex{runcurry}
-is a command usually stored in \code{\cyshome/bin}
-(where \cyshome is the installation directory of \CYS;
-see Section~\ref{sec-general}).
-This command supports the execution of Curry programs
+is a simple tool to support the execution of Curry programs
 without explicitly invoking the interactive environment.
 Hence, it can be useful to write short scripts in Curry
 intended for direct execution.
 The Curry program must always contain the definition of an operation
 \code{main} of type \code{IO ()}.
 The execution of the program consists of the evaluation of this operation.
+
+\subsection{Installation}
+
+The implementation of \code{runcurry} is a package
+managed by the Curry Package Manager CPM.
+Thus, to install the newest version of \code{runcurry},
+use the following commands:
+%
+\begin{curry}
+> cypm update
+> cypm install runcurry
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{runcurry} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to use \code{runcurry} as described below.
+
+\subsection{Using \texttt{runcurry}}
 
 Basically, the command \code{runcurry} supports three modes of operation:
 \begin{itemize}

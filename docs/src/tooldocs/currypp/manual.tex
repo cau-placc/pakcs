@@ -17,11 +17,6 @@ This extension allows to integrate
 code written in some other language into Curry programs,
 like regular expressions, format specifications (\ccode{printf}),
 HTML and XML code.
-\item[Sequential rules:]
-If this feature is used, all rules in a Curry module are
-interpreted as sequential, i.e., a rule is applied only
-if all previous rules defining the same operation are not applicable.
-The idea of sequential rules are described in \cite{AntoyHanus14}.
 \item[Default rules:]
 If this feature is used, one can add a default rule
 to operations defined in a Curry module.
@@ -37,9 +32,27 @@ Currently, only strict assertion checking is supported
 which might change the operational behavior of the program.
 The idea and usage of contracts is described in \cite{AntoyHanus12PADL}.
 \end{description}
+
+\subsection{Installation}
+
+The current implementation of Curry preprocessor is a package
+managed by the Curry Package Manager CPM
+(see also Section~\ref{sec-cpm}).
+Thus, to install the newest version of \code{currypp},
+use the following commands:
 %
-The preprocessor is an executable named \ccode{currypp},
-which is stored in the directory \code{\cyshome/bin}.
+\begin{curry}
+> cypm update
+> cypm install currypp
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{currypp} into the directory \code{\$HOME/.cpm/bin}.
+Hence one should add this directory to the path
+in order to use the Curry preprocessor as described below.
+
+\subsection{Basic Usage}
+
 In order to apply the preprocessor when loading a Curry source
 program into \CYS, one has to add an option line
 at the beginning of the source program.
@@ -50,14 +63,12 @@ one has to put the line
 \end{curry}
 at the beginning of the program.
 This option tells the \CYS front end to process the Curry source program
-with \code{currypp} before actually parsing the source text.
+with the program \code{currypp} before actually parsing the source text.
 
 The option \ccode{defaultrules} has to be replaced by
-\ccode{seqrules} if the sequential rule matching should be replaced,
-or by \ccode{contracts} to enable dynamic contract checking.
+\ccode{contracts} to enable dynamic contract checking.
 To support integrated code, one has to set the option
-\ccode{foreigncode} (which can also be combined with
-either \ccode{defaultrules} or \ccode{seqrules}).
+\ccode{foreigncode} (which can also be combined with \ccode{defaultrules}).
 If one wants to see the result of the transformation, one can
 also set the option \ccode{-o}. This has the effect that the
 transformed source program is stored in the file
@@ -73,7 +84,7 @@ one has to put the line
 at the beginning of the program.
 %
 If the options about the kind of preprocessing is omitted,
-all kinds of preprocessing (except for \ccode{seqrules})
+all kinds of preprocessing
 are applied. Thus, the preprocessor directive
 \begin{curry}
 {-# OPTIONS_CYMAKE -F --pgmF=currypp #-}
@@ -609,36 +620,6 @@ The complete SQL syntax supported by the Curry preprocessor
 is shown in Appendix~\ref{app:sqlsyntax}.
 More details about the implementation of this
 SQL translator can be found in \cite{HanusKrone17EPTCS,Krone15}.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Sequential Rules}
-
-If the Curry preprocessor is called with the option
-\ccode{seqrules}, then all rules in the Curry module are
-interpreted in a sequential manner, i.e., a rule is applied only
-if all previous rules defining the same operation are not applicable,
-either because the left-hand side's pattern does not match
-or the condition is not satisfiable.
-The idea and detailed semantics of
-sequential rules are described in \cite{AntoyHanus14}.
-Sequential rules are useful and preferable over
-rules with multiple guards if the patterns are non-trivial
-(e.g., functional patterns) or the condition involve complex
-constraints.
-
-As a simple example, the following module defines
-a lookup operation in association lists by a functional pattern.
-Due to the sequential rule strategy,
-the second rule is applied only if there is no appropriate
-key in the association list:
-%
-\begin{curry}
-{-# OPTIONS_CYMAKE -F --pgmF=currypp --optF=seqrules #-}
-
-mlookup key (_ ++ [(key,value)] ++ _) = Just value
-mlookup _   _                         = Nothing 
-\end{curry}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

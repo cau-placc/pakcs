@@ -16,7 +16,7 @@ if [ -x "$CURRYBIN" ] ; then
 else
   CPMOPTS=
 fi
-CPM="cpm $CPMOPTS"
+CPM="cypm $CPMOPTS"
 
 # the directory where all tool documentations are stored:
 TOOLDOCDIR=tooldocs

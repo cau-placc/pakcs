@@ -820,22 +820,6 @@ Checks out a specific version of a package
 into the local directory \code{$package$}
 in order to test its operations or install a binary of the package..
 
-% \item[\fbox{\code{installapp $package$ [--$pre$]}}]
-% Install the application provided by the newest version
-% (compatible to the current compiler) of a package.
-% The binary of the application is installed into the directory
-% \code{\$HOME/.cpm/bin}
-% (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
-% or by the CPM option \code{--define}, see Section~\ref{sec:config}).
-% \code{--$pre$} enables the installation of pre-release versions.
-% 
-% \item[\fbox{\code{installapp $package$ $version$}}]
-% Install the application provided by a specific version of a package.
-% The binary of the application is installed into the directory
-% \code{\$HOME/.cpm/bin}
-% (this location can be changed via the \code{\$HOME/.cpmrc} configuration file
-% or by the CPM option \code{--define}, see Section~\ref{sec:config}).
-
 \item[\fbox{\code{upgrade}}]
 Upgrades all dependencies of the current package to
 the newest compatible version.
@@ -848,6 +832,8 @@ versions.
 package and prints out the results. The result is either a list of all package
 versions chosen or a description of the conflict encountered during dependency
 resolution.
+Using the option \code{--path]}, only the value of \code{CURRYPATH} required
+to load modules of this package is shown.
 
 \item[\fbox{\code{test}}]
 Tests the current package with CurryCheck.
