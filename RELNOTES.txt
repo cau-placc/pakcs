@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.0 (October 31, 2017)
+Release notes for PAKCS Version 2.0.0 (November 8, 2017)
 --------------------------------------------------------
 
 This version has almost the same functionality as version 1.15.0
@@ -21,7 +21,10 @@ this version contains the following changes:
         (no longer used since `currytest` has been replaced by `currycheck`)
       - `CLP*` (now in package `clp-pakcs`)
       - `CSV` (now available as `Text.CSV` in package `csv`)
+      - `GlobalVariable` (now available in package `global-variables`)
       - `Parser` (now available in package `fl-parser`)
+      - `PlProfileData` (now available in package `profiling`)
+      - `Ports` (now available in package `ports`)
       - `RegExp` (now available in package `regexp`)
  
 

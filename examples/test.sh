@@ -103,18 +103,6 @@ h [1,2]
 h [1,3]
 h [2,div 1 0]
 :cd distcurry
-:l accountport
-goal1 b  where b free
-goal2 b  where b free
-:l nameserver
-:fork serve
-gn1
-gn2
-pn1
-pn2
-gn1
-gn2
-closeServer
 :l addserver
 :fork addServer
 addClient "localhost" 3 4

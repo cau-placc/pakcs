@@ -266,23 +266,6 @@ h [1,3]
 False
 h [2,((_impl#div#Prelude.Integral#Prelude.Int) 1) 0]
 False
-Loading program "accountport"...
-goal1 b
-{b=250} True
-goal2 b
-{b=[Deposit 100,Withdraw 30,Withdraw 30,Deposit 70,Withdraw 30,Withdraw 30]} True
-Loading program "nameserver"...
-gn1
-Answer: 0
-gn2
-Answer: 0
-pn1
-pn2
-gn1
-Answer: 42
-gn2
-Answer: 43
-closeServer
 Loading program "addserver"...
 addClient "localhost" 3 4
 Answer: 7

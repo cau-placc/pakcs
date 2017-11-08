@@ -31,15 +31,17 @@ if [ -x "$CURRYBIN/pakcs" ] ; then
         sicstus4 ) TESTPAKCSBACKEND="" ;;
         swi5     ) TESTPAKCSBACKEND="TestIO " ;;
     esac
-    TESTPAKCS="TestGlobalVariable $TESTPAKCSBACKEND"
+    TESTPAKCS="$TESTPAKCSBACKEND"
 elif [ -x "$CURRYBIN/kics2" ] ; then
-    TESTKICS2="TestExpTypeInference TestPolySubExp TestUnification TestUnsafeSearchTree"
+    TESTKICS2="TestPolySubExp TestUnification"
 fi
 
 # test features of specific Curry systems:
 test_systems()
 {
-  cd SpecialTests && $CURRYBIN/curry check  $TESTPAKCS $TESTKICS2 && cd ..
+  if [ -n "$TESTPAKCS" -o -n "$TESTKICS2" ] ; then
+    cd SpecialTests && $CURRYBIN/curry check $TESTPAKCS $TESTKICS2 && cd ..
+  fi
 }
 
 # run all tests:
