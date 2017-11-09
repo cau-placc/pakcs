@@ -245,8 +245,14 @@ CASS:
 # separate package distribution:
 .PHONY: manual
 manual:
-	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" -a -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
-	 $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; fi
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
+	   if [ -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
+	     $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; \
+	   else echo "Executable 'curry-doc' or 'md2pdf' not found!" ; \
+	        echo "To generate the manual, install them by:" ; \
+                echo "> cypm install currydoc && cypm install markdown" ; \
+           fi \
+         fi
 
 # Create file with version information for PAKCS:
 $(PAKCSVERSION): Makefile
@@ -297,7 +303,7 @@ endif
 .PHONY: runtest
 runtest:
 	@if [ ! -x "$(CURRYCHECK)" ] ; then \
-	  echo "Executable 'curry-check' is not installed!" && echo "To run the tests, install it by > cpm install currycheck" ; \
+	  echo "Executable 'curry-check' is not installed!" && echo "To run the tests, install it by > cypm install currycheck" ; \
 	else $(MAKE) runalltests ; fi
 
 .PHONY: runalltests
