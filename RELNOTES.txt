@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.0 (November 8, 2017)
---------------------------------------------------------
+Release notes for PAKCS Version 2.0.0 (November 11, 2017)
+---------------------------------------------------------
 
 This version has almost the same functionality as version 1.15.0
 but adds type classes similar to Haskell 98.
@@ -12,6 +12,10 @@ this version contains the following changes:
   * `define` command removed (since it was based on a quite restricted parser)
   * Free variable mode (option `+free`) removed since it has many restrictions
     and is no longer compatible with type classes.
+  * Base libraries are now versioned. The actual version of the base
+    libraries can be queried by `pakcs --base-version` or inside
+    Curry programs by the operation `Distribution.baseVersion`.
+    The versioning of base libraries is intended to be used by CPM.
   * Sources of compiler are contained in directory `src` (instead of
     `curry2prolog` as in versions 1.x).
   * Some libraries removed since they are available as packages

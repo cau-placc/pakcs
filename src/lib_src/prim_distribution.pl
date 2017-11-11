@@ -21,6 +21,8 @@ prim_curryRuntimeMajorVersion(V) :- prologMajorVersion(V).
 
 prim_curryRuntimeMinorVersion(V) :- prologMinorVersion(V).
 
+prim_baseVersion(BVS) :- baseVersion(BVA), atom2String(BVA,BVS).
+
 prim_installDir(PHS) :-
 	installDir(PH)
 	 -> atom2String(PH,PHS)

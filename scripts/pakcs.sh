@@ -96,7 +96,7 @@ for i in $* ; do
   case $i in
     --help | -h | -\? ) USECPM=no ;;
     --version | -V    ) USECPM=no ;;
-    --nocypm | --numeric-version | --compiler-name ) USECPM=no ;;
+    --nocypm | --numeric-version | --compiler-name | --base-version ) USECPM=no ;;
   esac
 done
 

@@ -40,7 +40,11 @@ export DISTPKGINSTALL = no
 export PAKCSINSTALLDIR =
 
 ########################################################################
-# The major version numbers:
+# The name of the Curry system, needed for the installation of
+# the system libraries and tools:
+export CURRYSYSTEM=pakcs
+
+# The major version number:
 export MAJORVERSION=2
 # The minor version number:
 export MINORVERSION=0
@@ -57,9 +61,9 @@ else
 COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
 endif
 
-# The name of the Curry system, needed for the installation of
-# the system libraries and tools:
-export CURRYSYSTEM=pakcs
+# The version number of the base libraries:
+BASEVERSION=1.0.0
+
 
 # Paths used in this installation
 # -------------------------------
@@ -256,7 +260,7 @@ manual:
 
 # Create file with version information for PAKCS:
 $(PAKCSVERSION): Makefile
-	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1]).' > $@
+	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1, baseVersion/1]).' > $@
 	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
 	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
 	echo 'compilerMinorVersion($(MINORVERSION)).' >> $@
@@ -265,6 +269,7 @@ $(PAKCSVERSION): Makefile
 	echo "buildDate('$(COMPILERDATE)')." >> $@
 	echo "buildDir('$(ROOT)')." >> $@
 	echo "pkgInstallDir('$(PAKCSINSTALLDIR)')." >> $@
+	echo "baseVersion('$(BASEVERSION)')." >> $@
 
 # Create file with version information for the manual:
 $(MANUALVERSION): Makefile
