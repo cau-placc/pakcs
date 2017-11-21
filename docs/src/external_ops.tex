@@ -40,7 +40,7 @@ in the \CYS compiler system:
 \begin{enumerate}
 \item
 If the Curry module \code{Mod} contains external functions,
-there must be a file named \code{Mod.prim_c2p} containing the
+there must be a file named \code{Mod.pakcs} containing the
 specification of these external functions. The contents of this file
 is in XML format and has the following general structure:\footnote{%
 \url{http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd} contains a DTD
@@ -97,7 +97,7 @@ prim_Int_plus external
 \end{curry}
 where \code{prim_Int_plus} is the actual external function implementing
 the addition on integers. Consequently, the specification file
-\code{Prelude.prim_c2p} has an entry of the form
+\code{Prelude.pakcs} has an entry of the form
 \begin{curry}
 <primitive name="prim_Int_plus" arity="2">
   <library>prim_standard</library>
@@ -145,10 +145,10 @@ If some arguments passed to the external functions are not fully evaluated
 or the external function might suspend, the implementation must follow
 the structure of the \CYS run-time system by using
 the \emph{raw interface}. In this case, the name of the external entry
-must be suffixed by \ccode{[raw]} in the \code{prim_c2p} file.
+must be suffixed by \ccode{[raw]} in the \code{pakcs} file.
 For instance, if we want to use the raw interface for the external function
 \code{prim_Int_plus},
-the specification file \code{Prelude.prim_c2p} must have an entry of the form
+the specification file \code{Prelude.pakcs} must have an entry of the form
 \begin{curry}
 <primitive name="prim_Int_plus" arity="2">
   <library>prim_standard</library>

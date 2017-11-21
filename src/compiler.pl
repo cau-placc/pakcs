@@ -388,14 +388,13 @@ equalDirectories(Dir1,Dir2) :-
 	AbsDir1a=AbsDir2a.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% try to read primitive function specification file and merge infos into external
-% functions:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% try to read primitive function specification file and merge infos into
+% external functions:
 mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg) :-
         prog2DirProg(DirProg,RealDirProg),
 	PlainFlatProg = 'Prog'(ModName,_,_,_,_),
-	appendAtom(RealDirProg,'.prim_c2p',PrimXmlFile),
-	existsFile(PrimXmlFile),
+	findPrimXmlFile(RealDirProg,PrimXmlFile),
 	!,
 	(verbosityIntermediate
 	 -> writeErr('>>> Reading '),
@@ -412,6 +411,13 @@ mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg) :-
 	addPrimitiveSpecs2FlatProg(PlainFlatProg,QPrimSpecs,FlatProg).
 mergeWithPrimitiveSpecs(PlainFlatProg,_,FlatProg) :-
 	addPrimitiveSpecs2FlatProg(PlainFlatProg,[],FlatProg).
+
+findPrimXmlFile(RealDirProg,PrimXmlFile) :-
+        appendAtom(RealDirProg,'.pakcs',PrimXmlFile),
+	existsFile(PrimXmlFile), !.
+findPrimXmlFile(RealDirProg,PrimXmlFile) :-
+        appendAtom(RealDirProg,'.prim_c2p',PrimXmlFile),
+	existsFile(PrimXmlFile), !.
 
 addModuleName2PrimSpecs(ModNameDot,primitive(F,N,Mod,Entry),primitive(QF,N,Mod,Entry)) :-
 	ModNameDot='prelude.', !, appendAtom('Prelude.',F,QF).

@@ -286,7 +286,7 @@ Files: src/Makefile
  tools/lib_deprecated/Flat2Fcy.curry
  tools/lib_deprecated/Tk.curry
  tools/lib_deprecated/GUI_2012_11.curry
- tools/lib_deprecated/Flat.prim_c2p
+ tools/lib_deprecated/Flat.pakcs
  tools/lib_deprecated/SetRBT0.curry
  tools/emacs/README
  tools/optimize/Makefile
@@ -321,7 +321,7 @@ Files: src/Makefile
  tools/Peval/peval.curry
  tools/Peval/Flat2Fcy.curry
  tools/Peval/README
- tools/Peval/Flat.prim_c2p
+ tools/Peval/Flat.pakcs
  tools/coosy/Makefile
  tools/coosy/README.txt
  tools/coosy/Observe.curry

@@ -18,6 +18,8 @@ this version contains the following changes:
     The versioning of base libraries is intended to be used by CPM.
   * Sources of compiler are contained in directory `src` (instead of
     `curry2prolog` as in versions 1.x).
+  * Specification files for external operations renamed from `xxx.prim_c2p`
+    to `xxx.pakcs` (for conformity with other Curry compilers).
   * Some libraries removed since they are available as packages
     which can easily be installed via `cypm`:
 

@@ -2,7 +2,7 @@
 % Reading specification of primitive external functions.
 %
 % The specification primitive external functions of a module "Mod" must
-% be contained in a file named "Mod.prim_c2p". This XML file must contain
+% be contained in a file named "Mod.pakcs". This XML file must contain
 % for each external function f with arity n an entry of the form
 %
 %  <primitive name="f" arity="n">
