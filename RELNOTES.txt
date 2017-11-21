@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.0 (November 11, 2017)
+Release notes for PAKCS Version 2.0.0 (November 21, 2017)
 ---------------------------------------------------------
 
 This version has almost the same functionality as version 1.15.0
@@ -19,7 +19,7 @@ this version contains the following changes:
   * Sources of compiler are contained in directory `src` (instead of
     `curry2prolog` as in versions 1.x).
   * Some libraries removed since they are available as packages
-    which can easily be installed via `cpm`:
+    which can easily be installed via `cypm`:
 
       - `Assertion`
         (no longer used since `currytest` has been replaced by `currycheck`)
@@ -29,6 +29,8 @@ this version contains the following changes:
       - `Parser` (now available in package `fl-parser`)
       - `PlProfileData` (now available in package `profiling`)
       - `Ports` (now available in package `ports`)
+      - `Pretty` (now available in package `wl-pprint` as `Text.Pretty`,
+         where `Pretty.pretty` has been renamed to `Text.Pretty.showWidth`)
       - `RegExp` (now available in package `regexp`)
  
 
@@ -49,7 +51,7 @@ Changes to version 1.14.2:
   * Operation `RegExp.match`: order of arguments swapped
   * Curry preprocessor does not generate implicit `match` for regexps.
   * Some libraries removed since they are available as packages
-    which can easily be installed via `cpm`:
+    which can easily be installed via `cypm`:
 
       - `AbstractCurry.*` (now in package `abstract-curry`)
       - `Bootstrap3Style` (now in package `html`)
