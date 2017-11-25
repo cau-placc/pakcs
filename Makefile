@@ -61,12 +61,11 @@ else
 COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
 endif
 
-# The version number of the base libraries:
-BASEVERSION=1.0.0
-
-
 # Paths used in this installation
 # -------------------------------
+
+# the root directory of the installation
+export ROOT=$(CURDIR)
 
 # Directories of the sources of the standard libraries and tools
 ifeq ($(DISTPKGINSTALL),yes)
@@ -77,8 +76,10 @@ export CURRYLIBSDIR  = $(ROOT)/lib-trunk
 export CURRYTOOLSDIR = # not used
 endif
 
-# the root directory of the installation
-export ROOT=$(CURDIR)
+# The version number of the base libraries:
+BASEVERSIONFILE = $(CURRYLIBSDIR)/VERSION
+BASEVERSION := $(shell cat $(BASEVERSIONFILE))
+
 # binary directory and executables
 export BINDIR=$(ROOT)/bin
 # Directory where the front end is located
@@ -259,7 +260,7 @@ manual:
          fi
 
 # Create file with version information for PAKCS:
-$(PAKCSVERSION): Makefile
+$(PAKCSVERSION): Makefile $(BASEVERSIONFILE)
 	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1, baseVersion/1]).' > $@
 	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
 	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
