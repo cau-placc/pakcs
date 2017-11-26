@@ -76,10 +76,6 @@ export CURRYLIBSDIR  = $(ROOT)/lib-trunk
 export CURRYTOOLSDIR = # not used
 endif
 
-# The version number of the base libraries:
-BASEVERSIONFILE = $(CURRYLIBSDIR)/VERSION
-BASEVERSION := $(shell cat $(BASEVERSIONFILE))
-
 # binary directory and executables
 export BINDIR=$(ROOT)/bin
 # Directory where the front end is located
@@ -88,6 +84,10 @@ export FRONTENDDIR   = $(ROOT)/frontend
 export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
+
+# The version number of the base libraries:
+BASEVERSIONFILE = $(LIBDIR)/VERSION
+BASEVERSION := $(shell cat $(BASEVERSIONFILE))
 
 # Executable of CurryCheck:
 CURRYCHECK := $(shell which curry-check)
