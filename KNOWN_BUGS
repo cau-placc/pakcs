@@ -11,7 +11,9 @@ Occur check in higher-order objects in PAKCS:
   Solution: generate additional clauses for partially applied functions
   in the definition of the predicate "occurs_not". However, this increases
   the size of the generated programs considerably. On the other hand,
-  this case occurs very rarely (up to know there is no application making
+  this case occurs very rarely (up to now there is no application making
   use of a real unification of higher-order objects).
-
+  Furthermore, this issue will go away if type classes are systematically
+  used so that unification on functional objects is not allowed.
+  
 
