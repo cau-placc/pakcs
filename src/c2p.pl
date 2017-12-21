@@ -93,8 +93,8 @@ pakcsMain :-
 	atom_codes(DefParamA,DefParamS),
 	split2words(DefParamS,DefParamsS),
 	map2M(prologbasics:atomCodes,DefParamsA,DefParamsS),
-	processArgs(DefParamsA), % process default parameters from .pakcsrc
-	processArgs(Args), % process current parameters
+	processArgs(no,DefParamsA), % process default parameters from .pakcsrc
+	processArgs(no,Args), % process current parameters
 	rtArgs(RTArgs),
         exitCode(EC),
         (EC=0 -> true ; halt(EC)), % halt if error occurred
@@ -122,50 +122,51 @@ processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
-processArgs([]).
-processArgs(['--nocypm'|Args]) :-
-	processArgs(Args).            % ignore since already processed
-processArgs(['--noreadline'|Args]) :-
-	processArgs(Args).            % ignore since already processed
-processArgs([Arg|_]) :-
+processArgs(Halt,[]) :- Halt=yes -> halt(0) ; true.
+processArgs(Halt,['--nocypm'|Args]) :-
+	processArgs(Halt,Args).            % ignore since already processed
+processArgs(Halt,['--noreadline'|Args]) :-
+	processArgs(Halt,Args).            % ignore since already processed
+processArgs(_,[Arg|Args]) :-
 	(Arg='--version' ; Arg='-V'), !, % show version and quit:
 	printPakcsHeader,
-	halt(0).
-processArgs([Arg|_]) :-
+	processArgs(yes,Args).
+processArgs(_,[Arg|Args]) :-
 	Arg='--compiler-name', !, % show compiler name (pakcs) and quit:
 	write(pakcs), nl,
-	halt(0).
-processArgs([Arg|_]) :-
+	processArgs(yes,Args).
+processArgs(_,[Arg|Args]) :-
 	Arg='--numeric-version', !, % show compiler version number and quit:
-	printVersionNumber,
-	halt(0).
-processArgs([Arg|_]) :-
+	printVersionNumber, nl,
+	processArgs(yes,Args).
+processArgs(_,[Arg|Args]) :-
 	Arg='--base-version', !, % show base libraries version number and quit:
 	baseVersion(BaseVersion),
         write(BaseVersion), nl,
-	halt(0).
-processArgs([Arg|_]) :-
+	processArgs(yes,Args).
+processArgs(_,[Arg|Args]) :-
 	(Arg='--help' ; Arg='-h' ; Arg='-?'),
 	writeMainHelp,
-	halt(0). % quit
-processArgs([Arg|Args]) :-
+	processArgs(yes,Args).
+processArgs(Halt,[Arg|Args]) :-
 	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'),
 	setQuietMode(yes), !,
 	setVerbosity(0),
-	processArgs(Args).
-processArgs([Arg|Args]) :- % command option
+	processArgs(Halt,Args).
+processArgs(Halt,[Arg|Args]) :- % command option
 	atom_codes(Arg,[58|CmdS]), !, % 58=':'
 	expandCommand(CmdS,FullCmd),
 	extractReplCmdParameters(Args,Params,RArgs),
 	processReplCmd(FullCmd,Params),
         exitCode(EC),
         (EC=0 -> true ; halt(EC)), % halt if error occurred
-	processArgs(RArgs).
-processArgs([Arg|Args]) :- % run-time arguments (starting with '--'):
+	processArgs(Halt,RArgs).
+processArgs(Halt,[Arg|Args]) :- % run-time arguments (starting with '--'):
 	atom_codes(Arg,"--"), !,
 	retract(rtArgs(_)),
-	assertz(rtArgs(Args)).
-processArgs(Args) :-
+	assertz(rtArgs(Args)),
+        processArgs(Halt,[]).
+processArgs(_,Args) :-
 	writeErr('ERROR: Illegal arguments: '),
 	printArguments(Args),
         nlErr, nlErr,

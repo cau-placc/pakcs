@@ -91,10 +91,11 @@ if test -n "$LC_ALL" ; then
   echo "LC_ALL=$LC_ALL" >> $TMPFILE
   echo "export LC_ALL" >> $TMPFILE
 fi
-#echo "PATH=\"$PATH:\$PATH\"" >> $TMPFILE # old approach
-echo "PATH=\"\$PATH:$PATH\"" >> $TMPFILE # add install path after actual path
-echo "export PATH" >> $TMPFILE
+
 if [ -n "$SICSTUSDIR" ] ; then
+  # add SICSTUSDIR/bin to path so that SICStus can find its binary:
+  echo "PATH=\"\$PATH:$SICSTUSDIR/bin\"" >> $TMPFILE
+  echo "export PATH" >> $TMPFILE
   # check whether --noinfo parameter is accepted (e.g., not for SICStus 3.7):
   $SICSTUSDIR/bin/sicstus --noinfo --help > /dev/null 2>&1
   if [ $? -eq 0 ] ; then

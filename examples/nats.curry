@@ -1,5 +1,6 @@
 -- natural numbers defined by s-terms (Z=zero, S=successor):
 data Nat = Z | S Nat
+  deriving (Eq,Show)
 
 -- addition on natural numbers:
 add         :: Nat -> Nat -> Nat
