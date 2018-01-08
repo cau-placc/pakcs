@@ -12,9 +12,9 @@ instance Num Nat where
   Zero     * _ = Zero
   (Succ m) * n = n + (m * n)
 
-  fromInteger n = case n of
+  fromInt n = case n of
     0 -> Zero
-    _ -> Succ $ fromInteger $ n - 1
+    _ -> Succ $ fromInt $ n - 1
 
 
 testZeroPlus3 = Zero + 3 -=- 3 + Zero
