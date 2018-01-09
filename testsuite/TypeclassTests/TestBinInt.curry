@@ -163,9 +163,9 @@ instance Num BinInt where
   signum Zero    = Zero
   signum (Neg _) = Neg IHi
 
-  fromInteger n | n==0      = Zero
-                | n>0       = Pos (toNat n)
-                | otherwise = Neg (toNat (0 - n))
+  fromInt n | n==0      = Zero
+            | n>0       = Pos (toNat n)
+            | otherwise = Neg (toNat (0 - n))
 
 
 testZeroPlus3 = Zero + 3 -=- 3 + Zero
@@ -175,13 +175,13 @@ testZeroMult3 = Zero * 3 -=- 0
 testZeroMultAny x = Zero * x -=- 0
 
 testPlus :: Int -> Int -> Prop
-testPlus x y  = (fromInteger x) +# (fromInteger y) -=- fromInteger (x + y)
+testPlus x y  = (fromInt x) +# (fromInt y) -=- fromInt (x + y)
 
 testMinus :: Int -> Int -> Prop
-testMinus x y = (fromInteger x) -# (fromInteger y) -=- fromInteger (x - y)
+testMinus x y = (fromInt x) -# (fromInt y) -=- fromInt (x - y)
 
 testMult :: Int -> Int -> Prop
-testMult x y  = (fromInteger x) *# (fromInteger y) -=- fromInteger (x * y)
+testMult x y  = (fromInt x) *# (fromInt y) -=- fromInt (x * y)
 
 -- test narrowing on binary numbers:
 testNarrMultTwo = solutionOf (\ (x,y) -> x * y == (2::BinInt))
