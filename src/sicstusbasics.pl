@@ -180,6 +180,7 @@ getSicstusVersion(SV) :-
 	 app("SICStus 4.1",_,Vs)  -> SV='4.1' ;
 	 app("SICStus 4.2",_,Vs)  -> SV='4.2' ;
 	 app("SICStus 4.3",_,Vs)  -> SV='4.3' ;
+	 app("SICStus 4.4",_,Vs)  -> SV='4.4' ;
 	 write(user_error,'ERROR: UNKNOWN SICSTUS PROLOG VERSION:'),
 	 nl(user_error),
 	 write(user_error,'PLEASE MODIFY pakcs/src/sicstusbasics.pl'),
