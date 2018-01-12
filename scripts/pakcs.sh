@@ -78,20 +78,16 @@ case $1 in
   verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
 esac
 
-# check whether we are inside a package by searching for `package.json`
-# in some parent directory
-CURDIR=`pwd`
-PKGFOUND=no
-while [ "$CURDIR" != "/" -a $PKGFOUND = no ] ; do
-    if [ -f "$CURDIR/package.json" ] ; then
-        PKGFOUND=yes
-    else
-        CURDIR=`dirname "$CURDIR"`
-    fi
-done
-
-# check whether we do not need to call CPM:
-USECPM=yes
+# check whether we should call CPM to compute the correct load path:
+if [ -x $PAKCSHOME/bin/cypm ] ; then
+  CYPMBIN=$PAKCSHOME/bin/cypm
+  USECPM=yes
+elif [ -x $CPMBIN/cypm ] ; then
+  CYPMBIN=$CPMBIN/cypm
+  USECPM=yes
+else
+  USECPM=no
+fi
 for i in $* ; do
   case $i in
     --help | -h | -\? ) USECPM=no ;;
@@ -100,9 +96,9 @@ for i in $* ; do
   esac
 done
 
-if [ $PKGFOUND = yes -a $USECPM = yes ] ; then
+if [ $USECPM = yes ] ; then
   # set CURRYPATH with 'deps' command of CPM
-  CURRYPATH=`"$0" cypm -v quiet -d CURRYBIN="$0" deps -p`
+  CURRYPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$0" deps -p`
   if [ $? -gt 0 ] ; then
     echo $CURRYPATH
     exit 1

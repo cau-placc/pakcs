@@ -36,8 +36,7 @@ The idea and usage of contracts is described in \cite{AntoyHanus12PADL}.
 \subsection{Installation}
 
 The current implementation of Curry preprocessor is a package
-managed by the Curry Package Manager CPM
-(see also Section~\ref{sec-cpm}).
+managed by the Curry Package Manager CPM.
 Thus, to install the newest version of \code{currypp},
 use the following commands:
 %
@@ -467,7 +466,6 @@ Such a data term specification should be stored in Curry program file
 as an (exported!) top-level operation type \code{ERD}.
 If our example term is defined as a constant in the Curry program
 \code{UniERD.curry}, then one has to use the tool \ccode{erd2curry}
-(see Sect.~\ref{sec-erd2curry})
 to process the ER model so that it can be used
 in SQL statements. This tool is invoked with the parameter
 \ccode{--cdbi},
@@ -475,8 +473,7 @@ the (preferably absolute) file name of the SQLite database,
 and the name of the Curry program containing the ER specification.
 If the SQLite database file does not exist, it will be initialized by the tool.
 In our example, we execute the following command
-(provided that the tool \code{erd2curry} is already installed,
-see Sect.~\ref{sec-erd2curry}):
+(provided that the tool \code{erd2curry} is already installed:
 %
 \begin{curry}
 > erd2curry --db `pwd`/Uni.db --cdbi UniERD.curry
@@ -532,8 +529,30 @@ and generate appropriate Curry library calls.
 \subsubsection{SQL Statements as Integrated Code}
 
 After specifying and processing the ER model of the database,
-one can write SQL statement in their standard syntax
-as integrated code (marked by the prefix \ccode{sql}) in Curry programs.
+one can write SQL statements in their standard syntax
+as integrated code (marked by the language tag \ccode{sql}) in Curry programs.
+Since the SQL translator checks the correct use of these statements
+against the ER model, it needs access to the generated info file
+\code{Uni\us{}SQLCODE.info}.
+This can be ensured in one of the following ways:
+\begin{itemize}
+\item
+The path to the info file is passed as a parameter prefixed by
+\ccode{--model:} to the Curry preprocessor, e.g., by the preprocessor
+directive
+\begin{curry}
+{-# OPTIONS_CYMAKE -F --pgmF=currypp  --optF=--model:$\ldots$/Uni_SQLCode.info #-}
+\end{curry}
+\item
+The info file is placed in the same directory as the Curry source file
+to be processed or in one of its parent directories.
+The directories are searched from the directory of the source file
+up to its parent directories.
+If one of these directories contain more than one file with the
+name \ccode{\ldots{}\us{}SQLCODE.info}, an error is reported.
+\end{itemize}
+%
+After this preparation, one can write SQL statements in the Curry program.
 For instance, to retrieve all students from the database, one
 can define the following SQL query:
 %
@@ -542,7 +561,7 @@ allStudents :: IO (SQLResult [Student])
 allStudents = ``sql Select * From Student;''
 \end{curry}
 %
-Since database accesses might produce errors,
+Since the execution of database accesses might produce errors,
 the result of SQL statements is always of type
 \ccode{SQLResult $\tau$}, where \code{SQLResult} is a type synonym
 defined in the \CYS library \code{Database.CDBI.Connection}:
@@ -563,9 +582,24 @@ immediately, one can also define the above query as follows:
 %
 \begin{curry}
 allStudents :: IO [Student]
-allStudents = liftIO fromSQLResult ``sql Select * From Student;''
+allStudents = liftM fromSQLResult ``sql Select * From Student;''
 \end{curry}
 %
+In order to get more control on executing the SQL statement,
+one can add a star character after the language tag.
+In this case, the SQL statement is translated into a database action,
+i.e., into the type \code{DBAction} defined in the \CYS library
+\code{Database.CDBI.Connection}:
+%
+\begin{curry}
+allStudentsAction :: DBAction [Student]
+allStudentsAction = ``sql* Select * From Student;''
+\end{curry}
+%
+Then one can put \code{allStudentsAction} inside a database transaction
+or combine it with other database actions (see \code{Database.CDBI.Connection}
+for operations for this purpose).
+
 In order to select students with an age between 20 and 25,
 one can put a condition as usual:
 %
@@ -702,14 +736,12 @@ Note that only strict assertion checking is supported
 at the moment.
 Strict assertion checking might change the operational behavior
 of the program.
-The notation of contracts has been shortly introduced
-in Section~\ref{sec:currycheck:contracts}.
+The notation of contracts is defined in \cite{AntoyHanus12PADL}.
 To transform such contracts into assertions,
 one has to use the option \ccode{contracts} for the preprocessor.
 
 As a concrete example, consider an implementation of quicksort
-with a postcondition and a specification as shown in
-Section~\ref{sec:currycheck:contracts}
+with a postcondition and a specification
 (where the code for \code{sorted} and \code{perm} is not shown here):
 %
 \begin{curry}
@@ -750,5 +782,5 @@ ERROR: Execution aborted due to contract violation!
 
 %%% Local Variables: 
 %%% mode: latex
-%%% TeX-master: "../../../docs/src/manual"
+%%% TeX-master: "main"
 %%% End: 

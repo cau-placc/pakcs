@@ -548,6 +548,97 @@ sortSatisfiesSpecification :: [Int] -> Prop
 sortSatisfiesSpecification x = sort x <~> sort'spec x
 \end{curry}
 
+\subsection{Checking Equivalence of Operations}
+
+CurryCheck supports also equivalence checks for operations.
+Two operations are considered as \emph{equivalent} if they
+can be replaced by each other in any possible context
+without changing the computed values (see \cite{AntoyHanus12PADL}
+for a precise definition).
+For instance, the Boolean operations
+\begin{curry}
+f1 :: Bool -> Bool               f2 :: Bool -> Bool
+f1 x = not (not x)                f2 x = x
+\end{curry}
+are equivalent, whereas
+\begin{curry}
+g1 :: Bool -> Bool               g2 :: Bool -> Bool
+g1 False = True                   g2 x = True
+g1 True  = True
+\end{curry}
+are not equivalent: \code{g1 failed} has no value but
+\code{g2 failed} evaluates to \code{True}.
+
+To check the equivalence of operations, one can use the
+property combinator \code{<=>}:
+\begin{curry}
+f1_equiv_f2 = f1 <=> f2
+g1_equiv_g2 = g1 <=> g2
+\end{curry}
+Each argument of this combinator must be a defined operation
+or a defined operation with a type annotation in order to specify
+the argument types used for checking this property.
+
+CurryCheck transforms such properties into properties
+where both operations are compared w.r.t.\ all partial
+values and partial results.
+The details are described in an upcoming paper.
+
+It should be noted that CurryCheck can also check
+the equivalence of non-terminating operations provided
+that they are \emph{productive}, i.e., always generate
+(outermost) constructors after a finite number of steps
+(otherwise, the test of CurryCheck might not terminate).
+For instance, CurryCheck reports a counter-example to
+the equivalence of the following non-terminating operations:
+\begin{curry}
+ints1 n = n : ints1 (n+1)$\listline$
+ints2 n = n : ints2 (n+2)
+
+-- This property will be falsified by CurryCheck:
+ints1_equiv_ints2 = ints1 <=> ints2
+\end{curry}
+This is done by guessing depth-bounds and comparing the results
+of both operations up to this depth-bound.
+Since this might be a long process, CurryCheck supports
+a faster comparison of operations when it is known
+that they are terminating.
+If the name of a test contains the suffix \code{'TERMINATE},
+then CurryCheck does not iterate over depth-bounds
+but evaluates operations completely.
+For instance, consider the following definition of
+permutation sort (the operations \code{perm} and \code{sorted}
+are defined above):
+\begin{curry}
+psort :: Ord a => [a] -> [a]
+psort xs | sorted ys = ys
+  where ys = perm xs
+\end{curry}
+A different definition can be obtained by defining
+a partial identity on sorted lists:
+\begin{curry}
+isort :: Ord a => [a] -> [a]
+isort xs = idSorted (perm xs)
+ where idSorted []              = []
+       idSorted [x]             = [x]
+       idSorted (x:y:ys) | x<=y = x : idSorted (y:ys)
+\end{curry}
+We can check the equivalence of both operations by
+specializing both operations on some ground type (otherwise,
+the type checker reports an error due to an unspecified
+type \code{Ord} context):
+\begin{curry}
+psort_equiv_isort = psort <=> (isort :: [Int] -> [Int])
+\end{curry}
+CurryCheck reports a counter example by the 274th test.
+Since both operations are terminating, we can also check
+the following property:
+\begin{curry}
+psort_equiv_isort'TERMINATE = psort <=> (isort :: [Int] -> [Int])
+\end{curry}
+Now a counter example is found by the 21th test.
+
+
 \subsection{Checking Usage of Specific Operations}
 
 In addition to testing dynamic properties of programs,
@@ -567,8 +658,7 @@ Set functions \cite{AntoyHanus09} are used to encapsulate
 all non-deterministic results of some function in a set structure.
 Hence, for each top-level function $f$ of arity $n$,
 the corresponding set function can be expressed in Curry
-(via operations defined in the module
-\code{SetFunctions}, see Section~\ref{Library:SetFunctions})
+(via operations defined in the library \code{SetFunctions})
 by the application \ccode{set$n$ $f$} (this application is used
 in order to extend the syntax of Curry with a specific notation
 for set functions).
@@ -580,3 +670,8 @@ Hence, CurryCheck reports such unintended uses of set functions.
 
 
 % LocalWords: CurryCheck
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

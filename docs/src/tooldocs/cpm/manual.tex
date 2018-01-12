@@ -219,12 +219,13 @@ creates a new project directory with a
 \code{package.json} file for you.\footnote{The \code{new} command
 also creates some other useful template files. Look into the
 output of this command.}
-Declare a dependency inside the new \code{package.json} file, e.g.:
+Then declare the dependencies inside the new \code{package.json} file, e.g.:
 
 \begin{lstlisting}
 {
   ...,
   "dependencies": {
+    "base": ">= 1.0.0, < 2.0.0",
     "json": "~> 1.1.0"
   }
 }
@@ -346,23 +347,34 @@ This command will set the \code{CURRYPATH} environment variable
 and then execute the command given after \ccode{exec}.
 
 
-\subsection{Using Packages Without a Package}
+\subsection{Using Packages Outside a Package}
+\label{sec:meta-package}
 
 In principle, packages can be used only inside another package
-by declaring dependencies.
-Thus, if you develop a Curry application which is not a package
-but you want to use some package, you have to put
-a package specification file into the source directory of
-your application where you define the required packages.
-As a shortcut for this, you can use the CPM command
-\code{cypm add --dependency} (short: \code{cypm add -d})
-to install the package specification file.
+by declaring dependencies in the package specification file
+\code{package.json}.
+If you invoke \code{cypm} in a directory which contains
+no package specification file, CPM searches for such a file
+from the current directory to the parent directories (up to the
+root of the file system).
+Thus, if you are outside a package, such a file is not available.
+In order to support the use other packages outside package,
+CPM provides a meta-package which is usually stored in your home directory
+at \code{\char126/.cpm/$Curry system$-homepackage}.\footnote{%
+Use \code{cypm config} and look at \code{HOME_PACKAGE_PATH}
+to see the current location of this meta-package.}
+This meta-package is used when your are not inside another package.
+Hence, if you write some Curry program which is not a package
+but you want to use some package \code{P}, you have to add a dependency
+to \code{P} to this meta-package.
+CPM does this automatically for you with the CPM command
+\code{cypm add --dependency} (short: \code{cypm add -d}).
 
 For instance, to use the libraries of the JSON package
 in your application, one can use the following commands:
 %
 \begin{lstlisting}
-> cypm add -d json  # generate package specification with 'json' dependency
+> cypm add -d json  # add 'json' dependency to meta-package
 > cypm install      # download and install all dependencies
 > cypm curry        # start Curry system with JSON libraries in load path
 ...
@@ -390,8 +402,8 @@ your own local copy.
 \code{cypm link} takes a directory containing a copy of one of the current 
 package's dependencies as its argument. It creates a symbolic link from that
 directory the the current package's local package cache. If you had a copy of
-\code{A-1.0.3} in the \code{~/src/A-1.0.3} directory, you could use 
-\code{cypm link ~/src/A-1.0.3} to ensure that any time \code{A-1.0.3} is used 
+\code{A-1.0.3} in the \code{\char126/src/A-1.0.3} directory, you could use 
+\code{cypm link \char126/src/A-1.0.3} to ensure that any time \code{A-1.0.3} is used 
 from the current package, your local copy is used instead of the one from the
 global package cache. To remove any links, use \code{cypm upgrade} without any
 arguments, which will clear the local package cache. See 
@@ -631,11 +643,34 @@ The path to the package cache where packages are checked out if only
 their binaries are installed (see Section~\ref{sec:installapp}).
 Default value: \code{\$HOME/.cpm/app_packages}.
 
+\item[\fbox{\code{HOME_PACKAGE_PATH}}]
+The path to the meta-package which is used if you are outside another
+package (see Section~\ref{sec:meta-package}).
+Default value: \code{\$HOME/.cpm/$Curry system$-homepackage}.
+
 \item[\fbox{\code{CURRY_BIN}}]
 The name of the executable of the Curry system used
 to compile and test packages.
 The default value is the binary of the Curry system which has been used
 to compile CPM.
+
+\item[\fbox{\code{BASE_VERSION}}]
+The version of the base libraries which is used for package installations.
+In the default case, the base version is the version of the system libraries
+used by the Curry compiler. These system libraries are also available
+as package \ccode{base} so that they can listed as a dependency
+in the package specification.
+If the base version of the package is identical to the base version
+of the Curry compiler used by CPM, the installed copy
+of the base libraries is ignored.\footnote{Since the system libraries
+of a Curry compiler are usually pre-compiled, the usage of the
+system libraries instead of the \code{base} package might result
+in faster compilation times.}
+If one uses a different base version, e.g., enforced by a package
+dependency or by setting this configuration variable,
+then this version of the base package is used.
+Thus, one can use a package even if the current compiler
+has a different version of the base libraries.
 \end{description}
 %
 Note that one write the option names also in lowercase or omit
@@ -710,6 +745,12 @@ This option adds the elapsed time to every info or debug output line.
 The available commands of CPM are:
 
 \begin{description}
+\item[\fbox{\code{config}}]
+Shows the current configuration of CPM
+(see also Section~\ref{sec:config}).
+The option \code{--all} shows also the names and version
+of the packages installed in the global package cache.
+
 \item[\fbox{\code{info}}] Gives information on the current package, e.g. the
 package's name, author, synopsis and its dependency specifications.
 
@@ -741,8 +782,9 @@ The option \code{--csv} shows the information in CSV format.
 Searches the names, synopses, and exported module names of all 
 packages of the central package index for occurrences of the given
 search term.
-If the option \code{--module} is set, then the search is restricted
-to occurrences of an exported module. Thus, the package
+If the option \code{--module} is set, then the given name
+is searched in the list of exported modules.
+Thus, the package
 exporting the module \code{JSON.Data} can be found by the command
 %
 \begin{lstlisting}
@@ -760,8 +802,13 @@ For instance, the command
 lists all packages where the name of the executable contains the
 string \ccode{show}.
 
-\item[\fbox{\code{update}}] Updates the local copy of the central package index
+\item[\fbox{\code{update}}]
+Updates the local copy of the central package index
 to the newest available version.
+This command also cleans the global package cache in order to support
+the download of fresh package versions.
+Note that this also removes local copies of packages
+installed by the command \ccode{add --package}.
 
 \item[\fbox{\code{install}}]
 Installs all dependencies of the current package.
@@ -859,6 +906,8 @@ Using the option \code{--docdir}, one can specify the
 target directory where the documentation should be stored.
 If this option is not provided, \ccode{cdoc} is used as the documentation
 directory.
+The actual documentation will be stored in the subdirectory
+\code{$name$-$version$} of the documentation directory.
 
 The API documentation in HTML format is generated with CurryDoc.
 If the package specification contains a list of exported modules
@@ -871,6 +920,16 @@ or all modules in the directory \code{src}
 are documented.
 Using the option \code{--modules}, one can also specify a comma-separated
 list of module names to be documented.
+
+In the default case, modules from packages used by the current package
+are not documented. Instead, it is assumed that these packages are
+already documented\footnote{See
+\url{http://www.informatik.uni-kiel.de/~mh/curry/cpm/}
+for the documentation of all packages.}
+so that links to these package documentations are generated.
+Using the option \code{--full}, one can generate also the documentation
+of packages used by the current package. This might be reasonable
+if one uses packages which are only locally installed.
 
 The manual is generated only if the package specification contains
 a field \code{documentation} where the main file of the manual
@@ -919,11 +978,11 @@ The option \ccode{--force} allows to overwrite existing copies
 in the central package index.
 
 \item[\fbox{\code{add --dependency $package$ [--force]}}]
-Adds the package $package$ as a new dependency of the current package.
-This command either modifies the package description file (\code{package.json})
-of the current package and adds a dependency to the given package
-in this file or, if there is no package description file,
-generates a new one with this dependency.
+Adds the package $package$ as a new dependency.
+This command adds a dependency to the given package
+either in the package description file (\code{package.json})
+of the current package or in the meta-package
+(see Section~\ref{sec:meta-package}).
 The option \ccode{--force} allows to overwrite existing dependencies
 in the package description file.
 
