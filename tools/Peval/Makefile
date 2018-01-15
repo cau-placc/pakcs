@@ -8,7 +8,7 @@ all:    peval
 
 # generate executable for partial evaluator program:
 peval: peval.curry Flat.curry Flat2Fcy.curry
-	$(REPL) $(REPL_OPTS) :load peval :save :quit
+	$(REPL) --nocypm $(REPL_OPTS) :load peval :save :quit
 
 clean: 
 	rm -f peval
