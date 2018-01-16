@@ -85,9 +85,8 @@ export LIBDIR        = $(ROOT)/lib
 # Directory where the documentation files are located
 export DOCDIR        = $(ROOT)/docs
 
-# The version number of the base libraries:
+# The file containing the version number of the base libraries:
 BASEVERSIONFILE = $(LIBDIR)/VERSION
-BASEVERSION := $(shell cat $(BASEVERSIONFILE))
 
 # Executable of CurryCheck:
 CURRYCHECK := $(shell which curry-check)
@@ -270,7 +269,7 @@ $(PAKCSVERSION): Makefile $(BASEVERSIONFILE)
 	echo "buildDate('$(COMPILERDATE)')." >> $@
 	echo "buildDir('$(ROOT)')." >> $@
 	echo "pkgInstallDir('$(PAKCSINSTALLDIR)')." >> $@
-	echo "baseVersion('$(BASEVERSION)')." >> $@
+	echo "baseVersion('$(shell cat $(BASEVERSIONFILE))')." >> $@
 
 # Create file with version information for the manual:
 $(MANUALVERSION): Makefile
