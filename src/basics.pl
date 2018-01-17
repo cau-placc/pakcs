@@ -980,30 +980,48 @@ isCompleteList([X|Xs],[X|L]) :- isCompleteList(Xs,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print an error message:
-printError(Err) :-
-        (Err=error(_,Error) ; Err=Error), !,
+printError(Error) :-
 	prologError2Atom(Error,ErrorA),
 	writeErr(ErrorA), nlErr,
         seen, told,
         !,
         fail.
 
-prologError2Atom(existence_error(Goal,_,_,_,Message),ErrA) :-
+% Transform a Prolog error term into an atom:
+prologError2Atom(error(IsoError,_),ErrA) :-
+        isoError2Atom(IsoError,ErrA), !.
+prologError2Atom(error(_,Context),ErrA) :-
+        errorContext2Atom(Context,ErrA), !.
+prologError2Atom(ErrorTerm,ErrA) :-
+        prologTerm2Atom(ErrorTerm,ErrorTermA),
+	appendAtoms(['ERROR: ',ErrorTermA],ErrA).
+
+% Try to format a meaningful ISO error term:
+isoError2Atom(existence_error(ObjType,Culprit),ErrA) :-
+        atom(ObjType), atom(Culprit), !,
+	appendAtoms(['EXISTENCE ERROR: ',ObjType,' "',Culprit,
+		     '" does not exist'],ErrA).
+isoError2Atom(permission_error(Op,ObjType,Culprit),ErrA) :-
+	atom(Op), atom(ObjType), atom(Culprit), !,
+	appendAtoms(['PERMISSION ERROR: ',Op,' ',ObjType,' "',Culprit,'"'],
+                    ErrA).
+
+% Try to format an context error term:
+errorContext2Atom(existence_error(Goal,_,_,_,Message),ErrA) :-
 	nonvar(Message), Message = past_end_of_stream, !,
 	prologTerm2Atom(Goal,GoalA),
 	appendAtoms(['EXISTENCE ERROR: ',GoalA,
 		     ': attempt to read past end of stream'],ErrA).
-prologError2Atom(existence_error(_Goal,_,ObjType,Culprit,_),ErrA) :-
+errorContext2Atom(existence_error(_Goal,_,ObjType,Culprit,_),ErrA) :-
 	atom(ObjType), atom(Culprit), !,
 	appendAtoms(['EXISTENCE ERROR: ',ObjType,' "',Culprit,
 		     '" does not exist'],ErrA).
-prologError2Atom(permission_error(_Goal,_,ObjType,Culprit,Msg),ErrA) :-
+errorContext2Atom(permission_error(_Goal,_,ObjType,Culprit,Msg),ErrA) :-
 	atom(ObjType), atom(Culprit), atom(Msg), !,
 	appendAtoms(['PERMISSION ERROR: ',ObjType,' "',Culprit,'" ',Msg],ErrA).
-prologError2Atom(Error,ErrA) :-
-	(atomic(Error) -> ErrorTermA=Error
-                        ; prologTerm2Atom(Error,ErrorTermA)),
-	appendAtoms(['ERROR: ',ErrorTermA],ErrA).
+errorContext2Atom(system_error(Msg),ErrA) :-
+	atom(Msg), !,
+	appendAtoms(['SYSTEM ERROR: ',Msg],ErrA).
 
 prologTerm2Atom(V,'_') :- var(V), !.
 prologTerm2Atom(A,A) :- atom(A), !.
