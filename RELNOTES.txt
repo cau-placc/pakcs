@@ -20,6 +20,8 @@ this version contains the following changes:
     `curry2prolog` as in versions 1.x).
   * Specification files for external operations renamed from `xxx.prim_c2p`
     to `xxx.pakcs` (for conformity with other Curry compilers).
+  * Library `SetFunctions`: `minValueBy` and `maxValueBy` added, `minValue`
+    and `maxValue` depend on `Ord` context.
   * Some libraries removed since they are available as packages
     which can easily be installed via `cypm`:
 

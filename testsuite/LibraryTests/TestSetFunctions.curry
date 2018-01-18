@@ -65,10 +65,9 @@ testFlight1 = (shortestItin Portland Hamburg) -=- [LH469,LH10]
 
 -- Returns an itinerary with a shortest flight time.
 -- Implemented by selecting the shortest path from all pathes.
-shortestItinSelect s e 
-   = minValue shorter (set2 itinerary s e)
-   where shorter it1 it2 
-            = duration it1 <= duration it2
+shortestItinSelect s e = minValueBy shorter (set2 itinerary s e)
+ where
+  shorter it1 it2 = compare (duration it1) (duration it2)
 
 testFlight2 = (shortestItinSelect Portland Hamburg) -=- [LH469,LH10]
 
