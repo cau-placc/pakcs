@@ -219,8 +219,7 @@ initializeCompilerState :-
 	op(0,xfx,(>=.)).
 
 
-generateProg('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
-	            ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
+generateProg(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
 	initializeCompilerState,
 	(compileWithDebug
 	 -> writeLnErr('...including code for debugging')
@@ -229,7 +228,17 @@ generateProg('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
 	 -> writeLnErr('...including code for failure printing')
 	  ; true),
 	ensureDirOfFile(PrologFile),
-	tryWriteFile(PrologFile),
+        (existsFile(PrologFile)
+         -> (isWritableFile(PrologFile)
+             -> generateProgOnFile(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile)
+              ; writeLnErr('WARNING: target file not updated (exists but not writable):'),
+                writeLnErr(PrologFile))
+          ; tryWriteFile(PrologFile),
+            generateProgOnFile(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile)).
+
+
+generateProgOnFile('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
+             ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
 	tell(PrologFile),
 	writePrologHeader,
 	writeClause((:- noSingletonWarnings)),
@@ -246,7 +255,7 @@ generateProg('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
 	write('%%%%% Number of shared variables: '),
 	numberOfShares(SC), write(SC), nl,
 	told, !.
-generateProg(_,PrologFile) :-
+generateProgOnFile(_,_,_,_,PrologFile) :-
 	told,
 	writeLnErr('ERROR during compiling, no program generated!'),
 	deleteFileIfExists(PrologFile).

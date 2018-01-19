@@ -46,7 +46,8 @@
 		  appendAtoms/2, split2words/2,
 		  codes2number/2, isDigit/1,
 		  retractAllFacts/1, prefixComma/3,
-		  tryWriteFile/1, tryDeleteFile/1, deleteFileIfExists/1,
+		  isWritableFile/1, tryWriteFile/1,
+                  tryDeleteFile/1, deleteFileIfExists/1,
 		  ensureDirOfFile/1, prog2DirProg/2, prog2PrologFile/2,
 		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
 		  prog2ICurryFile/2, hierarchical2dirs/2,
@@ -621,6 +622,12 @@ isId(T) :- atom_codes(T,[F|_]),
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Axuiliaries for handling translated Prolog files
+
+% check whether a file is writable:
+isWritableFile(File) :-
+	on_exception(ErrorMsg,
+	             (open(File,write,Stream), close(Stream)),
+		     fail).
 
 % try to write a file (and immediately close it) and catch and show file errors:
 tryWriteFile(File) :-
