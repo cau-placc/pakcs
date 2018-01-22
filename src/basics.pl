@@ -625,7 +625,7 @@ isId(T) :- atom_codes(T,[F|_]),
 
 % check whether a file is writable:
 isWritableFile(File) :-
-	on_exception(ErrorMsg,
+	on_exception(_,
 	             (open(File,write,Stream), close(Stream)),
 		     fail).
 

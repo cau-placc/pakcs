@@ -16,11 +16,11 @@ CGISUFFIX="_CGIMAIN_$$"
 # with any exported name of the Curry program)
 MAINCALL="main_cgi_9999_$$"
 
+CPMEXEC="cypm exec"
 ERROR=
 HELP=no
 CURRYDOPTIONS=
 CURRYOPTIONS=":set -time :set -interactive :set -verbose"
-CPM=no
 COMPACT=no
 DEBUG=no
 DEBUGFILE=
@@ -38,7 +38,7 @@ while [ $# -gt 0 -a -z "$ERROR" ]; do
   case $1 in
    -help | -h | -\? ) HELP=yes ;;
    -D*              ) CURRYDOPTIONS="$CURRYDOPTIONS $1" ;;
-   -cpm             ) CPM=yes ;;
+   -cpm             ) echo 'Option "-cpm" deprecated.' ;;
    -compact         ) COMPACT=yes ;;
    -debug           ) DEBUG=yes ;;
    -debugfile       ) shift ; DEBUGFILE=$1 ;;
@@ -80,7 +80,6 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "<curry>    : name of the Curry program (without suffix) containing the script"
   echo
   echo "FURTHER OPTIONS:"
-  echo '-cpm       : use CPM and Curry package "html"'
   echo '-Dname=val : define pakcsrc property "name" as "val"'
   echo "-compact   : reduce size of generated cgi program by deleting unused functions"
   echo "-debug     : include code for showing failures"
@@ -104,11 +103,6 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "-wui <mod> : consider also imported module <mod> (that contains WUI"
   echo "             specifications) when generating JavaScript support code"
   exit 1
-fi
-
-CPMEXEC=
-if [ $CPM = yes ] ; then
-  CPMEXEC="cypm exec"
 fi
 
 # Try to locate WUI/JavaScript translator:
@@ -157,12 +151,8 @@ CGIKEY="$CGIFILEPATHNAME/$CGIPROG `date '+%m/%d/%y/%H/%M/%S'`"
 rm -f $MAINCURRY
 echo "module $MAINMOD($MAINCALL) where" >> $MAINCURRY
 echo "import $PROG" >> $MAINCURRY
-if [ $CPM = yes ] ; then
-  echo "import HTML.Base" >> $MAINCURRY
-  echo "import HTML.CgiServer" >> $MAINCURRY
-else
-  echo "import HTML" >> $MAINCURRY
-fi
+echo "import HTML.Base" >> $MAINCURRY
+echo "import HTML.CgiServer" >> $MAINCURRY
 echo "$MAINCALL :: IO ()" >> $MAINCURRY
 if [ $WUIJS = no ] ; then
   echo "$MAINCALL = runFormServerWithKey \"$CGIPROG\" \"$CGIKEY\" ($MAIN)" >> $MAINCURRY
