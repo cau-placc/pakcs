@@ -1,6 +1,6 @@
-pakcs (1.99.0-0) unstable; urgency=medium
+pakcs (2.0.1-0) unstable; urgency=medium
 
   * Upstream-provided Debian package for pakcs.
     See upstream RELNOTES.txt for recent changes.
 
- -- Mike Gabriel <mike.gabriel@das-netzwerkteam.de>  Fri, 15 Sep 2017 14:57:20 +0200
+ -- Mike Gabriel <mike.gabriel@das-netzwerkteam.de>  Sun, 28 Jan 2018 22:41:50 +0100
