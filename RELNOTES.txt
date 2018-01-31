@@ -1,7 +1,17 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.0 (January 18, 2018)
+Release notes for PAKCS Version 2.0.1 (January 31, 2018)
+--------------------------------------------------------
+
+Changes to version 2.0.0:
+
+  * Library `SetFunctions`: `minValueBy` and `maxValueBy` added, `minValue`
+    and `maxValue` depend on `Ord` context.
+  * Parameter `-cpmexec` added to script `pakcs-makecgi`.
+
+
+Release notes for PAKCS Version 2.0.0 (January 12, 2018)
 --------------------------------------------------------
 
 This version has almost the same functionality as version 1.15.0
