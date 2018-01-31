@@ -218,6 +218,7 @@ writeMainHelp :-
 	writeLnErr('--numeric-version : show the compiler version number and quit'),
 	writeLnErr('--base-version    : show the version of the base libraries and quit'),
 	writeLnErr('-q|--quiet        : work silently'),
+	writeLnErr('--nocypm          : do not invoke "cypm" to compute package load path'),
 	writeLnErr('--noreadline      : do not use input line editing via command "rlwrap"'),
 	writeLnErr('-Dprop=val        : define pakcsrc property "prop" as "val"'),
 	writeLnErr(':<cmd> <args>     : command of the PAKCS environment'),
