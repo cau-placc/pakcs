@@ -39,6 +39,7 @@ while [ $# -gt 0 -a -z "$ERROR" ]; do
    -help | -h | -\? ) HELP=yes ;;
    -D*              ) CURRYDOPTIONS="$CURRYDOPTIONS $1" ;;
    -cpm             ) echo 'Option "-cpm" deprecated.' ;;
+   -cpmexec         ) shift ; CPMEXEC=$1 ;;
    -compact         ) COMPACT=yes ;;
    -debug           ) DEBUG=yes ;;
    -debugfile       ) shift ; DEBUGFILE=$1 ;;
@@ -80,14 +81,16 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "<curry>    : name of the Curry program (without suffix) containing the script"
   echo
   echo "FURTHER OPTIONS:"
-  echo '-Dname=val : define pakcsrc property "name" as "val"'
-  echo "-compact   : reduce size of generated cgi program by deleting unused functions"
-  echo "-debug     : include code for showing failures"
-  echo "             (= PAKCS options '+printfail/+allfails')"
+  echo '-Dname=val  : define pakcsrc property "name" as "val"'
+  echo "-cpmexec <c>: set the command to execute programs with the Curry Package"
+  echo "              Manager (default: 'cypm exec')"
+  echo "-compact    : reduce size of generated cgi program by deleting unused functions"
+  echo "-debug      : include code for showing failures"
+  echo "              (= PAKCS options '+printfail/+allfails')"
   echo "-debugfile f: include code for storing failure trace in file f"
-  echo "             (= PAKCS options '+consfail file:f')"
-  echo "-ulimit <l>: set 'ulimit <l>' when executing the cgi program"
-  echo "             (default: '-t 120')"
+  echo "              (= PAKCS options '+consfail file:f')"
+  echo "-ulimit <l> : set 'ulimit <l>' when executing the cgi program"
+  echo "              (default: '-t 120')"
   echo "-servertimeout <ms>: set the timeout for the cgi server process to"
   echo "                     <ms> milliseconds (default: 7200000 / two hours)"
   echo "-loadbalance <t>: start new server process if load for one server is"
@@ -97,11 +100,11 @@ if [ $# != 1 -a $# != 3 ] ; then
   echo "        standard: some standard load balancing (default)"
   echo "        multiple: new server process for each initial call to"
   echo "                  a cgi script (only reasonable with short timeout)"
-  echo "-standalone: generate standalone script (i.e., copy programs"
-  echo "             required from PAKCS system to local directory)"
-  echo "-wuijs     : generate JavaScript support code for WUIs"
-  echo "-wui <mod> : consider also imported module <mod> (that contains WUI"
-  echo "             specifications) when generating JavaScript support code"
+  echo "-standalone : generate standalone script (i.e., copy programs"
+  echo "              required from PAKCS system to local directory)"
+  echo "-wuijs      : generate JavaScript support code for WUIs"
+  echo "-wui <mod>  : consider also imported module <mod> (that contains WUI"
+  echo "              specifications) when generating JavaScript support code"
   exit 1
 fi
 
@@ -184,7 +187,7 @@ fi
 if [ $COMPACT = yes ] ; then
   FCYPP="$FCYPP -compactexport " ; export FCYPP
 fi
-$CPMEXEC $CURRYROOT/bin/curry $CURRYDOPTIONS $CURRYOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
+$CPMEXEC $CURRYROOT/bin/curry --nocypm $CURRYDOPTIONS $CURRYOPTIONS $PRINTFAIL :l $MAINMOD :save $MAINCALL :q
 
 # now the file $MAINMOD should contain the executable computing the HTML form:
 if test ! -f $MAINMOD ; then
