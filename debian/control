@@ -8,7 +8,7 @@ Uploaders:
 Build-Depends: cdbs,
  debhelper (>= 9),
  quilt,
- curry-frontend (>= 2:0.99),
+ curry-frontend (>= 2:1.0.1~),
 # curry-libs-source (>= 1.0.3-1~),
 # curry-tools-source (>= 1.0.3+dfsg1-1~),
  swi-prolog-nox (>= 7.2.3),
@@ -24,7 +24,7 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
- curry-frontend (>= 2:0.99),
+ curry-frontend (>= 2:1.0.1~),
  libjs-prototype (>= 1.6),
  swi-prolog-nox (>= 7.2.3),
  lockfile-progs,
