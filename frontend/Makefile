@@ -73,7 +73,9 @@ $(CYMAKE): $(DEPS)
 	mkdir -p $(@D)
 	cd curry-base     && $(CABAL_INSTALL)
 	$(MAKE) transformers # see below
-	cd curry-frontend && $(CABAL_INSTALL) --bindir=$(@D)
+	# Option --force-reinstalls necessary due to problems with package
+	# HTTP-*
+	cd curry-frontend && $(CABAL_INSTALL) --force-reinstalls --bindir=$(@D)
 
 # Temporary workaround for https://github.com/haskell/cabal/issues/1855
 # see also http://www.haskell.org/pipermail/cabal-devel/2014-May/009795.html
