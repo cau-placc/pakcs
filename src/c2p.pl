@@ -1168,8 +1168,9 @@ addImportModule(Arg) :-
 % show the Curry programs in a given directory:
 showProgramsInDirectory(Dir) :-
 	format('In directory "~w":~n',[Dir]),
-	directoryFiles(Dir,Files), sort(Files,SFiles),
-	map1M(user:showIfCurryProgram,SFiles),
+	(directoryFiles(Dir,Files)
+         -> sort(Files,SFiles),	map1M(user:showIfCurryProgram,SFiles)
+          ; true),
 	nl, nl.
 showIfCurryProgram(File) :-
 	atom_codes(File,FileS),
