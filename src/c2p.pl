@@ -1165,18 +1165,34 @@ addImportModule(Arg) :-
 	atomCodes(ArgA,Arg), writeErr(ArgA),
 	writeLnErr('" not found!').
 
-% show the Curry programs in a given directory:
+% show the Curry programs in a given directory and its subdirectories:
+% (where we assume that the subdirectories contain hierarchical modules)
 showProgramsInDirectory(Dir) :-
 	format('In directory "~w":~n',[Dir]),
-	(directoryFiles(Dir,Files)
-         -> sort(Files,SFiles),	map1M(user:showIfCurryProgram,SFiles)
-          ; true),
+        showProgramsInDirectory('',Dir),
 	nl, nl.
-showIfCurryProgram(File) :-
-	atom_codes(File,FileS),
-	((append(ProgS,".curry",FileS) ; append(ProgS,".lcurry",FileS))
-         -> format('~s ',[ProgS])
+
+showProgramsInDirectory(Prefix,Dir) :-
+	(directoryFiles(Dir,Files)
+         -> sort(Files,SFiles),
+            map1partialM(user:showCurryProgramInDir(Prefix,Dir),SFiles)
           ; true).
+
+showCurryProgramInDir(Prefix,_,File) :-
+	atom_codes(File,FileS),
+	(append(ProgS,".curry",FileS) ; append(ProgS,".lcurry",FileS)),
+        ProgS = [_|_], !,
+        format('~s~s ',[Prefix,ProgS]).
+showCurryProgramInDir(_,_,SDir) :-
+        atom_codes(SDir,[C|_]),
+        % ignore dirs not starting with uppercase letter as hierarchical names
+        (C<65 ; C>90), !.
+showCurryProgramInDir(Prefix,Dir,SDir) :-
+        appendAtoms([Dir,'/',SDir],SubDir),
+        existsDirectory(SubDir), !,
+        appendAtoms([Prefix,SDir,'.'],NewPrefix),
+        showProgramsInDirectory(NewPrefix,SubDir).
+showCurryProgramInDir(_,_,_).
 
 % get the editor command (for editing files):
 getEditor(Editor) :- pakcsrc(editcommand,Editor), \+ Editor='', !.
