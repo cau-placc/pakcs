@@ -127,7 +127,7 @@ sicstus310orHigher :- fail.
 
 :- use_module(library(unix)).
 :- use_module(library(socket)).
-:- use_module(library(readline)).
+:- swi7orHigher -> true ; use_module(library(readline)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of terminal readline (with readline editing functionality)
