@@ -136,7 +136,9 @@ sicstus310orHigher :- fail.
 readLine(Input) :-
         read_line_to_codes(current_input,Input),
         (Input = end_of_file -> nl
-         ; atom_codes(InputA,Input), rl_add_history(InputA)).
+        ; atom_codes(InputA,Input),
+          (current_prolog_flag(readline,false) -> true
+                                                ; rl_add_history(InputA))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of suspension for concurrent conjunction (&)

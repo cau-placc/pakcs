@@ -130,6 +130,11 @@ for i in $* ; do
   fi
 done
 
+# do not use rlwrap inside emacs:
+if [ "$TERM" = dumb ] ; then
+  USERLWRAP=no
+fi
+
 if [ $USERLWRAP = yes ] ; then
   exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$REPL" ${1+"$@"}
 else
