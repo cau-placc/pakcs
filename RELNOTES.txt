@@ -48,8 +48,8 @@ this version contains the following changes:
       - `RegExp` (now available in package `regexp`)
  
 
-Release notes for PAKCS Version 1.15.0 (October 20, 2017)
----------------------------------------------------------
+Release notes for PAKCS Version 1.15.0 (May 15, 2018)
+-----------------------------------------------------
 
 Changes to version 1.14.2:
 
@@ -96,6 +96,8 @@ Changes to version 1.14.2:
     CPM package `ui`.
   * Command `:xml` removed (since the XML format is deprecated).
   * Compatibility with newer version of SWI-Prolog (7.x) improved.
+  * Changing memory limits for compiled Curry programs with SWI-Prolog
+    supported (see section about technical problems in the manual).
 
 
 Release notes for PAKCS Version 1.14.2 (February 23, 2017)

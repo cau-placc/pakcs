@@ -6,9 +6,24 @@
 # - add path information to the saved state
 # - add locale information (LANG, LC_ALL) to the saved state
 
+##############################################################################
+# Global settings:
+
 # Directory of the SICStus-Prolog installation, i.e.,
 # $SICSTUSDIR/bin/sicstus should be the name of the interpreter executable:
 SICSTUSDIR=
+
+# Settings for memory limits for a SWI-Prolog saved state
+# (compare the SWI-Prolog manual for supported values).
+# The default is unlimited usage. Actually, SWI-Prolog seems to
+# put a limit of 1GB on every memory area in this case (on 64bit machines).
+# Thus, if there is a local stack overflow in your application (e.g.,
+# you see a message like "ERROR: local") and you want to use 2GB for the local
+# stack, you can change this definition to SWILIMIT="-L2G -G0 -T0".
+SWILIMITS="-L0 -G0 -T0"
+
+##############################################################################
+# Process arguments:
 
 STANDALONE=no
 if [ "$1" = "-standalone" ] ; then
@@ -77,7 +92,7 @@ fi
 if [ -z "$SICSTURDIR" ] ; then
   # patch SWI-Prolog saved state with unlimited memory option
   # so that the generated binaries have the same behavior as PAKCS:
-  sed "3s/-x/-L0 -G0 -T0 -x/" < $TMPSTATE > $TMPSTATE$$
+  sed "3s/-x/$SWILIMITS -x/" < $TMPSTATE > $TMPSTATE$$
   mv $TMPSTATE$$ $TMPSTATE
 fi
 
