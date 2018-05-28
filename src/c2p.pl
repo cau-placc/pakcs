@@ -432,8 +432,7 @@ flatType2Atom(Type,CurryType) :-
 % and fourth (class name) argument:
 classDict(T,_,_,_) :- var(T), !, fail.
 classDict('TCons'(FCDict,[A]),A,ModS,DictS) :-
-        atomic2Atom(FCDict,FCDictA), % hack for SWI 7.x if FCDict == []
-        atom_codes(FCDictA,FCDictS),
+        atomic2Codes(FCDict,FCDictS), % hack for SWI 7.x if FCDict == []
         % dictionary argument types are prefixed by "_Dict#":
         atom_codes('._Dict\'23',FCDictPrefixS),
         append(ModFCDictPrefixS,DictS,FCDictS),
@@ -1694,12 +1693,12 @@ isTypeApplyCons(TC) :-
         append(_,[46,64],TCS), !. % 64 = @
 
 writeTypeCons(TC) :-
-	atom_codes(TC,TCS),
+        atomic2Codes(TC,TCS), % hack for SWI 7.x if TC == []
 	append("Prelude.",NameS,TCS), !,
 	atom_codes(Name,NameS), write(Name).
 writeTypeCons(TC) :-
 	currentModuleFile(Mod,_), atom_codes(Mod,ModS),
-	atom_codes(TC,TCS),
+	atomic2Codes(TC,TCS), % hack for SWI 7.x if TC == []
 	(append(ModS,[46|NameS],TCS)
 	 -> atom_codes(Name,NameS), write(Name)
 	  ; write(TC)), !.

@@ -22,7 +22,7 @@
 		  evaluateDynamicPredInfo/3, checkDynamicAccessMethod/2,
 		  resetDynamicPreds/0, clearDynamicPreds/0,
 		  isCharCons/1, isString/1, char_int/2, cp_string/2,
-		  string2Atom/2, atom2String/2, atomic2Atom/2,
+		  string2Atom/2, atom2String/2, atomic2Atom/2, atomic2Codes/2,
 		  removeShares/2, term2partcall/3, isCompleteList/2,
 		  getNewFileName/2, mainPrologFileName/1,
 		  extendPath/3, path2String/2, pathString2loadPath/2,
@@ -835,6 +835,11 @@ atomic2Atom(Atomic,Atom) :- number(Atomic), !, % transform number into atom
 	number_codes(Atomic,AtomicS),
 	atom_codes(Atom,AtomicS).
 atomic2Atom(A,A).
+
+% translates a Prolog atomic value (atom, number, empty list) to
+% a list of character codes, i.e., like atom_codes but works also for
+% other atomic values
+atomic2Codes(A,Cs) :- atomic2Atom(A,AA), atom_codes(AA,Cs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
