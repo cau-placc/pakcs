@@ -588,6 +588,39 @@ hnfAndWaitUntilGroundHNF(X,E0,E) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implementation of Findall.allHNFs:
+%
+% If a non-local variable is bound during the computation (for this purpose,
+% they are extracted before and checked afterwards for unboundedness),
+% a warning is issued for the moment.
+% A better solution for the future is to replace these variables
+% by generater operations.
+
+:- block prim_allHNFs(?,?,-,?).
+prim_allHNFs(Exp,Vals,E0,E) :-
+	varsInExp(Exp,[],ExpVars),
+	allHNFsExec(ExpVars,Exp,Vals,E0,E1),
+	E1=E.
+
+:- block allHNFsExec(?,?,?,-,?).
+allHNFsExec(ExpVars,Exp,Vals,E0,E) :-
+	hasPrintedFailure
+	 -> findall((Val,E1),
+		    (user:hnf(Exp,Val,E0,E1), checkUnboundVariables(ExpVars)),
+		    ValEs),
+	    extractSolutions(ValEs,Vals,E0,E)
+	  ; asserta(hasPrintedFailure),
+	    findall((Val,E1),
+		    (user:hnf(Exp,Val,E0,E1), checkUnboundVariables(ExpVars)),
+		    ValEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(ValEs,Vals,E0,E).
+
+checkUnboundVariables(Vars) :- allUnboundVariables(Vars), !.
+checkUnboundVariables(_) :-
+        writeErr('WARNING: Some outside variable bound in allHNFs!'), nlErr.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of rewriteAll:
 %
 % To consider the evaluation or binding of non-local variables as
