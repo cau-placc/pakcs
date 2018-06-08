@@ -153,7 +153,10 @@ atomCodes(A,L) :- atom_codes(A,L).
 
 % check the end of a stream:
 atEndOfStream(Stream) :- at_end_of_stream(Stream), !.
-atEndOfStream(Stream) :- peek_code(Stream,C), C = -1.
+atEndOfStream(Stream) :-
+        (stream_property(Stream,type(text)) -> peek_code(Stream,C)
+                                             ; peek_byte(Stream,C)),
+        C = -1.
 
 %SICS37 isMod(X,Y,Z) :- !, X is Y-Z*integer(floor(Y/Z)).
 isMod(X,Y,Z) :- X is Y mod Z.
