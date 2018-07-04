@@ -604,8 +604,8 @@ prim_isFail(Exp,Val,E0,E) :-
 	    oneHNF(Exp,Val,E0,E1),
 	    retract(hasPrintedFailure), E1=E.
 
-oneHNF(Exp,Val,E0,E) :- user:hnf(Exp,_,E0,E1), !, Val='Prelude.False', E1=E.
-oneHNF(_,'Prelude.True',E,E).
+oneHNF(Exp,Val,E0,E) :- \+ user:hnf(Exp,_,E0,_), !, Val='Prelude.True', E=E0.
+oneHNF(_,'Prelude.False',E,E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of rewriteAll:
