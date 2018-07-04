@@ -588,7 +588,7 @@ hnfAndWaitUntilGroundHNF(X,E0,E) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Implementation of Findall.allHNFs:
+% Implementation of Findall.isFail:
 %
 % If a non-local variable is bound during the computation (for this purpose,
 % they are extracted before and checked afterwards for unboundedness),
@@ -596,29 +596,16 @@ hnfAndWaitUntilGroundHNF(X,E0,E) :-
 % A better solution for the future is to replace these variables
 % by generater operations.
 
-:- block prim_allHNFs(?,?,-,?).
-prim_allHNFs(Exp,Vals,E0,E) :-
-	varsInExp(Exp,[],ExpVars),
-	allHNFsExec(ExpVars,Exp,Vals,E0,E1),
-	E1=E.
-
-:- block allHNFsExec(?,?,?,-,?).
-allHNFsExec(ExpVars,Exp,Vals,E0,E) :-
+:- block prim_isFail(?,?,-,?).
+prim_isFail(Exp,Val,E0,E) :-
 	hasPrintedFailure
-	 -> findall((Val,E1),
-		    (user:hnf(Exp,Val,E0,E1), checkUnboundVariables(ExpVars)),
-		    ValEs),
-	    extractSolutions(ValEs,Vals,E0,E)
+	 -> oneHNF(Exp,Val,E0,E)
 	  ; asserta(hasPrintedFailure),
-	    findall((Val,E1),
-		    (user:hnf(Exp,Val,E0,E1), checkUnboundVariables(ExpVars)),
-		    ValEs),
-	    retract(hasPrintedFailure),
-	    extractSolutions(ValEs,Vals,E0,E).
+	    oneHNF(Exp,Val,E0,E1),
+	    retract(hasPrintedFailure), E1=E.
 
-checkUnboundVariables(Vars) :- allUnboundVariables(Vars), !.
-checkUnboundVariables(_) :-
-        writeErr('WARNING: Some outside variable bound in allHNFs!'), nlErr.
+oneHNF(Exp,Val,E0,E) :- user:hnf(Exp,_,E0,E1), !, Val='Prelude.False', E1=E.
+oneHNF(_,'Prelude.True',E,E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of rewriteAll:
