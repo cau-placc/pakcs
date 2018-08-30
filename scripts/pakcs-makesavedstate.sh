@@ -19,7 +19,7 @@ SICSTUSDIR=
 # put a limit of 1GB on every memory area in this case (on 64bit machines).
 # Thus, if there is a local stack overflow in your application (e.g.,
 # you see a message like "ERROR: local") and you want to use 2GB for the local
-# stack, you can change this definition to SWILIMIT="-L2G -G0 -T0".
+# stack, you can change this definition to SWILIMITS="-L2G -G0 -T0".
 SWILIMITS="-L0 -G0 -T0"
 
 ##############################################################################
