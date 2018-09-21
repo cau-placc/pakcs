@@ -22,6 +22,7 @@
 %	   prim_error/2, prim_failed/3, prim_failure/5,
 %	   prim_try/4, prim_findall/4, waitUntilGround/3, prim_findfirst/4,
 %	   prim_getOneSolution/4,
+%	   prim_allValues/4, prim_someValue/4,, prim_oneValue/4,
 %	   unifEq/5, unifEqLinear/5, prim_ifVar/6]).
 
 :- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
@@ -390,7 +391,7 @@ prim_ensureNotFreeHNF(Val,Result,E0,E) :-
 prim_ensureHnfNotFree(Val,Val,E,E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% definition of runtime error and failure:
+% definition of run-time error and failure:
 prim_error(Msg,_) :-
 	string2Atom(Msg,AMsg),
 	raise_exception(AMsg).
@@ -585,6 +586,67 @@ hnfAndWaitUntilGround(X,HX,E0,E) :-
 hnfAndWaitUntilGroundHNF(X,E0,E) :-
 	isFail(X) -> E0=E
 	           ; waitUntilGround(X,E0,E).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implementation of Findall.allValues and Findall.someValue:
+%
+% Warning: in contrast to Curry's definition, this implementation
+% suspends until the expression does not contain unbound global variables.
+% Moreover, it is strict, i.e., it evaluates always all solutions!
+
+:- block prim_allValues(?,?,-,?).
+prim_allValues(Exp,Vals,E0,E) :-
+	waitUntilGround(Exp,E0,E1),
+	prim_allValues_exec(Exp,Vals,E1,E).
+
+:- block prim_allValues_exec(?,?,-,?).
+prim_allValues_exec(Exp,Vals,E0,E) :-
+	hasPrintedFailure
+	 -> findall((X,E1),nf(Exp,X,E0,E1),ValEs),
+	    extractSolutions(ValEs,Vals,E0,E)
+	  ; asserta(hasPrintedFailure),
+	    findall((X,E1),nf(Exp,X,E0,E1),ValEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(ValEs,Vals,E0,E).
+
+% since the above implementation of allValues is strict,
+% we offer also someValue and oneValue which only evaluates a single value:
+
+:- block prim_someValue(?,?,-,?).
+prim_someValue(Exp,Val,E0,E) :-
+	waitUntilGround(Exp,E0,E1),
+	prim_someValue_exec(Exp,Val,E1,E).
+
+:- block prim_someValue_exec(?,?,-,?).
+prim_someValue_exec(Exp,Val,E0,E) :-
+	hasPrintedFailure
+	 -> findall((X,E1),oneNF(Exp,X,E0,E1),ValEs),
+            extractSolutions(ValEs,[Val],E0,E)
+	  ; asserta(hasPrintedFailure),
+	    findall((X,E1),oneNF(Exp,X,E0,E1),ValEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(ValEs,[Val],E0,E).
+
+:- block oneNF(?,?,-,?).
+oneNF(Exp,R,E0,E1) :- nf(Exp,R,E0,E1), !.
+
+:- block prim_oneValue(?,?,-,?).
+prim_oneValue(Exp,Val,E0,E) :-
+	waitUntilGround(Exp,E0,E1),
+	prim_oneValue_exec(Exp,Val,E1,E).
+
+:- block prim_oneValue_exec(?,?,-,?).
+prim_oneValue_exec(Exp,Val,E0,E) :-
+	hasPrintedFailure
+	 -> findall((X,E1),oneNF(Exp,X,E0,E1),ValEs),
+            extractSolutions(ValEs,Vals,E0,E1),
+            (Vals=[X] -> Val='Prelude.Just'(X) ; Val='Prelude.Nothing'), E=E1
+	  ; asserta(hasPrintedFailure),
+	    findall((X,E1),oneNF(Exp,X,E0,E1),ValEs),
+	    retract(hasPrintedFailure),
+	    extractSolutions(ValEs,Vals,E0,E1),
+            (Vals=[X] -> Val='Prelude.Just'(X) ; Val='Prelude.Nothing'), E=E1.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
