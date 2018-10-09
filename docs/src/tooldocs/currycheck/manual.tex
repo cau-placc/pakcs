@@ -473,6 +473,148 @@ or we simply reuse the old definition by
 sumUpIsCorrectOnNonNeg = sumUpIsCorrect . nonNeg
 \end{curry}
 
+\subsection{Checking Equivalence of Operations}
+
+CurryCheck supports also equivalence tests for operations.
+Two operations are considered as \emph{equivalent} if they
+can be replaced by each other in any possible context
+without changing the computed values (this is also called
+\emph{contextual equivalence} and precisely defined in
+\cite{AntoyHanus12PADL} for functional logic programs).
+For instance, the Boolean operations
+\begin{curry}
+f1 :: Bool -> Bool               f2 :: Bool -> Bool
+f1 x = not (not x)                f2 x = x
+\end{curry}
+are equivalent, whereas
+\begin{curry}
+g1 :: Bool -> Bool               g2 :: Bool -> Bool
+g1 False = True                   g2 x = True
+g1 True  = True
+\end{curry}
+are not equivalent: \code{g1 failed} has no value but
+\code{g2 failed} evaluates to \code{True}.
+
+To check the equivalence of operations, one can use the
+property combinator \code{<=>}:
+\begin{curry}
+f1_equiv_f2 = f1 <=> f2
+g1_equiv_g2 = g1 <=> g2
+\end{curry}
+The left and right argument of this combinator must be a defined operation
+or a defined operation with a type annotation in order to specify
+the argument types used for checking this property.
+
+CurryCheck transforms such properties into properties
+where both operations are compared w.r.t.\ all partial
+values and partial results.
+The details are described in \cite{AntoyHanus18FLOPS}.
+
+It should be noted that CurryCheck can test
+the equivalence of non-terminating operations provided
+that they are \emph{productive}, i.e., always generate
+(outermost) constructors after a finite number of steps
+(otherwise, the test of CurryCheck might not terminate).
+For instance, CurryCheck reports a counter-example to
+the equivalence of the following non-terminating operations:
+\begin{curry}
+ints1 n = n : ints1 (n+1)$\listline$
+ints2 n = n : ints2 (n+2)
+
+-- This property will be falsified by CurryCheck:
+ints1_equiv_ints2 = ints1 <=> ints2
+\end{curry}
+This is done by iteratively guessing depth-bounds, computing both operations
+up to these depth-bounds, and comparing the computed results.
+Since this might be a long process, CurryCheck supports
+a faster comparison of operations when it is known
+that they are terminating.
+If the name of a test contains the suffix \code{'TERMINATE},
+CurryCheck assumes that the operations to be tested are terminating,
+i.e., they always yields a result when applied to ground terms.
+In this case, CurryCheck does not iterate over depth-bounds
+but evaluates operations completely.
+For instance, consider the following definition of
+permutation sort (the operations \code{perm} and \code{sorted}
+are defined above):
+\begin{curry}
+psort :: Ord a => [a] -> [a]
+psort xs | sorted ys = ys
+  where ys = perm xs
+\end{curry}
+A different definition can be obtained by defining
+a partial identity on sorted lists:
+\begin{curry}
+isort :: Ord a => [a] -> [a]
+isort xs = idSorted (perm xs)
+ where idSorted []              = []
+       idSorted [x]             = [x]
+       idSorted (x:y:ys) | x<=y = x : idSorted (y:ys)
+\end{curry}
+We can test the equivalence of both operations by
+specializing both operations on some ground type (otherwise,
+the type checker reports an error due to an unspecified
+type \code{Ord} context):
+\begin{curry}
+psort_equiv_isort = psort <=> (isort :: [Int] -> [Int])
+\end{curry}
+CurryCheck reports a counter example by the 274th test.
+Since both operations are terminating, we can also check
+the following property:
+\begin{curry}
+psort_equiv_isort'TERMINATE = psort <=> (isort :: [Int] -> [Int])
+\end{curry}
+Now a counter example is found by the 21th test.
+
+Instead of annotating the property name to use more efficient equivalence
+tests for terminating operations, one can also ask CurryCheck
+to analyze the operations in order to safely approximate
+termination or productivity properties.
+For this purpose, one can call CurryCheck with the option
+\ccode{--equivalence=$equiv$} or \ccode{-e$equiv$}.
+The parameter $equiv$ determines the mode for equivalence checking
+which must have one of the following values (or a prefix of them):
+%
+\begin{description}
+\item[\code{manual}:]
+This is the default mode. In this mode, all equivalence tests
+are executed with first technique described above, unless
+the name of the test has the suffix \code{'TERMINATE}.
+\item[\code{autoselect}:]
+This mode automatically selects the improved transformation
+for terminating operations by a program analysis, i.e.,
+if it can be proved that both operations are terminating, then
+the equivalence test for terminating operations is used.
+It is also used when the name of the test has the suffix \code{'TERMINATE}.
+\item[\code{safe}:]
+This mode analyzes the productivity behavior of operations.
+If it can be proved that both operations are terminating
+or the test name has the suffix \code{'TERMINATE}, then
+the more efficient equivalence test for terminating operations is used.
+If it can be proved that both operations are productive
+or the test name has the suffix \code{'PRODUCTIVE}, then
+the first general test technique is used.
+Otherwise, the equivalence property is \emph{not} tested.
+Thus, this mode is useful if one wants to ensure that all
+equivalence tests always terminate (provided that the additional
+user annotations are correct).
+\item[\code{ground}:]
+In this mode, only ground equivalence is tested, i.e.,
+each equivalence property
+\begin{curry}
+g1_equiv_g2 = g1 <=> g2
+\end{curry}
+is transformed into a property which states that both
+operations must deliver the same values on same input values, i.e.,
+\begin{curry}
+g1_equiv_g2 x1 ... xn = g1 x1 ... xn <~> g2 x1 ... xn
+\end{curry}
+Note this property is more restrictive than contextual equivalence.
+For instance, the non-equivalence of \code{g1} and \code{g2}
+as shown above cannot be detected by testing ground equivalence only.
+\end{description}
+
+
 \subsection{Checking Contracts and Specifications}
 \label{sec:currycheck:contracts}
 
@@ -530,8 +672,8 @@ sort (x:xs) = sort (filter (<x) xs) ++ [x] ++ sort (filter (>=x) xs)
 If we process this program with CurryCheck,
 properties to check the specification and postcondition
 are automatically generated. For instance,
-a specification is satisfied if it yields the same values as
-the implementation, and a postcondition is satisfied
+a specification is satisfied if it is equivalent to its
+implementation, and a postcondition is satisfied
 if each value computed for some input satisfies the postcondition
 relation between input and output. For our example, CurryCheck generates
 the following properties (if there are also
@@ -544,99 +686,9 @@ sortSatisfiesPostCondition x =
   let r = sort x
   in (r == r) ==> always (sort'post x r)
 
-sortSatisfiesSpecification :: [Int] -> Prop
-sortSatisfiesSpecification x = sort x <~> sort'spec x
+sortSatisfiesSpecification :: Prop
+sortSatisfiesSpecification = sort <=> sort'spec
 \end{curry}
-
-\subsection{Checking Equivalence of Operations}
-
-CurryCheck supports also equivalence checks for operations.
-Two operations are considered as \emph{equivalent} if they
-can be replaced by each other in any possible context
-without changing the computed values (see \cite{AntoyHanus12PADL}
-for a precise definition).
-For instance, the Boolean operations
-\begin{curry}
-f1 :: Bool -> Bool               f2 :: Bool -> Bool
-f1 x = not (not x)                f2 x = x
-\end{curry}
-are equivalent, whereas
-\begin{curry}
-g1 :: Bool -> Bool               g2 :: Bool -> Bool
-g1 False = True                   g2 x = True
-g1 True  = True
-\end{curry}
-are not equivalent: \code{g1 failed} has no value but
-\code{g2 failed} evaluates to \code{True}.
-
-To check the equivalence of operations, one can use the
-property combinator \code{<=>}:
-\begin{curry}
-f1_equiv_f2 = f1 <=> f2
-g1_equiv_g2 = g1 <=> g2
-\end{curry}
-Each argument of this combinator must be a defined operation
-or a defined operation with a type annotation in order to specify
-the argument types used for checking this property.
-
-CurryCheck transforms such properties into properties
-where both operations are compared w.r.t.\ all partial
-values and partial results.
-The details are described in an upcoming paper.
-
-It should be noted that CurryCheck can also check
-the equivalence of non-terminating operations provided
-that they are \emph{productive}, i.e., always generate
-(outermost) constructors after a finite number of steps
-(otherwise, the test of CurryCheck might not terminate).
-For instance, CurryCheck reports a counter-example to
-the equivalence of the following non-terminating operations:
-\begin{curry}
-ints1 n = n : ints1 (n+1)$\listline$
-ints2 n = n : ints2 (n+2)
-
--- This property will be falsified by CurryCheck:
-ints1_equiv_ints2 = ints1 <=> ints2
-\end{curry}
-This is done by guessing depth-bounds and comparing the results
-of both operations up to this depth-bound.
-Since this might be a long process, CurryCheck supports
-a faster comparison of operations when it is known
-that they are terminating.
-If the name of a test contains the suffix \code{'TERMINATE},
-then CurryCheck does not iterate over depth-bounds
-but evaluates operations completely.
-For instance, consider the following definition of
-permutation sort (the operations \code{perm} and \code{sorted}
-are defined above):
-\begin{curry}
-psort :: Ord a => [a] -> [a]
-psort xs | sorted ys = ys
-  where ys = perm xs
-\end{curry}
-A different definition can be obtained by defining
-a partial identity on sorted lists:
-\begin{curry}
-isort :: Ord a => [a] -> [a]
-isort xs = idSorted (perm xs)
- where idSorted []              = []
-       idSorted [x]             = [x]
-       idSorted (x:y:ys) | x<=y = x : idSorted (y:ys)
-\end{curry}
-We can check the equivalence of both operations by
-specializing both operations on some ground type (otherwise,
-the type checker reports an error due to an unspecified
-type \code{Ord} context):
-\begin{curry}
-psort_equiv_isort = psort <=> (isort :: [Int] -> [Int])
-\end{curry}
-CurryCheck reports a counter example by the 274th test.
-Since both operations are terminating, we can also check
-the following property:
-\begin{curry}
-psort_equiv_isort'TERMINATE = psort <=> (isort :: [Int] -> [Int])
-\end{curry}
-Now a counter example is found by the 21th test.
 
 
 \subsection{Checking Usage of Specific Operations}

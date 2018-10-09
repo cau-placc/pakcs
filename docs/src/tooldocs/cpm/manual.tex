@@ -87,12 +87,20 @@ To install and use CPM, a working installation of either
 PAKCS in version 1.14.1 or greater, or
 KiCS2 in version 0.5.1 or greater is required. Additionally, CPM requires 
 \emph{Git}\footnote{\url{http://www.git-scm.com}},
-\emph{curl}\footnote{\url{https://curl.haxx.se}}
+\emph{curl}\footnote{\url{https://curl.haxx.se}},
+\emph{tar},
 and \emph{unzip} to be available on the \code{PATH} during installation and 
 operation. You also need to ensure that your Haskell installations reads files
 using UTF-8 encoding by default. Haskell uses the system locale charmap for its
 default encoding. You can check the current value using 
 \code{System.IO.localeEncoding} inside a \code{ghci} session.
+
+It is also recommended that
+SQLite\footnote{\url{https://www.sqlite.org}} is installed
+so that the executable \code{sqlite3} is in your path.
+In this case, CPM uses a SQLite database for caching
+the central package index (see Section~\ref{sec:internals}).
+This yields faster response times of various CPM commands.
 
 To install CPM from the sources, enter the 
 root directory of the CPM source distribution.
@@ -118,7 +126,7 @@ to pull down a copy of the central package index to your system.
 You can use the same command to update later
 your copy of the central package index to the newest version.
 
-Afterwards, you can show a short list of all packages in this index by
+Afterwards, you can show a list of all packages in this index by
 %
 \begin{lstlisting}
 > cypm list
@@ -466,10 +474,18 @@ changes when compared to the previous version $1.2.6$, you can use the
 CPM will then check the types of all public functions and data types in all
 exported modules of both versions (see the \code{exportedModules} field of the
 package specification) and report any differences and whether they violate 
-semantic versioning. It will also generate a CurryCheck program that will 
-compare the behavior of all exported functions in all exported modules whose
-types have not changed and execute that program. Note that not all functions
-can be compared via CurryCheck.
+semantic versioning.
+CPM will also compare the behavior of all exported functions
+in all exported modules whose types have not changed.
+Actually, this part is performed by CurryCheck \cite{Hanus16LOPSTR},
+a property-based test tool for Curry.
+For this purpose, CPM generates a Curry program containing
+properties stating the equivalence
+of two operations with the same name but defined in two different
+versions of a package.
+The ideas and scheme of this generation process are
+described in \cite{Hanus17ICLP}.
+Note that not all functions can be compared via CurryCheck.
 In particular, functions taking other functions as arguments
 (there are a few other minor restrictions)
 can not be checked so that CPM automatically excludes them from checking.
@@ -529,6 +545,27 @@ In this case, one can mark those functions with the compiler pragma
 \verb|{-# NOCOMPARE -#}| 
 so that CPM will not generate tests for them.
 
+Note that there are different ways to state the equivalence of operations
+(e.g., see the discussion in \cite{BacciEtAl12}).
+CPM offers two kinds of equivalence tests:
+\begin{itemize}
+\item
+\emph{Ground equivalence} means that two operations are considered
+as equivalent if they yield identical values for identical input values.
+\item
+\emph{Contextual or full equivalence} means that two operations
+are considered as equivalent if they produce the same results
+in all possible contexts.
+\end{itemize}
+%
+Since contextual equivalence is more meaningful in the context
+of semantic versioning, CPM tests this kind of
+equivalence in the default case, based on the techniques
+described in \cite{AntoyHanus18FLOPS}.
+However, using the option \code{--ground} of the \code{diff} command,
+one can also enfore the checking of ground equivalence
+as described in \cite{Hanus17ICLP}.
+
 
 \subsection{Adding Packages to the Central Package Index}
 \label{sec:adding-a-package}
@@ -563,7 +600,9 @@ There are three things that need to be done to publish a package: make the
 package accessible somewhere, add the location to the package specification, and
 add the package specification to the central package index.
 
-CPM supports ZIP files accessible over HTTP as well as Git repositories as 
+CPM supports ZIP (suffix \ccode{.zip}) or
+compressed TAR (suffix \ccode{.tar.gz}) files
+accessible over HTTP as well as Git repositories as 
 package sources. You are free to choose one of those, but a publicly accessible
 Git repository is preferred. To add the location to the package specification,
 use the \code{source} key. For a HTTP source, use:
@@ -624,7 +663,12 @@ CPM can be configured via the \code{\$HOME/.cpmrc} configuration file. The
 following list shows all configuration options and their default values.
 
 \begin{description}
-\item[\fbox{\code{REPOSITORY_PATH}}] The path to the index repository.
+\item[\fbox{\code{PACKAGE_INDEX_URL}}]
+The URL of the central package index
+which is used by the \code{update} command to download the
+index of all repositories.
+
+\item[\fbox{\code{REPOSITORY_PATH}}] The path to the index of all packages.
 Default value: \code{\$HOME/.cpm/index}.
 
 \item[\fbox{\code{PACKAGE_INSTALL_PATH}}] The path to the global package cache.
@@ -691,8 +735,11 @@ one can execute the command
 \section{Some CPM Internals}
 \label{sec:internals}
 
-CPM's central package index is a Git repository containing package
-specification files. A copy of this Git repository is stored on your
+CPM's central package index is contains all package specification files.
+It is stored at a central server where the actual location is defined
+by CPM's configuration variable \code{PACKAGE_INDEX_URL},
+see Section~\ref{sec:config}.
+A copy of this index is stored on your
 local system in the \code{\$HOME/.cpm/index} directory, unless you
 changed the location using the \code{REPOSITORY_PATH} setting. CPM
 uses the package index when searching for and installing packages and
@@ -809,6 +856,8 @@ This command also cleans the global package cache in order to support
 the download of fresh package versions.
 Note that this also removes local copies of packages
 installed by the command \ccode{add --package}.
+The option \code{--url} allows to specify a different URL
+for the central package index (might be useful for experimental purposes).
 
 \item[\fbox{\code{install}}]
 Installs all dependencies of the current package.
@@ -943,9 +992,10 @@ If the version option is missing, the latest version of the current package
 found in the repository is used for comparison.
 If the options \code{--api-only} or \code{--behavior-only} are added,
 then only the API or the behavior are compared, respectively.
-Using the option \code{--modules}, one can also specify a comma-separated
-list of module names to be compared. Without this option,
-all exported modules are compared.
+In the default case, all modules commonly exported by both
+versions of the package are compared.
+Using the option \code{--modules}, one can restrict this comparison
+to a list of modules specified by a comma-separated list of module names.
 
 As described in Section~\ref{sec:semantic-versioning},
 CPM uses property tests to compare the behavior
@@ -956,6 +1006,12 @@ Using the operation \code{--unsafe}, CPM omits this program analysis
 but then you have to ensure that all operations are terminating
 (or you can annotate them by pragmas,
 see Section~\ref{sec:semantic-versioning}).
+
+In the default case, CPM tests the contextual equivalence of
+operations (see Section~\ref{sec:semantic-versioning}).
+With the option \code{--ground}, the ground equivalence of operations
+is tested.
+
 
 \item[\fbox{\code{exec $command$}}] Executes an arbitrary command with the 
 \code{CURRYPATH} environment variable set to the paths of all dependencies of
@@ -1354,6 +1410,36 @@ You can simply re-install the newest version of this index
 by the command \code{cypm update}.
 \end{description}
 
+\newpage
+\begin{thebibliography}{1}
+
+\bibitem{AntoyHanus18FLOPS}
+S.~Antoy and M.~Hanus.
+\newblock Equivalence Checking of Non-deterministic Operations.
+\newblock In {\em Proc. of the 14th International Symposium on Functional and
+  Logic Programming (FLOPS 2018)}, pp. 149--165. Springer LNCS 10818, 2018.
+
+\bibitem{BacciEtAl12}
+G.~Bacci, M.~Comini, M.A. Feli{\'u}, and A.~Villanueva.
+\newblock Automatic Synthesis of Specifications for First Order {Curry}.
+\newblock In {\em Principles and Practice of Declarative Programming
+  (PPDP'12)}, pp. 25--34. ACM Press, 2012.
+
+\bibitem{Hanus16LOPSTR}
+M.~Hanus.
+\newblock {CurryCheck}: Checking Properties of {Curry} Programs.
+\newblock In {\em Proceedings of the 26th International Symposium on
+  Logic-Based Program Synthesis and Transformation (LOPSTR 2016)}, pp.
+  222--239. Springer LNCS 10184, 2017.
+
+\bibitem{Hanus17ICLP}
+M.~Hanus.
+\newblock Semantic Versioning Checking in a Declarative Package Manager.
+\newblock In {\em Technical Communications of the 33rd International Conference
+  on Logic Programming (ICLP 2017)}, OpenAccess Series in Informatics (OASIcs),
+  pp. 6:1--6:16. Schloss Dagstuhl - Leibniz-Zentrum fuer Informatik, 2017.
+
+\end{thebibliography}
 
 \end{document}
 
