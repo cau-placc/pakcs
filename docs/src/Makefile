@@ -17,8 +17,6 @@ manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex) \
 	pdflatex manual
 
 ../Manual.pdf: manual.pdf
-	thumbpdf manual
-	pdflatex manual
 	rm -f $@
 	cp $< $@
 
