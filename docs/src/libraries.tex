@@ -302,12 +302,12 @@ printed on the standard error stream.
 \index{AbstractCurry}
 \index{FlatCurry}
 To support meta-programming, i.e., the manipulation of Curry programs
-in Curry, there are system modules \code{AbstractCurry.Types}
-and \code{FlatCurry.Types}
-which define datatypes for the representation
-of Curry programs.
-\code{AbstractCurry.Types} is a more direct representation of a Curry program,
-whereas \code{FlatCurry.Types} is a simplified representation
+in Curry, there are Curry packages \code{flatcurry} and \code{abstractcurry}
+which define datatypes for the representation of Curry programs.
+\code{AbstractCurry.Types} (package \code{abstractcurry})
+is a more direct representation of a Curry program,
+whereas \code{FlatCurry.Types} (package \code{flatcurry})
+is a simplified representation
 where local function definitions are replaced by global definitions
 (i.e., lambda lifting has been performed) and pattern matching
 is translated into explicit case/or expressions.
