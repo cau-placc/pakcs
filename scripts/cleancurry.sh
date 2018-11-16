@@ -63,7 +63,7 @@ do
     CURRYDIR=$FDIR/.curry
     if [ -d $CURRYDIR ] ; then
       CURRYF=.curry/$F
-      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.fint $CURRYF.icurry $CURRYF.tokens
+      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.fint $CURRYF.icurry $CURRYF.tokens $CURRYF.ast $CURRYF.sast
       FDIRFILES=`ls -A $CURRYDIR`
       if [ -z "$FDIRFILES" ] ; then # .curry directory is empty
         rmdir $CURRYDIR
