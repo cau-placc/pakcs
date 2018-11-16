@@ -309,7 +309,7 @@ one can use the command
 cypm install <package>
 \end{lstlisting}
 This command checks out the package in some internal directory
-(default: \code{\$HOME/.cpm/app_packages}, see
+(default: \code{\$HOME/.cpm/apps_$Curry system$}, see
 Section~\ref{sec:config})
 and installs the binary of the application provided by the package
 in \code{\$HOME/.cpm/bin} (see also Section~\ref{sec:checkout}).
@@ -685,7 +685,7 @@ Default value: \code{\$HOME/.cpm/bin}
 \item[\fbox{\code{APP_PACKAGE_PATH}}]
 The path to the package cache where packages are checked out if only
 their binaries are installed (see Section~\ref{sec:installapp}).
-Default value: \code{\$HOME/.cpm/app_packages}.
+Default value: \code{\$HOME/.cpm/apps_$Curry system$}.
 
 \item[\fbox{\code{HOME_PACKAGE_PATH}}]
 The path to the meta-package which is used if you are outside another

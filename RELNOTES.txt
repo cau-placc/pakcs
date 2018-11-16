@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.1 (September 21, 2018)
+Release notes for PAKCS Version 2.0.2 (November 15, 2018)
 ----------------------------------------------------------
 
 Changes to version 2.0.0:

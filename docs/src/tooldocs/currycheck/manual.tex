@@ -661,7 +661,7 @@ sort'post xs ys = length xs == length ys
 -- Specification:
 -- A correct result is a permutation of the input which is sorted.
 sort'spec :: [Int] -> [Int]
-sort'spec xs | ys == perm xs && sorted ys = ys  where ys free
+sort'spec xs | sorted ys = ys  where ys = perm xs
 
 -- An implementation of sort with quicksort:
 sort :: [Int] -> [Int]
@@ -688,6 +688,71 @@ sortSatisfiesPostCondition x =
 
 sortSatisfiesSpecification :: Prop
 sortSatisfiesSpecification = sort <=> sort'spec
+\end{curry}
+
+
+\subsection{Combining Testing and Verification}
+
+Usually, CurryCheck tests all user-defined properties as well as
+postconditions or specifications,
+as described in Section~\ref{sec:currycheck:contracts}.
+If a programmer uses some other tool to verify such properties,
+it is not necessary to check such properties with test data.
+In order to advice CurryCheck to do so,
+it is sufficient to store the proofs in specific files.
+Since the proof might be constructed by some tool
+unknown to CurryCheck or even manually,
+CurryCheck does not check the proof file but trusts the programmer
+and uses a naming convention for files containing proofs.
+If there is a property \code{p} in a module \code{M}
+for which a proof in file \code{proof-M-p.*}
+(the name is case independent), then
+CurryCheck assumes that this file contains
+a valid proof for this property.
+For instance, the following property states that
+sorting a list does not change its length:
+%
+\begin{curry}
+sortlength xs = length (sort xs) <~> length xs
+\end{curry}
+%
+If this property is contained in module \code{Sort} and
+there is a file \code{proof-Sort-sortlength.txt}
+containing a proof for this property,
+CurryCheck considers this property as valid and does not check it.
+Moreover, it uses this information to simplify other properties to be tested.
+For instance, consider the property \code{sortSatisfiesPostCondition}
+of Section~\ref{sec:currycheck:contracts}.
+This can be simplified to
+\code{always$\;$True} so that it does not need to be tested.
+
+One can also provide proofs for generated properties,
+e.g., determinism, postconditions, specifications,
+so that they are not tested:
+\begin{itemize}
+\item
+If there is a proof file \code{proof-$M$-$f$IsDeterministic.*},
+a determinism annotation for operation $M.f$ is not tested.
+\item
+If there is a proof file \code{proof-$M$-$f$SatisfiesPostCondition.*},
+a postcondition for operation $M.f$ is not tested.
+\item
+If there is a proof file \code{proof-$M$-$f$SatisfiesSpecification.*},
+a specification for operation $M.f$ is not tested.
+\end{itemize}
+Note that the file suffix and all non-alpha-numberic characters
+in the name of the proof file are ignored.
+Furthermore, the name is case independent
+This should provide enough flexibility when other verification tools
+require specific naming conventions.
+For instance, a proof for the property \code{Sort.sortlengh}
+could be stored in the following files in order to be considered
+by CurryCheck:
+\begin{curry}
+proof-Sort-sortlength.tex
+PROOF_Sort_sortlength.agda
+Proof-Sort_sortlength.smt
+ProofSortSortlength.smt
 \end{curry}
 
 
