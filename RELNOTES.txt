@@ -1,13 +1,13 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.3 (November 16, 2018)
+Release notes for PAKCS Version 2.0.3 (November 21, 2018)
 ----------------------------------------------------------
 
 Changes to version 2.0.2:
 
   * Front end updated in order to generate ASTs with source code
-    position information.
+    position information (see package `curry-ast`).
 
 
 Release notes for PAKCS Version 2.0.2 (November 15, 2018)
