@@ -49,7 +49,7 @@ export MAJORVERSION=2
 # The minor version number:
 export MINORVERSION=0
 # The revision version number:
-REVISIONVERSION=3
+export REVISIONVERSION=3
 # The build version number (if >0, then it is a pre-release)
 BUILDVERSION=1
 # Complete version:
