@@ -13,7 +13,7 @@
 
 % initialize the predicate containing the global value if called for the
 % first time:
-initGlobalValue(GlobName,'Global.Temporary',Exp,Val) :-
+initGlobalValue(GlobName,'Data.Global.Temporary',Exp,Val) :-
 	evalToken(Eval),
 	user:nf(Exp,Val,Eval,E1),
 	user:waitUntilGround(Val,E1,_), % groundness required
@@ -23,7 +23,7 @@ initGlobalValue(GlobName,'Global.Temporary',Exp,Val) :-
 	% temporary globals directly contain its value:
 	assertz(user:NewGlobalCall),
 	!.
-initGlobalValue(GlobName,'Global.Persistent'(FExp),Exp,FileName) :-
+initGlobalValue(GlobName,'Data.Global.Persistent'(FExp),Exp,FileName) :-
 	evalToken(Eval),
 	user:nf(FExp,FileString,Eval,E0),
 	user:waitUntilGround(FileString,E0,E1), % groundness required
@@ -39,22 +39,22 @@ initGlobalValue(GlobName,'Global.Persistent'(FExp),Exp,FileName) :-
 	!.
 
 % read a global value:
-prim_readGlobal('Global.GlobalDef'(GlobName,'Global.Temporary'),Val) :-
+prim_readGlobal('Data.Global.GlobalDef'(GlobName,'Data.Global.Temporary'),Val) :-
 	GlobalCall =.. [GlobName,Val],
 	call(user:GlobalCall), !.
-prim_readGlobal('Global.GlobalDef'(GlobName,'Global.Persistent'),Val) :-
+prim_readGlobal('Data.Global.GlobalDef'(GlobName,'Data.Global.Persistent'),Val) :-
 	GlobalCall =.. [GlobName,FileName],
 	call(user:GlobalCall),
 	readGlobalFile(FileName,Val), !.
 
 % update a global value:
-prim_writeGlobal('Global.GlobalDef'(GlobName,'Global.Temporary'),NewVal,
+prim_writeGlobal('Data.Global.GlobalDef'(GlobName,'Data.Global.Temporary'),NewVal,
 	         'Prelude.()') :-
 	GlobalCall =.. [GlobName,_],
 	(retract(user:GlobalCall) ; user:retractClause(GlobalCall,_)),
 	NewGlobalCall =.. [GlobName,NewVal],
 	assertz(user:NewGlobalCall), !.
-prim_writeGlobal('Global.GlobalDef'(GlobName,'Global.Persistent'),
+prim_writeGlobal('Data.Global.GlobalDef'(GlobName,'Data.Global.Persistent'),
 	         NewVal,'Prelude.()') :-
 	GlobalCall =.. [GlobName,FileName],
 	call(user:GlobalCall),
