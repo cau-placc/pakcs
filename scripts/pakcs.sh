@@ -81,7 +81,7 @@ esac
 # check whether we should call CPM to compute the correct load path:
 if [ ! -d "$HOME" ] ; then
   USECPM=no   # do not use CPM without a home directory
-elif [ -x $PAKCSHOME/bin/cypm -a -d "$HOME" ] ; then
+elif [ -x $PAKCSHOME/bin/cypm ] ; then
   CYPMBIN=$PAKCSHOME/bin/cypm
   USECPM=yes
 elif [ -x $CPMBIN/cypm ] ; then
