@@ -100,10 +100,15 @@ done
 
 if [ $USECPM = yes ] ; then
   # set CURRYPATH with 'deps' command of CPM
-  CURRYPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSHOME/bin/pakcs" deps -p`
+  CPMPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSHOME/bin/pakcs" deps -p`
   if [ $? -gt 0 ] ; then
-    echo $CURRYPATH
+    echo $CPMPATH
     exit 1
+  fi
+  if [ -n "$CURRYPATH" ] ; then
+    CURRYPATH=$CURRYPATH:$CPMPATH # keep existing CURRYPATH setting
+  else
+    CURRYPATH=$CPMPATH
   fi
   export CURRYPATH
 fi
