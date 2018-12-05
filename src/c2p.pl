@@ -464,7 +464,7 @@ parseExpressionWithFrontend(MainExprDir,Input,InitMainFuncType,MainExp,
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
 	workingDirectory(CurDir),
 	toAbsPath(MainPath,AbsMainPath),
-	getCurryPath(CP0), path2String(CP0,CP1), atom_codes(LCP,CP1),
+	getCurryPath(CP), path2Atom(CP,LCP),
         extendPath(AbsMainPath,LCP,NewLCP),
 	setCurryPath(NewLCP),
 	setWorkingDirectory(MainExprDir),
@@ -838,8 +838,8 @@ processCommand("set",[]) :- !,
 	parser_warnings(W), (W=yes -> write('+') ; write('-')),
 	write(warn), write('  '),
 	nl,
-	loadPath('.',LP), path2String(LP,SP),
-	atom_codes(AP,SP),     write('loadpath          : '), write(AP), nl,
+	loadPath('.',LP),
+        path2Atom(LP,AP),      write('loadpath          : '), write(AP), nl,
 	printDepth(PD),        write('printdepth        : '),
 	(PD=0 -> write(PD) ; PD1 is PD-1, write(PD1)), nl,
 	verbosity(VL),         write('verbosity         : '), write(VL), nl,
@@ -975,19 +975,9 @@ processCommand("coosy",[]) :- !,
         atom_codes(CoosySrc,CoosyPath),
 	getCurryPath(SLP),
 	(SLP=[] -> setCurryPath(CoosySrc)
-	         ; path2String([CoosySrc|SLP],PathS), atom_codes(Path,PathS),
+	         ; path2Atom([CoosySrc|SLP],Path),
 	           setCurryPath(Path)),
 	printCurrentLoadPath.
-
-% processCommand("xml",[]) :- !,
-% 	lastload(Prog),
-% 	(Prog="" -> writeLnErr('ERROR: no program loaded for XML translation'),
-% 	            !, fail
-%                   ; true),
-%         atom_codes(ProgA,Prog),
-%         installDir(PH),
-% 	appendAtoms(['"',PH,'/tools/curry2xml" ',ProgA],XmlCmd),
-%         shellCmdWithCurryPathWithReport(XmlCmd).
 
 processCommand("peval",[]) :- !,
 	lastload(Prog),
@@ -1230,10 +1220,7 @@ processCompile(ProgS,PrologFile) :-
 	tryXml2Fcy(Prog),
 	(findFlatProgFileInLoadPath(Prog,PathProgName)
 	 -> true
-	  ; writeErr('ERROR: FlatCurry file for program "'),
-	    writeErr(Prog),
-	    writeLnErr('" not found!'),
-	    deletePrologTarget(LocalPrologFile),!, failWithExitCode),
+	  ; deletePrologTarget(LocalPrologFile), !, failWithExitCode),
 	prog2PrologFile(PathProgName,PrologFile),
 	checkProgramHeader(PrologFile),
 	c2p(Prog,PrologFile),
@@ -1245,12 +1232,7 @@ reloadMainProgram :-
 	lastload(LastLoad),
 	(LastLoad="" -> ProgS="Prelude" ; ProgS=LastLoad),
 	atom_codes(Prog,ProgS),
-	(findFlatProgFileInLoadPath(Prog,PathProgName)
-	 -> true
-	  ; writeErr('ERROR: FlatCurry file for program "'),
-	    writeErr(Prog),
-	    writeLnErr('" not found!'),
-	    !, fail),
+	findFlatProgFileInLoadPath(Prog,PathProgName),
 	prog2PrologFile(PathProgName,PrologFile),
 	loadMain(PrologFile),
 	!.
@@ -1407,8 +1389,7 @@ processSetOption(Option) :-
 	removeBlanks(OptTail,P),
 	pathString2loadPath(P,Dirs),
 	map2M(basics:toAbsPath,Dirs,AbsDirs),
-	path2String(AbsDirs,PathS),
-	atom_codes(Path,PathS),
+	path2Atom(AbsDirs,Path),
 	setCurryPath(Path),
 	printCurrentLoadPath.
 processSetOption(Option) :-
@@ -1451,8 +1432,7 @@ printCurrentLoadPath :- verbosityQuiet, !.
 printCurrentLoadPath :-
 	loadPath('.',LP),
 	write('Current search path for loading modules: '), nl,
-	path2String(LP,SP),
-	atom_codes(ASP,SP), write(ASP), nl.
+	path2Atom(LP,ALP), write(ALP), nl.
 
 % fork an expression where arg1 is the expression (string):
 processFork(ExprString) :-

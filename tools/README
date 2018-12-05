@@ -14,11 +14,5 @@ Peval:
 emacs:
    Emacs mode for editing Curry programs
 
-lib_deprecated:
-   This directory contains some deprecated and, thus, unsupported libraries
-   for PAKCS, and some older versions of existing libraries where the
-   interface has been changed.
-
-optimize:
-   Directory containing a simple optimizer for FlatCurry programs
-   (integrated in PAKCS by the option "compact").
+gedit:
+   Curry mode for gedit

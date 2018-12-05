@@ -25,7 +25,7 @@
 		  string2Atom/2, atom2String/2, atomic2Atom/2, atomic2Codes/2,
 		  removeShares/2, term2partcall/3, isCompleteList/2,
 		  getNewFileName/2, mainPrologFileName/1,
-		  extendPath/3, path2String/2, pathString2loadPath/2,
+		  extendPath/3, path2Atom/2, pathString2loadPath/2,
 		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
 		  getSysLibPath/1, shellCmdWithCurryPath/1,
                   shellCmdWithCurryPathWithReport/1,
@@ -323,6 +323,9 @@ pathString2loadPath(SDir,LP) :-
 	atom_codes(Dir,SDir),
 	(Dir='' -> LP=[] ; LP=[Dir]).
 
+% transform a path into an atom (e.g., ['.','pakcs/lib'] -> '.:pakcs/lib'):
+path2Atom(Path,PathA) :- path2String(Path,PathS), atom_codes(PathA,PathS).
+
 % transform a path into a string (e.g., ['.','pakcs/lib'] -> ".:pakcs/lib"):
 path2String([],[]).
 path2String([D],DS) :- atom_codes(D,DS).
@@ -429,10 +432,19 @@ findSourceFileInLoadPath(Prog,Ext,PathProg) :-
 % existing FlatCurry file in the current load path
 % Prog: a program name (an atom)
 % PathProg:  directory/module name of the Curry file corresponding to Prog
+% If the program name is not found, an error message is issued followed
+% by a failure.
 findFlatProgFileInLoadPath(Prog,PathProg) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	loadPath(ProgDir,LP),
-	findFlatProgFileInPath(LP,ProgBase,PathProg).
+        (findFlatProgFileInPath(LP,ProgBase,PathProg)
+         -> true
+          ; writeErr('ERROR: Program (or FlatCurry file) "'),
+            writeErr(Prog),
+            writeLnErr('" not found in load path:'),
+            path2Atom(LP,AP), writeLnErr(AP),
+            fail),
+        !.
 
 findFlatProgFileInPath([Dir|Dirs],Prog,PathProg) :-
 	(atom_codes(Prog,[47|_])  % already absolute file name?
