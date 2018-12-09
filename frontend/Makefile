@@ -41,6 +41,10 @@ export GHC_UNREGISTER = "$(GHC-PKG)" unregister --$(GHC_PKG_OPT)="$(PKGDB)"
 export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)"       \
                         --with-hc-pkg="$(GHC-PKG)" --prefix="$(LOCALPKG)" \
                         --global --package-db="$(PKGDB)" -O2
+# Command to configure a package (needed for testing)
+export CABAL_CONFIGURE  = "$(CABAL)" configure --with-compiler="$(GHC)"       \
+                        --with-hc-pkg="$(GHC-PKG)" --prefix="$(LOCALPKG)" \
+                        --global --package-db="$(PKGDB)" -O2 --enable-tests
 
 # Directory where local package installations are stored
 export LOCALPKG      = $(ROOT)/pkg
@@ -100,3 +104,22 @@ cleanall:
 	cd curry-frontend && rm -rf dist/
 	rm -rf $(LOCALPKG)
 	rm -f $(CYMAKE)   && rm -rf bin
+
+.PHONY: runtestsbase
+runtestsbase:
+	cd curry-base && $(CABAL_CONFIGURE) && $(CABAL) test
+
+.PHONY: runtestsfrontend
+runtestsfrontend:
+	cd curry-frontend && $(CABAL_CONFIGURE) && $(CABAL) test
+
+.PHONY: runtests
+runtests:
+ifdef GHC
+	$(MAKE) $(PKGDB)
+	$(MAKE) $(runtestsbase)
+	$(MAKE) $(runtestsfrontend)
+else
+	@echo "GHC missing, cannot build front end!"
+	@exit 1
+endif
