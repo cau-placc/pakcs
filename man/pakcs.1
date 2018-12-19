@@ -1,0 +1,60 @@
+.TH PAKCS "1" "December 2018" "2.0.3" "Curry Compiler"
+.SH NAME
+pakcs \- the Portland Aachen Kiel Curry System
+
+.SH SYNOPSIS
+\fBpakcs\fR \fI[OPTIONS]\fR
+
+.SH DESCRIPTION
+
+PAKCS is an implementation of the functional logic language
+Curry (http://currry-language.org) which compiles Curry
+programs into Prolog programs.
+Detailed information about PAKCS can be found at
+https://www.informatik.uni-kiel.de/~pakcs/
+.PP
+The command pakcs either invokes the interactive environment
+to compile and run Curry programs.
+
+.SH OPTIONS
+
+Invoke interactive environment:
+.TP
+    \fBpakcs\fR \fI<options>\fR [ -- \fI<run-time arguments>\fR]
+.PP
+with options:
+
+.TP
+\fB\--h\fR, \fB\-\-help\fR, \fB\-?\fR
+show this message and quit
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+show version and quit
+.TP
+\fB\-\-compiler\-name\fR
+show the compiler name "pakcs" and quit
+.TP
+\fB\-\-numeric\-version\fR
+show the compiler version number and quit
+.TP
+\fB\-\-base\-version\fR
+show the version of the base libraries and quit
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+work silently
+.TP
+\fB\-\-nocypm\fR
+do not invoke "cypm" to compute package load path
+.TP
+\fB\-\-noreadline\fR
+do not use input line editing via command "rlwrap"
+.TP
+\fB-D\fI<prop>\fI\fB=\fR\fIval\fR
+define pakcsrc property "prop" as "val"
+:<cmd> <args> : command of the PAKCS environment
+
+.SH "AUTHOR"
+This manual page has been written by Michael Hanus and converted to nroff
+format by Mike Gabriel <mike.gabriel@das-netzwerkteam.de>. This man page
+has been written for the Debian project initially, but may also be used
+by others.
