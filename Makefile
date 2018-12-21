@@ -349,7 +349,6 @@ clean: $(CLEANCURRY)
 cleantools: $(CLEANCURRY)
 	cd src && $(MAKE) clean
 	cd currytools && $(MAKE) uninstall
-	cd tools && $(MAKE) clean
 	cd bin && rm -f pakcs
 
 # Clean everything (including the front end)
