@@ -51,7 +51,7 @@ export MINORVERSION=0
 # The revision version number:
 export REVISIONVERSION=3
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=2
+BUILDVERSION=3
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -238,7 +238,6 @@ compilefrontend:
 .PHONY: tools
 tools:
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
-	@if [ -r bin/pakcs ] ; then cd tools      && $(MAKE) ; fi
 
 # compile analysis tool only:
 .PHONY: CASS

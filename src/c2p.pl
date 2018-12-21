@@ -980,6 +980,9 @@ processCommand("coosy",[]) :- !,
 	printCurrentLoadPath.
 
 processCommand("peval",[]) :- !,
+        writeLnErr('ERROR: partially evaluator removed from PAKCS distribution'),
+        !, fail.
+processCommand("peval",[]) :- !,
 	lastload(Prog),
 	(Prog="" -> writeLnErr('ERROR: no program loaded for partial evaluation'),
 	            !, fail
