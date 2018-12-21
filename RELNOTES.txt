@@ -17,7 +17,8 @@ Changes to version 2.0.2:
   * Library `SCC` removed (available in package `scc` as `Data.SCC`)
   * Front end updated in order to generate ASTs with source code
     position information (see package `curry-ast`).
-  * Old partial evaluator (command "peval") removed from tools.
+  * Old partial evaluator (command "peval") removed from tools since
+    it is available as package `peval-noshare`.
 
 
 Release notes for PAKCS Version 2.0.2 (November 15, 2018)

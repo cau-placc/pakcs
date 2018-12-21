@@ -980,16 +980,13 @@ processCommand("coosy",[]) :- !,
 	printCurrentLoadPath.
 
 processCommand("peval",[]) :- !,
-        writeLnErr('ERROR: partially evaluator removed from PAKCS distribution'),
-        !, fail.
-processCommand("peval",[]) :- !,
+        checkCpmTool('curry-pevalns','peval-noshare',PevalExec),
 	lastload(Prog),
 	(Prog="" -> writeLnErr('ERROR: no program loaded for partial evaluation'),
 	            !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-        installDir(PH),
-	appendAtoms(['"',PH,'/tools/Peval/peval" ',ProgA],PevalCmd),
+	appendAtoms([PevalExec,' ',ProgA],PevalCmd),
         shellCmdWithCurryPathWithReport(PevalCmd),
 	!,
 	append(Prog,"_pe",ProgPE), % name of partially evaluated program
