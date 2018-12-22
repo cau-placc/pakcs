@@ -1,22 +1,32 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.3 (December 21, 2018)
-----------------------------------------------------------
+Release notes for PAKCS Version 2.1.0 (December 22, 2018)
+---------------------------------------------------------
 
 Changes to version 2.0.2:
 
   * Library `Array` removed (available in package `array` as `Data.Array`)
+  * Library `CPNS` removed
+    (available in package `cpns` as `Network.CPNS`)
   * Library `Distribtion`: `curryCompilerRevisionVersion` added,
     operations related to load paths removed (available in package
     `currypath` in library `System.CurryPath`),
     operations to call the front end removed (available in package
     `frontend-exec` in library `System.FrontendExec`)
+  * Library `NamedSocket` removed
+    (available in package `cpns` as `Network.NamedSocket`)
   * Library `PropertyFile` removed
     (available in package `propertyfile` as `Data.PropertyFile`)
   * Library `SCC` removed (available in package `scc` as `Data.SCC`)
+  * Library `Socket` removed
+    (available in package `socket` as `Network.Socket`)
   * Front end updated in order to generate ASTs with source code
     position information (see package `curry-ast`).
+  * Curry Port Name Server removed from `currytools`
+    (available as `curry-cpnsd` in package `cpns`)
+  * Registry for dynamic web pages removed from `currytools`
+    (available as `curry-cgi` in package `html-cgi`)
   * Old partial evaluator (command "peval") removed from tools since
     it is available as package `peval-noshare`.
 

@@ -47,11 +47,11 @@ export CURRYSYSTEM=pakcs
 # The major version number:
 export MAJORVERSION=2
 # The minor version number:
-export MINORVERSION=0
+export MINORVERSION=1
 # The revision version number:
-export REVISIONVERSION=3
+export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=3
+BUILDVERSION=1
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:

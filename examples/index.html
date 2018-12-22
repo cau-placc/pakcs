@@ -29,8 +29,6 @@ can look at these examples:
 <li><a href="#search">Encapsulated search</a></li>
 <li><a href="#modules">Modules</a></li>
 <li><a href="#escher">Comparison with Escher</a></li>
-<li><a href="#CLP">Functional logic programming with constraints</a></li>
-<li><a href="#distcurry">Distributed functional logic programming</a></li>
 <li><a href="#meta">Meta-programming</a></li>
 <li><a href="#guicurry">Examples for GUI programming with library "GUI"</a></li>
 <li><a href="#parsing">Examples for functional logic parsers</a></li>
@@ -324,119 +322,6 @@ a geographical database and some queries from the Escher report
 </ul>
 <hr />
 
-<h3><a name="CLP">Functional logic programming with constraints:</a></h3>
-<B>Important note:</B> <EM>The programs in this section
-work only with implementations
-of Curry that support real arithmetic and finite domain constraints,
-see, for instance,
-<a href="http://www.informatik.uni-kiel.de/~pakcs">PAKCS</a>.</EM>
-<ul>
-<li> <a href="CLP/mortgage.curry">mortgage.curry</a>:
-a classical example for constraint logic programming over
-reals: define a mortgage relationship between the principal,
-the life of the loan in months, the interest rate, the monthly
-repayment, and the outstanding balance. Due to the constraint
-programming features, one can solve various problems with
-this simple definition.
-</li>
-
-<li> <a href="CLP/circuit.curry">circuit.curry</a>:
-a further classical example for constraint logic programming over
-reals: analysis of electrical circuits
-</li>
-
-<li> <a href="CLP/queens.curry">queens.curry</a>:
-a classical example for constraint logic programming over
-finite domains: solving the n-queens problem
-</li>
-
-<li> <a href="CLP/smm.curry">smm.curry</a>:
-a further classical example for constraint logic programming over
-finite domains: solving the "send+more=money" puzzle
-</li>
-
-<li> <a href="CLP/sudoku.curry">sudoku.curry</a>:
-solving Su Doku puzzles in Curry with finite domain constraints.
-This examples shows the use of higher-order functions to set up
-a set of constraints in a compact way.
-</li>
-
-<li> <a href="CLP/magicseries.curry">magicseries.curry</a>:
-an example for constraint logic programming over
-finite domains where lazy evaluation is exploited:
-the computation of magic series
-</li>
-
-</ul>
-<hr />
-<h3><a name="distcurry">Distributed functional logic programming</a></h3>
-<B>Important note:</B> <EM>Most of the programs in this section
-work only with implementations
-of Curry that support distributed programming with port constraints
-as described in the
-<a href="http://www.informatik.uni-kiel.de/~mh/papers/PPDP99.html">PPDP'99 paper</a>.</EM>
-<ul>
-<li> <a href="distcurry/accountport.curry">accountport.curry</a>:
-the same program as
-<a href="account.curry">account.curry</a>
-(a bank account implemented as a concurrent object)
-but with the use of port constraints
-</li>
-
-<li> <a href="distcurry/counter.curry">counter.curry</a>:
-a simple counter which can be incremented and queried
-from any machine connected to the Internet
-</li>
-
-<li> <a href="distcurry/nameserver.curry">nameserver.curry</a>:
-a name server storing an association between names and numbers
-which can be queried in a simple manner
-from any machine connected to the Internet
-</li>
-
-<li> <a href="distcurry/talk.curry">talk.curry</a>:
-a simple program implementing the kernel of the Unix "talk"
-to enable a conversation between two partners on different machines
-connected to the Internet
-</li>
-
-<li> <a href="distcurry/sema.curry">sema.curry</a>:
-an implementation of semaphores in Curry
-</li>
-
-<li> <a href="distcurry/philo.curry">philo.curry</a>:
-an implementation of "dining philosophers" problem
-using semaphores implemented via ports
-</li>
-
-<li> <a href="distcurry/httpget.curry">httpget.curry</a>:
-a simple example showing the connection to Unix sockets
-(not implemented with ports but with more low level Socket library)
-</li>
-
-<li> <a href="distcurry/addserver.curry">addserver.curry</a>:
-an example showing the implementation of a simple client/server application
-(the server provides a service to add two numbers).
-The implementation does not use ports but the more low level Socket library.
-</li>
-
-<li> <a href="distcurry/addnamedserver.curry">addnamedserver.curry</a>:
-an example showing the implementation of a simple client/server application
-(the server provides a service to add two numbers).
-The implementation does Unix sockets with symbolic names
-based on the library NamedSocket.
-</li>
-
-<li> <a href="distcurry/addtimeoutserver.curry">addtimeoutserver.curry</a>:
-an example showing the implementation of a simple client/server application
-(the server provides a service to add two numbers).
-The implementation uses the Socket library and shows the use of
-time limits for socket connections on the server side.
-</li>
-
-</ul>
-
-<hr />
 <h3><a name="meta">Examples for meta-programming</a></h3>
 <B>Important note:</B> <EM>The programs in this section
 work only with the libraries of the PAKCS environment for meta-programming
