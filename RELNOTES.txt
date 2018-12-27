@@ -18,6 +18,10 @@ Changes to version 2.0.2:
     (available in package `cpns` as `Network.NamedSocket`)
   * Library `PropertyFile` removed
     (available in package `propertyfile` as `Data.PropertyFile`)
+  * Libraries `RedBlackTree`, `SetRBT`, and `TableRBT` removed
+    (available in package `redblacktree` as `Data.RedBlackTree`,
+    `Data.Set.RBTree`, and `Data.Table.RBTree` with slightly renamed API
+    operations).
   * Library `SCC` removed (available in package `scc` as `Data.SCC`)
   * Library `Socket` removed
     (available in package `socket` as `Network.Socket`)
