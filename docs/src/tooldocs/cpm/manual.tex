@@ -1043,6 +1043,41 @@ of the current package or in the meta-package
 The option \ccode{--force} allows to overwrite existing dependencies
 in the package description file.
 
+\item[\fbox{\code{upload [--notagging] [--force]}}]
+Uploads the current package to the central package index
+so that it can be used by other developers via CPM
+(if they update their local copy of the central package index
+by \ccode{cypm update}).
+
+For security reasons (this will be weakened in the future),
+the package must have a source specification
+(see Section~\ref{sec:publishing-a-package})
+of the following form:
+%
+\begin{lstlisting}
+{
+  ...,
+  "source": {
+    "git": "$\ldots$git.ps.informatik.uni-kiel.de/curry-packages/$\ldots$.git",
+    "tag": "$\$$version"
+  }
+}
+\end{lstlisting}
+%
+Thus, the source is managed as a Git repository which is stored
+at the server \code{git.ps.informatik.uni-kiel.de}
+in group \code{curry-packages} and has an automatic version tag.
+Unless the option \code{--nottagging} is given,
+the version tag wil be automatically set in the local repository
+(and pushed to the remote repository, i.e., one should have write access
+to the remote repository).
+Then the remote repository will be cloned and tested (by \ccode{cypm test}).
+If this is successful, the package specification of the repository
+will be added to the central package index (by a web service
+of the central package index).
+The option \ccode{--force} allows to overwrite
+an existing version in the central package index.
+
 \item[\fbox{\code{clean}}] Cleans the current package from the
 generated auxiliary files, e.g., intermediate Curry files,
 installed dependent packages, etc.

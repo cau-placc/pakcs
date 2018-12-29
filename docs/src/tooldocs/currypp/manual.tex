@@ -150,14 +150,15 @@ one can specify the desired format with foreign code marked by
 similarly to the \code{printf} statement of C,
 followed by a comma-separated list of arguments.
 This format specification is transformed into operations
-of the \CYS library \code{Format} so that it must be imported.
+of the library \code{Data.Format} (of package \code{printf})
+so that it must be imported.
 For instance, the following program defines an operation
 that formats a string, an integer (with leading sign and zeros),
 and a float with leading sign and precision 3:
 \begin{currynomath}
 {-# OPTIONS_CYMAKE -F --pgmF=currypp --optF=foreigncode #-}
 
-import Format
+import Data.Format
 
 showSIF :: String -> Int -> Float -> String
 showSIF s i f = ``format "Name: %s | %+.5i | %+6.3f",s,i,f''
