@@ -17,6 +17,7 @@ Changes to version 2.0.2:
     `currypath` in library `System.CurryPath`),
     operations to call the front end removed (available in package
     `frontend-exec` in library `System.FrontendExec`)
+  * Library `Format` removed (available in package `printf` as `Data.Format`)
   * Library `NamedSocket` removed
     (available in package `cpns` as `Network.NamedSocket`)
   * Library `PropertyFile` removed
