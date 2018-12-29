@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.1.0 (December 22, 2018)
+Release notes for PAKCS Version 2.1.0 (December 29, 2018)
 ---------------------------------------------------------
 
 Changes to version 2.0.2:
@@ -9,6 +9,7 @@ Changes to version 2.0.2:
   * Library `Array` removed (available in package `array` as `Data.Array`)
   * Library `CPNS` removed
     (available in package `cpns` as `Network.CPNS`)
+  * Library `Dequeue` removed (available in package `queue` as `Data.Queue`)
   * Library `Distribtion`: `curryCompilerRevisionVersion` added,
     operations related to load paths removed (available in package
     `currypath` in library `System.CurryPath`),
