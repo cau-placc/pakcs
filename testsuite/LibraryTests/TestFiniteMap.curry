@@ -1,8 +1,11 @@
-import RandomTest
 import FiniteMap
 import List
 import Sort
 import Maybe
+import Random
+
+import Test.Prop
+
 
 fm f = f . (listToFM (<)) . map (\x ->(x,x))
 
@@ -62,3 +65,32 @@ testUpdFM = eq (fm (\x-> lookupFM (updFM (addToFM x 73 73) 73 (+7)) 73)) (const 
 spnub [] = []
 spnub [x] = [x]
 spnub (x:y:xs) = if x==y then spnub (y:xs) else x:spnub (y:xs)
+
+
+------------------------------------------------------------------------------
+-- Random test:
+
+--- Tests a given predicate on a list of distinct random numbers.
+--- In case of a failure, the list of random numbers is returned
+--- in order to see the test cases in the CurryTest tool.
+test :: ([Int] -> Bool) -> PropIO
+test f =
+  (rndList lenRnds >>= \xs -> return (if f xs then Nothing else Just xs))
+  `returns` Nothing
+
+--- Tests whether two operations return equal results
+--- on a list of distinct random numbers.
+--- In case of a failure, the list of random numbers is returned
+--- in order to see the test cases in the CurryTest tool.
+eq :: Eq a => ([Int] -> a) -> ([Int] -> a) -> PropIO
+eq f g = test (\x -> (f x)==(g x))
+
+--- generate a list of at most n random numbers (without duplicated elements)
+rndList :: Int -> IO [Int]
+rndList n = getRandomSeed >>= return . nub . take n . (flip nextIntRange 100000)
+
+--- maximal length of test lists
+lenRnds :: Int
+lenRnds = 1000
+
+------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 -- Testing higher-order features:
 
-import Test.EasyCheck
+import Test.Prop
 
 -- apply a function to all list elements (predefined as `map'):
 map_ ::  (a->b) -> [a] -> [b]

@@ -9,7 +9,7 @@
 
 import Global
 import System(system)
-import Test.EasyCheck
+import Test.Prop
 
 ------------------------------------------------------------------------------
 -- Testing a simple integer temporary global entity:

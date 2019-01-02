@@ -2,7 +2,7 @@
 --- Some tests for recursive let/where declarations.
 ------------------------------------------------------------------------------
 
-import Test.EasyCheck
+import Test.Prop
 
 
 ones5 = let ones = 1 : ones

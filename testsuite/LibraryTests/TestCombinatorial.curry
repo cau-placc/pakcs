@@ -8,7 +8,7 @@ import Integer
 import List(nub)
 import Sort(mergeSortBy)
 import AllSolutions
-import Test.EasyCheck
+import Test.Prop
 
 ------------------------------------------------------------------
 

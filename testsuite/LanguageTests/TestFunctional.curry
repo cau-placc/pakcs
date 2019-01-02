@@ -1,6 +1,6 @@
 -- Testing functional features:
 
-import Test.EasyCheck
+import Test.Prop
 
 -- Concatenating two lists:
 append :: [a] -> [a] -> [a]

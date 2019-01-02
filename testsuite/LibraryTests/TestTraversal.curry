@@ -8,7 +8,7 @@
 ---
 
 import Traversal
-import Test.EasyCheck
+import Test.Prop
 
 
 --- A datatype for lambda expressions.

@@ -13,7 +13,7 @@
 import AllSolutions
 import Maybe
 import SetFunctions
-import Test.EasyCheck
+import Test.Prop
 
 --------------------------------------------------------------------------------
 -- define operation last by a function pattern:

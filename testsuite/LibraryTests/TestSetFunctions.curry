@@ -3,7 +3,7 @@
 -- of set functions, these tests are also limited.
 
 import SetFunctions
-import Test.EasyCheck
+import Test.Prop
 
 coin = 0 ? 1
 

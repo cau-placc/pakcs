@@ -12,7 +12,7 @@
 --- @version July 2013
 ------------------------------------------------------------------------------
 
-import Test.EasyCheck
+import Test.Prop
 
 poly1 = fst (3, id)
 

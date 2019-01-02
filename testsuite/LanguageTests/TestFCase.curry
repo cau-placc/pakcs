@@ -1,6 +1,6 @@
 -- Testing fcase expressions:
 
-import Test.EasyCheck
+import Test.Prop
 
 fNot x = fcase x of
           False -> True

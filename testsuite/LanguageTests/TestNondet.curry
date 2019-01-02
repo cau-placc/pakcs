@@ -1,6 +1,6 @@
 -- Testing non-deterministic features:
 
-import Test.EasyCheck
+import Test.Prop
 
 coin = 0 ? 1
 

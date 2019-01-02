@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.1.0 (December 29, 2018)
+Release notes for PAKCS Version 2.1.0 (January 2, 2019)
 ---------------------------------------------------------
 
 Changes to version 2.0.2:
@@ -29,6 +29,10 @@ Changes to version 2.0.2:
   * Library `SCC` removed (available in package `scc` as `Data.SCC`)
   * Library `Socket` removed
     (available in package `socket` as `Network.Socket`)
+  * Library `Test.EasyCheck` removed (available in package `easycheck`).
+    The import of this library should be replaced by `Test.Prop`.
+  * Library `Test.Contract` removed
+    (available in package `contracts`)
   * Front end updated in order to generate ASTs with source code
     position information (see package `curry-ast`).
   * Curry Port Name Server removed from `currytools`

@@ -1,6 +1,6 @@
 -- Testing unification of free variables:
 
-import Test.EasyCheck
+import Test.Prop
 
 -- simple types
 test0 = (True =:= True) <~> True

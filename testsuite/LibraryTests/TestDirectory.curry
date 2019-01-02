@@ -11,7 +11,7 @@
 import Directory
 import Sort
 import System
-import Test.EasyCheck
+import Test.Prop
 
 testCreateRenameDeleteFile = fileOps `returns` (True,False,True,False)
  where
