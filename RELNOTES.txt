@@ -1,11 +1,13 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.1.0 (January 2, 2019)
+Release notes for PAKCS Version 2.1.0 (January 3, 2019)
 ---------------------------------------------------------
 
 Changes to version 2.0.2:
 
+  * Library `AllSolutions` removed (available in package `searchtree`
+    as `Control.AllSolutions`)
   * Library `AnsiCodes` removed (available in package `ansi-terminal`
     as `System.Console.ANSI.Codes`)
   * Library `Array` removed (available in package `array` as `Data.Array`)
@@ -20,6 +22,7 @@ Changes to version 2.0.2:
   * Library `Format` removed (available in package `printf` as `Data.Format`)
   * Library `NamedSocket` removed
     (available in package `cpns` as `Network.NamedSocket`)
+  * Library `Nat` removed (available in package `peano` as `Data.Nat`)
   * Library `PropertyFile` removed
     (available in package `propertyfile` as `Data.PropertyFile`)
   * Libraries `RedBlackTree`, `SetRBT`, and `TableRBT` removed

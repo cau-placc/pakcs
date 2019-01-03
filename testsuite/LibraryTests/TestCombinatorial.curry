@@ -6,8 +6,7 @@
 import Combinatorial
 import Integer
 import List(nub)
-import Sort(mergeSortBy)
-import AllSolutions
+import Sort  (sort)
 import Test.Prop
 
 ------------------------------------------------------------------
@@ -30,38 +29,32 @@ testSubset =
 
 ------------------------------------------------------------------
 
-testSizedSubset =
-  (getAllValues (sizedSubset size base) >>= return . length)
-  `returns` (binomial (length base) size)
+testSizedSubset = (sizedSubset size base) # (binomial (length base) size)
  where
   base = [0,1,2,3,4,5,6,7]
   size = 4
 
 ------------------------------------------------------------------
 
-testSplitSet =
-  (getAllValues (splitSet input) >>= \output ->
-   return $ length output == pow 2 (length input) -- check length
-            && nub output == output               -- check distinct
-            && elem ([2,3],[1,4]) output &&       -- check memgers
-               elem ([1,2,3],[4]) output &&
-               elem ([],[1,2,3,4]) output)
-  `returns` True
+-- check some results of splitSet
+testSplitSet1 =
+  splitSet [1..4] ~> (([2,3],[1,4]) ? ([1,2,3],[4]) ? ([],[1,2,3,4]))
+
+-- check number of results of splitSet
+testSplitSet2 = splitSet input # pow 2 (length input)
  where
   input = [1,2,3,4] 
 
 ------------------------------------------------------------------
 
-testPartition =
-  (getAllValues (partition input) >>= \output ->
-   return $ all (all (not . null)) output           -- checkNotEmpty
-            && nub output == output                 -- checkDistinct
-            && all (\x -> length x == length input) -- checkMemberLength
-                   (map concat output)
-            && all (\x -> mergeSortBy (<) x == input) -- checkMemberContent
-                   (map concat output))
-  `returns` True
- where
-  input = [1,2,3,4] 
+testPartitionNotEmpty = partition [1,2,3,4] `isAlways` all (not . null)
+
+testPartitionMemberLength :: [Int] -> Prop
+testPartitionMemberLength xs =
+  partition xs `isAlways` (\ys -> length (concat ys) == length xs)
+
+testPartitionContent :: [Int] -> Prop
+testPartitionContent xs =
+  sort (concat (partition xs)) <~> sort xs
 
 ------------------------------------------------------------------

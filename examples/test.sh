@@ -56,23 +56,8 @@ goal2
 :t k
 :l rectype
 :t h
-:l iodemo
-dialog
-michael
-:l england
-q1 x  where x free
-q2 x y  where x,y free
-q4l
-q5l
-q7 x  where x free
-q10
-:l queens
-queens [1,2,3,4]
 :l diamond
 diamond 10
-:l chords
-run sounds
-run nicolas
 :cd listcomp
 :l arithseq
 l1
@@ -102,12 +87,6 @@ g (Just "ab")
 h [1,2]
 h [1,3]
 h [2,div 1 0]
-:cd distcurry
-:l addserver
-:fork addServer
-addClient "localhost" 3 4
-stopServer "localhost"
-:cd ..
 :q
 EOM
 ################ end of tests ####################
