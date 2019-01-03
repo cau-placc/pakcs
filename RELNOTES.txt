@@ -6,11 +6,13 @@ Release notes for PAKCS Version 2.1.0 (January 3, 2019)
 
 Changes to version 2.0.2:
 
-  * Library `AllSolutions` removed (available in package `searchtree`
-    as `Control.AllSolutions`)
+  * Libraries `AllSolutions`, `Findall`, `SearchTree`, `SearchTreeGenerators`,
+    `SearchTreeTraversal`, `ValueSequence removed
+    (available in package `searchtree` as `Control...`)
   * Library `AnsiCodes` removed (available in package `ansi-terminal`
     as `System.Console.ANSI.Codes`)
   * Library `Array` removed (available in package `array` as `Data.Array`)
+  * Library `Combinatorial` removed (available in package `combinatorial`)
   * Library `CPNS` removed
     (available in package `cpns` as `Network.CPNS`)
   * Library `Dequeue` removed (available in package `queue` as `Data.Queue`)
@@ -25,6 +27,7 @@ Changes to version 2.0.2:
   * Library `Nat` removed (available in package `peano` as `Data.Nat`)
   * Library `PropertyFile` removed
     (available in package `propertyfile` as `Data.PropertyFile`)
+  * Library `Random` removed (available in package `random` as `System.Random`)
   * Libraries `RedBlackTree`, `SetRBT`, and `TableRBT` removed
     (available in package `redblacktree` as `Data.RedBlackTree`,
     `Data.Set.RBTree`, and `Data.Table.RBTree` with slightly renamed API
@@ -32,6 +35,10 @@ Changes to version 2.0.2:
   * Library `SCC` removed (available in package `scc` as `Data.SCC`)
   * Library `Socket` removed
     (available in package `socket` as `Network.Socket`)
+  * Library `SetFunctions` removed
+    (available in package `setfunctions` as `Control.SetFunctions`)
+  * Library `Traversal` removed
+    (available in package `traversal` as `Data.Traversal`)
   * Library `Test.EasyCheck` removed (available in package `easycheck`).
     The import of this library should be replaced by `Test.Prop`.
   * Library `Test.Contract` removed
