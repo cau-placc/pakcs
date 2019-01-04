@@ -36,22 +36,27 @@ transClauseData([-(:(user,_/_/CNr),C)|Ds],['Prelude.(,)'(CNr,C)|TDs]) :-
 	transClauseData(Ds,TDs).
 
 
+prim_printProfileData('Prelude.()') :-
+	checkPlProfiling,
+	print_profile. % for printing profile data
+
+
 prim_profileView('Prelude.()') :-
 	checkPlProfiling,
 	use_module(library(gauge)), % for visualization of profile data
 	view([user:_]).
 
 
-transSelection('PlProfileData.Calls',calls).
-transSelection('PlProfileData.Backtracks',backtracks).
-transSelection('PlProfileData.ChoicePoints',choice_points).
-transSelection('PlProfileData.ExecTime',execution_time).
+transSelection('Debug.Profile.PrologData.Calls',calls).
+transSelection('Debug.Profile.PrologData.Backtracks',backtracks).
+transSelection('Debug.Profile.PrologData.ChoicePoints',choice_points).
+transSelection('Debug.Profile.PrologData.ExecTime',execution_time).
 
 
 % check for profiling mode and terminate with error:
 checkPlProfiling :-
-	prolog_flag(compiling,Mode,Mode),
-	(Mode = profiledcode -> true
+	prolog_flag(profiling,Mode,Mode),
+	(Mode = on -> true
 	  ; raise_exception('No in profiling mode, use ":set +plprofile"!')).
 
 
