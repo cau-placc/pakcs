@@ -45,27 +45,28 @@ problems due to these requirements.
 
 There is one fixed port that is used by the implementation of \CYS:
 \begin{description}
-\item[Port 8767:] This port is used by the
+\item[Port 8769:] This port is used by the
 {\bf Curry Port Name Server} (CPNS) to implement symbolic names for
-ports in Curry (see Appendix~\ref{sec-ports}).
+named sockets in Curry.
 If some other process uses this port on the machine,
 the distribution facilities defined in the module \code{Ports}
 (see Appendix~\ref{sec-ports}) cannot be used.
 \end{description}
 If these features do not work, you can try to find out
 whether this port is in use by the shell command
-\ccode{netstat -a | grep 8767} (or similar).
+\ccode{netstat -a | grep 8769} (or similar).
 
 The CPNS is implemented as a demon listening on its port 8767
 in order to serve requests about registering a new symbolic
 name for a Curry port or asking the physical port number
 of a Curry port. The demon will be automatically started for
 the first time on a machine when a user compiles a program
-using Curry ports. It can also be manually started and terminated by the
-scripts \code{\cyshome/currytools/cpns/start} and
-\code{\cyshome/currytools/cpns/stop}.
-If the demon is already running, the command
-\code{\cyshome/currytools/cpns/start}
+using Curry ports.
+It can also be manually started and terminated by the
+command \code{curry-cpnsd} (which is available by installing
+the package \code{cpns}, e.g., by the command \ccode{cypm install cpnsd})
+If the demon is already running,
+the command \ccode{curry-cpnsd start}
 does nothing (so it can be always executed
 before invoking a Curry program using ports).
 
