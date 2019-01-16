@@ -316,7 +316,7 @@ failureIntOption(FTLen,FailSrc,112) :- !, % printdepth
 	readLine(PDLine),
 	removeBlanks(PDLine,PDL),
 	(codes2number(PDL,D)
-	 -> retract(printDepth(_)),	
+	 -> retract(printDepth(_)),
 	    (D=0 -> D1=D ; D1 is D+1),
 	    asserta(printDepth(D1))
 	  ; write('Illegal print depth'), nl),
@@ -330,7 +330,7 @@ failureIntOption(FTLen,FailSrc,C) :-
 	write('ERROR: wrong option!'), nl,
 	(C=10 -> true ; skip(10)),
 	failureInteraction(FTLen,FailSrc).
-	
+
 writeAllFailureList(Stream,_,[FName,Args]) :- !,
 	writeFailedCall(Stream,FName,Args).
 writeAllFailureList(Stream,FTLen,[FCall|FailSrc]) :- !,
@@ -371,7 +371,7 @@ tryWriteSuspGoal(_:G) :-
 	write('let '), writeCurry(Result), write(' = '),
 	writeCurry(FunCall), nl,
 	!.
-tryWriteSuspGoal(_:G) :- !, 
+tryWriteSuspGoal(_:G) :- !,
 	writeCurry(G), nl.
 tryWriteSuspGoal(G) :- write(G), nl.
 
@@ -490,7 +490,7 @@ writeCurryD(S,D,Nested,'Prelude.apply'(F,X)) :- !,
 	writeCurryD(S,D1,nested,F), write(S,' '),
 	writeCurryD(S,D1,nested,X),
 	(Nested=nested -> write(S,')') ; true).
-writeCurryD(S,D,Nested,'Prelude.if_then_else'(C,T,E)) :- !,
+writeCurryD(S,D,Nested,'Prelude.ifThenElse'(C,T,E)) :- !,
 	D1 is D-1,
 	(Nested=nested -> write(S,'(') ; true),
 	write(S,'if '), writeCurryD(S,D1,top,C),
@@ -694,4 +694,3 @@ instantiateAllBindings(N,[_|Bs]) :- instantiateAllBindings(N,Bs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
