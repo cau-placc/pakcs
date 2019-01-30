@@ -1,6 +1,6 @@
 module Double(double,coin,even) where
 
-import Nat
+import Data.Nat
 import Test.Prop
 
 double x = add x x

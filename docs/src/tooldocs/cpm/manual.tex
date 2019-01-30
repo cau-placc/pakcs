@@ -390,6 +390,18 @@ Prelude> :load JSON.Data
 JSON.Data>
 \end{lstlisting}
 %
+The default behavior of the \code{add} command is to add the dependency
+\emph{and} install all dependencies, i.e., the previous commands
+can be reduced as follows:
+%
+\begin{lstlisting}
+> cypm add json
+> cypm curry
+...
+Prelude> :load JSON.Data
+JSON.Data>
+\end{lstlisting}
+
 
 \subsection{Replacing Dependencies with Local Versions}
 \label{sec:cpm-link}
@@ -1042,6 +1054,13 @@ of the current package or in the meta-package
 (see Section~\ref{sec:meta-package}).
 The option \ccode{--force} allows to overwrite existing dependencies
 in the package description file.
+
+\item[\fbox{\code{add $package$ [--force]}}]
+Adds the package $package$ as a new dependency and install
+the new dependencies. Thus, this abbreviates the two commands
+\begin{lstlisting}
+cypm add $package$ && cypm install
+\end{lstlisting}
 
 \item[\fbox{\code{upload [--notagging] [--force]}}]
 Uploads the current package to the central package index
