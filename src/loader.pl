@@ -5,10 +5,10 @@
 :- module(loader,
 	  [loadedModule/2, initializationsInProg/1,
 	   currentCostCenters/1, curryModule/1, costCenters/1,
-	   initializeBeforeLoad/0, initializationsInModule/1,
+	   initializationsInModule/1,
 	   loadAndCompile/3, importModule/1, checkPrologTarget/2]).
 
-:- dynamic loadedModule/2, importedModule/1,
+:- dynamic loadedModule/2, importedModule/1, currentPrologLoadFile/1,
 	   initializationsInProg/1, currentCostCenters/1.
 
 :- use_module(prologbasics).
@@ -16,13 +16,16 @@
 :- use_module(basics).
 %:- use_module(compiler). % for generateMainPlFile in interactive mode
 
+currentPrologLoadFile(''). % name of Prolog file loaded by loadAndCompile/1
 initializationsInProg(true). % intializations to be done after loading Curry program
 currentCostCenters(['']). % list of current cost centers
 
 
 % set name of current Curry module:
 curryModule(ModName) :-
-        (loadedModule(ModName,ModFile) -> true ; ModFile=''),
+        (loadedModule(ModName,ModFile)
+         -> true
+          ; currentPrologLoadFile(ModFile)),
         retract(currentModuleFile(_,_)),
         asserta(currentModuleFile(ModName,ModFile)).
 
@@ -52,6 +55,8 @@ initializationsInModule(ModInit) :-
 
 % load a complete translated application by compiling the Prolog programs:
 loadAndCompile(PrologFile,AddImports,CreateMain) :-
+        retract(currentPrologLoadFile(_)),
+        assert(currentPrologLoadFile(PrologFile)),
 	initializeBeforeLoad,
 	compilePrologFileAndSave(PrologFile),
 	currentModuleFile(MainMod,_),

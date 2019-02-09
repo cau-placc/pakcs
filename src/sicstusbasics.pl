@@ -842,13 +842,16 @@ ensure_lib_loaded(Lib) :-
         % second, look into the directory of the current module:
         currentModuleFile(Mod,PMod),
         % drop last Prolog file name:
-        atom_codes(PMod,PModS), atom_codes(Mod,ModS),
+        atom_codes(PMod,PModS),
+        atom_codes(Mod,ModS), modNameFileName(ModS,ModFS),
         append(PModwopl,".pl",PModS),
-        append(PModDirS,ModS,PModwopl),
+        append(PModDirS,ModFS,PModwopl),
         atom_codes(PModDir,PModDirS),
         % compute module directory by going up in the hierarchy:
         appendAtom(PModDir,'../../',ModDir),
-        appendAtom(ModDir,Lib,ModDirLib),
+        baseDirName(ModFS,BaseDirS), atom_codes(BaseDir,BaseDirS),
+        appendAtom(ModDir,BaseDir,ModBaseDir),
+        appendAtom(ModBaseDir,Lib,ModDirLib),
 	appendAtom(ModDirLib,'.pl',ModDirLibPl),
 	existsFile(ModDirLibPl), !,
 	(verbosity(3) -> write('>>> Load Prolog library: '),
@@ -863,6 +866,17 @@ ensure_lib_loaded(Lib) :-
                        ; true),
 	ensure_loaded(user:DirLib).
 
+% get base directory name of a hierachical file name
+baseDirName(FileS,BaseDirS) :-
+        append(Base1,[47|File1S],FileS), !,
+        baseDirName(File1S,BaseDir1S),
+        append(Base1,[47|BaseDir1S],BaseDirS).
+baseDirName(_,[]).
+
+% relation between (hierarchical) module names and their file names
+modNameFileName(MN,FN) :- map2M(prologbasics:dotSlash,MN,FN).
+dotSlash(46,47) :- !.
+dotSlash(N,N).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call a goal and return list of suspended goals:
