@@ -3,16 +3,6 @@
 # This is the shell script to invoke the FlatCurry preprocessor
 # which applies various transformations on a FlatCurry program
 
-PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
-PAKCSINSTALLDIR=
-# Define the main directory where PAKCS is installed:
-if [ -d "$PAKCSINSTALLDIR" ] ; then
-  PAKCSHOME=$PAKCSINSTALLDIR
-else
-  PAKCSHOME=$PAKCSBUILDDIR
-fi
-export PAKCSHOME
-
 QUIET=no
 
 while [ $# -gt 1 ] ; do
@@ -63,16 +53,40 @@ if [ -n "$OPTIONS" ] ; then
   FCYPP="$FCYPP $OPTIONS"
 fi
 
+# The directory where CPM installs the binaries:
+CPMBIN="$HOME/.cpm/bin"
+TOOLBIN=
+
+# Check whether some tool is installed by CPM.
+# If yes, set variable TOOLBIN to its binary,
+# otherwise inform the user to install it
+check_tool() {
+  TOOLPACKAGE=$1
+  TOOLNAME=$2
+  TOOLBIN="$CPMBIN"/$TOOLNAME
+  if [ ! -x "$TOOLBIN" ] ; then
+    echo "Curry tool '$TOOLNAME' is not installed!"
+    echo "Please install it with the Curry Package Manager by:"
+    echo "> cypm update && cypm install $TOOLPACKAGE"
+    exit 1
+  fi
+}
+
+
 if [ $QUIET = no -a -n "$FCYPP" ] ; then
   echo "Executing FlatCurry preprocessing options: $FCYPP"
 fi
 for T in $FCYPP ; do
   case $T in
-    --fpopt         ) TCMD="$PAKCSHOME/tools/optimize/NonStrictOpt" ;;
-    --compact       ) TCMD="$PAKCSHOME/tools/optimize/CompactFlat" ;;
-    --compactexport ) TCMD="$PAKCSHOME/tools/optimize/CompactFlat -export" ;;
-    --compactmain=* ) TCMD="$PAKCSHOME/tools/optimize/CompactFlat -main `expr $T : '--compactmain=\(.*\)'`" ;;
-    *              ) TCMD=$T ;;
+    --fpopt         ) check_tool nonstrictunif-optimize curry-nonstrictopt &&
+                      TCMD="$TOOLBIN" ;;
+    --compact       ) check_tool flatcurry-compact curry-compactflat &&
+                      TCMD="$TOOLBIN" ;;
+    --compactexport ) check_tool flatcurry-compact curry-compactflat &&
+                      TCMD="$TOOLBIN -export" ;;
+    --compactmain=* ) check_tool flatcurry-compact curry-compactflat &&
+                      TCMD="$TOOLBIN -main `expr $T : '--compactmain=\(.*\)'`" ;;
+    *               ) TCMD=$T ;;
   esac
   $TCMD "$PROGDIR/$MODNAME"
   EXITCODE=$?
