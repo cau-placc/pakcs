@@ -169,8 +169,9 @@ ASCII alphanumeric character as well as dashes (\code{-}) and underscores
 (\code{_}). It must start with an alphanumeric character. The author field is a
 free-form field, but the suggested format is either a name (\code{John Doe}),
 or a name followed by an email address in angle brackets
-(\code{John Doe <john.doe@goldenstate.gov>}). Separate multiple authors with
-commas. 
+(\code{John Doe <john.doe@goldenstate.gov>}).
+Multiple authors can either be separated by commas or written
+as a list of strings.
 
 Versions must be specified in the format laid out in the semantic versioning 
 standard:\footnote{\url{http://www.semver.org}} each version number consists of 
@@ -1131,19 +1132,21 @@ angle brackets, e.g.,
 \begin{lstlisting}
 John Doe <john@doe.com>
 \end{lstlisting}
-Multiple authors should be separated by commas.
+Multiple authors can either be separated by commas or written
+as a list of strings.
 
 \item[\fbox{\code{maintainer}}] The current maintainers of the package, if 
 different from the original authors. This field allows the current maintainers
 to indicate the best person or persons to contact about the package while 
 attributing the original authors.
 
-The suggested format is a name followed by an email address in
-angle brackets, e.g.,
+The suggested format is similarly to the authors,
+i.e., a name followed by an email address in angle brackets, e.g.,
 \begin{lstlisting}
 John Doe <john@doe.com>
 \end{lstlisting}
-Multiple maintainers should be separated by commas.
+Multiple maintainers can either be separated by commas or written
+as a list of strings.
 
 \item[\fbox{\code{synopsis*}}] A short form summary of the package's purpose.
 It should be kept as short as possible (ideally, less than 100 characters).
@@ -1379,7 +1382,8 @@ are used:
     "name": "PACKAGE_NAME",
     "version": "0.0.1",
     "author": "YOUR NAME <YOUR EMAIL ADDRESS>",
-    "maintainer": "ANOTHER NAME <ANOTHER EMAIL ADDRESS>",
+    "maintainer": [ "ANOTHER NAME <ANOTHER EMAIL ADDRESS>",
+                    "FURTHER NAME <FURTHER EMAIL ADDRESS>" ],
     "synopsis": "A ONE-LINE SUMMARY ABOUT THE PACKAGE",
     "description": "A MORE DETAILED SUMMARY ABOUT THE PACKAGE",
     "category": [ "Category1", "Category2" ],
