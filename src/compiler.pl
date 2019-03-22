@@ -619,7 +619,7 @@ checkForDeprecatedFunction(_).
 % check for ocurrences of constructors of Dynamic type and print error:
 checkForDynamicConstructor(Name) :-
 	member(Name,['Dynamic.dynamic','Dynamic.persistent',
-		     'Data.Global.global','GlobalVariable.gvar']),
+		     'Global.global','GlobalVariable.gvar']),
 	currentFunction(QFunc),
 	!,
 	writeErr('ERROR in "'),
@@ -1217,8 +1217,8 @@ occursInBranches(V,['Branch'(_,E)|Bs]) :-
 % Auxiliaries for handling global values:
 
 % translate global specification into run-time form:
-translateGlobalSpec(_,'Data.Global.Temporary','Data.Global.Temporary').
-translateGlobalSpec(_,'Data.Global.Persistent'(_),'Data.Global.Persistent').
+translateGlobalSpec(_,'Global.Temporary','Global.Temporary').
+translateGlobalSpec(_,'Global.Persistent'(_),'Global.Persistent').
 translateGlobalSpec(FName,_,_) :-
 	writeErr('ERROR: Global declaration "'),
 	writeErr(FName),
@@ -1227,7 +1227,7 @@ translateGlobalSpec(FName,_,_) :-
 
 % check the type of dynamic predicates (i.e., result type Dynamic and
 % monomorphism restriction):
-checkGlobalType(PredName,'TCons'("Data.Global.Global",[T])) :- !,
+checkGlobalType(PredName,'TCons'("Global.Global",[T])) :- !,
 	checkGlobalTypeForCorrectTypes(PredName,T).
 checkGlobalType(PredName,_) :-
 	writeErr('ERROR: Global declaration "'),
@@ -1413,14 +1413,14 @@ writeFunc('Func'(Name,FArity,_Vis,Type,'Rule'(Args,Exp))) :-
 
 % special code for global declarations:
 writeFunc('Func'(Name,0,_Vis,Type,
-	  'Rule'([],'Comb'('FuncCall',"Data.Global.global",[V,S])))) :- !,
+	  'Rule'([],'Comb'('FuncCall',"Global.global",[V,S])))) :- !,
 	flatName2Atom(Name,FName),
 	checkGlobalType(FName,Type),
 	appendAtom('$GLOBAL_',FName,GlobName),
         exp2Term([],V,ValueTerm),
         exp2Term([],S,GSpecTerm),
 	translateGlobalSpec(FName,GSpecTerm,GSpec),
-	Head =.. [FName,'Data.Global.GlobalDef'(GlobName,GSpec),E,E],
+	Head =.. [FName,'Global.GlobalDef'(GlobName,GSpec),E,E],
 	writeClause(Head),
 	writeClause((:- dynamic GlobName/1)),
 	GlobClauseHead =.. [GlobName,IVal],
