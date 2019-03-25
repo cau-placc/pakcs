@@ -24,7 +24,7 @@ prim_doesDirectoryExist(DirName,Exists) :-
 	string2Atom(DirName,Dir),
 	(existsDirectory(Dir) -> Exists='Prelude.True' ; Exists='Prelude.False').
 
-prim_getModificationTime(FileName,'Time.CTime'(Time)) :-
+prim_getModificationTime(FileName,'Data.Time.CTime'(Time)) :-
 	string2Atom(FileName,FName),
 	fileModTime(FName,Time).
 

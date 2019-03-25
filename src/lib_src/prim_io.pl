@@ -36,9 +36,9 @@ prim_openFile(A,Mode,Stream) :-
 	fileOpenOptions(Options),
 	open(FName,PMode,Stream,Options).
 
-curryFileMode2plmode('IO.ReadMode',read).
-curryFileMode2plmode('IO.WriteMode',write).
-curryFileMode2plmode('IO.AppendMode',append).
+curryFileMode2plmode('System.IO.ReadMode',read).
+curryFileMode2plmode('System.IO.WriteMode',write).
+curryFileMode2plmode('System.IO.AppendMode',append).
 
 
 prim_hClose('$stream'('$inoutstream'(In,Out)),'Prelude.()') :- !,
@@ -66,9 +66,9 @@ prim_hSeek(Handle,SeekMode,Pos,'Prelude.()') :-
 	currySeekMode2plmode(SeekMode,PlSM),
 	seek(Handle,Pos,PlSM,_).
 
-currySeekMode2plmode('IO.AbsoluteSeek',bof).
-currySeekMode2plmode('IO.RelativeSeek',current).
-currySeekMode2plmode('IO.SeekFromEnd',eof).
+currySeekMode2plmode('System.IO.AbsoluteSeek',bof).
+currySeekMode2plmode('System.IO.RelativeSeek',current).
+currySeekMode2plmode('System.IO.SeekFromEnd',eof).
 
 
 ?- block prim_hWaitForInput(?,?,?,-,?).
