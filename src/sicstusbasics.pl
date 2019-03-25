@@ -166,7 +166,7 @@ isRem(X,Y,Z) :- X is rem(Y,Z).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get Sicstus version (e.g., '3.9'):
-% Currently, we support only 3.5, 3.7, 3.8, 3.9, 3.10, 3.11, 3.12, 4.0, 4.1, 4.2:
+% Currently, we support only a restricted set of versions:
 getSicstusVersion(SV) :-
 	prolog_flag(version,V,V),
 	atom_chars(V,Vs),
@@ -179,11 +179,7 @@ getSicstusVersion(SV) :-
 	 app("SICStus 3.10",_,Vs) -> SV='3.10' ;
 	 app("SICStus 3.11",_,Vs) -> SV='3.11' ;
 	 app("SICStus 3.12",_,Vs) -> SV='3.12' ;
-	 app("SICStus 4.0",_,Vs)  -> SV='4.0' ;
-	 app("SICStus 4.1",_,Vs)  -> SV='4.1' ;
-	 app("SICStus 4.2",_,Vs)  -> SV='4.2' ;
-	 app("SICStus 4.3",_,Vs)  -> SV='4.3' ;
-	 app("SICStus 4.4",_,Vs)  -> SV='4.4' ;
+	 app("SICStus 4.",_,Vs)  -> SV='4.x' ;
 	 write(user_error,'ERROR: UNKNOWN SICSTUS PROLOG VERSION:'),
 	 nl(user_error),
 	 write(user_error,'PLEASE MODIFY pakcs/src/sicstusbasics.pl'),
