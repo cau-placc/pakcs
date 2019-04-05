@@ -1,16 +1,74 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.0.3 (November 23, 2018)
-----------------------------------------------------------
+Release notes for PAKCS Version 3.0.0 (April 30, 2019)
+--------------------------------------------------------
+
+Changes to version 2.1.0
+
+  * Libraries `FilePath`, `Directory`, `Distribution`, `Time`,
+    `IOExts`, `ReadShowTerm` removed
+    (available in packages `filepath`, `directory`, `distribution`,
+    `time`, `io-extra` and `read-legacy` )
+  * Library `System` split into `System.Process`, `System.CPUTime`,
+    `System.Environment`. 
+    `System.Process` is available in package `process`.
+    The rest remains in the library
+  * Implemented the "MonadFail-Proposal" for curry
+    (see <https://wiki.haskell.org/MonadFail_Proposal>)
+
+Release notes for PAKCS Version 2.1.0 (January 30, 2019)
+--------------------------------------------------------
 
 Changes to version 2.0.2:
 
+  * Libraries `AllSolutions`, `Findall`, `SearchTree`, `SearchTreeGenerators`,
+    `SearchTreeTraversal`, `ValueSequence removed
+    (available in package `searchtree` as `Control...`)
+  * Library `AnsiCodes` removed (available in package `ansi-terminal`
+    as `System.Console.ANSI.Codes`)
   * Library `Array` removed (available in package `array` as `Data.Array`)
-  * Library `Distribtion`: `curryCompilerRevisionVersion` added
+  * Library `Combinatorial` removed (available in package `combinatorial`)
+  * Library `CPNS` removed
+    (available in package `cpns` as `Network.CPNS`)
+  * Library `Dequeue` removed (available in package `queue` as `Data.Queue`)
+  * Library `Distribtion`: `curryCompilerRevisionVersion` added,
+    operations related to load paths removed (available in package
+    `currypath` in library `System.CurryPath`),
+    operations to call the front end removed (available in package
+    `frontend-exec` in library `System.FrontendExec`)
+  * Library `Format` removed (available in package `printf` as `Data.Format`)
+  * Library `NamedSocket` removed
+    (available in package `cpns` as `Network.NamedSocket`)
+  * Library `Nat` removed (available in package `peano` as `Data.Nat`)
+  * Library `Profile` removed
+    (available in package `profiling` as `Debug.Profile`)
+  * Library `PropertyFile` removed
+    (available in package `propertyfile` as `Data.PropertyFile`)
+  * Library `Random` removed (available in package `random` as `System.Random`)
+  * Libraries `RedBlackTree`, `SetRBT`, and `TableRBT` removed
+    (available in package `redblacktree` as `Data.RedBlackTree`,
+    `Data.Set.RBTree`, and `Data.Table.RBTree` with slightly renamed API
+    operations).
   * Library `SCC` removed (available in package `scc` as `Data.SCC`)
+  * Library `Socket` removed
+    (available in package `socket` as `Network.Socket`)
+  * Library `SetFunctions` removed
+    (available in package `setfunctions` as `Control.SetFunctions`)
+  * Library `Traversal` removed
+    (available in package `traversal` as `Data.Traversal`)
+  * Library `Test.EasyCheck` removed (available in package `easycheck`).
+    The import of this library should be replaced by `Test.Prop`.
+  * Library `Test.Contract` removed
+    (available in package `contracts`)
   * Front end updated in order to generate ASTs with source code
     position information (see package `curry-ast`).
+  * Curry Port Name Server removed from `currytools`
+    (available as `curry-cpnsd` in package `cpns`)
+  * Registry for dynamic web pages removed from `currytools`
+    (available as `curry-cgi` in package `html-cgi`)
+  * Old partial evaluator (command "peval") removed from tools since
+    it is available as package `peval-noshare`.
 
 
 Release notes for PAKCS Version 2.0.2 (November 15, 2018)
