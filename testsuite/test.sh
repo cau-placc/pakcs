@@ -23,7 +23,7 @@ test_libs()
 }
 
 if [ -x "$CURRYBIN/pakcs" ] ; then
-    BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
+    BACKEND=`$CURRYBIN/curry :set v0 :set -time :load Language.Curry.Distribution :eval "putStrLn (curryRuntime ++ show curryRuntimeMajorVersion)" :quit 2> /dev/null`
     # additional library tests for PAKCS with various Prolog back ends:
     TESTPAKCSBACKEND=
     case "$BACKEND" in
