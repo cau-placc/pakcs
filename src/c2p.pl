@@ -957,7 +957,7 @@ processCommand("browse",[]) :- !,
 	      ; write('ERROR: program "'),
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
-	appendAtoms(['"',BrowseProg,'" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',BrowseProg,'" "',RealProg,'" & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
@@ -1568,7 +1568,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	(append([46,47],PPS,ProgPathS) -> true ; PPS=ProgPathS),
 	atom_codes(PPSA,PPS),
 	stripSuffix(PPSA,ProgNameA),
-	appendAtoms([PP2,CWCA,' ',ProgNameA],PPCmd),
+	appendAtoms([PP2,CWCA,' "',ProgNameA,'"'],PPCmd),
 	(shellCmdWithReport(PPCmd) -> true
 	  ; writeLnErr('ERROR occurred during FlatCurry preprocessing!'),
 	    fail).
@@ -1576,7 +1576,7 @@ parseProgram(_,_,_). % do not parse if source program does not exist
 
 addImports([],CY,CY).
 addImports([I|Is],CY1,CY3) :-
-	appendAtoms([CY1,' -i',I],CY2),
+	appendAtoms([CY1,' -i"',I,'"'],CY2),
 	addImports(Is,CY2,CY3).
 
 versionAtom(Version,Atom) :-

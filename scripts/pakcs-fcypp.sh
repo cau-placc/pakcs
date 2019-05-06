@@ -31,9 +31,9 @@ if [ $# != 1 ] ; then
   echo "--fcypp <c>      : apply command <c> to <progname>" >&2
   exit 1
 fi
-PROG=$1
-PROGDIR=`dirname $PROG`
-MODNAME=`basename $PROG`
+PROG="$1"
+PROGDIR=`dirname "$PROG"`
+MODNAME=`basename "$PROG"`
 
 # check existence of source program:
 if [ -f "$PROGDIR/$MODNAME.lcurry" ] ; then

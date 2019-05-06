@@ -366,7 +366,7 @@ preprocessFcyFile(FcyFile) :-
     (VL=0 -> OptVL=48 ; OptVL is VL+47),
     atom_codes(VParam,[45,118,OptVL,32]), % define -vN
     (pakcsrc(bindingoptimization,fast) -> FParam='-f ' ; FParam=' '),
-    appendAtoms(['"',OptProg,'" ',VParam,FParam,FcyFile],OptCmd),
+    appendAtoms(['"',OptProg,'" ',VParam,FParam,'"',FcyFile,'"'],OptCmd),
     (verbosityIntermediate -> write('Executing: '), write(OptCmd),nl ; true),
     (shellCmdWithCurryPath(OptCmd) -> true
      ; writeLnErr('WARNING: binding optimization failed for file:'),

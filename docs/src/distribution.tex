@@ -20,11 +20,13 @@ type checking) Curry programs that can be also used by
 other Curry implementations.
 The back end (formerly known as ``Curry2Prolog''\index{Curry2Prolog})
 compiles Curry programs into Prolog programs.
-It also support constraint solvers for
+It also supports packages with constraint solvers for
 arithmetic constraints over real numbers and finite domain constraints,
 and further libraries for GUI programming, meta-programming etc.
-Currently, it does not implement encapsulated search in full generality
-(only a strict version of \code{findall} is supported),
+It does not implement encapsulated search in full generality
+(only a strict version of \code{findall} is supported
+by the library \code{Control.Findall} which is part of the package
+\code{searchtree}),
 and concurrent threads are not executed in a fair manner.
 
 
