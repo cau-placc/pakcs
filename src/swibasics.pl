@@ -138,7 +138,8 @@ readLine(Input) :-
         (Input = end_of_file -> nl
         ; atom_codes(InputA,Input),
           (current_prolog_flag(readline,false) -> true
-                                                ; rl_add_history(InputA))).
+            ; % small hack since rl_add_history sometimes fail:
+              (rl_add_history(InputA) -> true ; true))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of suspension for concurrent conjunction (&)
