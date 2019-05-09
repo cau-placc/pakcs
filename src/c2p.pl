@@ -1284,15 +1284,15 @@ processSetOption("-first") :- !,
 	asserta(firstSolutionMode(no)).
 processSetOption("+plprofile") :- prolog(sicstus), !,
 	retract(plprofiling(_)),
-	%prolog_flag(compiling,_,profiledcode),
-	prolog_flag(profiling,_,on),
+	%set_prolog_flag(compiling,profiledcode),
+	set_prolog_flag(profiling,on),
 	asserta(plprofiling(yes)),
 	(lastload("") -> true ; process(":r")).
 processSetOption("+plprofile") :- !, onlySICStusMessage('+plprofile').
 processSetOption("-plprofile") :- prolog(sicstus), !,
 	retract(plprofiling(_)),
-	%prolog_flag(compiling,_,compactcode),
-	prolog_flag(profiling,_,off),
+	%set_prolog_flag(compiling,compactcode),
+	set_prolog_flag(profiling,off),
 	asserta(plprofiling(no)),
 	(lastload("") -> true ; process(":r")).
 processSetOption("-plprofile") :- !, onlySICStusMessage('-plprofile').

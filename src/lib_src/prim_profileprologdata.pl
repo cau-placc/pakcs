@@ -55,9 +55,8 @@ transSelection('Debug.Profile.PrologData.ExecTime',execution_time).
 
 % check for profiling mode and terminate with error:
 checkPlProfiling :-
-	prolog_flag(profiling,Mode,Mode),
-	(Mode = on -> true
-	  ; raise_exception('No in profiling mode, use ":set +plprofile"!')).
+	current_prolog_flag(profiling,on) -> true
+	  ; raise_exception('No in profiling mode, use ":set +plprofile"!').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

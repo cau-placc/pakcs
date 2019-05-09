@@ -33,6 +33,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
+           stdInputStream/1, stdOutputStream/1, stdErrorStream/1,
 	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
@@ -506,6 +507,18 @@ forkProcessForGoal(Goal) :-
 	atom_codes(ForkCmd,ForkCmdS),
 	shellCmd(ForkCmd).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stream-related operations.
+
+% the standard input stream
+stdInputStream(Stream) :- prolog_flag(user_input,Stream).
+
+% the standard output stream
+stdOutputStream(Stream) :- prolog_flag(user_output,Stream).
+
+% the standard error stream
+stdErrorStream(Stream) :- prolog_flag(user_error,Stream).
 
 % is a stream a readable stream?
 isInputStream(Stream) :-

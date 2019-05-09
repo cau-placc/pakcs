@@ -30,6 +30,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
+           stdInputStream/1, stdOutputStream/1, stdErrorStream/1,
 	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
@@ -43,7 +44,6 @@
 	   consultPrologorPOFile/2, ensure_lib_loaded/1,
 	   callAndReturnSuspensions/2, writeqWithVars/1,
 	   genBlockDecl/4,
-	   prolog_flag/2, prolog_flag/3,
 	   create_mutable/2, get_mutable/2, update_mutable/2]).
 
 :- use_module(pakcsversion).
@@ -368,6 +368,18 @@ forkProcessForGoal(Goal) :-
 	    call(Goal)
 	  ; true).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stream-related operations.
+
+% the standard input stream
+stdInputStream(Stream) :- Stream = user_input.
+
+% the standard output stream
+stdOutputStream(Stream) :- Stream = user_output.
+
+% the standard error stream
+stdErrorStream(Stream) :- Stream = user_error.
 
 % is a stream a readable stream?
 isInputStream(Stream) :- stream_property(Stream,input).
@@ -715,10 +727,3 @@ update_mutable(V,MT) :- setarg(1,MT,V).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-prolog_flag(user_input,user_input) :- !.
-prolog_flag(user_output,user_output) :- !.
-prolog_flag(user_error,user_error) :- !.
-prolog_flag(F,_) :- write('Warning: unknown prolog_flag: '), write(F), nl.
-
-prolog_flag(F,V,V) :- write('Warning: unknown prolog_flag: '), write(F), nl.
