@@ -11,7 +11,7 @@
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
-           readLine/1,
+           readLineOn/0, readLine/1,
 	   waitConcurrentConjunction/6,
 	   append/3, member/2,
 	   appendAtom/3,
@@ -86,7 +86,11 @@ prologMinorVersion(MV) :-
 
 swi7orHigher :-
         prologMajorVersion(Major),
-        Major>=7.
+        Major >= 7.
+
+swi8orHigher :-
+        prologMajorVersion(Major),
+        Major >= 8.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- multifile pakcsrc/2. % relevant for createSavedState
@@ -131,6 +135,13 @@ sicstus310orHigher :- fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of terminal readline (with readline editing functionality)
+
+% activate GNU readline behavior (necessary for SWI 8.*)
+readLineOn :-
+        swi8orHigher, !,
+        use_module(library(readline)),
+        set_prolog_flag(readline,readline).
+readLineOn.
 
 % read a single line from stdin (return end_of_file if there is no more input)
 readLine(Input) :-

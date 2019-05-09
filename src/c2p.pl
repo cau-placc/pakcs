@@ -86,6 +86,7 @@ deleteEqualProps(Name,[Prop|Props],[Prop|DProps]) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Start main interactive environment:
 pakcsMain :-
+        readLineOn,
 	getProgramArgs(DArgs),
 	processDArgs(DArgs,Props,Args),
 	readRcFile(Props),
@@ -258,7 +259,7 @@ pakcsPrompt(Prompt) :-
 
 % main read-eval-print loop of the environment:
 main :-
-	prompt(_,''), % clear standard Prolog prompt
+        prompt(_,''), % clear standard Prolog prompt
 	repeat,
 	pakcsPrompt(Prompt), write(Prompt),
 	flush_output(user_output),

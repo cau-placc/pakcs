@@ -15,7 +15,7 @@
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
-           readLine/1,
+           readLineOn/0, readLine/1,
 	   waitConcurrentConjunction/6,
 	   appendAtom/3,
 	   map1M/2, map2M/3, map1partialM/2, map2partialM/3,
@@ -243,6 +243,9 @@ generatePrologBasics :-	sicstus38orHigher, !,
 :- use_module(library(sockets)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% activate GNU readline behavior (not available for SICStus-Prolog)
+readLineOn :- true.
 
 % read a single line from stdin (return end_of_file if there is no more input)
 readLine(Input) :-
