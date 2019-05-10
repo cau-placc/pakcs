@@ -259,12 +259,12 @@ pakcsPrompt(Prompt) :-
 
 % main read-eval-print loop of the environment:
 main :-
-        prompt(_,''), % clear standard Prolog prompt
 	repeat,
-	pakcsPrompt(Prompt), write(Prompt),
-	flush_output(user_output),
-	flush_output(user_error),
+	pakcsPrompt(Prompt),
+        prompt(_,Prompt), % set prompt for next top-level command
+	flush_output(user_output), flush_output(user_error),
 	readLine(Input),
+        prompt(_,''),  % clear standard Prolog prompt for further getChar
 	(Input = end_of_file -> true
             ; removeBlanks(Input,ShortInput),
 	      process(ShortInput)),
