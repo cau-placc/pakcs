@@ -221,7 +221,7 @@ getProgramArgs(Args) :-
           -> true  % for backward compatibility
            ; dropSWIPL(AllArgs,Args)).
 
-dropSWIPL([],[]).
+dropSWIPL([],[]) :- !.
 dropSWIPL([Exec|Args],Args) :-  % for backward compatibility
 	atom_codes(Exec,ExecS),
 	atom_codes(swipl,SWIPL),
