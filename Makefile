@@ -170,6 +170,7 @@ kernel: scripts copylibs copytools
 	$(MAKE) $(PAKCSVERSION)
 	cd src && $(MAKE)
 	# compile all libraries:
+	@cd lib && $(MAKE) tfcy
 	@cd lib && $(MAKE) acy
 	# compile optimization tools:
 	@cd currytools/optimize && $(MAKE)
