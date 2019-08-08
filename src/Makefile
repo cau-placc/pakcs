@@ -13,8 +13,10 @@ SICSTUS=$(BINDIR)/sicstusprolog
 # The SWI-Prolog interpreter:
 SWI=$(BINDIR)/swiprolog
 
-# Standard options for SWI-Prolog
-SWIOPTIONS=-q -L0 -G0 -T0 -O
+# Standard options for SWI-Prolog 7.*: unlimited stack sizes
+#SWIOPTIONS=-q -L0 -G0 -T0 -O
+# Standard options for SWI-Prolog 8.*: increase standard stack limits to 4GB
+SWIOPTIONS=-q --stack_limit=4g -O
 
 # library directory of PAKCS:
 ifndef LIBDIR

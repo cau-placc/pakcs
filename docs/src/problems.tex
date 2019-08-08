@@ -23,13 +23,25 @@ during the installation of \CYS. Hence, it might be necessary
 to redo the changes after a new installation of \CYS.}
 This can be done by changing the definition of the variable
 \code{SWILIMITS} at the beginning of this script.
-For instance, in order to set the maximum limit for
+Since different versions of SWI-Prolog have different command-line options,
+the correct setting depends on the version of SWI-Prolog:
+\begin{description}
+\item[SWI-Prolog 7.*:]
+For instance, to set the maximum limit for
 the local stack to 2 GB (on 64bit machines, the default of SWI-Prolog
 is 1 GB), one change the definition in this script to
 \begin{curry}
 SWILIMITS="-L2G -G0 -T0"
 \end{curry}
-and recompile (with the \CYS command \ccode{:save})
+\item[SWI-Prolog 8.*:]
+For instance, to use 4 GB for all stacks
+(on 64bit machines, the default of SWI-Prolog is 1 GB),
+one change the definition in this script to
+\begin{curry}
+SWILIMITS="--stack_limit=4g"
+\end{curry}
+\end{description}
+After this change, recompile (with the \CYS command \ccode{:save})
 the Curry application.
 
 
