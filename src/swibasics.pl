@@ -84,10 +84,15 @@ prologMinorVersion(MV) :-
 	current_prolog_flag(version,VN),
 	MV is (VN mod 10000)//100.
 
+% Is this SWI-Prolog version >= 7 ?
 swi7orHigher :-
         prologMajorVersion(Major),
         Major >= 7.
 
+% Is this SWI-Prolog version 7 ?
+swi7 :- prologMajorVersion(7).
+
+% Is this SWI-Prolog version >= 8 ?
 swi8orHigher :-
         prologMajorVersion(Major),
         Major >= 8.
@@ -131,7 +136,7 @@ sicstus310orHigher :- fail.
 
 :- use_module(library(unix)).
 :- use_module(library(socket)).
-:- swi7orHigher -> true ; use_module(library(readline)).
+:- swi7 -> true ; use_module(library(readline)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of terminal readline (with readline editing functionality)
@@ -139,7 +144,6 @@ sicstus310orHigher :- fail.
 % activate GNU readline behavior (necessary for SWI 8.*)
 readLineOn :-
         swi8orHigher, !,
-        use_module(library(readline)),
         set_prolog_flag(readline,readline).
 readLineOn.
 

@@ -13,10 +13,15 @@ SICSTUS=$(BINDIR)/sicstusprolog
 # The SWI-Prolog interpreter:
 SWI=$(BINDIR)/swiprolog
 
-# Standard options for SWI-Prolog 7.*: unlimited stack sizes
-#SWIOPTIONS=-q -L0 -G0 -T0 -O
-# Standard options for SWI-Prolog 8.*: increase standard stack limits to 4GB
-SWIOPTIONS=-q --stack_limit=4g -O
+# Standard options for SWI-Prolog: quiet and optimized compilation
+SWIOPTIONS=-q -O
+# If there is a local stack overflow during compilation (e.g., reported
+# by a message like "ERROR: local"), one should increase the stack sizes
+# by redefining this definition according to version of SWI-Prolog:
+# SWI-Prolog 7.*: use 2GB for the local stack:
+#SWIOPTIONS=-q -L2G -G0 -T0 -O
+# SWI-Prolog 8.*: use 4GB for all stacks:
+#SWIOPTIONS=-q --stack_limit=4g -O
 
 # library directory of PAKCS:
 ifndef LIBDIR

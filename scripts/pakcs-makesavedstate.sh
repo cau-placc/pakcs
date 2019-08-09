@@ -91,9 +91,9 @@ else
 fi
 
 if [ -z "$SICSTURDIR" ] ; then
-  # patch SWI-Prolog saved state with unlimited memory option
-  # so that the generated binaries have the same behavior as PAKCS:
-  sed "3s/-x/$SWILIMITS -x/" < $TMPSTATE > $TMPSTATE$$
+  # patch SWI-Prolog saved state with optimization and stack limit options:
+  SWIOPTIONS="$SWILIMITS -O"
+  sed "3s/-x/$SWIOPTIONS -x/" < $TMPSTATE > $TMPSTATE$$
   mv $TMPSTATE$$ $TMPSTATE
 fi
 

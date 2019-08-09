@@ -1084,13 +1084,14 @@ processCommand("save",Exp) :- !,
 	% start saved program in non-verbose mode if initial goal provided:
 	verbosemode(QM), setVerboseMode(no),
 	processExpression(MainGoal,ExecGoal),
-	%write('Goal to execute:'), nl, writeq(ExecGoal), nl,
+        SaveGoal = (ProgInits, evaluator:evaluateGoalAndExit(ExecGoal)),
+	(verbosityDetailed
+          -> write('Goal to execute in saved state:'), nl, writeq(SaveGoal), nl
+           ; true),
 	(pakcsrc(smallstate,yes)
 	 -> atom_codes(ProgA,Prog), prog2PrologFile(ProgA,ProgPl),
-	    createSavedState(ProgPl,ProgStName,
-			(ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))
-	  ; saveprog_entry(ProgStName,
- 		        (ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))),
+	    createSavedState(ProgPl,ProgStName,SaveGoal)
+	  ; saveprog_entry(ProgStName,SaveGoal)),
 	setVerboseMode(QM),
 	installDir(PH),
 	appendAtoms(['"',PH,'/scripts/makesavedstate" '],CMD1),
