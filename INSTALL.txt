@@ -65,15 +65,31 @@ How to generate and install the PAKCS kernel:
 
        ln -s pakcs-<version> pakcs
 
-   and put the directory <code>pakcs/bin</code> into your path.
+   and put the directory `pakcs/bin` into your path.
    Now you can start the PAKCS compiler system via the command "`pakcs`".
 
-7. If you want, you can also execute "`make libdoc`"
-   to generate a local version of the documentation of all system libraries
-   by the CurryDoc tool into the directory "`pakcshome/lib/CDOC`".
-   However, this is only necessary if you want to work offline since
-   you can also access the documentation online at
-   <http://www.informatik.uni-kiel.de/~pakcs/lib/>.
+7. You can access the libraries documentation on-line at
+   <http://www.informatik.uni-kiel.de/~pakcs/lib/>.  If you want to
+   create a local copy of the documentation of all system libraries
+   to work off-line, follow the steps.
+
+   1. Install curl, git and preferably sqlite3 on your system.
+      On Ubuntu or Debian:
+
+          sudo apt install curl git sqlite3
+
+   2. Install the Curry documentation tool `currydoc`.
+      Ensure the pakcs bin directory is on the PATH as per point 6 above.
+      Then execute
+
+          cypm update
+          cypm install currydoc
+
+   3. Finally, make the libraries documentation:
+
+          make libdoc
+
+      The documentation is in the directory "`pakcshome/lib/CDOC`".
 
 8. You can configure the behavior of PAKCS by various setting
    in a "pakcsrc" file. For doing so, copy the file
