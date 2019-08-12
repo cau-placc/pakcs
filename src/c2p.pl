@@ -104,7 +104,7 @@ pakcsMain :-
 	    writeNQ(RTArgs), nlNQ),
 	(verbosityNotQuiet
          -> printPakcsHeader, nlNQ,
-            writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'),
+            writeNQ('Type ":h" for help (contact: pakcs@curry-lang.org)'),
             nlNQ
           ; true),
 	flush_output,
