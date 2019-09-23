@@ -1,13 +1,14 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 2.1.2 (August 9, 2019)
-------------------------------------------------------
+Release notes for PAKCS Version 2.1.2 (September 23, 2019)
+----------------------------------------------------------
 
 Changes to version 2.1.0: bug fixes and
 
   * Compatibility to SWI-Prolog version 8.* improved
   * Prelude: `chr` defined as total operation
+  * Pre-compilation of libraries improved
   * CPM updated (e.g., faster `update` operation)
 
 
