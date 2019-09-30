@@ -10,10 +10,8 @@
 --  ~/.kics2rc or ~/.pakcsrc
 --------------------------------------------------------------------------------
 
-import AllSolutions
 import Maybe
-import SetFunctions
-import Test.EasyCheck
+import Test.Prop
 
 --------------------------------------------------------------------------------
 -- define operation last by a function pattern:
@@ -51,14 +49,8 @@ replace (Mul l r) (2:p) x = Mul l (replace r p x)
 simplify :: Exp -> Exp
 simplify (replace c p (evalTo x)) = replace c p x
 
--- Apply a transformation to some data structure as long as it is defined:
-transformAll :: (a -> a) -> a -> IO a
-transformAll trans term =
-   (getOneValue (trans term)) >>= maybe (return term) (transformAll trans)
-
-
 testSimplify1 = (simplify (Mul (Lit 1) (Var "x"))) -=- (Var "x")
-testSimplify2 = (transformAll simplify exp) `returns` (Var "x")
+
 
 exp = Mul (Lit 1) (Add (Var "x") (Lit 0))
 
@@ -70,10 +62,9 @@ bigexp | e =:= exp_n 8 exp = e  where e free
 varInExp :: Exp -> String
 varInExp (replace _ _ (Var v)) = v
 
-getVarsInExp :: Exp -> IO [String]
-getVarsInExp e = getAllValues (varInExp e)
+testVars1 = (varInExp bigexp) <~> "x"
 
-testVars = (getVarsInExp bigexp >>= return . length) `returns` 256
+testVars2 = (varInExp bigexp) <~~> foldr1 (?) (take 256 (repeat "x"))
 
 
 --------------------------------------------------------------------------------
@@ -93,8 +84,8 @@ uni _ = []
 uni color = color : uni color
 
 testDutchFlag =
-  selectValue (set1 solve [White,Red,White,Blue,Red,Blue,White])
-   -=- [Red,Red,White,White,White,Blue,Blue]
+  solve [White,Red,White,Blue,Red,Blue,White] ~>
+  [Red,Red,White,White,White,Blue,Blue]
 
 --------------------------------------------------------------------------------
 -- Some more specific tests:

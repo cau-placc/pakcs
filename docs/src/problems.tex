@@ -23,13 +23,25 @@ during the installation of \CYS. Hence, it might be necessary
 to redo the changes after a new installation of \CYS.}
 This can be done by changing the definition of the variable
 \code{SWILIMITS} at the beginning of this script.
-For instance, in order to set the maximum limit for
+Since different versions of SWI-Prolog have different command-line options,
+the correct setting depends on the version of SWI-Prolog:
+\begin{description}
+\item[SWI-Prolog 7.*:]
+For instance, to set the maximum limit for
 the local stack to 2 GB (on 64bit machines, the default of SWI-Prolog
 is 1 GB), one change the definition in this script to
 \begin{curry}
 SWILIMITS="-L2G -G0 -T0"
 \end{curry}
-and recompile (with the \CYS command \ccode{:save})
+\item[SWI-Prolog 8.*:]
+For instance, to use 4 GB for all stacks
+(on 64bit machines, the default of SWI-Prolog is 1 GB),
+one change the definition in this script to
+\begin{curry}
+SWILIMITS="--stack_limit=4g"
+\end{curry}
+\end{description}
+After this change, recompile (with the \CYS command \ccode{:save})
 the Curry application.
 
 
@@ -45,27 +57,28 @@ problems due to these requirements.
 
 There is one fixed port that is used by the implementation of \CYS:
 \begin{description}
-\item[Port 8767:] This port is used by the
+\item[Port 8769:] This port is used by the
 {\bf Curry Port Name Server} (CPNS) to implement symbolic names for
-ports in Curry (see Appendix~\ref{sec-ports}).
+named sockets in Curry.
 If some other process uses this port on the machine,
 the distribution facilities defined in the module \code{Ports}
 (see Appendix~\ref{sec-ports}) cannot be used.
 \end{description}
 If these features do not work, you can try to find out
 whether this port is in use by the shell command
-\ccode{netstat -a | grep 8767} (or similar).
+\ccode{netstat -a | grep 8769} (or similar).
 
 The CPNS is implemented as a demon listening on its port 8767
 in order to serve requests about registering a new symbolic
 name for a Curry port or asking the physical port number
 of a Curry port. The demon will be automatically started for
 the first time on a machine when a user compiles a program
-using Curry ports. It can also be manually started and terminated by the
-scripts \code{\cyshome/currytools/cpns/start} and
-\code{\cyshome/currytools/cpns/stop}.
-If the demon is already running, the command
-\code{\cyshome/currytools/cpns/start}
+using Curry ports.
+It can also be manually started and terminated by the
+command \code{curry-cpnsd} (which is available by installing
+the package \code{cpns}, e.g., by the command \ccode{cypm install cpnsd})
+If the demon is already running,
+the command \ccode{curry-cpnsd start}
 does nothing (so it can be always executed
 before invoking a Curry program using ports).
 
@@ -74,7 +87,7 @@ before invoking a Curry program using ports).
 If you detect any further technical problem,
 please write to
 \begin{center}
-\code{pakcs@curry-language.org}
+\code{pakcs@curry-lang.org}
 \end{center}
 
 %%% Local Variables: 

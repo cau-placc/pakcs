@@ -4,7 +4,7 @@
 -- "curry check TestSort"
 
 import Sort
-import Test.EasyCheck
+import Test.Prop
 
 testMergeSort1 = [1,3,3,4,5,6,7,7,8,23,32,35] -=-
                  (mergeSort [3,1,5,3,7,4,32,8,35,7,23,6])

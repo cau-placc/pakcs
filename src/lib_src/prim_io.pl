@@ -24,11 +24,11 @@
 % equality of two handles:
 handle_eq(H1,H2,B) :- (H1=H2 -> B='Prelude.True' ; B='Prelude.False').
 
-prim_stdin(Stream) :- prolog_flag(user_input,Stream).
+prim_stdin(Stream) :- stdInputStream(Stream).
 
-prim_stdout(Stream) :- prolog_flag(user_output,Stream).
+prim_stdout(Stream) :- stdOutputStream(Stream).
 
-prim_stderr(Stream) :- prolog_flag(user_error,Stream).
+prim_stderr(Stream) :- stdErrorStream(Stream).
 
 prim_openFile(A,Mode,Stream) :-
 	string2Atom(A,FName),

@@ -18,21 +18,22 @@ SICSTUSDIR=
 # The default is unlimited usage. Actually, SWI-Prolog seems to
 # put a limit of 1GB on every memory area in this case (on 64bit machines).
 # Thus, if there is a local stack overflow in your application (e.g.,
-# you see a message like "ERROR: local") and you want to use 2GB for the local
-# stack, you can change this definition to SWILIMITS="-L2G -G0 -T0".
-SWILIMITS="-L0 -G0 -T0"
+# you see a message like "ERROR: local"), you should increase the stack sizes
+# by redefining this definition:
+# SWI-Prolog 7.*: to use 2GB for the local stack, set SWILIMITS="-L2G -G0 -T0"
+# SWI-Prolog 8.*: to use 4GB for all stacks, set SWILIMITS="--stack_limit=4g"
+SWILIMITS=""
 
 ##############################################################################
 # Process arguments:
 
 STANDALONE=no
-if [ "$1" = "-standalone" ] ; then
+if [ "$1" = "--standalone" ] ; then
   STANDALONE=yes
   shift
 fi
-
-if [ "$1" = "-error" ] ; then
-  echo "WARNING: option -noerror no longer supported!"
+if [ "$1" = "-standalone" ] ; then # for backward compatibility
+  STANDALONE=yes
   shift
 fi
 
@@ -44,9 +45,9 @@ elif [ $# = 2 ] ; then
   TARGET=$2
 else
   echo "Usage: $0 [-standalone] <saved_state_file> [<target_file>]"
-  echo "-standalone: transform saved state into stand-alone executable"
-  echo "saved_state: existing file with the saved state"
-  echo "target_file: target file with transformed state (if different)"
+  echo "--standalone      : transform saved state into stand-alone executable"
+  echo "<saved_state_file>: existing file with the saved state"
+  echo "<target_file>     : target file with transformed state (if different)"
   exit 1
 fi
 
@@ -90,9 +91,9 @@ else
 fi
 
 if [ -z "$SICSTURDIR" ] ; then
-  # patch SWI-Prolog saved state with unlimited memory option
-  # so that the generated binaries have the same behavior as PAKCS:
-  sed "3s/-x/$SWILIMITS -x/" < $TMPSTATE > $TMPSTATE$$
+  # patch SWI-Prolog saved state with optimization and stack limit options:
+  SWIOPTIONS="$SWILIMITS -O"
+  sed "3s/-x/$SWIOPTIONS -x/" < $TMPSTATE > $TMPSTATE$$
   mv $TMPSTATE$$ $TMPSTATE
 fi
 

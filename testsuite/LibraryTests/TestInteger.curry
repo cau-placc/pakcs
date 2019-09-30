@@ -4,7 +4,7 @@
 -- "curry check TestInteger"
 
 import Integer
-import Test.EasyCheck
+import Test.Prop
 
 testPow = [pow 0 0, pow 1 0, pow 0 1, pow 7 2, pow 2 7, pow 9 9]
           -=- [1, 1, 0, 49, 128, 387420489] 

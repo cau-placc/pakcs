@@ -1,4 +1,4 @@
-\section{\texttt{curry check}: A Tool for Testing Properties of Curry Programs}
+\section{CurryCheck: A Tool for Testing Properties of Curry Programs}
 \label{sec-currycheck}
 
 CurryCheck\index{CurryCheck}\index{testing programs}\index{program!testing}
@@ -13,6 +13,22 @@ Actually, the properties to be tested are written
 by combinators proposed for EasyCheck, which are actually
 influenced by QuickCheck \cite{ClaessenHughes00}
 but extended to the demands of functional logic programming.
+
+\subsection{Installation}
+
+The current implementation of CurryCheck is a package
+managed by the Curry Package Manager CPM.
+Thus, to install the newest version of CurryCheck, use the following commands:
+%
+\begin{curry}
+> cypm update
+> cypm install currycheck
+\end{curry}
+%
+This downloads the newest package, compiles it, and places
+the executable \code{curry-check} into the directory \code{\$HOME/.cpm/bin}.
+Hence it is recommended to add this directory to your path
+in order to execute CurryCheck as described below.
 
 \subsection{Testing Properties}
 
@@ -33,7 +49,7 @@ The operator \ccode{-=-} specifies a test where both sides must
 have a single identical value. Since this operator (as many more, see below)
 are defined in the library \code{Test.Prop}\pindex{Test.Prop},\footnote{%
 The library \code{Test.Prop} is a clone of the library
-\code{Test.EasyCheck}\pindex{Test.EasyCheck}
+\code{Test.EasyCheck}\pindex{Test.EasyCheck} (see package \code{easycheck})
 which defines only the interface but not the actual test implementations.
 Thus, the library \code{Test.Prop} has less import dependencies.
 When CurryCheck generates programs to execute the tests,
@@ -68,7 +84,7 @@ Now we can run all tests by invoking the CurryCheck tool.
 If our program is stored in the file \code{Rev.curry},
 we can execute the tests as follows:
 \begin{curry}
-> curry check Rev
+> curry-check Rev
 ...
 Executing all tests...
 revNull (module Rev, line 7):
@@ -91,12 +107,12 @@ where \code{Prop} denotes the type of a test:
 revRevIsId :: [Int] -> Prop
 revRevIsId xs = rev (rev xs) -=- xs
 \end{curry}
-The command \code{curry check} has some options to influence
+The command \code{curry-check} has some options to influence
 the output, like \ccode{-q} for a quiet execution
 (only errors and failed tests are reported) or
 \ccode{-v} for a verbose execution where all generated test cases
 are shown.
-Moreover, the return code of \code{curry check} is \code{0}
+Moreover, the return code of \code{curry-check} is \code{0}
 in case of successful tests, otherwise, it is \code{1}.
 Hence, CurryCheck can be easily integrated in tool chains
 for automatic testing.
@@ -217,7 +233,7 @@ permIsEventuallySorted xs = eventually $\code{\$}$ sorted (perm xs)
 The previous operations can be exploited to provide
 a high-level specification of sorting a list:
 \begin{curry}
-psort :: [Int] -> [Int}
+psort :: [Int] -> [Int]
 psort xs | sorted ys = ys
  where ys = perm xs
 \end{curry}
@@ -241,7 +257,7 @@ qsortIsSorting xs = qsort xs <~> psort xs
 Actually, if we test this property, we obtain a failure:
 %
 \begin{curry}
-> curry check ExampleTests
+> curry-check ExampleTests
 ...
 qsortIsSorting (module ExampleTests, line 53) failed
 Falsified by third test.
@@ -284,7 +300,7 @@ neg_or b1 b2 = not (b1 || b2) -=- not b1 && not b2
 This property is validated by checking it with all possible values:
 %
 \begin{curry}
-> curry check -v ExampleTests
+> curry-check -v ExampleTests
 ...
 0:
 False
@@ -309,7 +325,7 @@ by the command-line flag \ccode{-m}. For instance, to test
 each property with 200 tests, CurryCheck can be invoked by
 %
 \begin{curry}
-> curry check -m 200 ExampleTests
+> curry-check -m 200 ExampleTests
 \end{curry}
 %
 For a given type, CurryCheck automatically enumerates all values
@@ -682,9 +698,7 @@ to restrict the test cases via the condition operater \ccode{==>}):
 
 \begin{curry}
 sortSatisfiesPostCondition :: [Int] -> Prop
-sortSatisfiesPostCondition x =
-  let r = sort x
-  in (r == r) ==> always (sort'post x r)
+sortSatisfiesPostCondition x = always (sort'post x (sort x))
 
 sortSatisfiesSpecification :: Prop
 sortSatisfiesSpecification = sort <=> sort'spec
@@ -731,13 +745,13 @@ e.g., determinism, postconditions, specifications,
 so that they are not tested:
 \begin{itemize}
 \item
-If there is a proof file \code{proof-$M$-$f$IsDeterministic.*},
+If there is a proof file \code{proof-$M$-$f$-IsDeterministic.*},
 a determinism annotation for operation $M.f$ is not tested.
 \item
-If there is a proof file \code{proof-$M$-$f$SatisfiesPostCondition.*},
+If there is a proof file \code{proof-$M$-$f$-SatisfiesPostCondition.*},
 a postcondition for operation $M.f$ is not tested.
 \item
-If there is a proof file \code{proof-$M$-$f$SatisfiesSpecification.*},
+If there is a proof file \code{proof-$M$-$f$-SatisfiesSpecification.*},
 a specification for operation $M.f$ is not tested.
 \end{itemize}
 Note that the file suffix and all non-alpha-numberic characters

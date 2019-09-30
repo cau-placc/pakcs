@@ -357,18 +357,19 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 
 % Pre-process the FlatCurry program before loading for compilation.
 % Currently, the binding optimizer (replace =:=/2 by ==/2) is applied.
+preprocessFcyFile(_) :- pakcsrc(bindingoptimization,no), !.
 preprocessFcyFile(FcyFile) :-
     installDir(PH),
     appendAtoms([PH,'/currytools/optimize/BindingOpt'],OptProg),
-    existsFile(OptProg), \+ pakcsrc(bindingoptimization,no), !,
+    existsFile(OptProg), !,
     verbosity(VL),
     (VL=0 -> OptVL=48 ; OptVL is VL+47),
     atom_codes(VParam,[45,118,OptVL,32]), % define -vN
     (pakcsrc(bindingoptimization,fast) -> FParam='-f ' ; FParam=' '),
-    appendAtoms(['"',OptProg,'" ',VParam,FParam,FcyFile],OptCmd),
+    appendAtoms(['"',OptProg,'" ',VParam,FParam,'"',FcyFile,'"'],OptCmd),
     (verbosityIntermediate -> write('Executing: '), write(OptCmd),nl ; true),
     (shellCmdWithCurryPath(OptCmd) -> true
-     ; writeLnErr('WARNING: no binding optimization performed for file:'),
+     ; writeLnErr('WARNING: binding optimization failed for file:'),
        writeLnErr(FcyFile)).
 preprocessFcyFile(FcyFile) :-
     writeLnErr('WARNING: no binding optimization performed for file:'),

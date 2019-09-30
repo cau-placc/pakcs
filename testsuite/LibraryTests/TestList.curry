@@ -1,10 +1,10 @@
 -- A simple example for the currycheck tool
 
 -- Here we want to test some list processing functions.
--- Thus, we import the modules List and Test.EasyCheck:
+-- Thus, we import the modules List and Test.Prop:
 
 import List
-import Test.EasyCheck
+import Test.Prop
 
 -- Now we can test properties of our program:
 

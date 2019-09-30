@@ -6,7 +6,7 @@
 ------------------------------------------------------------------------------
 
 import System
-import Test.EasyCheck
+import Test.Prop
 
 -- Testing environment variable handling:
 

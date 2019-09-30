@@ -1,6 +1,6 @@
 -- Testing Read and Show instances for various types
 
-import Test.EasyCheck
+import Test.Prop
 
 showOfRead :: (Eq a, Read a, Show a) => a -> Prop
 showOfRead x = read (show x) -=- x

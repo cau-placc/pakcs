@@ -1,6 +1,6 @@
 -- Testing case expressions:
 
-import Test.EasyCheck
+import Test.Prop
 
 swap :: [Int] -> [Int]
 swap l = case l of

@@ -86,6 +86,7 @@ deleteEqualProps(Name,[Prop|Props],[Prop|DProps]) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Start main interactive environment:
 pakcsMain :-
+        readLineOn,
 	getProgramArgs(DArgs),
 	processDArgs(DArgs,Props,Args),
 	readRcFile(Props),
@@ -103,7 +104,7 @@ pakcsMain :-
 	    writeNQ(RTArgs), nlNQ),
 	(verbosityNotQuiet
          -> printPakcsHeader, nlNQ,
-            writeNQ('Type ":h" for help (contact: pakcs@curry-language.org)'),
+            writeNQ('Type ":h" for help (contact: pakcs@curry-lang.org)'),
             nlNQ
           ; true),
 	flush_output,
@@ -258,12 +259,12 @@ pakcsPrompt(Prompt) :-
 
 % main read-eval-print loop of the environment:
 main :-
-	prompt(_,''), % clear standard Prolog prompt
 	repeat,
-	pakcsPrompt(Prompt), write(Prompt),
-	flush_output(user_output),
-	flush_output(user_error),
+	pakcsPrompt(Prompt),
+        prompt(_,Prompt), % set prompt for next top-level command
+	flush_output(user_output), flush_output(user_error),
 	readLine(Input),
+        prompt(_,''),  % clear standard Prolog prompt for further getChar
 	(Input = end_of_file -> true
             ; removeBlanks(Input,ShortInput),
 	      process(ShortInput)),
@@ -957,7 +958,7 @@ processCommand("browse",[]) :- !,
 	      ; write('ERROR: program "'),
 		write(ProgA), write('" does not exist!'), nl, fail)),
 	!,
-	appendAtoms(['"',BrowseProg,'" ',RealProg,' & '],BrowseCmd),
+	appendAtoms(['"',BrowseProg,'" "',RealProg,'" & '],BrowseCmd),
         shellCmdWithCurryPathWithReport(BrowseCmd).
 
 processCommand("coosy",[]) :- !,
@@ -980,13 +981,13 @@ processCommand("coosy",[]) :- !,
 	printCurrentLoadPath.
 
 processCommand("peval",[]) :- !,
+        checkCpmTool('curry-pevalns','peval-noshare',PevalExec),
 	lastload(Prog),
 	(Prog="" -> writeLnErr('ERROR: no program loaded for partial evaluation'),
 	            !, fail
                   ; true),
         atom_codes(ProgA,Prog),
-        installDir(PH),
-	appendAtoms(['"',PH,'/tools/Peval/peval" ',ProgA],PevalCmd),
+	appendAtoms([PevalExec,' ',ProgA],PevalCmd),
         shellCmdWithCurryPathWithReport(PevalCmd),
 	!,
 	append(Prog,"_pe",ProgPE), % name of partially evaluated program
@@ -1083,13 +1084,14 @@ processCommand("save",Exp) :- !,
 	% start saved program in non-verbose mode if initial goal provided:
 	verbosemode(QM), setVerboseMode(no),
 	processExpression(MainGoal,ExecGoal),
-	%write('Goal to execute:'), nl, writeq(ExecGoal), nl,
+        SaveGoal = (ProgInits, evaluator:evaluateGoalAndExit(ExecGoal)),
+	(verbosityDetailed
+          -> write('Goal to execute in saved state:'), nl, writeq(SaveGoal), nl
+           ; true),
 	(pakcsrc(smallstate,yes)
 	 -> atom_codes(ProgA,Prog), prog2PrologFile(ProgA,ProgPl),
-	    createSavedState(ProgPl,ProgStName,
-			(ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))
-	  ; saveprog_entry(ProgStName,
- 		        (ProgInits,evaluator:evaluateGoalAndExit(ExecGoal)))),
+	    createSavedState(ProgPl,ProgStName,SaveGoal)
+	  ; saveprog_entry(ProgStName,SaveGoal)),
 	setVerboseMode(QM),
 	installDir(PH),
 	appendAtoms(['"',PH,'/scripts/makesavedstate" '],CMD1),
@@ -1284,13 +1286,15 @@ processSetOption("-first") :- !,
 	asserta(firstSolutionMode(no)).
 processSetOption("+plprofile") :- prolog(sicstus), !,
 	retract(plprofiling(_)),
-	prolog_flag(compiling,_,profiledcode),
+	%set_prolog_flag(compiling,profiledcode),
+	set_prolog_flag(profiling,on),
 	asserta(plprofiling(yes)),
 	(lastload("") -> true ; process(":r")).
 processSetOption("+plprofile") :- !, onlySICStusMessage('+plprofile').
 processSetOption("-plprofile") :- prolog(sicstus), !,
 	retract(plprofiling(_)),
-	prolog_flag(compiling,_,compactcode),
+	%set_prolog_flag(compiling,compactcode),
+	set_prolog_flag(profiling,off),
 	asserta(plprofiling(no)),
 	(lastload("") -> true ; process(":r")).
 processSetOption("-plprofile") :- !, onlySICStusMessage('-plprofile').
@@ -1566,7 +1570,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	(append([46,47],PPS,ProgPathS) -> true ; PPS=ProgPathS),
 	atom_codes(PPSA,PPS),
 	stripSuffix(PPSA,ProgNameA),
-	appendAtoms([PP2,CWCA,' ',ProgNameA],PPCmd),
+	appendAtoms([PP2,CWCA,' "',ProgNameA,'"'],PPCmd),
 	(shellCmdWithReport(PPCmd) -> true
 	  ; writeLnErr('ERROR occurred during FlatCurry preprocessing!'),
 	    fail).
@@ -1574,7 +1578,7 @@ parseProgram(_,_,_). % do not parse if source program does not exist
 
 addImports([],CY,CY).
 addImports([I|Is],CY1,CY3) :-
-	appendAtoms([CY1,' -i',I],CY2),
+	appendAtoms([CY1,' -i"',I,'"'],CY2),
 	addImports(Is,CY2,CY3).
 
 versionAtom(Version,Atom) :-

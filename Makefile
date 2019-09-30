@@ -47,11 +47,11 @@ export CURRYSYSTEM=pakcs
 # The major version number:
 export MAJORVERSION=3
 # The minor version number:
-export MINORVERSION=0
+export MINORVERSION=1
 # The revision version number:
 export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=2
+BUILDVERSION=0
 # Complete version:
 VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -170,7 +170,8 @@ kernel: scripts copylibs copytools
 	$(MAKE) $(PAKCSVERSION)
 	cd src && $(MAKE)
 	# compile all libraries:
-	@cd lib && $(MAKE) acy
+	@cd lib && $(MAKE) AllLibraries.curry
+	scripts/compile-all-libs.sh
 	# compile optimization tools:
 	@cd currytools/optimize && $(MAKE)
 	# prepare for separate compilation: compile all libraries to Prolog

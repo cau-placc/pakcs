@@ -1,6 +1,6 @@
 -- Testing non-linear patterns in left-hand sides of rules.
 
-import Test.EasyCheck
+import Test.Prop
 
 -- Simple test for non-linear patterns:
 fstEqu :: [a] -> [a] -> [a]

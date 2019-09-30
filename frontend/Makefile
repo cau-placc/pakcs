@@ -38,11 +38,11 @@ endif
 # Command to unregister a package
 export GHC_UNREGISTER = "$(GHC-PKG)" unregister --$(GHC_PKG_OPT)="$(PKGDB)"
 # Command to install missing packages using cabal
-export CABAL_INSTALL  = "$(CABAL)" install --with-compiler="$(GHC)"       \
+export CABAL_INSTALL  = "$(CABAL)" v1-install --with-compiler="$(GHC)"       \
                         --with-hc-pkg="$(GHC-PKG)" --prefix="$(LOCALPKG)" \
                         --global --package-db="$(PKGDB)" -O2
 # Command to configure a package (needed for testing)
-export CABAL_CONFIGURE  = "$(CABAL)" configure --with-compiler="$(GHC)"       \
+export CABAL_CONFIGURE  = "$(CABAL)" v1-configure --with-compiler="$(GHC)"       \
                         --with-hc-pkg="$(GHC-PKG)" --prefix="$(LOCALPKG)" \
                         --global --package-db="$(PKGDB)" -O2 --enable-tests
 

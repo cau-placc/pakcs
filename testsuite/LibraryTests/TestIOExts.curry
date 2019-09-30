@@ -3,7 +3,7 @@
 import IO
 import IOExts
 import List
-import Test.EasyCheck
+import Test.Prop
 
 -- Execute shell command show the first output line of its execution:
 getExec cmd = do

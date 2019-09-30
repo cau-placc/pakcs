@@ -1,6 +1,6 @@
 -- Testing narrowing features:
 
-import Test.EasyCheck
+import Test.Prop
 
 -- natural numbers defined by s-terms (O=zero, S=successor):
 data Nat = O | S Nat

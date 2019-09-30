@@ -1,6 +1,6 @@
 -- Testing Prelude operations:
 
-import Test.EasyCheck
+import Test.Prop
 
 -- Test simple arithmetic:
 testPlus  = (2+3) -=- 5

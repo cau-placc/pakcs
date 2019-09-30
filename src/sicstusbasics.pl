@@ -15,7 +15,7 @@
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
-           readLine/1,
+           readLineOn/0, readLine/1,
 	   waitConcurrentConjunction/6,
 	   appendAtom/3,
 	   map1M/2, map2M/3, map1partialM/2, map2partialM/3,
@@ -33,6 +33,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
+           stdInputStream/1, stdOutputStream/1, stdErrorStream/1,
 	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
@@ -242,6 +243,9 @@ generatePrologBasics :-	sicstus38orHigher, !,
 :- use_module(library(sockets)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% activate GNU readline behavior (not available for SICStus-Prolog)
+readLineOn :- true.
 
 % read a single line from stdin (return end_of_file if there is no more input)
 readLine(Input) :-
@@ -506,6 +510,18 @@ forkProcessForGoal(Goal) :-
 	atom_codes(ForkCmd,ForkCmdS),
 	shellCmd(ForkCmd).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stream-related operations.
+
+% the standard input stream
+stdInputStream(Stream) :- prolog_flag(user_input,Stream).
+
+% the standard output stream
+stdOutputStream(Stream) :- prolog_flag(user_output,Stream).
+
+% the standard error stream
+stdErrorStream(Stream) :- prolog_flag(user_error,Stream).
 
 % is a stream a readable stream?
 isInputStream(Stream) :-
@@ -838,13 +854,16 @@ ensure_lib_loaded(Lib) :-
         % second, look into the directory of the current module:
         currentModuleFile(Mod,PMod),
         % drop last Prolog file name:
-        atom_codes(PMod,PModS), atom_codes(Mod,ModS),
+        atom_codes(PMod,PModS),
+        atom_codes(Mod,ModS), modNameFileName(ModS,ModFS),
         append(PModwopl,".pl",PModS),
-        append(PModDirS,ModS,PModwopl),
+        append(PModDirS,ModFS,PModwopl),
         atom_codes(PModDir,PModDirS),
         % compute module directory by going up in the hierarchy:
         appendAtom(PModDir,'../../',ModDir),
-        appendAtom(ModDir,Lib,ModDirLib),
+        baseDirName(ModFS,BaseDirS), atom_codes(BaseDir,BaseDirS),
+        appendAtom(ModDir,BaseDir,ModBaseDir),
+        appendAtom(ModBaseDir,Lib,ModDirLib),
 	appendAtom(ModDirLib,'.pl',ModDirLibPl),
 	existsFile(ModDirLibPl), !,
 	(verbosity(3) -> write('>>> Load Prolog library: '),
@@ -859,6 +878,17 @@ ensure_lib_loaded(Lib) :-
                        ; true),
 	ensure_loaded(user:DirLib).
 
+% get base directory name of a hierachical file name
+baseDirName(FileS,BaseDirS) :-
+        append(Base1,[47|File1S],FileS), !,
+        baseDirName(File1S,BaseDir1S),
+        append(Base1,[47|BaseDir1S],BaseDirS).
+baseDirName(_,[]).
+
+% relation between (hierarchical) module names and their file names
+modNameFileName(MN,FN) :- map2M(prologbasics:dotSlash,MN,FN).
+dotSlash(46,47) :- !.
+dotSlash(N,N).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % call a goal and return list of suspended goals:

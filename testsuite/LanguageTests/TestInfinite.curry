@@ -1,6 +1,6 @@
 -- Testing laziness and infinite structures:
 
-import Test.EasyCheck
+import Test.Prop
 
 -- the list of natural numbers:
 from n = n : from (n+1)

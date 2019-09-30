@@ -1,0 +1,107 @@
+.TH CYPM "1" "December 2018" "2.0.3" "Curry Package Manager"
+.SH NAME
+
+cypm \- the Curry Package Manager
+
+.SH SYNOPSIS
+\fBcypm\fR \fI[<OPTIONS>] >COMMAND>\fR
+
+.SH DESCRIPTION
+The Curry Package Manager (CPM) is a tool to distribute and install Curry
+(http://currry-language.org) libraries and applications and manage
+version dependencies between them.
+
+.SH OPTIONS
+Invoke CPM:
+
+   \fBcypm\fR \fI<options> <COMMAND>\fR
+
+with options:
+
+.TP
+\fI\-h\fR, \fI\-\-help\fR
+Show a help message and quit
+
+.TP
+\fI\-v\fR, \fI\-\-verbosity <LEVEL>\fR
+Log level for the application. Valid value: info|debug|quiet
+.TP
+\fI\-d\fR, \fI\-\-define <DEFINITION>\fR
+Overwrite definition of cpmrc file with 'option=value'
+.TP
+\fI\-t\fR, \fI\-\-time\fR
+Show elapsed time with every log output
+
+.PP
+Options for \fI<COMMAND>\fR:
+
+.TP
+\fIlist\fR
+List all packages of the repository
+.TP
+\fIsearch\fR
+Search the package repository
+.TP
+\fIconfig\fR
+Show current configuration of CPM
+.TP
+\fIcheckout\fR
+Checkout a package.
+.TP
+\fIinstall\fR
+Install a package with its dependencies.
+.TP
+\fIuninstall\fR
+Uninstall a package
+.TP
+\fIdeps\fR
+Calculate dependencies
+.TP
+\fIclean\fR
+Clean the current package
+.TP
+\fInew\fR
+Create a new package
+.TP
+\fIupdate\fR
+Update the package index
+.TP
+\fIcurry\fR
+Load package spec and start Curry with correct dependencies
+.TP
+\fIexec\fR
+Execute a command with the CURRYPATH set
+.TP
+\fIinfo\fR
+Print package information
+.TP
+\fIdoc\fR
+Generation documentation for current package (with CurryDoc)
+.TP
+\fItest\fR
+Test the current package (with CurryCheck)
+.TP
+\fIdiff\fR
+Diff the current package against another version
+.TP
+\fIupgrade\fR
+Upgrade one or more packages
+.TP
+\fIlink\fR
+Link a package to the local cache
+.TP
+\fIadd\fR
+Add a package (as dependency or to the local repository)
+.TP
+\fIupload\fR
+Upload current package to package server
+.PP
+To get more help about the usage of a command, type
+
+  \fBcypm\fR \fI<COMMAND> -h\fR
+
+.SH "AUTHOR"
+This manual page has been written by Michael Hanus and converted to nroff
+format by Mike Gabriel <mike.gabriel@das-netzwerkteam.de>. This man page
+has been written for the Debian project initially, but may also be used
+by others.

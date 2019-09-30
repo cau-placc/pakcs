@@ -169,8 +169,9 @@ ASCII alphanumeric character as well as dashes (\code{-}) and underscores
 (\code{_}). It must start with an alphanumeric character. The author field is a
 free-form field, but the suggested format is either a name (\code{John Doe}),
 or a name followed by an email address in angle brackets
-(\code{John Doe <john.doe@goldenstate.gov>}). Separate multiple authors with
-commas. 
+(\code{John Doe <john.doe@goldenstate.gov>}).
+Multiple authors can either be separated by commas or written
+as a list of strings.
 
 Versions must be specified in the format laid out in the semantic versioning 
 standard:\footnote{\url{http://www.semver.org}} each version number consists of 
@@ -390,6 +391,18 @@ Prelude> :load JSON.Data
 JSON.Data>
 \end{lstlisting}
 %
+The default behavior of the \code{add} command is to add the dependency
+\emph{and} install all dependencies, i.e., the previous commands
+can be reduced as follows:
+%
+\begin{lstlisting}
+> cypm add json
+> cypm curry
+...
+Prelude> :load JSON.Data
+JSON.Data>
+\end{lstlisting}
+
 
 \subsection{Replacing Dependencies with Local Versions}
 \label{sec:cpm-link}
@@ -1043,6 +1056,48 @@ of the current package or in the meta-package
 The option \ccode{--force} allows to overwrite existing dependencies
 in the package description file.
 
+\item[\fbox{\code{add $package$ [--force]}}]
+Adds the package $package$ as a new dependency and install
+the new dependencies. Thus, this abbreviates the two commands
+\begin{lstlisting}
+cypm add $package$ && cypm install
+\end{lstlisting}
+
+\item[\fbox{\code{upload [--notagging] [--force]}}]
+Uploads the current package to the central package index
+so that it can be used by other developers via CPM
+(if they update their local copy of the central package index
+by \ccode{cypm update}).
+
+For security reasons (this will be weakened in the future),
+the package must have a source specification
+(see Section~\ref{sec:publishing-a-package})
+of the following form:
+%
+\begin{lstlisting}
+{
+  ...,
+  "source": {
+    "git": "$\ldots$git.ps.informatik.uni-kiel.de/curry-packages/$\ldots$.git",
+    "tag": "$\$$version"
+  }
+}
+\end{lstlisting}
+%
+Thus, the source is managed as a Git repository which is stored
+at the server \code{git.ps.informatik.uni-kiel.de}
+in group \code{curry-packages} and has an automatic version tag.
+Unless the option \code{--nottagging} is given,
+the version tag wil be automatically set in the local repository
+(and pushed to the remote repository, i.e., one should have write access
+to the remote repository).
+Then the remote repository will be cloned and tested (by \ccode{cypm test}).
+If this is successful, the package specification of the repository
+will be added to the central package index (by a web service
+of the central package index).
+The option \ccode{--force} allows to overwrite
+an existing version in the central package index.
+
 \item[\fbox{\code{clean}}] Cleans the current package from the
 generated auxiliary files, e.g., intermediate Curry files,
 installed dependent packages, etc.
@@ -1077,19 +1132,21 @@ angle brackets, e.g.,
 \begin{lstlisting}
 John Doe <john@doe.com>
 \end{lstlisting}
-Multiple authors should be separated by commas.
+Multiple authors can either be separated by commas or written
+as a list of strings.
 
 \item[\fbox{\code{maintainer}}] The current maintainers of the package, if 
 different from the original authors. This field allows the current maintainers
 to indicate the best person or persons to contact about the package while 
 attributing the original authors.
 
-The suggested format is a name followed by an email address in
-angle brackets, e.g.,
+The suggested format is similarly to the authors,
+i.e., a name followed by an email address in angle brackets, e.g.,
 \begin{lstlisting}
 John Doe <john@doe.com>
 \end{lstlisting}
-Multiple maintainers should be separated by commas.
+Multiple maintainers can either be separated by commas or written
+as a list of strings.
 
 \item[\fbox{\code{synopsis*}}] A short form summary of the package's purpose.
 It should be kept as short as possible (ideally, less than 100 characters).
@@ -1325,7 +1382,8 @@ are used:
     "name": "PACKAGE_NAME",
     "version": "0.0.1",
     "author": "YOUR NAME <YOUR EMAIL ADDRESS>",
-    "maintainer": "ANOTHER NAME <ANOTHER EMAIL ADDRESS>",
+    "maintainer": [ "ANOTHER NAME <ANOTHER EMAIL ADDRESS>",
+                    "FURTHER NAME <FURTHER EMAIL ADDRESS>" ],
     "synopsis": "A ONE-LINE SUMMARY ABOUT THE PACKAGE",
     "description": "A MORE DETAILED SUMMARY ABOUT THE PACKAGE",
     "category": [ "Category1", "Category2" ],

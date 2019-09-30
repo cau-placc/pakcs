@@ -133,34 +133,6 @@ i :: a -> a
 k :: a -> Int
 Loading program "rectype"...
 h :: ([Int],[Bool])
-Loading program "iodemo"...
-dialog
-Ihr Name?
-Hallo michael, rueckwaerts lautet Ihr Name: leahcim
-Loading program "england"...
-q1 x
-{x=Gloucester} True
-{x=Bath} True
-q2 x y
-{x=Bristol, y=Bath} True
-{x=Sherbourne, y=Shaftesbury} True
-{x=Dorchester, y=Sherbourne} True
-{x=Cirencester, y=Cheltenham} True
-{x=Cheltenham, y=Gloucester} True
-q4l
-[Bristol,Taunton,Bath,Bournemouth,Gloucester,Torquay,Penzance,Plymouth,Exeter,Winchester,Dorchester,Cirencester,Truro,Cheltenham,Shaftesbury,Sherbourne]
-q5l
-[Salisbury,Gloucester,Cirencester,Cheltenham]
-q7 x
-{x=Somerset} True
-{x=Gloucestershire} True
-{x=Avon} True
-q10
-6
-Loading program "queens"...
-queens [1,2,3,4]
-[2,4,1,3]
-[3,1,4,2]
 Loading program "diamond"...
 diamond 10
                                        1    
@@ -182,41 +154,6 @@ diamond 10
                               98      89      80    
                                   99      90    
                                      100    
-Loading program "chords"...
-run sounds
-Proposed chords:
-Amin/8 (0)
-Gmaj/8 (0) || Dmin/8 (0)
-Gmaj/8 (0) || Gmaj7/8 (0)
-Fmaj/8 (0) || Amin/8 (0)
-Cmaj/8 (0)
-Fmaj/4 Cmaj/4 (0) || Fmaj/4 Emin/4 (0) || Amin/4 Cmaj/4 (0) || Amin/4 Emin/4 (0)
-Cmaj/8 (0)
-Fmaj/4 Cmaj/4 (0) || Fmaj/4 Emin/4 (0) || Amin/4 Cmaj/4 (0) || Amin/4 Emin/4 (0)
-Fmaj/8 (0) || Amin/8 (0)
-Fmaj/8 (3) || Amin/8 (3)
-Fmaj/4 Cmaj/4 (3) || Fmaj/4 Emin/4 (3) || Amin/4 Cmaj/4 (3) || Amin/4 Emin/4 (3)
-Cmaj/8 (4) || Emin/8 (4) || Amin/8 (3)
-Cmaj/8 (7)
-Gmaj/4 Fmaj/4 (0) || Gmaj/4 Amin/4 (0) || Emin/4 Fmaj/4 (0) || Emin/4 Amin/4 (0)
-run nicolas
-Proposed chords:
-Cmaj/8 (0)
-Gmaj/8 (0) || Dmin/8 (0)
-Fmaj/8 (6) || Amin/8 (6)
-Gmaj/8 (0) || Emin/8 (0)
-Cmaj/8 (0)
-Gmaj/8 (0) || Dmin/8 (0)
-Fmaj/8 (6) || Amin/8 (6)
-Gmaj/8 (0) || Dmin/8 (0)
-Cmaj/8 (0) || Emin/8 (0)
-Dmin/8 (0)
-Gmaj7/8 (6) || Dmin/8 (6)
-Cmaj/8 (0)
-Cmaj/8 (0)
-Gmaj/8 (0) || Dmin/8 (0)
-Fmaj/4 Gmaj/4 (0) || Fmaj/4 Emin/4 (0) || Amin/4 Gmaj/4 (0) || Amin/4 Emin/4 (0)
-Fmaj/8 (0) || Amin/8 (0)
 Loading program "arithseq"...
 l1
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
@@ -266,7 +203,3 @@ h [1,3]
 False
 h [2,((_impl#div#Prelude.Integral#Prelude.Int) 1) 0]
 False
-Loading program "addserver"...
-addClient "localhost" 3 4
-Answer: 7
-stopServer "localhost"

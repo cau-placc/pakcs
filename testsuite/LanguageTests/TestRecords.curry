@@ -2,7 +2,7 @@
 
 -- Testing records:
 
-import Test.EasyCheck
+import Test.Prop
 
 data Person = Person {name :: String, age :: Int}
  deriving Eq

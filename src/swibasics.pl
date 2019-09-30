@@ -11,7 +11,7 @@
 	   atomCodes/2, atEndOfStream/1,
 	   isMod/3, isRem/3,
 	   unifyWithOccursCheck/2,
-           readLine/1,
+           readLineOn/0, readLine/1,
 	   waitConcurrentConjunction/6,
 	   append/3, member/2,
 	   appendAtom/3,
@@ -30,6 +30,7 @@
 	   fileExistsAndNewer/2, canWriteFile/1, currentPID/1, sleepSeconds/1,
 	   getHostname/1, shellCmd/1, shellCmd/2,
 	   execCommand/4, forkProcessForGoal/1,
+           stdInputStream/1, stdOutputStream/1, stdErrorStream/1,
 	   isInputStream/1, isOutputStream/1, isTerminalDeviceStream/1,
 	   currentClockTime/1, clocktime2localtime/8, clocktime2utctime/7,
 	   date2clocktime/8,
@@ -43,7 +44,6 @@
 	   consultPrologorPOFile/2, ensure_lib_loaded/1,
 	   callAndReturnSuspensions/2, writeqWithVars/1,
 	   genBlockDecl/4,
-	   prolog_flag/2, prolog_flag/3,
 	   create_mutable/2, get_mutable/2, update_mutable/2]).
 
 :- use_module(pakcsversion).
@@ -84,9 +84,18 @@ prologMinorVersion(MV) :-
 	current_prolog_flag(version,VN),
 	MV is (VN mod 10000)//100.
 
+% Is this SWI-Prolog version >= 7 ?
 swi7orHigher :-
         prologMajorVersion(Major),
-        Major>=7.
+        Major >= 7.
+
+% Is this SWI-Prolog version 7 ?
+swi7 :- prologMajorVersion(7).
+
+% Is this SWI-Prolog version >= 8 ?
+swi8orHigher :-
+        prologMajorVersion(Major),
+        Major >= 8.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- multifile pakcsrc/2. % relevant for createSavedState
@@ -127,10 +136,16 @@ sicstus310orHigher :- fail.
 
 :- use_module(library(unix)).
 :- use_module(library(socket)).
-:- swi7orHigher -> true ; use_module(library(readline)).
+:- swi7 -> true ; use_module(library(readline)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of terminal readline (with readline editing functionality)
+
+% activate GNU readline behavior (necessary for SWI 8.*)
+readLineOn :-
+        swi8orHigher, !,
+        set_prolog_flag(readline,readline).
+readLineOn.
 
 % read a single line from stdin (return end_of_file if there is no more input)
 readLine(Input) :-
@@ -138,7 +153,8 @@ readLine(Input) :-
         (Input = end_of_file -> nl
         ; atom_codes(InputA,Input),
           (current_prolog_flag(readline,false) -> true
-                                                ; rl_add_history(InputA))).
+            ; % small hack since rl_add_history sometimes fail:
+              (rl_add_history(InputA) -> true ; true))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implementation of suspension for concurrent conjunction (&)
@@ -209,7 +225,7 @@ getProgramArgs(Args) :-
           -> true  % for backward compatibility
            ; dropSWIPL(AllArgs,Args)).
 
-dropSWIPL([],[]).
+dropSWIPL([],[]) :- !.
 dropSWIPL([Exec|Args],Args) :-  % for backward compatibility
 	atom_codes(Exec,ExecS),
 	atom_codes(swipl,SWIPL),
@@ -367,6 +383,18 @@ forkProcessForGoal(Goal) :-
 	    call(Goal)
 	  ; true).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stream-related operations.
+
+% the standard input stream
+stdInputStream(Stream) :- Stream = user_input.
+
+% the standard output stream
+stdOutputStream(Stream) :- Stream = user_output.
+
+% the standard error stream
+stdErrorStream(Stream) :- Stream = user_error.
 
 % is a stream a readable stream?
 isInputStream(Stream) :- stream_property(Stream,input).
@@ -618,13 +646,16 @@ ensure_lib_loaded(Lib) :-
         % second, look into the directory of the current module:
         currentModuleFile(Mod,PMod),
         % drop last Prolog file name:
-        atom_codes(PMod,PModS), atom_codes(Mod,ModS),
+        atom_codes(PMod,PModS),
+        atom_codes(Mod,ModS), modNameFileName(ModS,ModFS),
         append(PModwopl,[46,112,108],PModS), % append suffix ".pl"
-        append(PModDirS,ModS,PModwopl),
+        append(PModDirS,ModFS,PModwopl),
         atom_codes(PModDir,PModDirS),
         % compute module directory by going up in the hierarchy:
         appendAtom(PModDir,'../../',ModDir),
-        appendAtom(ModDir,Lib,ModDirLib),
+        baseDirName(ModFS,BaseDirS), atom_codes(BaseDir,BaseDirS),
+        appendAtom(ModDir,BaseDir,ModBaseDir),
+        appendAtom(ModBaseDir,Lib,ModDirLib),
 	appendAtom(ModDirLib,'.pl',ModDirLibPl),
 	existsFile(ModDirLibPl), !,
 	(verbosity(3) -> write('>>> Load Prolog library: '),
@@ -639,6 +670,17 @@ ensure_lib_loaded(Lib) :-
                        ; true),
 	ensure_loaded(user:DirLib).
 
+% get base directory name of a hierachical file name
+baseDirName(FileS,BaseDirS) :-
+        append(Base1,[47|File1S],FileS), !,
+        baseDirName(File1S,BaseDir1S),
+        append(Base1,[47|BaseDir1S],BaseDirS).
+baseDirName(_,[]).
+
+% relation between (hierarchical) module names and their file names
+modNameFileName(MN,FN) :- map2M(prologbasics:dotSlash,MN,FN).
+dotSlash(46,47) :- !.
+dotSlash(N,N).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define hook predicate to suppress warnings for redefined procedures
@@ -700,10 +742,3 @@ update_mutable(V,MT) :- setarg(1,MT,V).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-prolog_flag(user_input,user_input) :- !.
-prolog_flag(user_output,user_output) :- !.
-prolog_flag(user_error,user_error) :- !.
-prolog_flag(F,_) :- write('Warning: unknown prolog_flag: '), write(F), nl.
-
-prolog_flag(F,V,V) :- write('Warning: unknown prolog_flag: '), write(F), nl.

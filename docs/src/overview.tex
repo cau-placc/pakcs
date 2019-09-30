@@ -85,8 +85,9 @@ to allow the integration of non-deterministic computations
 in programs performing I/O at the top-level, \CYS supports
 the search operators \code{findall}\pindex{findall}
 and \code{findfirst}\pindex{findfirst}.
-These and some other operators are available in the
-library \code{Findall} (i.e., they are not part of the standard prelude).
+Note that they are not part of the standard prelude
+but these and some other operators are available in the
+library \code{Control.Findall} which is part of the package \code{searchtree}.
 In contrast to the general definition of encapsulated search
 \cite{HanusSteiner98PLILP}, the current implementation suspends
 the evaluation of \code{findall} and \code{findfirst}
@@ -105,8 +106,8 @@ as a strategy-independent encapsulation of non-deterministic
 computations.
 Set functions compute the set of all results of a defined function
 but do not encapsulate non-determinism occurring in the actual arguments.
-See the library \code{SetFunctions}
-(Section~\ref{Library:SetFunctions}) for more details.
+See the library \code{Control.SetFunctions}
+(available in package \code{setfunctions}) for more details.
 \item
 There is currently no general connection to external constraint solvers.
 However, the \CYS compiler provides constraint

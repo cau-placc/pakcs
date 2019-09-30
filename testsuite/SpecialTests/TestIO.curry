@@ -10,7 +10,7 @@
 
 import System
 import IO
-import Test.EasyCheck
+import Test.Prop
 
 -- Test repositioning on files:
 seek = do
