@@ -89,6 +89,9 @@ writeGlobalFile(FileName,Val) :-
 	% SWI-Prolog when reading short files:
 	put_code(Stream,10), put_code(Stream,10), put_code(Stream,10),
 	close(Stream),
+        % make files for storing globals only accessible for the user:
+	appendAtom('chmod 600 ',FileName,ChmodCmd),
+	shellCmd(ChmodCmd),
 	unlockWithFile(LockFile).
 
 
