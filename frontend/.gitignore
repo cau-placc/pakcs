@@ -1,6 +1,10 @@
 # intermediate files
 *~
 *.bak
+stack.yaml.lock
 
 # binaries
 bin/
+
+# stack build directory
+.stack-work/
