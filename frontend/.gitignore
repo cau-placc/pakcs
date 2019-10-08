@@ -6,5 +6,9 @@ stack.yaml.lock
 # binaries
 bin/
 
-# stack build directory
+# stack and cabal build files
 .stack-work/
+dist/
+dist-newstyle/
+cabal.project.local
+.ghc.environment.*
