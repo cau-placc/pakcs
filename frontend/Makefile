@@ -12,7 +12,7 @@ export CYMAKE = $(BINDIR)/curry-frontend
 # install front end (if sources are present):
 .PHONY: frontend
 frontend:
-	stack install --local-bin-path $(BINDIR)
+	stack install --local-bin-path $(BINDIR) curry-frontend:curry-frontend
 
 .PHONY: clean
 clean:
