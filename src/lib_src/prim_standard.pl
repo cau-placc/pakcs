@@ -119,7 +119,7 @@ prim_Int_minus(Y,X,R) :- R is X-Y.
 
 prim_Int_times(Y,X,R) :- R is X*Y.
 
-prim_Int_div(Y,X,R) :- R is integer(floor(X/Y)).
+prim_Int_div(Y,X,R) :- R is div(X,Y).
 
 prim_Int_mod(Y,X,R) :- isMod(R,X,Y).
 
