@@ -715,6 +715,20 @@ queens :: Int -> [Int]
 queens n = safe (permute [1..n])
 \end{curry}
 
+\paragraph{Important note:}
+The implementation of default rules is based on set functions
+(implemented by the module \code{Control.SetFunctions}).
+Therefore, the package \code{setfunctions} should be installed
+as a dependency.
+This can easily done by executing
+%
+\begin{curry}
+> cypm add setfunctions
+\end{curry}
+%
+before compiling a program containing default rules with the
+Curry preprocessor.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Contracts}
@@ -777,6 +791,22 @@ Postcondition of 'sort' (module Quicksort, line 27) violated for:
 
 ERROR: Execution aborted due to contract violation!
 \end{curry}
+
+\paragraph{Important note:}
+The implementation of default rules is based on set functions
+(implemented by the module \code{Control.SetFunctions}) and
+the auxiliary package to check contracts at run time.
+Therefore, the packages \code{setfunctions} and \code{contracts}
+should be installed as dependencies.
+This can easily done by executing
+%
+\begin{curry}
+> cypm add setfunctions
+> cypm add contracts
+\end{curry}
+%
+before compiling a program containing contracts with the
+Curry preprocessor.
 
 %  LocalWords:  preprocessor
 

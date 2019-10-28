@@ -46,6 +46,17 @@ fcy2flcTypes(['Type'(TName,Vis,TParams,Cons)|Types],
 	fcy2flcTypes(Types,FTypes).
 fcy2flcTypes(['TypeSyn'(_,_,_,_)|Types],FTypes) :- % ignore type synonyms
 	fcy2flcTypes(Types,FTypes).
+% for the moment: transform newtypes in data declarations:
+fcy2flcTypes(['TypeNew'(TName,Vis,TParams,Cons)|Types],
+	     ['Type'(FTName,Vis,TParams,[FCons])|FTypes]) :-
+	fcy2flcQName(TName,FTName),
+	fcy2flcNewCons(Cons,FCons),
+	fcy2flcTypes(Types,FTypes).
+
+% for the moment: transform NewCons declaration into data Cons declaration
+fcy2flcNewCons('NewCons'(CName,Vis,Type),'Cons'(FCName,1,Vis,[FType])) :-
+	fcy2flcQName(CName,FCName),
+	fcy2flcTypeExpr(Type,FType).
 
 fcy2flcCons('Cons'(CName,Arity,Vis,Types),'Cons'(FCName,Arity,Vis,FTypes)) :-
 	fcy2flcQName(CName,FCName),

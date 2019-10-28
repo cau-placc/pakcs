@@ -1,6 +1,14 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 2.1.3 (October 28, 2019)
+--------------------------------------------------------
+
+Changes to version 2.1.2: bug fixes and
+
+* CPM updated (improved handling of temporary working directory)
+
+
 Release notes for PAKCS Version 2.1.2 (September 23, 2019)
 ----------------------------------------------------------
 
