@@ -354,7 +354,7 @@ cleantools: $(CLEANCURRY)
 
 # Clean everything (including the front end)
 .PHONY: cleanall
-cleanall: clean
+cleanall:
 	rm -rf $(LIBDIR)
 	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
 	if [ -d $(FRONTENDDIR) ]; \
@@ -362,6 +362,7 @@ cleanall: clean
 	  else rm -f $(CYMAKE) ; \
 	fi
 	rm -f pakcsinitrc pakcsinitrc.bak
+	$(MAKE) clean
 
 
 ################################DISTRIBUTION##################################
