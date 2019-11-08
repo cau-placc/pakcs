@@ -45,7 +45,7 @@ export PAKCSINSTALLDIR =
 export CURRYSYSTEM=pakcs
 
 # The major version number:
-export MAJORVERSION=2
+export MAJORVERSION=3
 # The minor version number:
 export MINORVERSION=2
 # The revision version number:
@@ -239,11 +239,6 @@ compilefrontend:
 .PHONY: tools
 tools:
 	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
-
-# compile analysis tool only:
-.PHONY: CASS
-CASS:
-	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) CASS ; fi
 
 # compile documentation if sources are available and it is not a
 # separate package distribution:

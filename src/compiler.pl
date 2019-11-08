@@ -1241,9 +1241,9 @@ checkGlobalTypeForCorrectTypes(PredName,'FuncType'(T1,T2)) :-
 	checkGlobalTypeForCorrectTypes(PredName,T2).
 checkGlobalTypeForCorrectTypes(PredName,'TCons'(TC,_)) :-
 	atom_codes(TCA,TC),
-	member(TCA,['Prelude.IO','IOExts.IORef','Dynamic.Dynamic','Ports.Port',
-		    %'IO.Handle',
-		    'Socket.Socket']),
+	member(TCA,['Prelude.IO','Data.IORef.IORef','Dynamic.Dynamic','Ports.Port',
+		    %'System.IO.Handle',
+		    'Network.Socket.Socket']),
 	!,
 	nlErr,
 	writeErr('ERROR: Type of global declaration "'),
@@ -1316,8 +1316,8 @@ checkDynamicTypeForCorrectTypes(PredName,'FuncType'(T1,T2)) :-
 	checkDynamicTypeForCorrectTypes(PredName,T2).
 checkDynamicTypeForCorrectTypes(PredName,'TCons'(TC,_)) :-
 	atom_codes(TCA,TC),
-	member(TCA,['IOExts.IORef','Dynamic.Dynamic','Ports.Port',%'IO.Handle',
-		    'Socket.Socket']),
+	member(TCA,['Data.IORef.IORef','Dynamic.Dynamic','Ports.Port',%'System.IO.Handle',
+		    'Network.Socket.Socket']),
 	!,
 	nlErr,
 	writeErr('ERROR: Type of dynamic predicate "'),

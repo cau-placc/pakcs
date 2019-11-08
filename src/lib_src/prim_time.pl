@@ -9,16 +9,16 @@
 
 :- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 
-prim_getClockTime('Time.CTime'(CTime)) :- currentClockTime(CTime).
+prim_getClockTime('Data.Time.CTime'(CTime)) :- currentClockTime(CTime).
 
-prim_toCalendarTime('Time.CTime'(ClockTime),
-		    'Time.CalendarTime'(Year,Month,Day,Hour,Min,Sec,TZ)) :-
+prim_toCalendarTime('Data.Time.CTime'(ClockTime),
+		    'Data.Time.CalendarTime'(Year,Month,Day,Hour,Min,Sec,TZ)) :-
 	clocktime2localtime(ClockTime,Year,Month,Day,Hour,Min,Sec,TZ).
 
-prim_toUTCTime('Time.CTime'(ClockTime),
-	       'Time.CalendarTime'(Year,Month,Day,Hour,Min,Sec,0)) :-
+prim_toUTCTime('Data.Time.CTime'(ClockTime),
+	       'Data.Time.CalendarTime'(Year,Month,Day,Hour,Min,Sec,0)) :-
 	clocktime2utctime(ClockTime,Year,Month,Day,Hour,Min,Sec).
 
-prim_toClockTime('Time.CalendarTime'(Year,Month,Day,Hour,Min,Sec,TZ),
-		 'Time.CTime'(CTime)) :-
+prim_toClockTime('Data.Time.CalendarTime'(Year,Month,Day,Hour,Min,Sec,TZ),
+		 'Data.Time.CTime'(CTime)) :-
 	date2clocktime(Year,Month,Day,Hour,Min,Sec,TZ,CTime).
