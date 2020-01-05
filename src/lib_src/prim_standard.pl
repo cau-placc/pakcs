@@ -220,7 +220,7 @@ prim_writeFileWorld(RA,S,W,H,E0,E) :- user:derefAll(RA,A),
 	string2Atom(A,FName),
 	fileOpenOptions(Options),
 	open(FName,write,Stream,Options),
-	prim_writeFileContents(Stream,S,W,H,E0,E).	
+	prim_writeFileContents(Stream,S,W,H,E0,E).
 
 ?- block prim_appendFile(?,?,?,-,?).
 prim_appendFile(F,S,partcall(1,prim_appendFileWorld,[S,F]),E,E).
@@ -230,7 +230,7 @@ prim_appendFileWorld(RA,S,W,H,E0,E) :- user:derefAll(RA,A),
 	string2Atom(A,FName),
 	fileOpenOptions(Options),
 	open(FName,append,Stream,Options),
-	prim_writeFileContents(Stream,S,W,H,E0,E).	
+	prim_writeFileContents(Stream,S,W,H,E0,E).
 
 ?- block prim_writeFileContents(?,?,?,?,-,?).
 prim_writeFileContents(Stream,Contents,W,R,E0,E) :-
@@ -759,6 +759,8 @@ allUnboundVariables(Vs) :-
 % (first argument must be the functional pattern):
 :- block unifEq(?,?,?,-,?).
 unifEq(A,B,R,E0,E):- user:hnf(A,HA,E0,E1), unifEq1(HA,B,R,E1,E).
+% unifEq will have a useless dict argument first, so we remove that one
+unifEq(_,A,B,R,E0,E):- unifEq(A,B,R,E0,E).
 
 :- block unifEq1(?,?,?,-,?).
 % In the following clause, we bind a functional pattern variable to the
@@ -888,6 +890,8 @@ genUnifEqHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.=:<='(ArgA,ArgB),G)):-
 :- block unifEqLinear(?,?,?,-,?).
 unifEqLinear(A,B,R,E0,E):-
 	user:hnf(A,HA,E0,E1), unifEqLinear1(HA,B,R,E1,E).
+% unifEqLinear will have a useless dict argument first, so we remove that one
+unifEqLinear(_,A,HA,E0,E1):- unifEqLinear(A,HA,E0,E1).
 
 :- block unifEqLinear1(?,?,?,-,?).
 % In the following clause, we bind a function pattern variable to the
