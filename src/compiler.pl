@@ -1739,10 +1739,10 @@ transConstrEq(Suffix) :-
 	ConstrEqHnf_HA_HB_R_E2_E =.. [ConstrEqHnfOrg,HA,HB,R,E2,E],
 	(compileWithDebug ->
             writeClause((ConstrEq_A_B_R_E0_E :-
-			                 traceCall('Prelude.=:='(A,B),Skip),
+			                 traceCall('Prelude.constrEq'(A,B),Skip),
 	                                 hnf(A,HA,E0,E1), hnf(B,HB,E1,E2),
 	                                 ConstrEqHnf_HA_HB_R_E2_E,
-					 traceExit('Prelude.=:='(A,B),
+					 traceExit('Prelude.constrEq'(A,B),
 						   'Prelude.True',
 						   E,Skip)))
           ; writeClause((ConstrEq_A_B_R_E0_E :- hnf(A,HA,E0,E1),hnf(B,HB,E1,E2),
@@ -1767,7 +1767,7 @@ transConstrEq(Suffix) :-
 	    writeClause((ConstrEqHnf_X_FAIL_E_E :- !)),
 	    writeClause((ConstrEqHnf_A_B_R_E0_E :- number(A), !,
              (A=B -> R='Prelude.True', E0=E
-	           ; prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E))))),
+	           ; prim_failure(partcall(2,'Prelude.constrEq',[]),[A,B],R,E0,E))))),
 	appendAtom(genConstrEqHnfBody,Suffix,GenConstrEqHnfBody),
 	GenConstrEqHnfBody_1_NA =.. [GenConstrEqHnfBody,1,NA,A,B,EqBody],
 	writeClause((ConstrEqHnf_A_B_R_E0_E :-
@@ -1777,12 +1777,12 @@ transConstrEq(Suffix) :-
 	(printConsFailure(no) -> true
 	 ; ConstrEqHnf_A_B_FAIL_E0_E =.. [ConstrEqHnf,A,B,R,E0,E],
 	   writeClause((ConstrEqHnf_A_B_FAIL_E0_E :-
-		          prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E)))),
+		          prim_failure(partcall(2,'Prelude.constrEq',[]),[A,B],R,E0,E)))),
 	nl,
 	GenConstrEqHnfBody_N_NA_Succ =..
              [GenConstrEqHnfBody,N,NA,_,_,'Prelude.True'],
 	writeClause((GenConstrEqHnfBody_N_NA_Succ :- N>NA,!)),
-	appendAtom('Prelude.=:=',Suffix,Eq),
+	appendAtom('Prelude.constrEq',Suffix,Eq),
 	Eq_ArgA_ArgB =.. [Eq,ArgA,ArgB],
 	GenConstrEqHnfBody_N_NA_Eq =.. [GenConstrEqHnfBody,N,NA,A,B,Eq_ArgA_ArgB],
 	writeClause((GenConstrEqHnfBody_N_NA_Eq :- N=NA, !,
@@ -1820,7 +1820,7 @@ transConstrEq(Suffix) :-
 	    writeClause((BindDirect_X_T_R_E0_E :-
 			     OccursNot_X_T, !, X=T, R='Prelude.True', E0=E)),
 	    writeClause((BindDirect_X_T_R_E0_E :-
-		       prim_failure(partcall(2,'Prelude.=:=',[]),[X,T],R,E0,E)))),
+		       prim_failure(partcall(2,'Prelude.constrEq',[]),[X,T],R,E0,E)))),
 	nl,
 	Bind_X_T_E0_E =.. [Bind,X,T,'Prelude.True',E0,E],
 	writeClause((Bind_X_T_E0_E :- var(T), !, X=T, E0=E)),
@@ -1841,7 +1841,7 @@ transConstrEq(Suffix) :-
 		        functor(B,FB,NB), OccursNotArgs_1_NB_A_B, !,
 		        functor(A,FB,NB), BindArgs_1_NB_A_B_R_E0_E)),
 	    writeClause((Bind_A_B_R_E0_E :-
-		       prim_failure(partcall(2,'Prelude.=:=',[]),[A,B],R,E0,E)))),
+		       prim_failure(partcall(2,'Prelude.constrEq',[]),[A,B],R,E0,E)))),
 	nl,
 	OccursNotArgs_N_NA_A_B =.. [OccursNotArgs,N,NA,A,B],
 	OccursNotArgs_N1_NA_A_B =.. [OccursNotArgs,N1,NA,A,B],
@@ -1887,9 +1887,9 @@ transConstrEq_hnf(Cons/Arity) :-
          ; gen_constrEq_hnf_body(Xs,Ys,Body),
 	   writeClause((constrEq_hnf(CX,CY,E0,E) :- !, hnf(Body,_,E0,E)))).
 
-gen_constrEq_hnf_body([X],[Y],'Prelude.=:='(X,Y)).
+gen_constrEq_hnf_body([X],[Y],'Prelude.constrEq'(X,Y)).
 gen_constrEq_hnf_body([X1,X2|Xs],[Y1,Y2|Ys],
-		      'Prelude.&'('Prelude.=:='(X1,Y1),Body)) :-
+		      'Prelude.&'('Prelude.constrEq'(X1,Y1),Body)) :-
 	gen_constrEq_hnf_body([X2|Xs],[Y2|Ys],Body).
 
 

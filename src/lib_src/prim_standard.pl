@@ -759,8 +759,6 @@ allUnboundVariables(Vs) :-
 % (first argument must be the functional pattern):
 :- block unifEq(?,?,?,-,?).
 unifEq(A,B,R,E0,E):- user:hnf(A,HA,E0,E1), unifEq1(HA,B,R,E1,E).
-% unifEq will have a useless dict argument first, so we remove that one
-unifEq(_,A,B,R,E0,E):- unifEq(A,B,R,E0,E).
 
 :- block unifEq1(?,?,?,-,?).
 % In the following clause, we bind a functional pattern variable to the
@@ -812,7 +810,7 @@ getControlVar(X,Below,[control(Y,YBelow,NewVar,NewConstraint)|_],NewX) :- X==Y, 
 	% that is later executed.
 	((Below=inConstructorCall, YBelow=inConstructorCall)
 	 -> (var(NewConstraint)
-	     -> NewConstraint = 'Prelude.=:='(X,NewVar), NewX=X
+	     -> NewConstraint = 'Prelude.constrEq'(X,NewVar), NewX=X
  	      ; NewX=NewVar)
 	  ; % multiple occurrence of a variable X, where one occurrence is in a
 	    % function call, are replaced by an expression that
@@ -825,11 +823,11 @@ getControlVar(X,Below,[control(Y,YBelow,NewVar,NewConstraint)|_],NewX) :- X==Y, 
 	    NewX=NewVar,
 	    (var(NewConstraint)
 	     -> NewVar = 'Prelude.&>'('Prelude.ifVar'(ShareVar,
-				      'Prelude.=:='(ShareVar,'Prelude.()'),
-				      'Prelude.=:='(CtrlVar,'Prelude.()')),X),
+				      'Prelude.constrEq'(ShareVar,'Prelude.()'),
+				      'Prelude.constrEq'(CtrlVar,'Prelude.()')),X),
 	        NewConstraint = 'Prelude.ifVar'(CtrlVar,
 						'Prelude.True',
-						'Prelude.=:='(X,X))
+						'Prelude.constrEq'(X,X))
  	      ; true)).
 getControlVar(X,Below,[_|L],NewVar) :- getControlVar(X,Below,L,NewVar).
 
@@ -849,8 +847,8 @@ replaceMultipleVariablesInArgs([X|Args],Below,Vars,[NewArg|LinArgs]) :-
 replaceMultipleVariablesInArgs([Arg|Args],Below,Vars,[Arg|LinArgs]) :-
 	% avoid repeating replacing already replaced variables
 	Arg = 'Prelude.&>'('Prelude.ifVar'(ShareVar,
-				      'Prelude.=:='(ShareVar,'Prelude.()'),
-				      'Prelude.=:='(_CtrlVar,'Prelude.()')),_),
+				      'Prelude.constrEq'(ShareVar,'Prelude.()'),
+				      'Prelude.constrEq'(_CtrlVar,'Prelude.()')),_),
         !,
 	replaceMultipleVariablesInArgs(Args,Below,Vars,LinArgs).
 replaceMultipleVariablesInArgs([Arg|Args],Below,Vars,[LinArg|LinArgs]) :-
@@ -867,18 +865,18 @@ unifEqHnf(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
 unifEqHnf(A,B,R,E0,E) :-
 	number(A), !,
 	(A=B -> R='Prelude.True', E0=E
-	      ; prim_failure(partcall(2,'Prelude.=:<=',[]),[A,B],R,E0,E)).
+	      ; prim_failure(partcall(2,'Prelude.unifEq',[]),[A,B],R,E0,E)).
 unifEqHnf(A,B,R,E0,E) :-
 	functor(A,FuncA,ArA), functor(B,FuncB,ArB), FuncA==FuncB, ArA==ArB, !,
 	genUnifEqHnfBody(1,ArA,A,B,Con), user:hnf(Con,R,E0,E).
 unifEqHnf(A,B,R,E0,E) :-
-	prim_failure(partcall(2,'Prelude.=:<=',[]),[A,B],R,E0,E).
+	prim_failure(partcall(2,'Prelude.unifEq',[]),[A,B],R,E0,E).
 
 genUnifEqHnfBody(N,Arity,_,_,'Prelude.True') :- N>Arity, !.
-genUnifEqHnfBody(N,Arity,A,B,'Prelude.=:<='(ArgA,ArgB)):-
+genUnifEqHnfBody(N,Arity,A,B,'Prelude.unifEq'(ArgA,ArgB)):-
 	N=Arity, !,
 	arg(N,A,ArgA), arg(N,B,ArgB).
-genUnifEqHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.=:<='(ArgA,ArgB),G)):-
+genUnifEqHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.unifEq'(ArgA,ArgB),G)):-
 	arg(N,A,ArgA), arg(N,B,ArgB),
 	N1 is N+1,
 	genUnifEqHnfBody(N1,Arity,A,B,G).
@@ -890,8 +888,6 @@ genUnifEqHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.=:<='(ArgA,ArgB),G)):-
 :- block unifEqLinear(?,?,?,-,?).
 unifEqLinear(A,B,R,E0,E):-
 	user:hnf(A,HA,E0,E1), unifEqLinear1(HA,B,R,E1,E).
-% unifEqLinear will have a useless dict argument first, so we remove that one
-unifEqLinear(_,A,HA,E0,E1):- unifEqLinear(A,HA,E0,E1).
 
 :- block unifEqLinear1(?,?,?,-,?).
 % In the following clause, we bind a function pattern variable to the
@@ -921,18 +917,18 @@ unifEqLinearHnf(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
 unifEqLinearHnf(A,B,R,E0,E) :-
 	number(A), !,
 	(A=B -> R='Prelude.True', E0=E
-	      ; prim_failure(partcall(2,'Prelude.=:<<=',[]),[A,B],R,E0,E)).
+	      ; prim_failure(partcall(2,'Prelude.unifEqLinear',[]),[A,B],R,E0,E)).
 unifEqLinearHnf(A,B,R,E0,E) :-
 	functor(A,FuncA,ArA), functor(B,FuncB,ArB), FuncA==FuncB, ArA==ArB, !,
 	genUnifEqLinearHnfBody(1,ArA,A,B,Con), user:hnf(Con,R,E0,E).
 unifEqLinearHnf(A,B,R,E0,E) :-
-	prim_failure(partcall(2,'Prelude.=:<<=',[]),[A,B],R,E0,E).
+	prim_failure(partcall(2,'Prelude.unifEqLinear',[]),[A,B],R,E0,E).
 
 genUnifEqLinearHnfBody(N,Arity,_,_,'Prelude.True') :- N>Arity, !.
-genUnifEqLinearHnfBody(N,Arity,A,B,'Prelude.=:<<='(ArgA,ArgB)):-
+genUnifEqLinearHnfBody(N,Arity,A,B,'Prelude.unifEqLinear'(ArgA,ArgB)):-
 	N=Arity, !,
 	arg(N,A,ArgA), arg(N,B,ArgB).
-genUnifEqLinearHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.=:<<='(ArgA,ArgB),G)):-
+genUnifEqLinearHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.unifEqLinear'(ArgA,ArgB),G)):-
 	arg(N,A,ArgA), arg(N,B,ArgB),
 	N1 is N+1,
 	genUnifEqLinearHnfBody(N1,Arity,A,B,G).
