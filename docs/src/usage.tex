@@ -78,7 +78,7 @@ The output of other information is determined by the options
 One can also invoke \CYS with some run-time arguments
 that can be accessed inside a Curry program
 by the I/O operation \code{getArgs}
-(see library \code{System} (Section~\ref{Library:System}).
+(see library \code{System} (Section~\ref{Library:System.Environment}).
 These run-time arguments must be written at the end after
 the separator \ccode{--}.
 For instance, if \CYS is invoked by
@@ -516,7 +516,7 @@ For instance, setting the option
 :set args first second
 \end{curry}
 has the effect that the I/O operation \code{getArgs}
-(see library \code{System} (Section~\ref{Library:System})
+(see library \code{System} (Section~\ref{Library:System.Environment})
 returns the value \code{["first","second"]}.
 
 \end{description}
