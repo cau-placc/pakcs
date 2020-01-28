@@ -72,10 +72,13 @@ fcy2flcTypeExpr('TCons'(TName,TEs),'TCons'(FTName,FTEs)) :-
 fcy2flcTypeExpr('ForallType'(Is,TE),FAT) :-
 	    fcy2flcForallTypeExpr(Is,TE,FAT).
 
-fcy2flcForallTypeExpr([],TE,FTE) :-
-	    fcy2flcTypeExpr(TE,FTE).
-fcy2flcForallTypeExpr([I|Is],TE,'TCons'("Prelude.Forall",['TVar'(I),FAT])) :-
-	    fcy2flcForallTypeExpr(Is,TE,FAT).
+fcy2flcForallTypeExpr([],TE,FTE) :- !,
+    fcy2flcTypeExpr(TE,FTE).
+%fcy2flcForallTypeExpr(['Prelude.(,)'(I,_)|Is],TE,
+%	    'TCons'("Prelude.Forall",['TVar'(I),FAT])) :- !,
+%    fcy2flcForallTypeExpr(Is,TE,FAT).
+fcy2flcForallTypeExpr([_|Is],TE,FAT) :-
+    fcy2flcForallTypeExpr(Is,TE,FAT).
 
 fcy2flcFunc('Func'(FName,Arity,Vis,Type,Rule),
 	    'Func'(FFName,Arity,Vis,FType,FRule)) :-
