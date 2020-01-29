@@ -69,15 +69,16 @@ fcy2flcTypeExpr('FuncType'(T1,T2),'FuncType'(FT1,FT2)) :-
 fcy2flcTypeExpr('TCons'(TName,TEs),'TCons'(FTName,FTEs)) :-
 	fcy2flcQName(TName,FTName),
 	map2M(readFlcFromFcy:fcy2flcTypeExpr,TEs,FTEs).
-fcy2flcTypeExpr('ForallType'(Is,TE),FAT) :-
-	    fcy2flcForallTypeExpr(Is,TE,FAT).
+%fcy2flcTypeExpr('ForallType'(Is,TE),FAT) :-
+%	    fcy2flcForallTypeExpr(Is,TE,FAT).
+% forall quantifiers in types are removed since they are not relevant for PAKCS
+fcy2flcTypeExpr('ForallType'(_,TE),FTE) :-
+	    fcy2flcTypeExpr(TE,FTE).
 
 fcy2flcForallTypeExpr([],TE,FTE) :- !,
     fcy2flcTypeExpr(TE,FTE).
-%fcy2flcForallTypeExpr(['Prelude.(,)'(I,_)|Is],TE,
-%	    'TCons'("Prelude.Forall",['TVar'(I),FAT])) :- !,
-%    fcy2flcForallTypeExpr(Is,TE,FAT).
-fcy2flcForallTypeExpr([_|Is],TE,FAT) :-
+fcy2flcForallTypeExpr(['Prelude.(,)'(I,_)|Is],TE,
+	    'TCons'("Prelude.Forall",['TVar'(I),FAT])) :- !,
     fcy2flcForallTypeExpr(Is,TE,FAT).
 
 fcy2flcFunc('Func'(FName,Arity,Vis,Type,Rule),

@@ -372,7 +372,8 @@ readIdTerm(Id,_,S,_) :-
 	writeErr('ERROR in ReadShowTerm.readTerm: Unknown symbol: '),
 	writeErr(Id), nlErr,
 	writeErr('in remaining term string: '),
-	putChars(user_error,S), nlErr,
+        take(1000,S,ShortS),
+	putChars(user_error,ShortS), nlErr,
 	!, fail.
 
 % try to add a qualifier to a unique unqualified constructor symbol

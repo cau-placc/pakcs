@@ -1346,7 +1346,7 @@ writeFunc('Func'(Name,FArity,_,Type,'External'(ExtNameS))) :-
 	isIOAction(Type), !,
 	% generate standard external interface for I/O operations:
 	flatName2Atom(Name,FName),
-	length(Args,FArity),
+        length(Args,FArity),
 	rev(Args,RevArgs),
 	appendAtom(FName,'$WORLD',FNameWorld),
 	append(Args,[partcall(1,FNameWorld,RevArgs),E,E],PFArgs),
