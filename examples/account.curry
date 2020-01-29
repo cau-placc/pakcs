@@ -24,7 +24,7 @@ goal2 b = let s free in
             s=:=[Deposit 200, Withdraw 100, Deposit 50, Balance b]
 
 -- send a message:
-sendMsg :: msg -> [msg] -> [msg]
+sendMsg :: Data msg => msg -> [msg] -> [msg]
 sendMsg msg obj | obj =:= msg:obj1  = obj1  where obj1 free  -- send a message
 
 -- client process for bank account:

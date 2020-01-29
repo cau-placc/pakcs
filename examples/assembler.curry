@@ -20,7 +20,7 @@ assembler (Jump l : ins) st a
   | lookupST l st label st1   = 9:label:assembler ins st1 (a+2)
   where label,st1 free
 assembler (Label l : ins) st a 
-  | st1 == insertST l a st    = assembler ins st1 a
+  | st1 =:= insertST l a st   = assembler ins st1 a
   where st1 free
 
 -- insert an address of a labelid in a symboltable:
