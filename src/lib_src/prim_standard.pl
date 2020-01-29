@@ -23,7 +23,7 @@
 %	   prim_try/4, prim_findall/4, waitUntilGround/3, prim_findfirst/4,
 %	   prim_getOneSolution/4,
 %	   prim_allValues/4, prim_someValue/4,, prim_oneValue/4,
-%	   unifEq/5, unifEqLinear/5, prim_ifVar/6]).
+%	   'Prelude.=:<='/6, unifEqLinear/5, prim_ifVar/6]).
 
 :- (current_module(prologbasics) -> true ; use_module('../prologbasics')).
 :- (current_module(basics)       -> true ; use_module('../basics')).
@@ -757,16 +757,17 @@ allUnboundVariables(Vs) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Directed non-strict equality for matching against functional patterns:
 % (first argument must be the functional pattern):
-:- block unifEq(?,?,?,-,?).
-unifEq(A,B,R,E0,E):- user:hnf(A,HA,E0,E1), unifEq1(HA,B,R,E1,E).
+:- block 'Prelude.=:<='(?,?,?,?,-,?).
+'Prelude.=:<='(Dict,A,B,R,E0,E):-
+        user:hnf(A,HA,E0,E1), unifEq1(Dict,HA,B,R,E1,E).
 
-:- block unifEq1(?,?,?,-,?).
+:- block unifEq1(?,?,?,?,-,?).
 % In the following clause, we bind a functional pattern variable to the
 % actual argument. This binding of a logical variable against
 % a non-constructor term is not problematic since the functional pattern
 % variable is a logical variable that is not enclosed
 % by a sharing structure (compare definition of makeShare).
-unifEq1(FPat,ActArg,'Prelude.True',E0,E) :-
+unifEq1(_,FPat,ActArg,'Prelude.True',E0,E) :-
 	var(FPat), !,
 	user:occursNot(FPat,ActArg),
 	%FPat=ActArg, % this would implement run-time choice
@@ -777,15 +778,15 @@ unifEq1(FPat,ActArg,'Prelude.True',E0,E) :-
 	makeShare(ActArg,FPat),
 	%writeErr('BOUND TO: '), removeShares(ActArg,AA), writeErr(AA), nlErr,
 	E0=E.
-unifEq1('FAIL'(Src),_,'FAIL'(Src),E,E):- !.
-unifEq1(A,B,R,E0,E) :-
+unifEq1(_,'FAIL'(Src),_,'FAIL'(Src),E,E):- !.
+unifEq1(Dict,A,B,R,E0,E) :-
 	replaceMultipleVariables(A,LinA,LinConstraints),
 	user:hnf(B,HB,E0,E1),
-	unifEqHnf(LinA,HB,EqR,E1,E2),
-	unifEq2(EqR,LinConstraints,R,E2,E).
+	unifEqHnf(Dict,LinA,HB,EqR,E1,E2),
+	unifEq2(Dict,EqR,LinConstraints,R,E2,E).
 
-:- block unifEq2(?,?,?,-,?).
-unifEq2(EqR,LinConstraints,R,E0,E) :-
+:- block unifEq2(?,?,?,?,-,?).
+unifEq2(_,EqR,LinConstraints,R,E0,E) :-
 	isFail(EqR)
 	-> R=EqR, E0=E
 	 ; %(LinConstraints='Prelude.True' -> true
@@ -858,28 +859,29 @@ replaceMultipleVariablesInArgs([Arg|Args],Below,Vars,[LinArg|LinArgs]) :-
    	LinArg =.. [FC|LinTs],
 	replaceMultipleVariablesInArgs(Args,Below,Vars,LinArgs).
 
-:- block unifEqHnf(?,?,?,-,?).
-unifEqHnf(A,B,Success,E0,E) :- var(B),!,
+:- block unifEqHnf(?,?,?,?,-,?).
+unifEqHnf(_,A,B,Success,E0,E) :- var(B),!,
 	user:bind(B,A,Success,E0,E).  % in order to evaluate function pattern
-unifEqHnf(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
-unifEqHnf(A,B,R,E0,E) :-
+unifEqHnf(_,_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
+unifEqHnf(Dict,A,B,R,E0,E) :-
 	number(A), !,
 	(A=B -> R='Prelude.True', E0=E
-	      ; prim_failure(partcall(2,'Prelude.unifEq',[]),[A,B],R,E0,E)).
-unifEqHnf(A,B,R,E0,E) :-
+	      ; prim_failure(partcall(2,'Prelude.=:<=',[Dict]),[A,B],R,E0,E)).
+unifEqHnf(Dict,A,B,R,E0,E) :-
 	functor(A,FuncA,ArA), functor(B,FuncB,ArB), FuncA==FuncB, ArA==ArB, !,
-	genUnifEqHnfBody(1,ArA,A,B,Con), user:hnf(Con,R,E0,E).
-unifEqHnf(A,B,R,E0,E) :-
-	prim_failure(partcall(2,'Prelude.unifEq',[]),[A,B],R,E0,E).
+	genUnifEqHnfBody(1,ArA,Dict,A,B,Con), user:hnf(Con,R,E0,E).
+unifEqHnf(Dict,A,B,R,E0,E) :-
+	prim_failure(partcall(2,'Prelude.=:<=',[Dict]),[A,B],R,E0,E).
 
-genUnifEqHnfBody(N,Arity,_,_,'Prelude.True') :- N>Arity, !.
-genUnifEqHnfBody(N,Arity,A,B,'Prelude.unifEq'(ArgA,ArgB)):-
+genUnifEqHnfBody(N,Arity,_,_,_,'Prelude.True') :- N>Arity, !.
+genUnifEqHnfBody(N,Arity,Dict,A,B,'Prelude.=:<='(Dict,ArgA,ArgB)):-
 	N=Arity, !,
 	arg(N,A,ArgA), arg(N,B,ArgB).
-genUnifEqHnfBody(N,Arity,A,B,'Prelude.&'('Prelude.unifEq'(ArgA,ArgB),G)):-
+genUnifEqHnfBody(N,Arity,Dict,A,B,
+                 'Prelude.&'('Prelude.=:<='(Dict,ArgA,ArgB),G)):-
 	arg(N,A,ArgA), arg(N,B,ArgB),
 	N1 is N+1,
-	genUnifEqHnfBody(N1,Arity,A,B,G).
+	genUnifEqHnfBody(N1,Arity,Dict,A,B,G).
 
 % Directed non-strict equality for matching against linear function patterns,
 % i.e., it must be ensured that the first argument is always (after evalutation

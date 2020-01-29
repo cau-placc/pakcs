@@ -568,7 +568,7 @@ revTransFunctor(IntName,Name) :-
 revTransFunctor(Name,Name).
 
 % is this a class dictionary?
-isInstDict(T) :- var(T), fail.
+isInstDict(T) :- var(T), !, fail.
 isInstDict(T) :- atom(T), !, isInstDictName(T).
 isInstDict(T) :- number(T), !, fail.
 isInstDict(T) :- T =.. [Name|_], isInstDictName(Name).
