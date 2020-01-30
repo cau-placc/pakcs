@@ -100,46 +100,6 @@ prim_letrec(X,XE,'Prelude.True',E0,E) :- create_mutable(XE,MX), X=share(MX), E0=
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Definition of comparsion of primitive data:
-%
-prim_eqBasic(Y,X,R) :- X==Y -> R='Prelude.True' ; R='Prelude.False'.
-
-prim_leqNumber(Y,X,R) :- X=<Y -> R='Prelude.True' ; R='Prelude.False'.
-
-prim_leqChar(Y,X,R) :-
-	char_int(X,VX), char_int(Y,VY),
-	VX=<VY -> R='Prelude.True' ; R='Prelude.False'.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Definition of arithmetic functions:
-%
-prim_Int_plus(Y,X,R) :- R is X+Y.
-
-prim_Int_minus(Y,X,R) :- R is X-Y.
-
-prim_Int_times(Y,X,R) :- R is X*Y.
-
-prim_Int_div(Y,X,R) :- R is div(X,Y).
-
-prim_Int_mod(Y,X,R) :- isMod(R,X,Y).
-
-prim_Int_quot(Y,X,R) :- R is X // Y.
-
-prim_Int_rem(Y,X,R) :- isRem(R,X,Y).
-
-prim_negateFloat(X,R) :- R is -X.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Definition of conversion functions for characters:
-%
-prim_ord(C,N) :- char_int(C,N).
-
-prim_chr(N,C) :- N>=0, N<1114112, !, char_int(C,N).
-prim_chr(_,_) :- raise_exception('chr: argument out of range').
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Definition of I/O actions:
 %
 ?- block prim_Monad_bind(?,?,?,-,?).
@@ -170,21 +130,6 @@ prim_return(V,partcall(1,prim_returnWorld,[V]),E,E).
 prim_returnWorld(A,_,'$io'(A),E,E).
 
 
-prim_putChar(C,'Prelude.()') :-
-	char_int(C,N), put_code(N),
-	%flush_output. % this is problematic for Sicstus4 (substantial delay)
-	(N=10 -> flush_output ; true).
-
-prim_getChar(C) :- get_code(N), char_int(C,N).
-
-
-prim_readFile(A,_) :-
-	map2M(basics:char_int,A,As),
-	isURL(As), !,
-	append("readFile """,As,E1),
-	append(E1,""": URLs no longer supported in readFile!",E2),
-	atom_codes(EMsg,E2),
-	raise_exception(EMsg).
 prim_readFile(A,Result) :-
 	string2Atom(A,FName),
 	fileOpenOptions(Options),
@@ -192,10 +137,6 @@ prim_readFile(A,Result) :-
 	(compileWithSharing(function)
 	 -> makeShare('Prelude.prim_readFileContents'(Stream),Result)
 	  ; Result = 'Prelude.prim_readFileContents'(Stream)).
-
-isURL(S) :- append("http://",_,S), !.
-isURL(S) :- append("ftp://",_,S), !.
-
 
 ?- block prim_readFileContents(?,?,-,?).
 prim_readFileContents(Stream,Result,E0,E) :-

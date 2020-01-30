@@ -254,7 +254,7 @@ generateProgOnFile('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
 	map1M(compiler:writeDynamicInfoClause,DynPreds),
 	nl,
 	write('%%%%% Number of shared variables: '),
-	numberOfShares(SC), write(SC), nl,
+	numberOfShares(SC), write(SC), nl, nl,
         (PrimPlFile = '' -> true
          ; (verbosityIntermediate
             -> writeErr('Adding code of Prolog file: '), writeLnErr(PrimPlFile)
