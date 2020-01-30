@@ -7,7 +7,7 @@
 	  [c2p/1, c2p/2,
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
 	   forbiddenModules/1, writeClause/1,
-	   readProg/4,
+	   readProg/5,
 	   checkProgramHeader/1, deletePrologTarget/1,
 	   maxTupleArity/1, tryXml2Fcy/1, varIndex2VarExp/2]).
 
@@ -119,8 +119,8 @@ c2p(Prog,PrologFile) :-
 	(includePrelude
 	 -> readImportedEntities(LoadPath,[ModName],[],
 				 [],[],[],_ImpTypes,_ImpFuncs,_ImpOps)
-	  ; readProg(LoadPath,ModName,FlatProg,_),
-	    generateProg(FlatProg,[],[],[],PrologFile)),
+	  ; readProg(LoadPath,ModName,FlatProg,_,PrimPlFile),
+	    generateProg(FlatProg,[],[],[],PrologFile,PrimPlFile)),
 	!.
 c2p(Prog,PrologFile) :-
 	writeErr('ERROR during compilation of program "'),
@@ -159,13 +159,14 @@ readImportedEntities(LoadPath,[Imp|Imps],ProcessedImps,
 			     AllImpTypes,AllImpFuncs,AllImpOps),
 	prog2PrologFile(DirProg,PrologFile),
 	(doesPrologTranslationExists(DirProg,PrologFile) -> true
-	 ; readProg(LoadPath,Imp,ImpProg,AbsFlatProgFile),
+	 ; readProg(LoadPath,Imp,ImpProg,AbsFlatProgFile,PrimPlFile),
 	   (verbosityIntermediate
              -> appendAtoms(['Compiling \'',AbsFlatProgFile,'\' into \'',
 	                     PrologFile,'\'...'],CompileMsg),
                 writeErr(CompileMsg)
               ; true),
-	   generateProg(ImpProg,AllImpTypes,AllImpFuncs,AllImpOps,PrologFile),
+	   generateProg(ImpProg,AllImpTypes,AllImpFuncs,AllImpOps,PrologFile,
+                        PrimPlFile),
 	   (verbosityIntermediate -> writeLnErr('done') ; true)
         ).
 
@@ -219,7 +220,7 @@ initializeCompilerState :-
 	op(0,xfx,(>=.)).
 
 
-generateProg(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
+generateProg(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile,PrimPlFile) :-
 	initializeCompilerState,
 	(compileWithDebug
 	 -> writeLnErr('...including code for debugging')
@@ -230,15 +231,15 @@ generateProg(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
 	ensureDirOfFile(PrologFile),
         (existsFile(PrologFile)
          -> (isWritableFile(PrologFile)
-             -> generateProgOnFile(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile)
+             -> generateProgOnFile(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile,PrimPlFile)
               ; writeLnErr('WARNING: target file not updated (exists but not writable):'),
                 writeLnErr(PrologFile))
           ; tryWriteFile(PrologFile),
-            generateProgOnFile(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile)).
+            generateProgOnFile(Prog,ImpTypes,ImpFuncs,ImpOps,PrologFile,PrimPlFile)).
 
 
 generateProgOnFile('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
-             ImpTypes,ImpFuncs,ImpOps,PrologFile) :-
+             ImpTypes,ImpFuncs,ImpOps,PrologFile,PrimPlFile) :-
 	tell(PrologFile),
 	writePrologHeader,
 	writeClause((:- noSingletonWarnings)),
@@ -254,8 +255,13 @@ generateProgOnFile('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
 	nl,
 	write('%%%%% Number of shared variables: '),
 	numberOfShares(SC), write(SC), nl,
+        (PrimPlFile = '' -> true
+         ; (verbosityIntermediate
+            -> writeErr('Adding code of Prolog file: '), writeLnErr(PrimPlFile)
+             ; true),
+           readFileContents(PrimPlFile,Cs), putChars(Cs)),
 	told, !.
-generateProgOnFile(_,_,_,_,PrologFile) :-
+generateProgOnFile(_,_,_,_,PrologFile,_) :-
 	told,
 	writeLnErr('ERROR during compiling, no program generated!'),
 	deleteFileIfExists(PrologFile).
@@ -280,7 +286,9 @@ getExternalLibraries(['Func'(_,_,_,_,'External'(EStr))|Funcs],Libs,AllLibs) :-
 	append(LibS,[32|_],EStr), % ext.names have the form "lib ename"
 	!,
 	atom_codes(Lib,LibS),
-	(member(Lib,Libs) -> Libs1=Libs ; Libs1=[Lib|Libs]),
+        % LibS=[] if the external function is defined without a specification
+        % so that its code must be in a standard Prolog file
+	((LibS=[] ; member(Lib,Libs)) -> Libs1=Libs ; Libs1=[Lib|Libs]),
 	getExternalLibraries(Funcs,Libs1,AllLibs).
 getExternalLibraries([_|Funcs],Libs,AllLibs) :-
 	getExternalLibraries(Funcs,Libs,AllLibs).
@@ -334,15 +342,15 @@ readInterfaceInLoadPath([Dir|Dirs],Prog,FlatInt,DirProgName) :-
 	  ; readInterfaceInLoadPath(Dirs,Prog,FlatInt,DirProgName)).
 
 % read a FlatCurry program:
-readProg(LoadPath,Prog,FlatProg,AbsFlatProgFile) :-
-	readProgInLoadPath(LoadPath,Prog,FlatProg,AbsFlatProgFile), !.
-readProg(LoadPath,Prog,_,_) :-
+readProg(LoadPath,Prog,FlatProg,AbsFlatProgFile,PrimPlFile) :-
+	readProgInLoadPath(LoadPath,Prog,FlatProg,AbsFlatProgFile,PrimPlFile), !.
+readProg(LoadPath,Prog,_,_,_) :-
 	write('ERROR: FlatCurry file '), write(Prog),
 	write('.fcy not found!'), nl,
 	write('Current load path: '), write(LoadPath), nl,
 	!, fail.
 
-readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
+readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile,PrimPlFile) :-
 	appendAtoms([Dir,'/',Prog],DirProg),
 	prog2FlatCurryFile(DirProg,DirProgFile),
 	tryXml2Fcy(DirProg),
@@ -352,8 +360,9 @@ readProgInLoadPath([Dir|Dirs],Prog,FlatProg,AbsFlatProgFile) :-
 	    AbsFlatProgFile = DirProgFile,
 	    mergeWithPrimitiveSpecs(PlainFlatProg,DirProg,FlatProg),
 	    (verbosityIntermediate
-	     -> checkForFurtherFcyProgs(Dir,Dirs,Prog) ; true)
-	  ; readProgInLoadPath(Dirs,Prog,FlatProg,AbsFlatProgFile)).
+	     -> checkForFurtherFcyProgs(Dir,Dirs,Prog) ; true),
+            findPrimPrologFile(DirProg,PrimPlFile)
+	  ; readProgInLoadPath(Dirs,Prog,FlatProg,AbsFlatProgFile,PrimPlFile)).
 
 % Pre-process the FlatCurry program before loading for compilation.
 % Currently, the binding optimizer (replace =:=/2 by ==/2) is applied.
@@ -429,6 +438,15 @@ findPrimXmlFile(RealDirProg,PrimXmlFile) :-
         appendAtom(RealDirProg,'.prim_c2p',PrimXmlFile),
 	existsFile(PrimXmlFile), !.
 
+% look for a Prolog file (with suffix .pakcs.pl) containing code
+% for primitive operations to be added to the generated Prolog file
+findPrimPrologFile(DirProg,PrimPrologFile) :-
+        prog2DirProg(DirProg,RealDirProg),
+        appendAtom(RealDirProg,'.pakcs.pl',PrimPrologFile),
+	existsFile(PrimPrologFile),
+        !.
+findPrimPrologFile(_,'').
+
 addModuleName2PrimSpecs(ModNameDot,primitive(F,N,Mod,Entry),primitive(QF,N,Mod,Entry)) :-
 	ModNameDot='prelude.', !, appendAtom('Prelude.',F,QF).
 addModuleName2PrimSpecs(ModNameDot,primitive(F,N,Mod,Entry),primitive(QF,N,Mod,Entry)) :-
@@ -455,7 +473,7 @@ addPrimitiveSpecs2Funcs(PrimSpecs,[],[]) :-
 	writeErrNQ('WARNING: specifications of primitive functions '),
 	writeLnErrNQ('without source code found:'),
 	(quietmode(no) -> map1M(compiler:writePrimSpec,PrimSpecs) ; true), !.
-addPrimitiveSpecs2Funcs(PrimSpecs,['Func'(Name,Arity,_,_Type,_)|Funcs],MFuncs) :-
+addPrimitiveSpecs2Funcs(PrimSpecs,['Func'(Name,Arity,_,_,_)|Funcs],MFuncs) :-
 	flatName2Atom(Name,F),
 	deleteCostCenterInPrologName(F,FWOCC),
 	deleteFirst(ignore(FWOCC,EArity),PrimSpecs,DPrimSpecs), !,
@@ -478,12 +496,25 @@ addPrimitiveSpecs2Funcs(PrimSpecs,
 	append(_,[32|_],EStr), % has the form of an already known primitive
 	!,
 	addPrimitiveSpecs2Funcs(PrimSpecs,Funcs,MFuncs).
-addPrimitiveSpecs2Funcs(_,['Func'(Name,Arity,_,_,'External'(_))|_],_) :-
+addPrimitiveSpecs2Funcs(PrimSpecs,
+			['Func'(Name,Arity,Vis,Type,'External'(_))|Funcs],
+     	                ['Func'(Name,Arity,Vis,Type,'External'(EStr))|MFuncs]) :-
 	flatName2Atom(Name,F),
 	deleteCostCenterInPrologName(F,PWOCC), decodePrologName(PWOCC,FWOCC),
-	writeErr('ERROR: specification of primitive function '),
-	writeErr(FWOCC), writeErr('/'), writeErr(Arity),
-	writeLnErr(' not found!'), !, setFlcBug, fail.
+        appendAtom(' ',FWOCC,EName), atom_codes(EName,EStr), !,
+        (verbosityIntermediate
+         -> writeErr('*** No specification of primitive function '),
+            writeErr(FWOCC), writeErr('/'), writeLnErr(Arity),
+            writeErr('*** Using external name:'), writeLnErr(EName)
+          ; true),
+     	addPrimitiveSpecs2Funcs(PrimSpecs,Funcs,MFuncs).
+   
+%addPrimitiveSpecs2Funcs(_,['Func'(Name,Arity,_,_,'External'(_))|_],_) :-
+%	flatName2Atom(Name,F),
+%	deleteCostCenterInPrologName(F,PWOCC), decodePrologName(PWOCC,FWOCC),
+%	writeErr('ERROR: specification of primitive function '),
+%	writeErr(FWOCC), writeErr('/'), writeErr(Arity),
+%	writeLnErr(' not found!'), !, setFlcBug, fail.
 addPrimitiveSpecs2Funcs(PrimSpecs,[Func|Funcs],[Func|MFuncs]) :-
 	addPrimitiveSpecs2Funcs(PrimSpecs,Funcs,MFuncs).
 

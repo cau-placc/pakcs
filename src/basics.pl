@@ -17,7 +17,7 @@
 		  writeBlanks/1,
 		  onlySICStusMessage/1, checkSICStusAndWarn/1,
 		  onlySWIMessage/1, checkSWIAndWarn/1,
-		  putChars/2, writeChars/2,
+		  putChars/1, putChars/2, writeChars/2,
 		  assertPakcsrc/1, writeRCvalues/0,
 		  evaluateDynamicPredInfo/3, checkDynamicAccessMethod/2,
 		  resetDynamicPreds/0, clearDynamicPreds/0,
@@ -169,6 +169,10 @@ writeLnErrNQ(T) :- writeErrNQ(T), nlErrNQ.
 % write n blanks on standard out:
 writeBlanks(N) :- N>0 -> put_code(32), N1 is N-1, writeBlanks(N1)
 	               ; true.
+
+% write a Prolog string (list of ASCII values):
+putChars([]).
+putChars([C|Cs]) :- put_code(C), putChars(Cs).
 
 % write a Prolog string (list of ASCII values) to a stream (Arg 1):
 putChars(_,[]).

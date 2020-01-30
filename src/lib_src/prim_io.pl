@@ -21,56 +21,6 @@
 :- (current_module(basics)       -> true ; use_module('../basics')).
 :- (current_module(prim_ports)   -> true ; ensure_loaded(prim_ports)). % to implement IO.prim_hWaitForInputsOrMsg
 
-% equality of two handles:
-handle_eq(H1,H2,B) :- (H1=H2 -> B='Prelude.True' ; B='Prelude.False').
-
-prim_stdin(Stream) :- stdInputStream(Stream).
-
-prim_stdout(Stream) :- stdOutputStream(Stream).
-
-prim_stderr(Stream) :- stdErrorStream(Stream).
-
-prim_openFile(A,Mode,Stream) :-
-	string2Atom(A,FName),
-	curryFileMode2plmode(Mode,PMode),
-	fileOpenOptions(Options),
-	open(FName,PMode,Stream,Options).
-
-curryFileMode2plmode('System.IO.ReadMode',read).
-curryFileMode2plmode('System.IO.WriteMode',write).
-curryFileMode2plmode('System.IO.AppendMode',append).
-
-
-prim_hClose('$stream'('$inoutstream'(In,Out)),'Prelude.()') :- !,
-	flush_output(Out),
-	close(Out),
-	(In==Out -> true ; close(In)).
-prim_hClose(Stream,'Prelude.()') :-
-	(isOutputStream(Stream) -> flush_output(Stream) ; true),
-	close(Stream).
-
-
-prim_hFlush('$stream'('$inoutstream'(_,Out)),'Prelude.()') :- !,
-	flush_output(Out).
-prim_hFlush(Stream,'Prelude.()') :-
-	(isOutputStream(Stream) -> flush_output(Stream) ; true).
-
-
-prim_hIsEOF('$stream'('$inoutstream'(In,_)),B) :- !,
-	(atEndOfStream(In) -> B='Prelude.True' ; B='Prelude.False').
-prim_hIsEOF(Stream,B) :-
-	(atEndOfStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
-
-
-prim_hSeek(Handle,SeekMode,Pos,'Prelude.()') :-
-	currySeekMode2plmode(SeekMode,PlSM),
-	seek(Handle,Pos,PlSM,_).
-
-currySeekMode2plmode('System.IO.AbsoluteSeek',bof).
-currySeekMode2plmode('System.IO.RelativeSeek',current).
-currySeekMode2plmode('System.IO.SeekFromEnd',eof).
-
-
 ?- block prim_hWaitForInput(?,?,?,-,?).
 prim_hWaitForInput(Hdl,TO,partcall(1,exec_hWaitForInput,[TO,Hdl]),E,E).
 ?- block exec_hWaitForInput(?,?,?,?,-,?).
@@ -96,36 +46,7 @@ selectInstreams([Stream|Streams],[Stream|InStreams]) :-
 	selectInstreams(Streams,InStreams).
 
 
-prim_hGetChar('$stream'('$inoutstream'(In,_)),C) :- !,
-	get_code(In,N), char_int(C,N).
-prim_hGetChar(Stream,C) :-
-	get_code(Stream,N), char_int(C,N).
-
-
-prim_hPutChar('$stream'('$inoutstream'(_,Out)),C,'Prelude.()') :- !,
-	char_int(C,N), put_code(Out,N).
-prim_hPutChar(Stream,C,'Prelude.()') :-
-	char_int(C,N), put_code(Stream,N).
-
-
-prim_hIsReadable('$stream'('$inoutstream'(_,_)),'Prelude.True') :- !.
-prim_hIsReadable(Stream,B) :-
-	(isInputStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
-
-
-prim_hIsWritable('$stream'('$inoutstream'(_,_)),'Prelude.True') :- !.
-prim_hIsWritable(Stream,B) :-
-	(isOutputStream(Stream) -> B='Prelude.True' ; B='Prelude.False').
-
-
-prim_hIsTerminalDevice('$stream'('$inoutstream'(_,S)),R) :- !,
-	prim_hIsTerminalDevice(S,R).
-prim_hIsTerminalDevice(Stream,B) :-
-	(isTerminalDeviceStream(Stream) -> B='Prelude.True'
-	                                 ; B='Prelude.False').
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % choice on a stream and an external port message stream:
 ?- block prim_hWaitForInputsOrMsg(?,?,?,-,?).

@@ -476,7 +476,7 @@ parseExpressionWithFrontend(MainExprDir,Input,InitMainFuncType,MainExp,
 	loadPath(AbsMainPath,LoadPath),
 	setCurryPath(NewLCP),
 	setWorkingDirectory(MainExprDir),
-	readProg(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_),
+	readProg(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_,_),
 	setCurryPath(LCP), % restore old settings
 	setWorkingDirectory(CurDir),
 	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
