@@ -507,7 +507,8 @@ writeCurryD(S,D,_,T) :-
 	write(S,')').
 writeCurryD(S,D,Nested,T) :-
 	D1 is D-1,
-	T =.. [IntCons,Arg1,Arg2],
+	T =.. [IntCons|Args],
+        omitClassDicts(Args,[Arg1,Arg2]),
 	revTransFunctor(IntCons,Cons),
 	\+ isId(Cons),		% write as an infix operator:
 	!,
@@ -521,12 +522,17 @@ writeCurryD(S,D,Nested,T) :-
 	T =.. [IntCons|Args],
 	revTransFunctor(IntCons,Cons),
 	(Nested=nested -> write(S,'(') ; true),
-	write(S,Cons),
-	writeCurryArgs(S,D1,Nested,Args).
+	(isId(Cons) -> write(S,Cons)
+                     ; write(S,'('), write(S,Cons), write(S,')')),
+        omitClassDicts(Args,RArgs),
+	writeCurryArgs(S,D1,Nested,RArgs).
+
+% omit class dictionary arguments
+omitClassDicts([],[]).
+omitClassDicts([A|As],Bs) :- isInstDict(A), !, omitClassDicts(As,Bs).
+omitClassDicts([A|As],[A|Bs]) :- omitClassDicts(As,Bs).
 
 writeCurryArgs(S,_,Nested,[]) :- (Nested=nested -> write(S,')') ; true).
-writeCurryArgs(S,D,Nested,[A|As]) :- isInstDict(A), !, % omit class dicts
-        writeCurryArgs(S,D,Nested,As).
 writeCurryArgs(S,D,Nested,[A|As]) :-
 	write(S,' '),
 	writeCurryD(S,D,nested,A),
