@@ -12,77 +12,42 @@ else
 fi
 export PAKCSHOME
 
-# Add PAKCS bin directory to path so that currypp can be found:
-PATH=$PATH:$PAKCSHOME/bin
-export PATH
-
+# The bin directory of PAKCS:
+PAKCSBIN=$PAKCSHOME/bin
 # The directory where CPM installs the binaries:
 CPMBIN="$HOME/.cpm/bin"
 
-# check whether some tool is installed by CPM. If yes, execute it,
-# otherwise inform the user to install it
-check_and_call_tool() {
-  TOOLPACKAGE=$1
-  shift
+# check whether a requested tool is installed.
+# If yes, execute it, otherwise exit with error.
+check_and_exec_tool() {
   TOOLNAME=$1
-  TOOLBIN="$CPMBIN"/$TOOLNAME
-  shift
-  shift
+  TOOLBIN="$PAKCSBIN/pakcs-$TOOLNAME"
   if [ -x "$TOOLBIN" ] ; then
+    shift
     if [ "$TOOLNAME" = cypm ] ; then
-      TOOLOPTS="-d curry_bin=$PAKCSHOME/bin/pakcs"
+      TOOLOPTS="-d curry_bin=$PAKCSBIN/pakcs"
     else
       TOOLOPTS=
     fi
-    echo "Executing CPM installed tool:" "$TOOLBIN" $TOOLOPTS ${1+"$@"}
-    # Extend CURRYPATH with system libraries of this installation:
-    if [ -n "$CURRYPATH" ] ; then
-      CURRYPATH=$CURRYPATH:$PAKCSHOME/lib
-    else
-      CURRYPATH=$PAKCSHOME/lib
-    fi
-    export CURRYPATH
+    #echo "Executing:" "$TOOLBIN" $TOOLOPTS ${1+"$@"}
     exec "$TOOLBIN" $TOOLOPTS ${1+"$@"}
   else
-    echo "Curry tool '$TOOLNAME' is not installed!"
-    echo "Please install it with the Curry Package Manager by:"
-    echo "> cypm update && cypm install $TOOLPACKAGE"
+    echo "Incomplete installation: '$TOOLBIN' not installed!"
+    echo "Please run: cd $PAKCSHOME && make" >&2
     exit 1
   fi
 }
 
-# check whether the real program name and the first argument is a tool
-# in the distribution and, if yes, exec the tool
-DISTTOOL="$0-$1"
-if [ -x "$DISTTOOL" ] ; then
-  shift
-  exec "$DISTTOOL" ${1+"$@"}
-fi
-
-# check whether the first argument is a tool packaged with CPM and, if yes,
-# exec this tool or require its installation (for backward compatibility):
+# check whether a tool of the distribution should be executed
 case $1 in
-  addtypes  ) check_and_call_tool addtypes    curry-addtypes ${1+"$@"} ;;
-  analyze   ) check_and_call_tool cass        cass           ${1+"$@"} ;;
-  browse    ) check_and_call_tool currybrowse curry-browse   ${1+"$@"} ;;
-  check     ) check_and_call_tool currycheck  curry-check    ${1+"$@"} ;;
-  cypm      ) check_and_call_tool cpm         cypm           ${1+"$@"} ;;
-  data2xml  ) check_and_call_tool xmldata     curry-data2xml ${1+"$@"} ;;
-  doc       ) check_and_call_tool currydoc    curry-doc      ${1+"$@"} ;;
-  erd2curry ) check_and_call_tool ertools     erd2curry      ${1+"$@"} ;;
-  genmake   ) check_and_call_tool makefile    curry-genmake  ${1+"$@"} ;;
-  pp        ) check_and_call_tool currypp     currypp        ${1+"$@"} ;;
-  run       ) check_and_call_tool runcurry    runcurry       ${1+"$@"} ;;
-  spiceup   ) check_and_call_tool spicey      curry-spiceup  ${1+"$@"} ;;
-  style     ) check_and_call_tool casc        curry-style    ${1+"$@"} ;;
-  verify    ) check_and_call_tool verify      curry-verify   ${1+"$@"} ;;
+  cypm | frontend ) check_and_exec_tool ${1+"$@"} ;;
 esac
 
 # check whether we should call CPM to compute the correct load path:
 if [ ! -d "$HOME" ] ; then
   USECPM=no   # do not use CPM without a home directory
-elif [ -x $PAKCSHOME/bin/cypm ] ; then
-  CYPMBIN=$PAKCSHOME/bin/cypm
+elif [ -x $PAKCSBIN/cypm ] ; then
+  CYPMBIN=$PAKCSBIN/cypm
   USECPM=yes
 elif [ -x $CPMBIN/cypm ] ; then
   CYPMBIN=$CPMBIN/cypm
@@ -90,17 +55,21 @@ elif [ -x $CPMBIN/cypm ] ; then
 else
   USECPM=no
 fi
+
+# check arguments for appropriate settings:
 for i in $* ; do
   case $i in
     --help | -h | -\? ) USECPM=no ;;
     --version | -V    ) USECPM=no ;;
-    --nocypm | --numeric-version | --compiler-name | --base-version ) USECPM=no ;;
+    --numeric-version | --compiler-name | --base-version ) USECPM=no ;;
+    --nocypm ) USECPM=no ;;
+    --noreadline ) USERLWRAP=no
   esac
 done
 
 if [ $USECPM = yes ] ; then
   # set CURRYPATH with 'deps' command of CPM
-  CPMPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSHOME/bin/pakcs" deps -p`
+  CPMPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSBIN/pakcs" deps -p`
   if [ $? -gt 0 ] ; then
     echo $CPMPATH
     exit 1
@@ -126,16 +95,10 @@ fi
 USERLWRAP=no
 if tty -s ; then
   RLWRAP=`which rlwrap`
-  if [ -f "$PAKCSHOME/bin/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
+  if [ -f "$PAKCSBIN/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
     USERLWRAP=yes
   fi
 fi
-
-for i in $* ; do
-  if [ $i = "--noreadline" ] ; then
-    USERLWRAP=no
-  fi
-done
 
 # do not use rlwrap inside emacs:
 if [ "$TERM" = dumb ] ; then

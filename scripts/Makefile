@@ -3,9 +3,7 @@
 ##############################################################################
 
 # the scripts to be installed
-BINS = $(BINDIR)/pakcs $(BINDIR)/pakcs-makecgi \
-       $(BINDIR)/cleancurry \
-       $(BINDIR)/pakcs-fcypp
+BINS = $(BINDIR)/pakcs $(BINDIR)/cleancurry $(BINDIR)/pakcs-fcypp
 
 
 .PHONY: all
