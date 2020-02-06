@@ -16,7 +16,7 @@
 	   append/3, member/2,
 	   appendAtom/3,
 	   map1M/2, map2M/3, map1partialM/2, map2partialM/3,
-	   getProgramArgs/1, getEnv/2,
+	   getProgramArgs/1, getEnv/2, setEnv/2, unsetEnv/1,
 	   noSingletonWarnings/0, noRedefineWarnings/0, noDiscontiguousWarnings/0,
 	   getRunTime/1, getElapsedTime/1,
 	   getCurrentMemorySize/1, getCurrentCodeSize/1,
@@ -236,6 +236,12 @@ dropSWIPL(Args,Args).
 
 % get value of environment variable (fails if it is not set):
 getEnv(Var,Val) :- getenv(Var,Val), !.
+
+% set an environment variable to some value:
+setEnv(Var,Val) :- setenv(Var,Val), !.
+
+% unset an environment variable:
+unsetEnv(Var) :- unsetenv(Var), !.
 
 % no warnings for singleton variables:
 noSingletonWarnings :- style_check(-singleton).

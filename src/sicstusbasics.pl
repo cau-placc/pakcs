@@ -19,7 +19,7 @@
 	   waitConcurrentConjunction/6,
 	   appendAtom/3,
 	   map1M/2, map2M/3, map1partialM/2, map2partialM/3,
-	   getProgramArgs/1, getEnv/2,
+	   getProgramArgs/1, getEnv/2, setEnv/2, unsetEnv/1,
 	   noSingletonWarnings/0, noRedefineWarnings/0, noDiscontiguousWarnings/0,
 	   getRunTime/1, getElapsedTime/1,
 	   getCurrentMemorySize/1, getCurrentCodeSize/1,
@@ -319,6 +319,12 @@ getProgramArgs(Args) :- prolog_flag(argv,Args,Args).
 
 % get value of environment variable (fails if it is not set):
 getEnv(Var,Val) :- environ(Var,Val), !.
+
+% set an environment variable to some value:
+setEnv(Var,Val) :- prolog:set_system_property(Var,Val), !.
+
+% unset an environment variable:
+unsetEnv(Var) :- setEnv(Var,''), !.
 
 % no warnings for singleton variables:
 noSingletonWarnings :- prolog_flag(single_var_warnings,_,off).
