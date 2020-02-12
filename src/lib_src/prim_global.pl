@@ -91,7 +91,8 @@ writeGlobalFile(FileName,Val) :-
 	close(Stream),
         % make files for storing globals only accessible for the user:
 	appendAtom('chmod 600 ',FileName,ChmodCmd),
-	shellCmd(ChmodCmd),
+        % ignore errors (might occur in Windows emulators) since not relevant:
+	on_exception(_,shellCmd(ChmodCmd,_),true),
 	unlockWithFile(LockFile).
 
 
