@@ -48,9 +48,9 @@ How to generate and install the PAKCS kernel:
    cannot be installed.
 
 4. If you install PAKCS from the source code distribution, you need also the
-   [Glasgow Haskell Compiler](http://www.haskell.org/ghc/)
-   (i.e., the executable "`ghc`" must be in your path)
-   to compile the front end of PAKCS.
+   [Haskell Tool Stack](http://www.haskellstack.org/)
+   (version 2.x or higher) to compile the front end of PAKCS,
+   i.e., the executable "`stack`" must be in your path.
 
 5. Now, install PAKCS by "`make`" (if you have already an older
    installation of PAKCS, do "`make clean`" before).
