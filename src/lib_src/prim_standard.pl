@@ -800,7 +800,7 @@ replaceMultipleVariablesInArgs([Arg|Args],Below,Vars,[LinArg|LinArgs]) :-
    	LinArg =.. [FC|LinTs],
 	replaceMultipleVariablesInArgs(Args,Below,Vars,LinArgs).
 
-:- block unifEqHnf(?,?,?,?,-,?).
+:- block unifEqHnf(?,?,?,-,?).
 unifEqHnf(A,B,Success,E0,E) :- var(B),!,
 	user:bind(B,A,Success,E0,E).  % in order to evaluate function pattern
 unifEqHnf(_,'FAIL'(Src),'FAIL'(Src),E,E) :- !.
