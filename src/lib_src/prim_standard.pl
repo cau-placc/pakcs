@@ -698,11 +698,11 @@ allUnboundVariables(Vs) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Directed non-strict equality for matching against functional patterns:
 % (first argument must be the functional pattern):
-:- block 'Prelude.=:<='(?,?,?,?,-,?).
+:- block 'Prelude.=:<='(?,?,?,-,?).
 'Prelude.=:<='(A,B,R,E0,E):-
         user:hnf(A,HA,E0,E1), unifEq1(HA,B,R,E1,E).
 
-:- block unifEq1(?,?,?,?,-,?).
+:- block unifEq1(?,?,?,-,?).
 % In the following clause, we bind a functional pattern variable to the
 % actual argument. This binding of a logical variable against
 % a non-constructor term is not problematic since the functional pattern
@@ -719,15 +719,15 @@ unifEq1(FPat,ActArg,'Prelude.True',E0,E) :-
 	makeShare(ActArg,FPat),
 	%writeErr('BOUND TO: '), removeShares(ActArg,AA), writeErr(AA), nlErr,
 	E0=E.
-unifEq1(_,'FAIL'(Src),_,'FAIL'(Src),E,E):- !.
+unifEq1('FAIL'(Src),_,'FAIL'(Src),E,E):- !.
 unifEq1(A,B,R,E0,E) :-
 	replaceMultipleVariables(A,LinA,LinConstraints),
 	user:hnf(B,HB,E0,E1),
 	unifEqHnf(LinA,HB,EqR,E1,E2),
 	unifEq2(EqR,LinConstraints,R,E2,E).
 
-:- block unifEq2(?,?,?,?,-,?).
-unifEq2(_,EqR,LinConstraints,R,E0,E) :-
+:- block unifEq2(?,?,?,-,?).
+unifEq2(EqR,LinConstraints,R,E0,E) :-
 	isFail(EqR)
 	-> R=EqR, E0=E
 	 ; %(LinConstraints='Prelude.True' -> true
