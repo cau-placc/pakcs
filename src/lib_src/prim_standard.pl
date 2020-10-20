@@ -814,7 +814,7 @@ unifEqHnf(A,B,R,E0,E) :-
 unifEqHnf(A,B,R,E0,E) :-
 	prim_failure(partcall(2,'Prelude.=:<=',[]),[A,B],R,E0,E).
 
-genUnifEqHnfBody(N,Arity,_,_,_,'Prelude.True') :- N>Arity, !.
+genUnifEqHnfBody(N,Arity,_,_,'Prelude.True') :- N>Arity, !.
 genUnifEqHnfBody(N,Arity,A,B,'Prelude.=:<='(ArgA,ArgB)):-
 	N=Arity, !,
 	arg(N,A,ArgA), arg(N,B,ArgB).
