@@ -1810,7 +1810,7 @@ transConstrEq(Suffix) :-
 		          prim_failure(partcall(2,'Prelude.=:=',[Dict]),[A,B],R,E0,E)))),
 	nl,
 	GenConstrEqHnfBody_N_NA_Succ =..
-             [GenConstrEqHnfBody,N,NA,_,_,_,'Prelude.True'],
+             [GenConstrEqHnfBody,N,NA,_,_,'Prelude.True'],
 	writeClause((GenConstrEqHnfBody_N_NA_Succ :- N>NA,!)),
 	appendAtom('Prelude.=:=',Suffix,Eq),
 	Eq_ArgA_ArgB =.. [Eq,ArgA,ArgB],
