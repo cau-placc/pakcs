@@ -1535,7 +1535,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	(MinorVersion < 100 -> true
 	  ; writeLnErr('ERROR minor version too large!'), fail),
 	padVersionAtom(MinorVersion, PaddedMinorVersionAtom),
-	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat -D__PAKCS__=',
+	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat -Odesugar-newtypes -D__PAKCS__=',
 	  MajorVersionAtom,PaddedMinorVersionAtom],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
