@@ -407,8 +407,7 @@ cleandist:
 	rm -rf $(CURRYLIBSDIR)
 	rm -rf currytools/.git currytools/.gitignore
 	rm -f currytools/download_tools.sh
-	cd $(FRONTENDDIR)/curry-base     && rm -rf .git .gitignore dist
-	cd $(FRONTENDDIR)/curry-frontend && rm -rf .git .gitignore dist
+	cd $(FRONTENDDIR) && rm -rf .git .gitignore dist
 	rm -rf docs/src
 	rm -rf debian
 	rm -f KNOWN_BUGS CHANGELOG.html
