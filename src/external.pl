@@ -42,6 +42,12 @@ transXExt(element(primitive,[name=NameS,arity=ArityS],
 	flatName2Atom(NameS,Name),
 	number_codes(Arity,ArityS),
 	atom_codes(Lib,LibS), atom_codes(Entry,EntryS).
+transXExt(element(primitive,[name=NameS,arity=ArityS],
+		  [element(entry,[],[pcdata(EntryS)])]),
+	  primitive(Name,Arity,'',Entry)) :- !,
+	flatName2Atom(NameS,Name),
+	number_codes(Arity,ArityS),
+	atom_codes(Entry,EntryS).
 transXExt(element(ignore,[name=NameS,arity=ArityS],[]),ignore(Name,Arity)) :-
 	!,
 	flatName2Atom(NameS,Name),

@@ -49,7 +49,6 @@ printPakcsHeader :-
 	writeNQ(' | |__| |  / /__\\ \\   |  _  |   | |      |_____  |   '), nlNQ,
 	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersionNumberWithBuild, nlNQ,
 	writeNQ(' |_|     /_/      \\_\\ |_|  \\_\\  |______| |_______|   '), nlNQ,
-        writeNQ(' ***WITH TYPECLASSES***'), nlNQ,
 	nlNQ,
         writeNQ('Curry2Prolog('), writeNQ(Prolog),
 	writeNQ(' '), writeNQ(MajV), writeNQ('.'), writeNQ(MinV),

@@ -16,7 +16,7 @@
 
 :- use_module(prologbasics).
 :- use_module(basics).
-:- ensure_lib_loaded(prim_readshowterm).
+:- use_module(readShowTerm).
 
 :- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
 
@@ -280,7 +280,7 @@ failureInteraction(FTLen,FailSrc) :-
         failureIntOption(FTLen,FailSrc,C).
 
 failureIntOption(FTLen,FailSrc,104) :- !, % help
-	skip(10),
+	skipEOL,
 	write('Commands in interactive mode for failure tracing:'), nl,
 	write('l     - list complete trace from root to failed call'), nl,
 	write('l <n> - show last <n> elements of trace'), nl,
@@ -309,7 +309,7 @@ failureIntOption(FTLen,FailSrc,115) :- !, % show
 	writeCurry(FCall), nl,
 	!, failureInteraction(FTLen,FailSrc).
 failureIntOption(FTLen,FailSrc,102) :- !, % functions
-	skip(10),
+	skipEOL,
 	writeFunctionFailureList(user_output,FTLen,FailSrc),
 	failureInteraction(FTLen,FailSrc).
 failureIntOption(FTLen,FailSrc,112) :- !, % printdepth
@@ -325,10 +325,10 @@ failureIntOption(FTLen,FailSrc,112) :- !, % printdepth
 	nl,
 	!, failureInteraction(FTLen,FailSrc).
 failureIntOption(_,_,113) :- !, % quit
-	skip(10), fail.
+	skipEOL, fail.
 failureIntOption(FTLen,FailSrc,C) :-
 	write('ERROR: wrong option!'), nl,
-	(C=10 -> true ; skip(10)),
+	(C=10 -> true ; skipEOL),
 	failureInteraction(FTLen,FailSrc).
 
 writeAllFailureList(Stream,_,[FName,Args]) :- !,
@@ -340,6 +340,8 @@ writeAllFailureList(Stream,FTLen,[FCall|FailSrc]) :- !,
 	writeAllFailureList(Stream,FTLen1,FailSrc).
 
 writeFunctionFailureList(Stream,_,[partcall(_,FName,_),Args]) :- !,
+	writeFailedCall(Stream,FName,Args).
+writeFunctionFailureList(Stream,_,[FName,Args]) :- !,
 	writeFailedCall(Stream,FName,Args).
 writeFunctionFailureList(Stream,FTLen,[FCall|FailSrc]) :- !,
 	FCall =.. [Fun|_],
@@ -476,7 +478,7 @@ writeCurryD(S,D,_,T) :-
 	!,
 	(isString(TL)
 	    -> % use ReadShowTerm.showTerm for showing strings:
-	       user:show_term(TL,_,TS,[]), string2Atom(TS,TA), write(S,TA)
+	       show_term(TL,_,TS,[]), string2Atom(TS,TA), write(S,TA)
 	     ; write(S,'['), writeCurryList(S,D,TL)).
 writeCurryD(S,D,Nested,[T|Ts]) :- !,
 	(Nested=nested -> write(S,'(') ; true),
@@ -539,7 +541,7 @@ writeCurryArgs(S,D,Nested,[A|As]) :-
 	writeCurryArgs(S,D,Nested,As).
 
 writeCurryLiteral(S,L) :- % use ReadShowTerm.showTerm for showing number/char literals
-	user:show_term(L,_,CS,[]),
+	show_term(L,_,CS,[]),
 	string2Atom(CS,CA),
 	write(S,CA).
 
@@ -700,3 +702,4 @@ instantiateAllBindings(N,[_|Bs]) :- instantiateAllBindings(N,Bs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

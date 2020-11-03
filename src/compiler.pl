@@ -19,6 +19,7 @@
 :- use_module(external). % specification of external functions
 :- use_module(readFlcFromFcy).
 :- use_module(loader).
+:- use_module(readPrimFile).
 
 :- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
 
@@ -259,7 +260,7 @@ generateProgOnFile('Prog'(Mod,Imports,MainTypes,MainFuncs,MainOps),
          ; (verbosityIntermediate
             -> writeErr('Adding code of Prolog file: '), writeLnErr(PrimPlFile)
              ; true),
-           readFileContents(PrimPlFile,Cs), putChars(Cs)),
+           readPrimFile(PrimPlFile)),
 	told, !.
 generateProgOnFile(_,_,_,_,PrologFile,_) :-
 	told,

@@ -51,7 +51,7 @@
 		  ensureDirOfFile/1, prog2DirProg/2, prog2PrologFile/2,
 		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
 		  prog2ICurryFile/2, hierarchical2dirs/2,
-		  readStreamLine/2, removeBlanks/2, skipblanks/2,
+		  skipEOL/0, readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
 		  printError/1, prologError2Atom/2,
                   readChar/3, readString/3,
@@ -731,6 +731,15 @@ hierarchical2dirs(HModName,DModName) :-
 	map2M(basics:dot2slash,HModNameS,DModNameS),
 	atom_codes(DModName,DModNameS).
 dot2slash(C1,C2) :- C1=46 -> C2=47 ; C2=C1.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% read input until newline or end-of-input is encountered.
+skipEOL :- skipTo(10).
+
+% read input until a code or end-of-input is encountered.
+skipTo(Code) :-
+	get_code(C),
+        ((C = -1 ; C = Code) -> true ; skiptTo(Code)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read a line from a stream:

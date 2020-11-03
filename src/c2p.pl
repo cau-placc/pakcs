@@ -1804,23 +1804,23 @@ call_singlestepmenu(Skip) :-
 	% if input trace/notrace -> show menu again
         (member(C,[110,116]) -> call_singlestepmenu(Skip) ; true), !.
 
-call_debug_option(103,_) :- !, skip(10),   % g: turn off single step mode
+call_debug_option(103,_) :- !, skipEOL,   % g: turn off single step mode
         singleOff, write('Single step mode off.'), nl.
-call_debug_option(116,_) :- !, skip(10),   % t: turn on trace mode
+call_debug_option(116,_) :- !, skipEOL,   % t: turn on trace mode
         traceOn, write('Trace mode on.'), nl.
-call_debug_option(110,_) :- !, skip(10),   % n: turn off trace mode
+call_debug_option(110,_) :- !, skipEOL,   % n: turn off trace mode
         traceOff, write('Trace mode off.'), nl.
-call_debug_option(115,skip) :- !, skip(10),   % s: skip over function call
+call_debug_option(115,skip) :- !, skipEOL,   % s: skip over function call
         singleOff, traceOff.
-call_debug_option(108,skip) :- !, skip(10),   % l: jump to next spy point
+call_debug_option(108,skip) :- !, skipEOL,   % l: jump to next spy point
         singleOff, traceOff, spyOn.
-call_debug_option(97,_) :- !, skip(10),   % a: abort
+call_debug_option(97,_) :- !, skipEOL,   % a: abort
         raise_exception(debugger_abort). %abort.
-call_debug_option(101,eval) :- !, skip(10),   % e: evaluate to normal form
+call_debug_option(101,eval) :- !, skipEOL,   % e: evaluate to normal form
 	singleOff, traceOff.
 call_debug_option(10,_) :- !. % <return>: do the next single step
 call_debug_option(_,S) :- write('ERROR: wrong option!'), nl,
-	skip(10), call_singlestepmenu(S).
+	skipEOL, call_singlestepmenu(S).
 
 % single step menu for exit ports:
 exit_singlestepmenu :-
@@ -1830,19 +1830,19 @@ exit_singlestepmenu :-
 	% if input trace/notrace -> show menu again
         (member(C,[110,116]) -> exit_singlestepmenu ; true), !.
 
-exit_debug_option(103) :- !, skip(10),   % g: turn off single step mode
+exit_debug_option(103) :- !, skipEOL,   % g: turn off single step mode
         singleOff, write('Single step mode off.'), nl.
-exit_debug_option(116) :- !, skip(10),   % t: turn on trace mode
+exit_debug_option(116) :- !, skipEOL,   % t: turn on trace mode
         traceOn, write('Trace mode on.'), nl.
-exit_debug_option(110) :- !, skip(10),   % n: turn off trace mode
+exit_debug_option(110) :- !, skipEOL,   % n: turn off trace mode
         traceOff, write('Trace mode off.'), nl.
-exit_debug_option(108) :- !, skip(10),   % l: jump to next spy point
+exit_debug_option(108) :- !, skipEOL,   % l: jump to next spy point
         singleOff, traceOff, spyOn.
-exit_debug_option(97) :- !, skip(10),   % a: abort
+exit_debug_option(97) :- !, skipEOL,   % a: abort
         raise_exception(debugger_abort). %abort.
 exit_debug_option(10) :- !. % do the next single step
 exit_debug_option(_) :- write('ERROR: wrong option!'), nl,
-	skip(10), exit_singlestepmenu.
+	skipEOL, exit_singlestepmenu.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

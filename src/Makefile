@@ -63,8 +63,7 @@ swi:
 # generate a saved state of the Curry->Prolog Compiler System w.r.t. SICStus-Prolog
 #
 c2p.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
-	      compiler.pl external.pl readFlcFromFcy.pl \
-	      lib_src/prim_readshowterm.pl \
+	      compiler.pl external.pl readPrimFile.pl readFlcFromFcy.pl \
 	      readXml.pl $(LIBDIR)/.curry/Prelude.fcy
 	echo "compile(c2p),c2p('$(LIBDIR)/Prelude'),compile('$(LIBDIR)/.curry/pakcs/Prelude'),loadAndCompile('$(LIBDIR)/.curry/pakcs/Prelude.pl',[],create),saveprog_entry('c2p.state',user:pakcsMain)." \
            | "$(SICSTUS)"
@@ -73,8 +72,7 @@ c2p.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 # generate a saved state of the Curry->Prolog Compiler System w.r.t. SWI-Prolog
 #
 swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
-	      compiler.pl external.pl readFlcFromFcy.pl \
-	      lib_src/prim_readshowterm.pl \
+	      compiler.pl external.pl readPrimFile.pl readFlcFromFcy.pl \
 	      readXml.pl $(LIBDIR)/.curry/Prelude.fcy
 	echo "compile(c2p). c2p('$(LIBDIR)/Prelude'), compile('$(LIBDIR)/.curry/pakcs/Prelude'),loader:loadAndCompile('$(LIBDIR)/.curry/pakcs/Prelude.pl',[],create). saveprog_entry('swi.state',user:pakcsMain)." | "$(SWI)" $(SWIOPTIONS)
 

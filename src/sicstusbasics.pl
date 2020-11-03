@@ -922,8 +922,8 @@ writeqWithVars(T) :- \+ \+ (numbervars(T,0,_), writeq(T)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Write a block declaration for predicate PredName of arity PredArity
-% where the positions in the non-empty(!) list GroundPositions must be instantiated.
+% Write a block declaration for predicate PredName of arity PredArity where
+% the positions in the non-empty(!) list BoundPositions must be instantiated.
 % Furthermore, the last argument is a possibly new predicate name corresponding
 % to PredName which should be coded instead of PredName (this depends on
 % the implementation scheme for block declarations).
