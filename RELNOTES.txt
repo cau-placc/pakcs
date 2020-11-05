@@ -1,10 +1,10 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.0.0 (November 8, 2019)
+Release notes for PAKCS Version 3.0.0 (November 4, 2020)
 --------------------------------------------------------
 
-Changes to version 2.1.2: bug fixes and
+Changes to version 2.3.0: bug fixes and
 
   * Libraries `FilePath`, `Directory`, `Distribution`, `Time`,
     `IOExts`, `ReadShowTerm` removed
@@ -16,7 +16,8 @@ Changes to version 2.1.2: bug fixes and
     The rest remains in the library
   * Implemented the "MonadFail-Proposal" for curry
     (see <https://wiki.haskell.org/MonadFail_Proposal>)
-  * Implemented RankNTypes
+  * 'newtype' is implemented with the non-strict Haskell semantics,
+    i.e., 'newtype' constructors are stripped away.
 
 Due to development issues the following changes 
 from version 2.1.0 and 2.1.2 are not in this release,
@@ -24,8 +25,18 @@ but will be added later:
 
   * CPM updated (improved handling of temporary working directory)
   * CPM updated (e.g., faster `update` operation)
-  * Prelude: `chr` defined as total operation
-  
+
+
+Release notes for PAKCS Version 2.3.0 (October 12, 2020)
+--------------------------------------------------------
+
+Changes to version 2.2.0:
+
+  * CPM updated (faster `update` command and support for caret
+    and tilde comparison operators in dependency descriptions)
+  * Interface for external functions simplified (as described
+    in Appendix F of the manual).
+
 
 Release notes for PAKCS Version 2.2.0 (October 30, 2019)
 --------------------------------------------------------
