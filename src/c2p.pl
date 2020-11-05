@@ -1538,7 +1538,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	getOutDirectory(OutDir),
 	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat',
                      ' -Odesugar-newtypes ',
-					 ' -o ', OutDir,
+                     ' -o ', OutDir,
                      ' -D__PAKCS__=',
                      MajorVersionAtom,PaddedMinorVersionAtom],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
