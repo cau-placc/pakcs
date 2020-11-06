@@ -3,7 +3,7 @@
 
 CURRY=pakcs
 FRONTEND=bin/$CURRY-frontend
-FRONTENDPARAMS="-Odesugar-newtypes -o .curry/pakcs-$VERSION -D__PAKCS__=200 --extended -ilib AllLibraries"
+FRONTENDPARAMS="-Odesugar-newtypes -o .curry/pakcs-$VERSION -D__PAKCS__=$MAJORVERSION$(printf "%02d" $MINORVERSION) --extended -ilib AllLibraries"
 
 compile_all() {
   $FRONTEND --flat       $FRONTENDPARAMS
