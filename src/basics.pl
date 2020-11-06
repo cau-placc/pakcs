@@ -34,6 +34,7 @@
 		  findPrologTargetFileInLoadPath/2, findFilePropertyInPath/4,
 		  toAbsPath/2, split2dirbase/3, stripSuffix/2,
 		  isIoType/1, isId/1, 
+		  versionAtom/2, padVersionAtom/2, padList/4,
 		  constructorOrFunctionType/4,
 		  flatName2Atom/2, decodePrologName/2,
 		  isTupleCons/1, isLetterDigitCode/1,
@@ -48,7 +49,7 @@
 		  retractAllFacts/1, prefixComma/3,
 		  isWritableFile/1, tryWriteFile/1,
                   tryDeleteFile/1, deleteFileIfExists/1,
-		  ensureDirOfFile/1, prog2DirProg/2, prog2PrologFile/2,
+		  ensureDirOfFile/1, getOutDirectory/1, prog2DirProg/2, prog2PrologFile/2,
 		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
 		  prog2ICurryFile/2, hierarchical2dirs/2,
 		  skipEOL/0, readStreamLine/2, removeBlanks/2, skipblanks/2,
@@ -638,6 +639,25 @@ prefixComma(C1,N,C2) :- N>1, N1 is N-1, prefixComma([44|C1],N1,C2).
 isId(T) :- atom_codes(T,[F|_]),
 	(65=<F, F=<90 ; 97=<F, F=<122).
 
+% convert the given version to an atom
+versionAtom(Version,Atom) :-
+	number_chars(Version,Chars),
+	atom_chars(Atom,Chars).
+
+% convert the given version to a zero-padded atom
+padVersionAtom(Version,PaddedAtom) :-
+	number_chars(Version,Chars),
+	padList(Chars,'0',2,PaddedChars),
+	atom_chars(PaddedAtom,PaddedChars).
+
+% pads a list with the given element
+padList(List,_,Length,PaddedList) :-
+	length(List,Length), !,
+	PaddedList = List.
+padList(List,Pad,Length,PaddedList) :-
+	length(List, Length2), Length2 < Length,
+	padList([Pad|List],Pad,Length,PaddedList).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Axuiliaries for handling translated Prolog files
 
@@ -691,6 +711,17 @@ makeDirectoryWithPrefix(PrefixS,DirS) :-
 	atom_codes(CompleteDir,CompleteDirS),
 	(existsDirectory(CompleteDir) -> true ; makeDirectory(CompleteDir)).
 
+% fetch the name of the directory for compilation artifacts, e.g.
+% FlatCurry and compiled Prolog files.
+getOutDirectory(OutDir) :-
+	compilerMajorVersion(MajorVersion),
+	compilerMinorVersion(MinorVersion),
+	compilerRevisionVersion(RevVersion),
+	versionAtom(MajorVersion,MajorVersionAtom),
+	versionAtom(MinorVersion,MinorVersionAtom),
+	versionAtom(RevVersion,RevVersionAtom),
+	appendAtoms(['.curry/pakcs-',MajorVersionAtom,'.',MinorVersionAtom,'.',RevVersionAtom], OutDir).
+
 % generate the name of the program file for a given Curry program name,
 % i.e., replace all dots in a module name by slashes:
 prog2DirProg(Prog,ProgDir) :-
@@ -704,25 +735,29 @@ prog2DirProg(Prog,ProgDir) :-
 prog2PrologFile(Prog,PrologFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	hierarchical2dirs(ProgBase,DProgBase),
-	appendAtoms([ProgDir,'/.curry/pakcs/',DProgBase,'.pl'],PrologFile).
+	getOutDirectory(OutDir),
+	appendAtoms([ProgDir,'/',OutDir,'/',DProgBase,'.pl'],PrologFile).
 
 % generate the name of the interface file for a given Curry program name:
 prog2InterfaceFile(Prog,IntFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	hierarchical2dirs(ProgBase,DProgBase),
-	appendAtoms([ProgDir,'/.curry/',DProgBase,'.fint'],IntFile).
+	getOutDirectory(OutDir),
+	appendAtoms([ProgDir,'/',OutDir,'/',DProgBase,'.fint'],IntFile).
 
 % generate the name of the FlatCurry file for a given Curry program name:
 prog2FlatCurryFile(Prog,FlatFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	hierarchical2dirs(ProgBase,DProgBase),
-	appendAtoms([ProgDir,'/.curry/',DProgBase,'.fcy'],FlatFile).
+	getOutDirectory(OutDir),
+	appendAtoms([ProgDir,'/',OutDir,'/',DProgBase,'.fcy'],FlatFile).
 
 % generate the name of the InterfaceCurry file for a given Curry program name:
 prog2ICurryFile(Prog,ICurryFile) :-
 	split2dirbase(Prog,ProgDir,ProgBase),
 	hierarchical2dirs(ProgBase,DProgBase),
-	appendAtoms([ProgDir,'/.curry/',DProgBase,'.icurry'],ICurryFile).
+	getOutDirectory(OutDir),
+	appendAtoms([ProgDir,'/',OutDir,'/',DProgBase,'.icurry'],ICurryFile).
 
 % translate a hierarchical module name (atom) into directory/file name,
 % i.e., replace dots by slashes:

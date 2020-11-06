@@ -53,7 +53,7 @@ export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
 BUILDVERSION=0
 # Complete version:
-VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
+export VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
 ifeq ($(DISTPKGINSTALL),yes)
 COMPILERDATE := $(shell date "+%Y-%m-%d")
