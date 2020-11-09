@@ -14,8 +14,10 @@ all:
 # install some script of PAKCS in the bin directory:
 $(BINDIR)/%: %.sh
 	mkdir -p $(@D)
-	cat $< | sed "s|^PAKCSBUILDDIR=.*$$|PAKCSBUILDDIR=$(ROOT)|" | \
-	 sed "s|^PAKCSINSTALLDIR=.*$$|PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)|" > $@
+	cat $< | \
+	 sed "s|^PAKCSBUILDDIR=.*$$|PAKCSBUILDDIR=$(ROOT)|" | \
+	 sed "s|^PAKCSINSTALLDIR=.*$$|PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)|" | \
+	 sed "s|^COMPILERVERSION=.*$$|COMPILERVERSION=$(CURRYSYSTEM)-$(VERSION)|" > $@
 	chmod 755 $@
 
 .PHONY: clean

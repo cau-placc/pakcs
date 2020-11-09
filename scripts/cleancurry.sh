@@ -1,17 +1,13 @@
 #!/bin/sh
 # delete all auxiliary files of all Curry programs in a directory
 
+COMPILERVERSION=`echo COMPILERVERSION must be defined here!`
+
 RM=/bin/rm
 
 RECURSIVE=no
 if [ "xx$1" = "xx-r" ] ; then
   RECURSIVE=yes
-  shift
-fi
-
-ALL=no
-if [ "xx$1" = "xx-a" ] ; then
-  ALL=yes
   shift
 fi
 
@@ -27,7 +23,6 @@ if [ $# != 0 ]
 then
   echo "Usage: $0 [-r] [-a] [<prog>]" >&2
   echo "-r: apply this command recursively to all subdirectories" >&2
-  echo "-a: remove all auxiliary Curry files (even those without a source file)" >&2
   echo "<prog>: remove only auxiliary Curry files for program <prog>" >&2
   exit 1
 fi
@@ -49,58 +44,33 @@ do
   if [ "$F" != "*.curry" -a "$F" != "*.lcurry" ] ; then
     F=`expr $F : '\(.*\)\.lcurry' \| $F`
     F=`expr $F : '\(.*\)\.curry' \| $F`
-    $RM -f $F.ast $F.cint $F.fl $F.def $F.pizza $F.profile "$F"_flat.xml
     FDIR=`dirname $F`
     FBASE=`basename $F`
-    PAKCSDIR=$FDIR/.curry/pakcs
-    if [ -d $PAKCSDIR ] ; then
-      $RM -f $PAKCSDIR/$FBASE.pl $PAKCSDIR/$FBASE.po
-      FDIRFILES=`ls -A $PAKCSDIR`
-      if [ -z "$FDIRFILES" ] ; then # pakcs directory is empty
-        rmdir $PAKCSDIR
+    CURRYDIR=$FDIR/.curry
+    COMPILERDIR=$CURRYDIR/$COMPILERVERSION
+    if [ -d $COMPILERDIR ] ; then
+      $RM -f $COMPILERDIR/$FBASE.pl $COMPILERDIR/$FBASE.po
+      CURRYF=$COMPILERDIR/$F
+      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.fint $CURRYF.icurry $CURRYF.tokens $CURRYF.ast $CURRYF.sast
+      FDIRFILES=`ls -A $COMPILERDIR`
+      if [ -z "$FDIRFILES" ] ; then # .curry/... directory is empty
+        rmdir $COMPILERDIR
       fi
     fi
-    CURRYDIR=$FDIR/.curry
     if [ -d $CURRYDIR ] ; then
-      CURRYF=.curry/$F
-      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.fint $CURRYF.icurry $CURRYF.tokens $CURRYF.ast $CURRYF.sast
-      FDIRFILES=`ls -A $CURRYDIR`
-      if [ -z "$FDIRFILES" ] ; then # .curry directory is empty
+      CDIRFILES=`ls -A $CURRYDIR`
+      if [ -z "$CDIRFILES" ] ; then # .curry directory is empty
         rmdir $CURRYDIR
       fi
     fi
     $RM -f -r COOSYLOGS
-    $RM -f -r $F.classes
-  fi
-done
-$RM -f prelude.pizza
-
-if [ $ALL = yes ] ; then
-  for i in *.fcy # look for fcy files not deleted in the first step
-  do
-    F=`expr $i : '\(.*\).fcy'`
-    if [ "$F" != "*" ] ; then
-      $RM -f $F.fcy $F.pl $F.po $F.pl.main $F.state $F.profile "$F"_flat.xml
-      FDIR=`dirname $F`
-      FBASE=`basename $F`
-      $RM -f $FDIR/.curry/pakcs/$FBASE.pl $FDIR/.curry/pakcs/$FBASE.po
-    fi
-  done
-fi
- 
-# delete also .curry files if there is a corresponding .lcurry file:
-for F in $LCURRYFILES
-do
-  if [ "$F" != "*.lcurry" ] ; then
-    F=`expr $F : '\(.*\)\.lcurry' \| $F`
-    $RM -f $F.curry
   fi
 done
 
 if [ $RECURSIVE = yes ]
 then
   # delete .curry directory:
-  $RM -rf .curry  
+  $RM -rf .curry/$COMPILERVERSION
   PATHNAME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
   for i in *
   do
