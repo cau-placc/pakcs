@@ -1,11 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.0.0 (November 4, 2020)
+Release notes for PAKCS Version 3.2.0 (November 9, 2020)
 --------------------------------------------------------
 
 Changes to version 2.3.0: bug fixes and
 
+  * Intermediate files are written into versioned directories, e.g.,
+    the FlatCurry representation of `lib/Prelude.curry` is written
+    to `lib/.curry/pakcs-3.2.0/Prelude.fcy` (and similarly all
+    other intermediate files).
   * Libraries `FilePath`, `Directory`, `Distribution`, `Time`,
     `IOExts`, `ReadShowTerm` removed
     (available in packages `filepath`, `directory`, `distribution`,
