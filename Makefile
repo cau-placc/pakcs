@@ -29,6 +29,9 @@ export CURRYFRONTEND =
 #   refer to the directories containing the Curry system libraries and tools
 export DISTPKGINSTALL = no
 
+# Set to true during CI build
+export CI_BUILD = no
+
 # In order to build the system in a place different from the place of
 # the final installation (e.g., when building it as a (Debian) package),
 # the variable PAKCSINSTALLDIR should be set to the location where it
@@ -130,6 +133,10 @@ ifeq ($(DISTPKGINSTALL),yes)
 	# if we build a package, we compile all libraries at the end
 	# so that their intermediate files are up to date:
 	$(REPL) --nocypm $(REPL_OPTS) :load AllLibraries :eval "3*13+3" :quit
+else ifeq ($(CI_BUILD),yes)
+	# don't need the log file and the pipe swallows non 0 exit codes
+	$(MAKE) config
+	$(MAKE) build
 else
 	@rm -f $(MAKELOG)
 	@echo "Make started at `date`" > $(MAKELOG)
@@ -154,7 +161,9 @@ checkinstalldir:
 build: checkinstalldir
 	$(MAKE) kernel
 	$(MAKE) tools
+ifneq ($(CI_BUILD),yes)
 	$(MAKE) manual
+endif
 	chmod -R go+rX .
 
 # install the kernel system (binaries and libraries)
@@ -165,17 +174,17 @@ kernel: scripts copylibs copytools
 	# install front end:
 	$(MAKE) frontend
 	# pre-compile all libraries:
-	@cd lib && $(MAKE) fcy
+	$(MAKE) -C lib fcy
 	# build the PAKCS compiler as a saved system:
 	$(MAKE) $(PAKCSVERSION)
-	cd src && $(MAKE)
+	$(MAKE) -C src
 	# compile optimization tools:
-	@cd currytools/optimize && $(MAKE)
+	@$(MAKE) -C currytools/optimize
 	# compile all libraries:
-	@cd lib && $(MAKE) AllLibraries.curry
+	$(MAKE) -C lib AllLibraries.curry
 	scripts/compile-all-libs.sh
 	# prepare for separate compilation: compile all libraries to Prolog
-	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
+	@if [ -r bin/pakcs ] ; then $(MAKE) -C lib pl ; fi
 
 # build the PAKCS compiler and REPL as an executable:
 .PHONY: repl
@@ -249,20 +258,34 @@ compilefrontend:
 # compile the tools:
 .PHONY: tools
 tools:
-	@if [ -r bin/pakcs ] ; then cd currytools && $(MAKE) ; fi
+	@if [ -r bin/pakcs ] ; then $(MAKE) -C currytools ; fi
 
 # compile documentation if sources are available and it is not a
 # separate package distribution:
 .PHONY: manual
 manual:
+ifeq ($(CI_BUILD),yes)	
+	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
+		if [ -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
+			$(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; \
+		else \
+			echo "Executable 'curry-doc' or 'md2pdf' not found!" ; \
+	        echo "To generate the manual, install them by:" ; \
+			echo "> cypm install currydoc && cypm install markdown" ; \
+			exit 1 ; \
+		fi \
+	fi
+else	
 	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
 	   if [ -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
 	     $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; \
-	   else echo "Executable 'curry-doc' or 'md2pdf' not found!" ; \
-	        echo "To generate the manual, install them by:" ; \
-                echo "> cypm install currydoc && cypm install markdown" ; \
-           fi \
-         fi
+	   else \
+			echo "Executable 'curry-doc' or 'md2pdf' not found!" ; \
+			echo "To generate the manual, install them by:" ; \
+			echo "> cypm install currydoc && cypm install markdown" ; \
+		fi \
+	fi
+endif
 
 # Create file with version information for PAKCS:
 $(PAKCSVERSION): Makefile $(BASEVERSIONFILE)
@@ -287,18 +310,34 @@ $(MANUALVERSION): Makefile
 #
 .PHONY: libdoc
 libdoc:
+ifeq ($(CI_BUILD),yes)
 	@if [ ! -x "$(CURRYDOC)" ] ; then \
-	  echo "Executable 'curry-doc' is not installed!" && echo "Install it by > cpm install currydoc" ; \
-	else $(MAKE) genlibdoc ; \
+		echo "Executable 'curry-doc' is not installed!" ; \
+		echo "Install it by > cpm install currydoc" ; \
+		exit 1 ; \
+	else \
+		$(MAKE) genlibdoc ; \
 	fi
+else
+	@if [ ! -x "$(CURRYDOC)" ] ; then \
+		echo "Executable 'curry-doc' is not installed!" ; \
+		echo "Install it by > cpm install currydoc" ; \
+	else \
+		$(MAKE) genlibdoc ; \
+	fi
+endif
 
 .PHONY: genlibdoc
 genlibdoc:
+ifeq ($(CI_BUILD),yes) 
+	$(MAKE) -C lib htmldoc
+else
 	@rm -f $(MAKELOG)
 	@echo "Make libdoc started at `date`" > $(MAKELOG)
-	@cd lib && $(MAKE) htmldoc 2>&1 | tee -a ../$(MAKELOG)
+	$(MAKE) -C lib htmldoc 2>&1 | tee -a ../$(MAKELOG)
 	@echo "Make libdoc finished at `date`" >> $(MAKELOG)
 	@echo "Make libdoc process logged in file $(MAKELOG)"
+endif
 
 ########################################################################
 # Testing: run test suites to check the installation
@@ -313,14 +352,27 @@ endif
 # run the test suites to check the installation
 .PHONY: runtest
 runtest:
+ifeq ($(CI_BUILD),yes)
 	@if [ ! -x "$(CURRYCHECK)" ] ; then \
-	  echo "Executable 'curry-check' is not installed!" && echo "To run the tests, install it by > cypm install currycheck" ; \
-	else $(MAKE) runalltests ; fi
+		echo "Executable 'curry-check' is not installed!" ; \
+		echo "To run the tests, install it by > cypm install currycheck" ; \
+		exit 1 ; \
+	else \
+		$(MAKE) runalltests ; \
+	fi
+else
+	@if [ ! -x "$(CURRYCHECK)" ] ; then \
+		echo "Executable 'curry-check' is not installed!" ; \
+		echo "To run the tests, install it by > cypm install currycheck" ; \
+	else \
+		$(MAKE) runalltests ; \
+	fi
+endif
 
 .PHONY: runalltests
 runalltests: testsuite/test.sh
 	cd testsuite && ./test.sh $(RUNTESTPARAMS)
-	cd currytools && $(MAKE) runtest
+	$(MAKE) -C currytools runtest
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
 
@@ -335,7 +387,7 @@ runtestverbose:
 
 # Build the cleancurry script:
 $(CLEANCURRY):
-	cd scripts && $(MAKE) $@
+	$(MAKE) -C scripts $@
 
 # Clean the system files, i.e., remove the installed PAKCS components
 # except for the front end
@@ -353,8 +405,8 @@ clean: $(CLEANCURRY)
 # Clean the generated PAKCS tools
 .PHONY: cleantools
 cleantools: $(CLEANCURRY)
-	cd src && $(MAKE) clean
-	cd currytools && $(MAKE) uninstall
+	$(MAKE) -C src clean
+	$(MAKE) -C currytools uninstall
 	cd bin && rm -f pakcs
 
 # Clean everything (including the front end)
@@ -393,14 +445,13 @@ dist:
 	git clone . $(PAKCSDIST)          # create copy of git version
 	cd $(PAKCSDIST) && git submodule init && git submodule update
 	cd $(PAKCSDIST) && $(MAKE) copylibs
-	cd $(PAKCSDIST) && $(MAKE) cleandist # delete unnessary files
 	mkdir -p $(PAKCSDIST)/bin && cp -p $(CYMAKE) $(PAKCSDIST)/bin
 	@if [ -f docs/Manual.pdf ] ; then cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs ; fi
 	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
-	tar cfvz $(FULLNAME)-src.tar.gz     $(SRC_EXCLUDE) $(PAKCSDIST)
-	tar cfvz $(FULLNAME)-$(ARCH).tar.gz $(BIN_EXCLUDE) $(PAKCSDIST)
+	tar cfvz $(FULLNAME)-src.tar.gz     --exclude-vcs --exclude-from=./.tarignore $(SRC_EXCLUDE) $(PAKCSDIST)
+	tar cfvz $(FULLNAME)-$(ARCH).tar.gz --exclude-vcs --exclude-from=./.tarignore $(BIN_EXCLUDE) $(PAKCSDIST)
 	rm -rf $(PAKCSDIST)
 	@echo "----------------------------------------------------------------"
 	@echo "Distribution files pakcs*.tar.gz generated."
@@ -409,16 +460,3 @@ dist:
 distdated: dist
 	mv $(FULLNAME)-src.tar.gz     $(FULLNAME)-$(DIST_DATE)-src.tar.gz
 	mv $(FULLNAME)-$(ARCH).tar.gz $(FULLNAME)-$(DIST_DATE)-$(ARCH).tar.gz
-
-# Clean all files that should not be included in a distribution
-.PHONY: cleandist
-cleandist:
-	rm -rf .git .gitmodules .gitignore
-	rm -r Makefile_install_lib lib_Makefile
-	rm -rf $(CURRYLIBSDIR)
-	rm -rf currytools/.git currytools/.gitignore
-	rm -f currytools/download_tools.sh
-	cd $(FRONTENDDIR) && rm -rf .git .gitignore dist
-	rm -rf docs/src
-	rm -rf debian docker
-	rm -f KNOWN_BUGS CHANGELOG.html

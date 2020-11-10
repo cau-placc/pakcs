@@ -1,0 +1,251 @@
+image: "skgland/pakcs-swi-ci:latest"
+
+
+variables:
+  DOWNLOAD_VERSION: "2.3.0"
+  # make sure LANG and LC_ALL are well defined
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  # move the stack root and cabal dir to a place where we can cache them
+  STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
+  CABAL_DIR: "${CI_PROJECT_DIR}/.cabal/"
+  # cypm configs
+  CPM_VERSION: "2.3.0"
+  BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
+  # make the ci checkout submodules recursively
+  GIT_SUBMODULE_STRATEGY: recursive
+  CURRY_LANG_PROJECT: curry/curry-lang.org
+  CURRY_LANG_BRANCH: setup-pakcs-ci
+
+stages:
+  - make
+  - test
+  - doc
+  - package
+  - package_upload
+  - curry-lang
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}-stack_cache"
+  paths:
+    - .stack-root/
+    - .cabal/
+    - .cpm/
+
+run_make:
+  stage: make
+  tags: 
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "tag"'
+    - if: '$BUILD_NIGHTLY == "yes"'
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+  script:
+    - make CI_BUILD=yes
+  artifacts:
+    paths:
+      # this are currently all files that are added from a clean state during `make CI_BUILD=yes`
+      - "**/.curry"
+      - "**/dist"
+      - bin
+      - currytools/cpm/src/CPM.Main
+      - currytools/optimize/BindingOpt
+      - frontend/bin
+      - frontend/pkg
+      - lib
+      - pakcsinitrc
+      - scripts/makesavedstate
+      - src/pakcs
+      - src/pakcsversion.pl
+      - src/prologbasics.pl
+
+run_download_make:
+  stage: test
+  tags:
+    - docker
+  rules:
+    - if: '$TEST_DOWNLOAD == "yes"'
+  timeout: 2h
+  script:
+    - ci/make_download.sh
+
+run_test:
+  stage: test
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "tag"'
+    - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+    - ./bin/pakcs-cypm config
+    - ./bin/pakcs-cypm update
+    - ./ci/install_currycheck.sh
+  script:
+    - make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
+
+make_manual:
+  stage: doc
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "tag"'
+    - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+    - ./bin/pakcs-cypm config
+    - ./bin/pakcs-cypm update
+    - ./ci/install_currydoc.sh
+    - ./ci/install_markdown.sh
+  script:
+    - make CI_BUILD=yes manual
+    - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
+  artifacts:
+    paths:
+      - docs/**.pdf
+      - docs/**.html
+    reports:
+      dotenv:
+        - manual.env
+
+make_libdoc:
+  stage: doc
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "tag"'
+    - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true
+  timeout: 2h
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+    - ./bin/pakcs-cypm config
+    - ./bin/pakcs-cypm update
+    - ./ci/install_currydoc.sh
+    - ./ci/install_markdown.sh
+  script:
+    - make -j -O CI_BUILD=yes libdoc
+  artifacts:
+    paths:
+      - lib/CDOC
+
+
+bundle_tar:
+  stage: package
+  tags:
+    - docker
+  needs:
+    - job: "run_make"
+      artifacts: true
+    - job: "make_manual"
+      artifacts: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "tag"'
+    - if: '$BUILD_NIGHTLY == "yes"'
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+  script:
+    - make CI_BUILD=yes dist
+    - echo "BUNDLE_JOB_ID=${CI_JOB_ID}" >> bundle.env
+  artifacts:
+    reports:
+      dotenv:
+        - bundle.env
+    paths:
+      - pakcs-*.tar.gz
+
+upload_tar:
+  stage: package_upload
+  tags:
+    - docker
+  rules:
+      - if: '$CI_PIPELINE_SOURCE == "tag"'
+      - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true     # need pakcs binary to determine version
+    - job: "make_manual"
+      artifacts: true
+    - job: "make_libdoc"
+      artifacts: true
+    - job: "bundle_tar"
+      artifacts: true
+  variables:
+    PUBLIC_HTML: "${CI_PROJECT_DIR}/public_html"
+    PUBLIC_LIB_HTML: "${CI_PROJECT_DIR}/public_html/lib_pakcs2"
+    PUBLIC_DOWNLOAD: "${CI_PROJECT_DIR}/public_html/download"
+  before_script:
+    - mkdir -p "${PUBLIC_HTML}" "${PUBLIC_LIB_HTML}" "${PUBLIC_DOWNLOAD}"
+  script:
+    # copy current distribution into latest release
+    - cp -p pakcs*.tar.gz "${PUBLIC_DOWNLOAD}"
+    # copy manual
+    - cp -p docs/Manual.pdf "${PUBLIC_HTML}"
+    - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version  # necessary to ensure /root/.pakcsrc is initialized before we try to use the output of pakcs
+    - cp -p docs/Manual.pdf "${PUBLIC_DOWNLOAD}/pakcs-$(${CI_PROJECT_DIR}/bin/pakcs --numeric-version)-manual.pdf"
+    - cp -p docs/markdown_syntax.html "${PUBLIC_HTML}"
+    # copy release notes etc
+    - |
+      cp -p OLDRELNOTES.html \
+            CHANGELOG.html \
+            RESOURCES.html \
+            docs/RELNOTES.html \
+            docs/INSTALL.html \
+            docs/GITINSTALL.html \
+            docs/CurryStyleGuide.html \
+            "${PUBLIC_HTML}"
+    # copy current libraries and their documentation
+    - cp -rp lib/CDOC/* "${PUBLIC_LIB_HTML}"
+    - cp -p "${PUBLIC_LIB_HTML}/PAKCS_libs.html" "${PUBLIC_LIB_HTML}/index.html"
+  artifacts:
+    paths:
+      - "${PUBLIC_HTML}"
+
+link_nightly:
+  stage: package_upload
+  tags:
+    - docker
+  rules:
+    - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true # need pakcs binary vor pakcs version
+    - job: "bundle_tar"
+      artifacts: true # need environment variables for bundle_job_id
+    - job: "make_manual"
+      artifacts: true # need environment variables for manual_job_id
+  script:
+    - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
+    - ci/update_nightly_version.sh
+
+# the commit done by the link_nightly job should be enough once https://gitlab.com/gitlab-org/gitlab/-/issues/246784 is fixed
+downstream:
+  stage: curry-lang
+  rules:
+    - if: '$BUILD_NIGHTLY == "yes"'
+      when: on_success # wait for previous stage to finish
+  trigger:
+    project: curry/curry-lang.org
+    branch: "${CURRY_LANG_BRANCH}"
+    strategy: depend

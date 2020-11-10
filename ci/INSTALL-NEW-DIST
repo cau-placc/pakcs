@@ -1,0 +1,38 @@
+#!/bin/sh
+# shell script to install a new version of PAKCS for downloading
+
+# the local architecture installation directory (e.g., debian-09-amd64):
+ARCHDIR=debian-09-amd64
+
+export PATH=/net/medoc/home/pakcs/.cpm/bin:$PATH
+
+cd $HOME/$ARCHDIR/pakcs
+make -j -O dist
+make libdoc
+
+PAKCS=$HOME/$ARCHDIR/pakcs # name of current PAKCS installation directory
+PAKCSHTML=$HOME/public_html # name of PAKCS HTML directory
+PAKCSLIBHTML=$HOME/public_html/lib_pakcs2 # name of PAKCS libs HTML directory
+PAKCSDOWNLOAD=$PAKCSHTML/download # name of PAKCS HTML download directory
+
+echo "Copy current distribution into latest release..."
+/bin/cp -p $PAKCS/pakcs*.tar.gz $PAKCSDOWNLOAD
+
+echo "Copy manual..."
+/bin/cp -p $PAKCS/docs/Manual.pdf $PAKCSHTML
+/bin/cp -p $PAKCS/docs/Manual.pdf $PAKCSDOWNLOAD/pakcs-`$PAKCS/bin/pakcs --numeric-version`-manual.pdf
+/bin/cp -p $PAKCS/docs/markdown_syntax.html $PAKCSHTML
+
+echo "Copy release notes etc..."
+/bin/cp -p $PAKCS/OLDRELNOTES.html $PAKCS/docs/RELNOTES.html $PAKCS/CHANGELOG.html \
+      $PAKCS/docs/INSTALL.html $PAKCS/docs/GITINSTALL.html \
+      $PAKCS/docs/CurryStyleGuide.html $PAKCS/RESOURCES.html \
+      $PAKCSHTML
+
+echo "Copying current libraries and their documentation into web pages..."
+/bin/cp -rp $PAKCS/lib/CDOC/* $PAKCSLIBHTML/
+/bin/cp -p $PAKCSLIBHTML/PAKCS_libs.html $PAKCSLIBHTML/index.html
+
+# make copied files readable for all:
+chmod -R go+rX $PAKCSDOWNLOAD
+chmod -R go+rX $PAKCSLIBHTML
