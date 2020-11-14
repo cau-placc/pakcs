@@ -1,0 +1,155 @@
+############################################################################
+# Makefile for various pre-compilations of the system libraries
+# and to generate the documentation of the libraries.
+#
+# This Makefile will be copied into ROOT/lib when PAKCS is built.
+############################################################################
+
+CYMAKEPARAMS = --extended -Wnone -i.
+
+PAKCS=$(ROOT)/bin/pakcs
+
+CURRY_FILES:=$(shell find * -name "*.curry")
+
+# directory for HTML documentation files:
+LIBDOCDIR=CDOC
+# directory for LaTeX documentation files:
+TEXDOCDIR := $(DOCDIR)/src/lib
+
+# Curry library files
+LIB_CURRY = $(filter-out $(EXCLUDES), $(CURRY_FILES))
+# lib names without directory prefix
+LIB_NAMES     = $(subst /,., $(basename $(LIB_CURRY)))
+# lib names included in library documentation page (without directory prefix)
+LIB_DOCNAMES = $(filter-out $(DOCEXCLUDES), $(LIB_NAMES))
+# Generated files:
+LIB_FCY   = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.fcy), $(lib))
+LIB_TFCY  = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.tfcy),$(lib))
+LIB_ACY   = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.acy), $(lib))
+LIB_PL    = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.pl), $(lib))
+LIB_HTML  = $(foreach lib, $(LIB_CURRY:.curry=.html), $(LIBDOCDIR)/$(subst /,.,$(lib)))
+LIB_TEX   = $(foreach lib, $(LIB_CURRY:.curry=.tex),  $(TEXDOCDIR)/$(subst /,.,$(lib)))
+
+ALLLIBS      = AllLibraries
+# Modules not included as regular libraries:
+EXCLUDES     = $(ALLLIBS).curry
+# Modules not included in library documentation index page:
+DOCEXCLUDES  = CHRcompiled CPNS
+
+# Executable of CurryDoc:
+CURRYDOC := $(shell which curry-doc)
+
+.PHONY: all
+all: $(ALLLIBS).curry fcy acy
+
+# create a program importing all libraries in order to re-compile them
+# so that all auxiliary files are up-to-date
+$(ALLLIBS).curry: $(LIB_CURRY) Makefile
+	rm -f $@
+	for i in $(filter-out Prelude, $(LIB_NAMES)) ; do echo "import $$i" >> $@ ; done
+
+.PHONY: allsources
+allsources:
+	@echo $(LIB_CURRY)
+
+# clean all generated files
+.PHONY: clean
+clean:
+	rm -fr "$(LIBDOCDIR)"/bt3
+	rm -f "$(LIBDOCDIR)"/*
+	rm -f "$(TEXDOCDIR)"/*
+	rm -fr .curry
+
+# clean all generated Prolog files
+.PHONY: cleanpl
+cleanpl:
+	rm -f .curry/pakcs-$(VERSION)/*.pl .curry/pakcs-$(VERSION)/*.po
+
+##########################################################################
+# generate the FlatCurry files of all libraries:
+.NOTPARALLEL: fcy
+.PHONY: fcy
+fcy: $(LIB_FCY)
+
+# generate the type-annotated FlatCurry files of all libraries:
+.PHONY: tfcy
+tfcy: $(LIB_TFCY)
+
+# generate the AbstractCurry files of all libraries:
+.PHONY: acy
+acy: $(LIB_ACY)
+
+# generate the compiled Prolog target files of all libraries:
+.NOTPARALLEL: pl
+.PHONY: pl
+pl: .curry/pakcs-$(VERSION)/$(ALLLIBS).pl $(LIB_PL)
+
+# generate FlatCurry file in subdirectory of .curry:
+.curry/pakcs-$(VERSION)/%.fcy: %.curry
+	"$(CYMAKE)" --flat $(CYMAKEPARAMS) $(subst /,.,$*) -Odesugar-newtypes -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+
+# generate type-annotated FlatCurry file in subdirectory of .curry:
+.curry/pakcs-$(VERSION)/%.tfcy: %.curry
+	"$(CYMAKE)" --typed-flat $(CYMAKEPARAMS) $(subst /,.,$*) -Odesugar-newtypes -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+
+# generate all AbstractCurry files in subdirectory of .curry:
+.curry/pakcs-$(VERSION)/%.acy: %.curry
+	"$(CYMAKE)" --acy $(CYMAKEPARAMS) $(subst /,.,$*) -Odesugar-newtypes -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+
+# generate all Prolog translation (without binding optimization):
+.curry/pakcs-$(VERSION)/%.pl: .curry/pakcs-$(VERSION)/%.fcy
+	rm -f $@ && "$(PAKCS)" -Dbindingoptimization=no --nocypm --quiet :compile $(subst /,.,$*) :quit
+
+##############################################################################
+# create HTML documentation files for system libraries
+##############################################################################
+
+# Check whether CurryDoc is installed
+.PHONY: checkcurrydoc
+checkcurrydoc:
+	@if [ ! -x "$(CURRYDOC)" ] ; then \
+	  echo "ERROR: Executable 'curry-doc' is not installed!" && echo "Install it by > cpm installapp currydoc" && exit 1 ; \
+	fi
+
+INDEXHTML    = $(LIBDOCDIR)/index.html
+HTMLEXCLUDES = $(INDEXHTML) $(foreach file, findex.html cindex.html PAKCS_libs.html, $(LIBDOCDIR)/$(file))
+
+.PHONY: htmldoc
+htmldoc: checkcurrydoc $(LIB_CURRY)
+	@mkdir -p "$(LIBDOCDIR)"
+	@$(MAKE) $(LIB_HTML)
+	@$(MAKE) $(INDEXHTML)
+
+$(INDEXHTML): $(filter-out $(HTMLEXCLUDES), $(wildcard $(LIBDOCDIR)/*.html))
+	@echo "Generating index pages for Curry libraries:"
+	@echo $(LIB_DOCNAMES)
+	$(CURRYDOC) --libsindexhtml "$(LIBDOCDIR)" $(LIB_DOCNAMES)
+
+# generate individual documentations for libraries
+define HTMLRULE
+$(LIBDOCDIR)/$1.html: $(subst .,/,$1).curry
+	$$(CURRYDOC) --noindexhtml "$(LIBDOCDIR)" $$(subst /,.,$$<)
+endef
+
+$(foreach module, $(LIB_NAMES),$(eval $(call HTMLRULE,$(module))))
+# uncomment for rule debugging
+# $(foreach module, $(LIB_NAMES),$(info $(call HTMLRULE,$(module))))
+
+##############################################################################
+# create LaTeX documentation files for system libraries
+##############################################################################
+
+.PHONY: texdoc
+texdoc: checkcurrydoc $(LIB_CURRY)
+	@mkdir -p "$(TEXDOCDIR)"
+	$(MAKE) $(LIB_TEX)
+
+# Generate individual LaTeX documentations for libraries.
+# In case of failures (which might occur due to memory problems in SWI-Prolog)
+# an empty LaTeX file is generated so that the make process does not die.
+define TEXRULE
+$(TEXDOCDIR)/$1.tex: $(subst .,/,$1).curry
+	$$(CURRYDOC) --tex "$(TEXDOCDIR)" $$(subst /,.,$$<) || (rm -f $$@ && touch $$@)
+endef
+
+$(foreach module, $(LIB_NAMES),$(eval $(call TEXRULE,$(module))))

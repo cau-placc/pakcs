@@ -202,7 +202,8 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: copylibs
 copylibs:
-	@if [ -d $(CURRYLIBSDIR) ] ; then cd $(CURRYLIBSDIR) && $(MAKE) -f Makefile_$(CURRYSYSTEM)_install ; fi
+	@if [ -d $(CURRYLIBSDIR) ] ; then $(MAKE) -f $(ROOT)/Makefile_install_lib ; fi
+	cp Makefile_lib lib/Makefile
 
 # if the directory `currytools` is not present, copy it from the sources:
 # (only necessary for the installation of a (Debian) packages, otherwise
@@ -309,7 +310,7 @@ runtest:
 .PHONY: runalltests
 runalltests: testsuite/test.sh
 	cd testsuite && ./test.sh $(RUNTESTPARAMS)
-	cd lib && ./test.sh $(RUNTESTPARAMS)
+	#cd lib && ./test.sh $(RUNTESTPARAMS) # deprecated
 	cd currytools && $(MAKE) runtest
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
@@ -404,6 +405,7 @@ distdated: dist
 .PHONY: cleandist
 cleandist:
 	rm -rf .git .gitmodules .gitignore
+	rm -r Makefile_install_lib Makefile_lib
 	rm -rf $(CURRYLIBSDIR)
 	rm -rf currytools/.git currytools/.gitignore
 	rm -f currytools/download_tools.sh
