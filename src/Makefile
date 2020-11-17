@@ -47,14 +47,12 @@ uninstall:
 # make everything if we have a SICStus-Prolog system:
 .PHONY: sicstus
 sicstus:
-	#$(MAKE) libsicstus
 	echo "[sicstusbasics], generatePrologBasics." | "$(SICSTUS)"
 	$(MAKE) c2p.state
 
 # make everything if we have a SWI-Prolog system:
 .PHONY: swi
 swi:
-	#$(MAKE) libswi
 	rm -f prologbasics.pl ; cp swibasics.pl prologbasics.pl
 	$(MAKE) swi.state
 	mv -f swi.state c2p.state
