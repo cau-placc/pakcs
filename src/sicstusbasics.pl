@@ -483,7 +483,8 @@ shellCmd(Cmd,Status) :-
 	%write(user_error,Cmd), nl(user_error),
 	(sicstus4
          -> absolute_file_name(path(sh),SH,[access([exist,executable])]),
-	    process_create(SH,['-c',Cmd],[process(Pid)]),
+	    catch(findall(Var=Value,environ(Var,Value),Env),_,Env=[]),
+	    process_create(SH,['-c',Cmd],[environment(Env),process(Pid)]),
             process_wait(Pid,exit(Status))
           ; system(Cmd,Status)).
 
