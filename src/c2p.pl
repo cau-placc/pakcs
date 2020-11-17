@@ -36,11 +36,7 @@ readRcFile(ArgProps) :-
 	% first, try to install local .pakcsrc file:
         (existsFile(HomeConfigFile)
 	 -> readConfigFile(HomeConfigFile,HomeProps)
-	  ; appendAtoms(['cp ',ConfigFile,' ',HomeConfigFile],CpCmd),
-	    shellCmd(CpCmd),
-	    writeNQ('>>> '),
-	    writeNQ(HomeConfigFile), writeNQ(' installed.'), nlNQ,
-	    HomeProps=[] ),
+	  ; HomeProps=[] ),
 	(existsFile(ConfigFile)
 	 -> readConfigFile(ConfigFile,GlobalProps),
 	    updateConfigFile(ConfigFile,HomeProps,HomeConfigFile)
@@ -70,6 +66,21 @@ readRcFile(ArgProps) :-
 	deletePropDups(AllProps,UniqueProps),
 	map1M(basics:assertPakcsrc,UniqueProps).
 
+
+% Try to install the PAKCS rc file in home dir if not already there:
+installRcFileIfNotPresent :-
+	installDir(PH),
+        appendAtom(PH,'/pakcsrc.default',ConfigFile),
+        getHomeDirectory(Home),
+	appendAtom(Home,'/.pakcsrc',HomeConfigFile),
+	!,
+        (existsFile(HomeConfigFile)
+	 -> true
+	  ; appendAtoms(['cp ',ConfigFile,' ',HomeConfigFile],CpCmd),
+	    shellCmd(CpCmd),
+	    writeNQ('>>> '),
+	    writeNQ(HomeConfigFile), writeNQ(' installed.'), nlNQ).
+installRcFileIfNotPresent.
 
 deletePropDups([],[]).
 deletePropDups([prop(Name,Value)|Props],[prop(Name,Value)|DProps]) :-
@@ -102,6 +113,7 @@ pakcsMain :-
 	((RTArgs=[], \+ verbosityIntermediate) -> true
 	  ; writeNQ('Run-time parameters passed to application: '),
 	    writeNQ(RTArgs), nlNQ),
+        installRcFileIfNotPresent,
 	(verbosityNotQuiet
          -> printPakcsHeader, nlNQ,
             writeNQ('Type ":h" for help (contact: pakcs@curry-lang.org)'),
@@ -2092,6 +2104,8 @@ readStreamLines(Str,[Line|Lines]) :-
 
 
 % Update a configuration file with a list of given properties
+updateConfigFile(OrgFile,_,UpdFile) :-
+        \+ (existsFile(OrgFile), existsFile(UpdFile)), !. % nothing to do
 updateConfigFile(OrgFile,_,UpdFile) :-
 	fileModTime(OrgFile,OrgModTime),
 	fileModTime(UpdFile,UpdModTime),
