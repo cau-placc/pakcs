@@ -15,7 +15,7 @@ variables:
   # make the ci checkout submodules recursively
   GIT_SUBMODULE_STRATEGY: recursive
   CURRY_LANG_PROJECT: curry/curry-lang.org
-  CURRY_LANG_BRANCH: setup-pakcs-ci
+  CURRY_LANG_BRANCH: hakyll
 
 stages:
   - make

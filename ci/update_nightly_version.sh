@@ -35,7 +35,7 @@ NIGHTLY_VERSION
 # commit updated file
 git add "${NIGHTLY_FILE}"
 git commit -F - <<COMMIT_MSG
-[Pakcs CI Nightly Schedule] Update Nightly
+[Pakcs CI] Update Nightly
 
 CI triggered later via Pipeline https://gitlab.com/gitlab-org/gitlab/-/issues/246784
 [skip ci]
