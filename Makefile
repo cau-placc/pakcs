@@ -310,7 +310,6 @@ runtest:
 .PHONY: runalltests
 runalltests: testsuite/test.sh
 	cd testsuite && ./test.sh $(RUNTESTPARAMS)
-	#cd lib && ./test.sh $(RUNTESTPARAMS) # deprecated
 	cd currytools && $(MAKE) runtest
 	# remove .curry (might contain analysis results if home is missing)
 	rm -rf .curry
