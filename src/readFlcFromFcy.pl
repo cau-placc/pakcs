@@ -33,9 +33,7 @@ readFlcFromFcy(FileName,_) :-
 fcy2flcProg('Prog'(ModName,Imps,Types,Funcs,Ops),
 	    'Prog'(FModName,FImps,FTypes,FFuncs,FOps)) :-
         cp_string(ModName,FModName),
-        map2M(basics:cp_string,Imps,FImps0),
-        % workaround for frontend bug: import Prelude if it is not imported:
-        (member("Prelude",FImps0) -> FImps = FImps0 ; FImps = ["Prelude"|FImps0]),
+        map2M(basics:cp_string,Imps,FImps),
 	fcy2flcTypes(Types,FTypes),
 	map2M(readFlcFromFcy:fcy2flcFunc,Funcs,FFuncs),
 	map2M(readFlcFromFcy:fcy2flcOp,Ops,FOps).
