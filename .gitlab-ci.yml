@@ -16,6 +16,9 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   CURRY_LANG_PROJECT: curry/curry-lang.org
   CURRY_LANG_BRANCH: hakyll
+  CURRY_CHECK_VERSION: "2.0.0"
+  CURRY_DOC_VERSION: "2.0.0"
+  MARKDOWN_VERSION: "3.2.0"
 
 stages:
   - make
@@ -69,6 +72,8 @@ run_download_make:
     - docker
   rules:
     - if: '$TEST_DOWNLOAD == "yes"'
+  variables:
+    CURRY_CHECK_VERSION: "2.0.0" # may differ from default version above if download and current brach don't use the same version
   timeout: 2h
   script:
     - ci/make_download.sh

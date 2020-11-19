@@ -4,8 +4,16 @@ set -ve
 
 # Generate local version of CurryCheck:
 gen_currycheck() {
-  bin/cypm -d curry_bin=$(pwd)/bin/pakcs -d bin_install_path=$(pwd)/bin -d app_package_path=$(pwd)/app_packages update
-  bin/cypm -d curry_bin=$(pwd)/bin/pakcs -d bin_install_path=$(pwd)/bin -d app_package_path=$(pwd)/app_packages install currycheck
+  bin/cypm \
+      -d curry_bin=$(pwd)/bin/pakcs \
+      -d bin_install_path=$(pwd)/bin \
+      -d app_package_path=$(pwd)/app_packages \
+      update
+  bin/cypm \
+      -d curry_bin=$(pwd)/bin/pakcs \
+      -d bin_install_path=$(pwd)/bin \
+      -d app_package_path=$(pwd)/app_packages \
+      install currycheck "${CURRY_CHECK_VERSION}"
 
   ln -s $(pwd)/bin/curry-check $(pwd)/bin/pakcs-check
   PATH=$(pwd)/bin:${PATH}

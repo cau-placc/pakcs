@@ -1,9 +1,6 @@
 #!/bin/bash
 
 set -ve
+source ./ci/cypm_helper.sh
 
-./bin/pakcs-cypm  \
-    -d curry_bin="${CI_PROJECT_DIR}/bin/pakcs" \
-    -d bin_install_path="${CI_PROJECT_DIR}/bin" \
-    -d app_package_path="${CI_PROJECT_DIR}/app_packages" \
-    install currydoc
+cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
