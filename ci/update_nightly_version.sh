@@ -20,8 +20,8 @@ VERSION=$(${CI_PROJECT_DIR}/bin/pakcs --numeric-version)
 # replace the latest-nightly.version file
 cat >"${NIGHTLY_FILE}" <<NIGHTLY_VERSION
 ---
-date: 99999-06-30
-version: Latest Nightly (${VERSION})
+date: $(date +%Y-%0m-%0d)
+version: Latest Nightly ${CI_COMMIT_SHORT_SHA} ($(date +%0d/%0m/%y))
 source: https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw/pakcs-${VERSION}-src.tar.gz
 linux:  https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw/pakcs-${VERSION}-amd64-Linux.tar.gz
 manual: https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw/docs/Manual.pdf
