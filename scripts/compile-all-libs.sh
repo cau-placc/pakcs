@@ -22,3 +22,6 @@ while [ $CCODE = 0 ] ; do
   CCODE=$?
 done
 /bin/rm -r $TMPOUT
+
+echo "Compile Prolog targets..."
+cd lib && ../bin/$CURRY :l AllLibraries :eval "42::Int" :quit
