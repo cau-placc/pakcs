@@ -8,7 +8,7 @@
 # Sergio Antoy, Bernd Brassel, Martin Engelke, Michael Hanus, Klaus Hoeppner,
 # Johannes Koj, Philipp Niederau, Ramin Sadre, Frank Steiner
 #
-# (contact: pakcs@curry-language.org)
+# (contact: pakcs@curry-lang.org)
 #****************************************************************************
 
 # Some parameters for this installation
@@ -169,11 +169,11 @@ kernel: scripts copylibs copytools
 	# build the PAKCS compiler as a saved system:
 	$(MAKE) $(PAKCSVERSION)
 	cd src && $(MAKE)
+	# compile optimization tools:
+	@cd currytools/optimize && $(MAKE)
 	# compile all libraries:
 	@cd lib && $(MAKE) AllLibraries.curry
 	scripts/compile-all-libs.sh
-	# compile optimization tools:
-	@cd currytools/optimize && $(MAKE)
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
 
@@ -411,5 +411,5 @@ cleandist:
 	rm -f currytools/download_tools.sh
 	cd $(FRONTENDDIR) && rm -rf .git .gitignore dist
 	rm -rf docs/src
-	rm -rf debian
+	rm -rf debian docker
 	rm -f KNOWN_BUGS CHANGELOG.html
