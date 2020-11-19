@@ -16,9 +16,9 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   CURRY_LANG_PROJECT: curry/curry-lang.org
   CURRY_LANG_BRANCH: hakyll
-  CURRY_CHECK_VERSION: "2.0.0"
-  CURRY_DOC_VERSION: "2.0.0"
-  MARKDOWN_VERSION: "3.2.0"
+  CURRY_CHECK_VERSION: "3.0.0"
+  CURRY_DOC_VERSION: "3.0.0"
+  MARKDOWN_VERSION: "3.3.0"
 
 stages:
   - make
