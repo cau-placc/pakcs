@@ -22,10 +22,8 @@ Changes to version 2.3.0: bug fixes and
     `System.Environment`. 
     `System.Process` is available in package `process`.
     The rest remains in the library.
-  * Implemented the "MonadFail-Proposal" for curry
-    (see <https://wiki.haskell.org/MonadFail_Proposal>)
-  * `newtype` is implemented with the non-strict Haskell semantics,
-    i.e., 'newtype' constructors are stripped away.
+  * Implemented the "MonadFail-Proposal" for Curry
+    (see <https://wiki.haskell.org/MonadFail_Proposal>).
   * Intermediate files are written into versioned directories, e.g.,
     the FlatCurry representation of `lib/Prelude.curry` is written
     to `lib/.curry/pakcs-3.2.0/Prelude.fcy` (and similarly all
