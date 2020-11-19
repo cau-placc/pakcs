@@ -202,8 +202,9 @@ cleanscripts:
 # install the library sources from the trunk directory:
 .PHONY: copylibs
 copylibs:
-	@if [ -d $(CURRYLIBSDIR) ] ; then $(MAKE) -f $(ROOT)/Makefile_install_lib ; fi
-	cp Makefile_lib lib/Makefile
+	@if [ -d $(CURRYLIBSDIR) ] ; then \
+	  $(MAKE) -f $(ROOT)/Makefile_install_lib ; \
+	  cp Makefile_lib lib/Makefile ; fi
 
 # if the directory `currytools` is not present, copy it from the sources:
 # (only necessary for the installation of a (Debian) packages, otherwise
