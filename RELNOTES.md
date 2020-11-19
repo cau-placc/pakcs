@@ -1,34 +1,36 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.2.0 (November 9, 2020)
---------------------------------------------------------
+Release notes for PAKCS Version 3.2.0 (November 19, 2020)
+---------------------------------------------------------
 
 Changes to version 2.3.0: bug fixes and
 
-  * Intermediate files are written into versioned directories, e.g.,
-    the FlatCurry representation of `lib/Prelude.curry` is written
-    to `lib/.curry/pakcs-3.2.0/Prelude.fcy` (and similarly all
-    other intermediate files).
+  * Type class `Data` with operations `(===)` (equality) and
+    `aValue` (non-deterministic value generator) added to the prelude.
+    For each `data` declaration, `Data` instances for the defined type
+    are automatically derived as long as the defined type is first-order
+    (i.e., does not contain functional types).
+    Free variable have type class constraint `Data`.
+    The motivation for this design and its advantages are described in a
+    [DECLARE/WFLP'19 paper](https://doi.org/10.1007/978-3-030-46714-2_15).
   * Libraries `FilePath`, `Directory`, `Distribution`, `Time`,
     `IOExts`, `ReadShowTerm` removed
-    (available in packages `filepath`, `directory`, `distribution`,
-    `time`, `io-extra` and `read-legacy` )
+    (now available in packages `filepath`, `directory`, `distribution`,
+    `time`, `io-extra` and `read-legacy`).
   * Library `System` split into `System.Process`, `System.CPUTime`,
     `System.Environment`. 
     `System.Process` is available in package `process`.
-    The rest remains in the library
+    The rest remains in the library.
   * Implemented the "MonadFail-Proposal" for curry
     (see <https://wiki.haskell.org/MonadFail_Proposal>)
-  * 'newtype' is implemented with the non-strict Haskell semantics,
+  * `newtype` is implemented with the non-strict Haskell semantics,
     i.e., 'newtype' constructors are stripped away.
-
-Due to development issues the following changes 
-from version 2.1.0 and 2.1.2 are not in this release,
-but will be added later:
-
-  * CPM updated (improved handling of temporary working directory)
-  * CPM updated (e.g., faster `update` operation)
+  * Intermediate files are written into versioned directories, e.g.,
+    the FlatCurry representation of `lib/Prelude.curry` is written
+    to `lib/.curry/pakcs-3.2.0/Prelude.fcy` (and similarly all
+    other intermediate files). This avoids inconsistencies
+    of intermediate files when different Curry systems are used.
 
 
 Release notes for PAKCS Version 2.3.0 (October 12, 2020)
