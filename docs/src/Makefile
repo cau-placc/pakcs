@@ -20,22 +20,22 @@ manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex) \
 	rm -f $@
 	cp $< $@
 
-markdown_syntax.tex: markdown_syntax.txt
+markdown_syntax.tex: markdown_syntax.md
 	$(MD2PDF) --include --tex -o "$@" "$<"
 
-../markdown_syntax.html: markdown_syntax.txt
+../markdown_syntax.html: markdown_syntax.md
 	$(MD2PDF) -t "Markdown Syntax" --html -o "$@" "$<"
 
 # format installation description as HTML page
-../INSTALL.html: ../../INSTALL.txt
+../INSTALL.html: ../../INSTALL.md
 	$(MD2PDF) -t "PAKCS Installation Instructions" --html -o "$@" "$<"
 
 # format repository installation description as HTML page
-../GITINSTALL.html: ../../GITINSTALL.txt
+../GITINSTALL.html: ../../GITINSTALL.md
 	$(MD2PDF) -t "PAKCS Repository" --html -o "$@" "$<"
 
 # format release notes as HTML page
-../RELNOTES.html: ../../RELNOTES.txt
+../RELNOTES.html: ../../RELNOTES.md
 	$(MD2PDF) -t "PAKCS Release Notes" --html -o "$@" "$<"
 
 # format Curry style guide as HTML page
