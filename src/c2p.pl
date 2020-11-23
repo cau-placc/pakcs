@@ -132,6 +132,11 @@ processDArgs([Arg|DArgs],[prop(Name,Val)|Props],Args) :-
 	atom_codes(Name,NameS),
 	atom_codes(Val,ValS),
 	processDArgs(DArgs,Props,Args).
+processDArgs([Arg|Args],[],[Arg|Args]) :-
+	atom_codes(Arg,[58|_]), !. % 58 = ':', REPL command, stop processing
+processDArgs([Arg|DArgs],Props,[Arg|Args]) :-
+	!, % store other args
+	processDArgs(DArgs,Props,Args).
 processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
