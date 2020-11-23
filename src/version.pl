@@ -40,18 +40,35 @@ printVersionNumberWithBuild :-
         (B=0 -> true ; writeNQ('-b'), writeNQ(B)).
 	
 printPakcsHeader :-
+        withColor(no), !,
+	writeNQ(' __    _'), nlNQ,
+	writeNQ('|_ \\  | |            PAKCS - the Portland Aachen Kiel Curry System'), nlNQ,
+	writeNQ('  \\ \\ | |____'), nlNQ,
+	writeNQ('  /  \\|  ____|       '), printPAKCSVersion, nlNQ,
+	writeNQ(' / /\\ \\ |'), nlNQ,
+	writeNQ('/_/  \\_\\|            '),  printCPMVersion, nlNQ,
+        nlNQ.
+printPakcsHeader :-
+	writeNQ('\e[34m __\e[31m    _'), nlNQ,
+	writeNQ('\e[34m|_ \\\e[31m  | |            \e[0mPAKCS - the Portland Aachen Kiel Curry System'), nlNQ,
+	writeNQ('\e[34m  \\ \\\e[31m | |____'), nlNQ,
+	writeNQ('\e[34m  /  \\\e[31m|  ____|       \e[0m'), printPAKCSVersion, nlNQ,
+	writeNQ('\e[34m / /\\ \\\e[31m |'), nlNQ,
+	writeNQ('\e[34m/_/  \\_\\\e[31m|            \e[0m'),  printCPMVersion, nlNQ,
+	writeNQ('\e[0m'), nlNQ,
+        nlNQ.
+
+printPAKCSVersion :-
 	prolog(Prolog),
 	prologMajorVersion(MajV),
 	prologMinorVersion(MinV),
-	writeNQ('  ______      __       _    _    ______   _______     '), nlNQ,
-	writeNQ(' |  __  |    /  \\     | |  / /  |  ____| |  _____|   Portland Aachen Kiel'), nlNQ,
-	writeNQ(' | |  | |   / /\\ \\    | |_/ /   | |      | |_____    Curry System'), nlNQ,
-	writeNQ(' | |__| |  / /__\\ \\   |  _  |   | |      |_____  |   '), nlNQ,
-	writeNQ(' |  ____| / ______ \\  | | \\ \\   | |____   _____| |   Version '), printVersionNumberWithBuild, nlNQ,
-	writeNQ(' |_|     /_/      \\_\\ |_|  \\_\\  |______| |_______|   '), nlNQ,
-	nlNQ,
-        writeNQ('Curry2Prolog('), writeNQ(Prolog),
+        buildDate(BD),
+        writeNQ('Version '),
+        printVersionNumberWithBuild, writeNQ(' of '), writeNQ(BD),
+        writeNQ(' ('), writeNQ(Prolog),
 	writeNQ(' '), writeNQ(MajV), writeNQ('.'), writeNQ(MinV),
-	writeNQ(') Compiler Environment (Version of '),
-	buildDate(BD), writeNQ(BD), writeNQ(')'), nlNQ,
-	writeNQ('(RWTH Aachen, CAU Kiel, Portland State University)'), nlNQ.
+        writeNQ(')').
+
+printCPMVersion :-
+        cpmVersion(CV),
+        (CV = '' -> true ; writeNQ('(using '), writeNQ(CV), writeNQ(')')).

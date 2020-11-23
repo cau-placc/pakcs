@@ -56,6 +56,21 @@ else
   USECPM=no
 fi
 
+NOCOLOR=
+
+# use readline wrapper rlwrap for SICStus-Prolog back end
+# if rlwrap exists, we have tty as stdin, and we have a home directory to
+# store rlwrap's history:
+USERLWRAP=no
+if tty -s ; then
+  RLWRAP=`which rlwrap`
+  if [ -f "$PAKCSBIN/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
+    USERLWRAP=yes
+  fi
+else
+  NOCOLOR="--nocolor"
+fi
+
 # check arguments for appropriate settings:
 for i in $* ; do
   case $i in
@@ -67,7 +82,14 @@ for i in $* ; do
   esac
 done
 
+# Title/version of CPM passed to PAKCS:
+CPMTITLE=
+
 if [ $USECPM = yes ] ; then
+  CPMVERSION=`"$CYPMBIN" -V`
+  if [ $? -gt 0 ] ; then
+    CPMVERSION=
+  fi
   # set CURRYPATH with 'deps' command of CPM
   CPMPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSBIN/pakcs" deps -p`
   if [ $? -gt 0 ] ; then
@@ -89,24 +111,13 @@ if [ ! -x "$REPL" ] ; then
   exit 1
 fi
 
-# use readline wrapper rlwrap for SICStus-Prolog back end
-# if rlwrap exists, we have tty as stdin, and we have a home directory to
-# store rlwrap's history:
-USERLWRAP=no
-if tty -s ; then
-  RLWRAP=`which rlwrap`
-  if [ -f "$PAKCSBIN/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
-    USERLWRAP=yes
-  fi
-fi
-
 # do not use rlwrap inside emacs:
 if [ "$TERM" = dumb ] ; then
   USERLWRAP=no
 fi
 
 if [ $USERLWRAP = yes ] ; then
-  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$REPL" ${1+"$@"}
+  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$REPL" --cpm-version "$CPMVERSION" $NOCOLOR ${1+"$@"}
 else
-  exec "$REPL" ${1+"$@"}
+  exec "$REPL" --cpm-version "$CPMVERSION" $NOCOLOR ${1+"$@"}
 fi

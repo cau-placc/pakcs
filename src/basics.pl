@@ -2,7 +2,8 @@
 % Some basic data and predicates that are used by diffent modules.
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
-		  noLoadMessage/0, lastload/1, plprofiling/1,
+		  noLoadMessage/0, withColor/1, cpmVersion/1, lastload/1,
+                  plprofiling/1,
 		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
 		  verbosemode/1, setVerboseMode/1, quietmode/1, setQuietMode/1,
@@ -65,8 +66,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic lastload/1, plprofiling/1, quietmode/1, verbosemode/1, rtArgs/1,
-	   compileWithSharing/1,
+:- dynamic withColor/1, cpmVersion/1, lastload/1, plprofiling/1, quietmode/1,
+	   verbosemode/1, rtArgs/1, compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
 	   user:dynamicPredInfo/2, orgDynamicPredInfo/2.
@@ -100,6 +101,8 @@ user:portray_message(informational,created(_,_)) :- !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+withColor(yes).      % use colors for output
+cpmVersion('').      % the version string of CPM
 lastload("Prelude"). % program in last load command
 quietmode(no).	% yes if environment should work in quiet mode (option -q)
 plprofiling(no). % perform profiling with Prolog profiler

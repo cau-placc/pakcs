@@ -115,7 +115,7 @@ pakcsMain :-
 	    writeNQ(RTArgs), nlNQ),
         installRcFileIfNotPresent,
 	(verbosityNotQuiet
-         -> printPakcsHeader, nlNQ,
+         -> printPakcsHeader,
             writeNQ('Type ":h" for help (contact: pakcs@curry-lang.org)'),
             nlNQ
           ; true),
@@ -136,10 +136,18 @@ processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
 processArgs(Halt,[]) :- Halt=yes -> halt(0) ; true.
+processArgs(Halt,['--cpm-version'|CArgs]) :-
+        (CArgs = [CV|Args] -> retract(cpmVersion(_)), asserta(cpmVersion(CV))
+                            ; Args = CArgs), % this case should not occur...
+        !,
+	processArgs(Halt,Args).
 processArgs(Halt,['--nocypm'|Args]) :-
 	processArgs(Halt,Args).            % ignore since already processed
 processArgs(Halt,['--noreadline'|Args]) :-
 	processArgs(Halt,Args).            % ignore since already processed
+processArgs(Halt,['--nocolor'|Args]) :-
+        retract(withColor(_)), asserta(withColor(no)), !,
+	processArgs(Halt,Args).
 processArgs(_,[Arg|Args]) :-
 	(Arg='--version' ; Arg='-V'), !, % show version and quit:
 	printPakcsHeader,
@@ -233,6 +241,7 @@ writeMainHelp :-
 	writeLnErr('-q|--quiet        : work silently'),
 	writeLnErr('--nocypm          : do not invoke "cypm" to compute package load path'),
 	writeLnErr('--noreadline      : do not use input line editing via command "rlwrap"'),
+	writeLnErr('--nocolor         : do not use colored output'),
 	writeLnErr('-Dprop=val        : define pakcsrc property "prop" as "val"'),
 	writeLnErr(':<cmd> <args>     : command of the PAKCS environment'),
 	nlErr,
