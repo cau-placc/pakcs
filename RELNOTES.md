@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.2.0 (November 19, 2020)
+Release notes for PAKCS Version 3.2.0 (November 24, 2020)
 ---------------------------------------------------------
 
 Changes to version 2.3.0: bug fixes and
@@ -14,6 +14,11 @@ Changes to version 2.3.0: bug fixes and
     Free variable have type class constraint `Data`.
     The motivation for this design and its advantages are described in a
     [DECLARE/WFLP'19 paper](https://doi.org/10.1007/978-3-030-46714-2_15).
+  * The standard libraries has been changed in order to keep the names
+    and structure more closely with Haskell. Specialized functionality
+    is moved separate packages. There is a separate
+    [migration guide](https://git.ps.informatik.uni-kiel.de/curry/curry-libs/-/blob/master/MigrationGuide.md)
+    describing the changes.
   * Libraries `FilePath`, `Directory`, `Distribution`, `Time`,
     `IOExts`, `ReadShowTerm` removed
     (now available in packages `filepath`, `directory`, `distribution`,
