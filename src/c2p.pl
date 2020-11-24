@@ -16,15 +16,13 @@
 
 :- dynamic compileWithCompact/1,
 	   parser_warnings/1, parserOptions/1,
-	   freeVarsUndeclared/1, varDefines/1,
-	   addImports/1, safeMode/1.
+	   freeVarsUndeclared/1, addImports/1, safeMode/1.
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
 parserOptions(''). % additional options passed to front end
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
-varDefines([]). % list of top-level bindings
 safeMode(no). % safe execution without IO actions at top level?
 
 % Read the PAKCS rc file to define some constants
@@ -734,16 +732,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainFuncType) :-
 	write(S,'pakcsMainGoal'),
 	writeFreeVarArgs(S,FreeVars),
 	write(S,' = '),
-	varDefines(VarDefs), writeVarDefs(S,VarDefs),
 	putChars(S,Input), nl(S),
 	close(S).
-
-writeVarDefs(_,[]).
-writeVarDefs(S,[Var=Exp|VarDefs]) :-
-	exp2Term(Exp,[],Term,_),
-	write(S,'let '), write(S,Var), write(S,' = '),
-	writeCurryOnStream(S,Term), write(S,' in '),
-	writeVarDefs(S,VarDefs).
 
 writeFreeVarArgs(_,[]).
 writeFreeVarArgs(S,[V|Vs]) :-
@@ -927,7 +917,6 @@ processCommand("reload",[]) :- !,
 	              asserta(currentprogram(Prog)),
 		      initializationsInProg(ProgInits), call(ProgInits)),
 	             printError(ErrorMsg) ),
-	retract(varDefines(_)), asserta(varDefines([])),
 	(compileWithDebug -> retract(spypoints(_)),
 	                     asserta(spypoints([])),
 	                     singleOn, traceOn, spyOff
@@ -1896,47 +1885,6 @@ transDefinedFunc(ModF,ModFAtom) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Parser for expressions:
-%
-% current restrictions:
-% - no lambda abstractions
-% - no case expressions
-% - no let expressions
-
-hasfixity('.',infixr(5)) :- !. % hack for list cons operator
-hasfixity('Prelude..',infixr(9)) :- !. % hack for function composition operator
-hasfixity(O,Fixity) :-
-	functiontype(O,_,_,_,OFix,_),
-	(OFix=nofix -> Fixity=infixl(9) % non declared opids have fixity "infixl 9"
-	             ; Fixity=OFix).
-
-% parser for (define) bindings:
-mainbinding(X,E) --> id(XS), skipblanks, "=", skipblanks,
-	             expr(E), {atom_codes(X,XS)}.
-
-
-
-min(X,Y,Z) :- X<Y -> Z=X ; Z=Y.
-
-append3(X,Y,Z,L) :- append(XY,Z,L), append(X,Y,XY).
-
-
-var2comb(var(F),comb(TF,[])) :- transDefinedFunc(F,TF), !.
-var2comb(var(V),var(UV)) :- !,
-	(atom_codes(V,[95|_])  % 95 = '_'
-	 -> V=UV
-	  ; appendAtom('_',V,UV)).
-var2comb(E,E) :- \+ E=opid(_).
-
-generateApply(T,[],T).
-generateApply(T,[X|Xs],E) :- generateApply('Prelude.apply'(T,X),Xs,E).
-		   
-getArityFromType(T,0) :- var(T), !.
-getArityFromType('FuncType'(_,T2),N) :-
-	getArityFromType(T2,N2), N is N2+1.
-getArityFromType('TCons'(TC,_),N) :- TC="IO" -> N=1 ; N=0.
-
-
 % extract the program name from a given input, i.e., remove all blanks,
 % replace leading "~" by current home directory,
 % delete possible suffix ".curry" or ".lcurry", and delete absolute
@@ -1973,117 +1921,6 @@ isValidModuleString([]).
 isValidModuleString([C|Cs]) :-
 	(isLetterDigitCode(C) ; C=95 ; C=46), % letter|_|.
 	isValidModuleString(Cs).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-% convert an expression (of FlatCurry) into a Prolog term and return
-% list of assignments (variable -> Prolog variable):
-
-exp2Term(var(V),Vs,V1,Vs1) :- !, addVar(V,Vs,V1,Vs1).
-exp2Term(int(I),Vs,I,Vs) :- !.
-exp2Term(float(I),Vs,I,Vs) :- !.
-exp2Term(char(I),Vs,I_Atom,Vs) :- !, char_int(I_Atom,I).
-exp2Term(comb(Name,Exprs),Vs,CombTerm,Vs1) :- !,
-	exp2Terms(Exprs,Vs,Terms,Vs1),
-	(constructorOrFunctionType(Name,_,Arity,_)
-	  -> true
-           ; write('ERROR: type of function "'), write(Name),
-             write('" is unknown'), nl, !, fail),
-	length(Terms,TArity),
-	Missing is Arity-TArity,
-	Term =.. [Name|Terms],
-	term2partcall(Term,Missing,TermOrPartCall),
-	(compileWithSharing(function)
-	 -> CombTerm = makeShare(TermOrPartCall,_) % TODO: improve: not necessary for constr
-	  ; CombTerm = TermOrPartCall).
-exp2Term('Prelude.apply'(F,X),Vs,Term,Vs2) :- !,
-	exp2Term(F,Vs,FT,Vs1), exp2Term(X,Vs1,XT,Vs2),
-	(compileWithSharing(function)
-	 -> Term = makeShare('Prelude.apply'(FT,XT),_)
-	  ; Term = 'Prelude.apply'(FT,XT)).
-exp2Term(_Expr,_,_,_) :- write('*** Syntax error'), nl,
-	!, fail.
-
-exp2Terms([],Vs,[],Vs).
-exp2Terms([E|Es],Vs,[T|Ts],Vs2) :-
-	exp2Term(E,Vs,T,Vs1),
-	exp2Terms(Es,Vs1,Ts,Vs2).
-
-% convert variables into Prolog variables:
-addVar(V,[],NV,[(V=NV)]).
-addVar(V,[(X=NX)|Vs],NX,[(X=NX)|Vs]) :- V==X, !.
-addVar(V,[(X=NX)|Vs],NV,[(X=NX)|Vs1]) :- addVar(V,Vs,NV,Vs1).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% type check an expression (of FlatCurry):
-
-typecheck(Exp,Type) :-	typecheck(Exp,[],Type,_).
-
-typecheck(var(V),Vs,Type,Vs1) :- !, addVarType(V,Vs,Type,Vs1).
-typecheck(int(_),Vs,'TCons'('Prelude.Int',[]),Vs) :- !.
-typecheck(float(_),Vs,'TCons'('Prelude.Float',[]),Vs) :- !.
-typecheck(char(_),Vs,'TCons'('Prelude.Char',[]),Vs) :- !.
-typecheck(comb(Name,[]),Vs,FType,Vs) :- !,
-	(constructorOrFunctionType(Name,_,_,FType)
-	  -> true
-           ; write('ERROR: type of function "'), write(Name),
-             write('" is unknown'), nl, !, fail).
-typecheck(comb(Name,Exprs),Vs,Type,Vs1) :-
-	comb2apply([comb(Name,[])|Exprs],ApplyExpr),
-	typecheck(ApplyExpr,Vs,Type,Vs1).
-typecheck('Prelude.apply'(F,X),Vs,Type,Vs2) :-
-	typecheck(F,Vs,TF,Vs1), !,
-	typecheck(X,Vs1,TX,Vs2), !,
-	(unify_type(TF,'FuncType'(TA,Type)) -> true ;
-          write('ERROR: Type error in application: '),
- 	  exp2Term('Prelude.apply'(F,X),[],'Prelude.apply'(FT,XT),_),
-	  writeCurry('Prelude.apply'(FT,XT)), nl,
-	  write('*** term           : '), writeCurry(FT), nl,
-	  numbersmallvars(97,_,TF),
-	  write('*** type           : '), writeType(TF), nl,
-	  write('*** is not of functional type'), nl,
-	  !, fail),
-	(unify_type(TA,TX) -> true ;
-          write('ERROR: Type error in application: '),
- 	  exp2Term('Prelude.apply'(F,X),[],Term,_),
-	  writeCurry(Term), nl,
-	  numbersmallvars(97,_,(TA,TX)),
-	  write('*** required argument type : '), writeType(TA), nl,
-	  write('*** does not match         : '), writeType(TX), nl,
-	  !, fail).
-
-
-% translate an expression list into a nested apply:
-comb2apply([Expr],Expr) :- !.
-comb2apply(Exprs,'Prelude.apply'(AE,E)) :-
-	append(Es,[E],Exprs),
-	comb2apply(Es,AE).
-
-
-% add type information for a variable:
-addVarType(V,[],Type,[type(V,Type)]). % new type for first variable occurrence
-addVarType(V,[type(X,TX)|VTs],TX,[type(X,TX)|VTs]) :- V==X, !.
-addVarType(V,[type(X,TX)|VTs],TV,[type(X,TX)|VTs1]) :-
-	addVarType(V,VTs,TV,VTs1).
-
-% unify types: instantiate occurrences of type variables by the other type:
-unify_type(T1,T2) :- var(T1), var(T2), !, T1=T2.
-unify_type(T1,T2) :- var(T1), !, tvar_occurs_not(T1,T2), T1=T2.
-unify_type(T1,T2) :- var(T2), !, tvar_occurs_not(T2,T1), T1=T2.
-unify_type('FuncType'(T1,T2),'FuncType'(T3,T4)) :-
-	unify_type(T1,T3), unify_type(T2,T4).
-unify_type('TCons'(TC,TArgs1),'TCons'(TC,TArgs2)) :-
-	unify_types(TArgs1,TArgs2).
-
-unify_types([],[]) :- !.
-unify_types([T1|Ts1],[T2|Ts2]) :- unify_type(T1,T2), unify_types(Ts1,Ts2).
-
-tvar_occurs_not(TV,T) :- var(T), !, TV\==T.
-tvar_occurs_not(TV,'FuncType'(T1,T2)) :-
-	tvar_occurs_not(TV,T1), tvar_occurs_not(TV,T2).
-tvar_occurs_not(TV,'TCons'(_,TArgs)) :-
-	map1partialM(user:tvar_occurs_not(TV),TArgs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
