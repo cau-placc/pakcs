@@ -744,6 +744,11 @@ writeMainImports(S,[Imp|Imps]) :-
 	write(S,'import '), write(S,Imp), nl(S),
 	writeMainImports(S,Imps).
 
+% convert variables into Prolog variables:
+addVar(V,[],NV,[(V=NV)]).
+addVar(V,[(X=NX)|Vs],NX,[(X=NX)|Vs]) :- V==X, !.
+addVar(V,[(X=NX)|Vs],NV,[(X=NX)|Vs1]) :- addVar(V,Vs,NV,Vs1).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
