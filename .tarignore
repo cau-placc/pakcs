@@ -18,3 +18,5 @@ frontend/curry-frontend/.gitignore
 frontend/curry-frontend/dist
 KNOWN_BUGS
 lib-trunk
+Makefile_lib
+Makefile_install_lib
