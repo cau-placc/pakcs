@@ -1,5 +1,17 @@
 image: "skgland/pakcs-swi-ci:latest"
 
+# set TEST_DOWNLOAD=yes to run the download test
+# set BUILD_NIGHTLY=yes to build a nightly
+# set BUILD_RELEASE=yes to force build a release
+#  * won't create a release in gitlab
+#  * should probably only be used for testing
+# add a tag with name v<major>.<minor>.<release> to trigger a release
+
+# CURRY_LANG_ORG_ACCESS_TOKEN should contain the access-token to update
+# the curry-lang.org project, it SHOULD NOT be committed in the git project
+# but configured via Gitlab Settings > CI > Variables and should at least be masked
+# the corresponding username is currently hard-coded in
+#  update_release_version.sh and update_nightly_version.sh
 
 variables:
   DOWNLOAD_VERSION: "2.3.0"
@@ -11,6 +23,7 @@ variables:
   CABAL_DIR: "${CI_PROJECT_DIR}/.cabal/"
   # cypm configs
   CPM_VERSION: "2.3.0"
+  # move .cpm dir to where we can cache it
   BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
   # make the ci checkout submodules recursively
   GIT_SUBMODULE_STRATEGY: recursive
@@ -20,14 +33,26 @@ variables:
   CURRY_DOC_VERSION: "3.0.0"
   MARKDOWN_VERSION: "3.3.0"
 
+# due to the limitations that jobs of the same stage may not depend on each other
+# release is split in package_release, release and package_upload
+#
+# curry-lang-ci is part of the workaround for issue:
+# https://gitlab.com/gitlab-org/gitlab/-/issues/246784
+# when this is fixes curry-lang-ci may be removed and the [skip ci]
+# can be removed from the commit messages in the curry-lang jobs.before_script,
+# keeping it this way would keep the pipelines linked potentially giving a better overview
 stages:
-  - make
-  - test
-  - doc
-  - package
-  - package_upload
-  - curry-lang
+  - make            # build pakcs
+  - test            # run test suite and check versioned tag
+  - doc             # build lib and manual
+  - package_release # build distribution
+  - release         # create release
+  - package_upload  # create tar for webserver
+  - curry-lang      # commit updated download data to curry-lang.org repo
+  - curry-lang-ci   # trigger curry-lang.org repo CI
 
+# cache the stack root, cabal and cpm dir
+# on a per branch basis
 cache:
   key: "${CI_COMMIT_REF_SLUG}-stack_cache"
   paths:
@@ -35,6 +60,7 @@ cache:
     - .cabal/
     - .cpm/
 
+# always run except for the nightly download test run
 run_make:
   stage: make
   tags: 
@@ -43,6 +69,7 @@ run_make:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$RELEASE_BUILD == "yes"'
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -66,6 +93,8 @@ run_make:
       - src/pakcsversion.pl
       - src/prologbasics.pl
 
+
+# only run for the nightly download test run
 run_download_make:
   stage: test
   tags:
@@ -78,6 +107,18 @@ run_download_make:
   script:
     - ci/make_download.sh
 
+# check that the tag version matches pakcs version
+# this failing indicates an incorrect tag version or
+# having forgotten to bump pakcs version
+check_version:
+  stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+  script:
+    -  "[[ $CI_COMMIT_TAG == v$(${CI_PROJECT_DIR}/bin/pakcs --numeric-version) ]]"
+
+
+# run_make is run except for the nightly download test run
 run_test:
   stage: test
   tags:
@@ -86,6 +127,7 @@ run_test:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$RELEASE_BUILD == "yes"'
   needs:
     - job: "run_make"
       artifacts: true
@@ -99,6 +141,7 @@ run_test:
   script:
     - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
 
+# run for the nightly and release runs
 make_manual:
   stage: doc
   tags:
@@ -106,6 +149,7 @@ make_manual:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$RELEASE_BUILD == "yes"'
   needs:
     - job: "run_make"
       artifacts: true
@@ -128,6 +172,8 @@ make_manual:
       dotenv:
         - manual.env
 
+
+# run for the nightly and release runs
 make_libdoc:
   stage: doc
   tags:
@@ -135,6 +181,7 @@ make_libdoc:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$RELEASE_BUILD == "yes"'
   needs:
     - job: "run_make"
       artifacts: true
@@ -153,9 +200,10 @@ make_libdoc:
     paths:
       - lib/CDOC
 
-
+# run for the nightly and release runs
+# builds the distribution
 bundle_tar:
-  stage: package
+  stage: package_release
   tags:
     - docker
   needs:
@@ -166,6 +214,7 @@ bundle_tar:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$RELEASE_BUILD == "yes"'
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -180,13 +229,44 @@ bundle_tar:
     paths:
       - pakcs-*.tar.gz
 
+
+# TODO gitlab ci currently has no easy way to add files to a release
+# we would like to add:
+#  pakcs-${VERSION}-amd64.tar.gz (produced by bundle_tar job)
+#  pakcs-${VERSION}-src.tar.gz (produced by bundle_tar job)
+#  Manual.pdf (produced by make_manual job)
+#
+# run for release runs triggered by version tag
+release_job:
+  stage: release
+  tags:
+    - docker
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+#  needs:
+#    - job: "bundle_tar"
+#      artifacts: true
+#    - job: "make_manual"
+#      artifacts: true
+  script:
+    echo "Script can't be blank and is required!"
+  release:
+    name: "Release $CI_COMMIT_TAG"
+    description: 'Created by the Release CI'
+    tag_name: "$CI_COMMIT_TAG"
+    ref: "$CI_COMMIT_TAG"
+
+
+# run for release runs
+# genrate a .tar for the files that should be deployed for the updated pakcs download page
 upload_tar:
   stage: package_upload
   tags:
     - docker
   rules:
       - if: '$CI_PIPELINE_SOURCE == "tag"'
-      - if: '$BUILD_NIGHTLY == "yes"'
+      - if: '$RELEASE_BUILD == "yes"'
   needs:
     - job: "run_make"
       artifacts: true     # need pakcs binary to determine version
@@ -227,8 +307,10 @@ upload_tar:
     paths:
       - "${PUBLIC_HTML}"
 
+# run for nightly runs
+# update the latest_nightly.version in the curry-lang.org repo
 link_nightly:
-  stage: package_upload
+  stage: curry-lang
   tags:
     - docker
   rules:
@@ -244,10 +326,31 @@ link_nightly:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
     - ci/update_nightly_version.sh
 
+
+# run for release runs
+link_release:
+  stage: curry-lang
+  tags:
+    - docker
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    # or if we explicitly fore a release build
+    - if: '$RELEASE_BUILD == "yes"'
+  script:
+    - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
+    - ci/update_release_version.sh
+
+
+# run for nightly and release runs
 # the commit done by the link_nightly job should be enough once https://gitlab.com/gitlab-org/gitlab/-/issues/246784 is fixed
 downstream:
-  stage: curry-lang
+  stage: curry-lang-ci
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+      when: on_success # wait for previous stage to finish
+    - if: '$BUILD_RELEASE == "yes"'
+      when: on_success # wait for previous stage to finish
     - if: '$BUILD_NIGHTLY == "yes"'
       when: on_success # wait for previous stage to finish
   trigger:
