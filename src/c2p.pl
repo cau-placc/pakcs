@@ -601,7 +601,7 @@ removeDefaultedTypes(Type,Type) :- var(Type), !.
 removeDefaultedTypes('FuncType'(AType,RType),DType) :-
 	classDict(AType,TVar,ModName,DictName),
         ModName="Prelude", nonvar(TVar),
-	( member(DictName,["Eq","Ord","Read","Show"])
+	( member(DictName,["Data","Eq","Ord","Read","Show"])
         ; DictName="Enum",
           member(TVar,['TCons'('Prelude.Int',[]),'TCons'('Prelude.Float',[])])
         ), !,
