@@ -46,9 +46,9 @@ run_make:
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
-    - ./ci/before_make.sh
+    - time ./ci/before_make.sh
   script:
-    - make CI_BUILD=yes
+    - time make CI_BUILD=yes
   artifacts:
     paths:
       # this are currently all files that are added from a clean state during `make CI_BUILD=yes`
@@ -97,7 +97,7 @@ run_test:
     - ./bin/pakcs-cypm update
     - ./ci/install_currycheck.sh
   script:
-    - make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
+    - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
 
 make_manual:
   stage: doc
@@ -118,7 +118,7 @@ make_manual:
     - ./ci/install_currydoc.sh
     - ./ci/install_markdown.sh
   script:
-    - make CI_BUILD=yes manual
+    - time make CI_BUILD=yes manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
   artifacts:
     paths:
@@ -148,7 +148,7 @@ make_libdoc:
     - ./ci/install_currydoc.sh
     - ./ci/install_markdown.sh
   script:
-    - make -j -O CI_BUILD=yes libdoc
+    - time make -j -O CI_BUILD=yes libdoc
   artifacts:
     paths:
       - lib/CDOC
@@ -171,7 +171,7 @@ bundle_tar:
     - echo ${PATH}
     - ./ci/before_make.sh
   script:
-    - make CI_BUILD=yes dist
+    - time make CI_BUILD=yes dist
     - echo "BUNDLE_JOB_ID=${CI_JOB_ID}" >> bundle.env
   artifacts:
     reports:
