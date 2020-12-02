@@ -47,7 +47,7 @@ export CURRYSYSTEM=pakcs
 # The major version number:
 export MAJORVERSION=3
 # The minor version number:
-export MINORVERSION=2
+export MINORVERSION=3
 # The revision version number:
 export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
@@ -176,6 +176,11 @@ kernel: scripts copylibs copytools
 	scripts/compile-all-libs.sh
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then cd lib && $(MAKE) pl ; fi
+
+# build the PAKCS compiler and REPL as an executable:
+.PHONY: repl
+repl:
+	cd src && $(MAKE)
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
 .PHONY: cleanoldinfos

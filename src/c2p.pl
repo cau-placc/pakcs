@@ -452,6 +452,11 @@ flatType2Atom(Type,CurryType) :-
 % argument and the qualified class name (string) in the third (module)
 % and fourth (class name) argument:
 classDict(T,_,_,_) :- var(T), !, fail.
+% if type classes are translated as functions to implement run-time choice,
+% see https://git.ps.informatik.uni-kiel.de/curry/curry-frontend/-/issues/109
+classDict('FuncType'('TCons'('Prelude.()',[]),
+                     'TCons'(FCDict,[A])),A,ModS,DictS) :- !,
+        classDict('TCons'(FCDict,[A]),A,ModS,DictS).
 classDict('TCons'(FCDict,[A]),A,ModS,DictS) :-
         atomic2Codes(FCDict,FCDictS), % hack for SWI 7.x if FCDict == []
         % dictionary argument types are prefixed by "_Dict#":

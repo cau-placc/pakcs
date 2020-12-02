@@ -1,6 +1,17 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 3.3.0 (December 2, 2020)
+--------------------------------------------------------
+
+Changes to version 3.2.0:
+
+  * New compilation scheme for type classes to avoid problems
+    with 0-ary non-deterministic definitions in instance declarations.
+    Dictionaries are now represented as functions in order to
+    enforce the evaluation of all instance operations.
+
+
 Release notes for PAKCS Version 3.2.0 (November 24, 2020)
 ---------------------------------------------------------
 
