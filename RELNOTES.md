@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.3.0 (December 2, 2020)
+Release notes for PAKCS Version 3.3.0 (December 5, 2020)
 --------------------------------------------------------
 
 Changes to version 3.2.0:
