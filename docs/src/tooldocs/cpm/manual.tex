@@ -73,34 +73,42 @@ older version of the same package.
 
 \section{Installing the Curry Package Manager}
 
-CPM is part of recent distributions of the Curry systems
-PAKCS\footnote{\url{https://www.informatik.uni-kiel.de/~pakcs/}}
-(since version 1.15.0)
-and
-KiCS2\footnote{\url{https://www-ps.informatik.uni-kiel.de/kics2/}}
-(since version 0.6.0).
-If you use an older release of PAKCS or KiCS2 or you want to
-install the most recent CPM version from the source repository,
-this section contains some hints about the installation of CPM.
+\subsection{Requirements}
 
-To install and use CPM, a working installation of either
-PAKCS in version 1.14.1 or greater, or
-KiCS2 in version 0.5.1 or greater is required. Additionally, CPM requires 
+CPM requires
 \emph{Git}\footnote{\url{http://www.git-scm.com}},
 \emph{curl}\footnote{\url{https://curl.haxx.se}},
 \emph{tar},
 and \emph{unzip} to be available on the \code{PATH} during installation and 
-operation. You also need to ensure that your Haskell installations reads files
-using UTF-8 encoding by default. Haskell uses the system locale charmap for its
-default encoding. You can check the current value using 
-\code{System.IO.localeEncoding} inside a \code{ghci} session.
+operation.
 
-It is also recommended that
+It is strongly recommended that
 SQLite\footnote{\url{https://www.sqlite.org}} is installed
 so that the executable \code{sqlite3} is in your path.
 In this case, CPM uses a SQLite database for caching
 the central package index (see Section~\ref{sec:internals}).
 This yields faster response times of various CPM commands.
+
+CPM is part of recent distributions of the Curry systems
+PAKCS\footnote{\url{https://www.informatik.uni-kiel.de/~pakcs/}}
+(since version 1.15.0)
+and
+KiCS2\footnote{\url{https://www-ps.informatik.uni-kiel.de/kics2/}}
+(since version 0.6.0) so that it can directly be used with
+these Curry systems.
+If you use an older release of PAKCS or KiCS2 or you want to
+install some CPM version from the source repository,
+the following section contains some hints about the installation of CPM.
+
+\subsection{Source Code Installation}
+
+To install and use CPM, a working installation of either
+PAKCS in version 1.14.1 or greater, or
+KiCS2 in version 0.5.1 or greater is required. 
+You need to ensure that your Haskell installation reads files
+using UTF-8 encoding by default. Haskell uses the system locale charmap for its
+default encoding. You can check the current value using 
+\code{System.IO.localeEncoding} inside a \code{ghci} session.
 
 To install CPM from the sources, enter the 
 root directory of the CPM source distribution.
@@ -187,24 +195,48 @@ Dependencies are specified as a nested JSON object with package names as keys
 and dependency constraints as values. A dependency constraint restricts the 
 range of versions of the dependency that a package is compatible to. Constraints
 consist of elementary comparisons that can be combined into conjunctions, which
-can then be combined into one large disjunction -- essentially a disjunctive
-normal form. The supported comparison operators are $<, \leq, >, \geq, =$ and 
-$\sim>$. The first four are interpreted according to the rules for comparing
-version numbers laid out in the semantic versioning standard. $\sim>$ is called
-the \emph{semantic versioning arrow}. It requires that the package version be 
-at least as large as its argument, but still within the same minor version, i.e.
-$\sim> 1.2.3$ would match $1.2.3$, $1.2.9$ and $1.2.55$, but not $1.2.2$ or
-$1.3.0$.
+can then be combined into one large disjunction---essentially a disjunctive
+normal form.
+The supported comparison operators are
+\code{<}, \code{<=}, \code{>}, \code{>=}, \code{=}, \code{\char126},
+and \code{\char94}.
+The first five are interpreted according to the rules for comparing
+version numbers laid out in the semantic versioning standard.
+\code{\char126} requires\footnote{%
+In previous versions of CPM this was denoted
+as \code{{\char126}>} and called \emph{semantic versioning arrow}.}
+that the package version be 
+at least as large as its argument but still within the same minor version,
+i.e.,
+\code{{\char126}1.2.3} would match
+\code{1.2.3}, \code{1.2.9}, and \code{1.2.55}
+but not \code{1.2.2}, \code{1.3.0}, or \code{2.1.0}.
+Analogously, \code{\char94} requires that the package version be 
+at least as large as its argument but still within the same major version,
+i.e.,
+\code{{\char94}1.2.3} would match
+\code{1.2.3} and \code{1.4.3}
+but not \code{2.1.0}.
 
 To combine multiple comparisons into a conjunction, separate them by commas, 
-e.g. $\geq 2.0.0, < 3.0.0$ would match all versions with major version $2$. 
-Note that it would not match \textit{2.1.3-beta5} for example, since pre-release 
+e.g.,
+\begin{lstlisting}
+>= 2.0.0, < 3.0.0  
+\end{lstlisting}
+would match all versions
+with major version \code{2}.
+Note that it would not match \code{2.1.3-beta5} for example, since pre-release 
 versions are only matched if the comparison is explicitly made to a pre-release
-version, e.g. $= \text{2.1.3-beta5}$ or $\geq \text{2.1.3-beta2}$.
+version, e.g., \code{= 2.1.3-beta5} or \code{> 2.1.3-beta2}.
 
-Conjunctions can be combined into a disjunction via the $||$ characters, e.g.
-$\geq 2.0.0, < 3.0.0 || \geq 4.0.0$ would match any version within major version
-$2$ and from major version $4$ onwards, but no version within major version $3$.
+Conjunctions can be combined into a disjunction via the
+\code{||} characters, e.g.,
+\begin{lstlisting}
+>= 2.0.0, < 3.0.0 || >= 4.0.0  
+\end{lstlisting}
+would match any version within major version
+\code{2} and from major version \code{4} onwards,
+but no version within major version \code{3}.
 
 
 \clearpage
@@ -234,8 +266,9 @@ Then declare the dependencies inside the new \code{package.json} file, e.g.:
 {
   ...,
   "dependencies": {
-    "base": ">= 1.0.0, < 2.0.0",
-    "json": "~> 1.1.0"
+    "base": "^1.0.0",
+    "html": ">= 2.0.0, < 2.2.0"
+    "json": "~1.1.0"
   }
 }
 \end{lstlisting}
@@ -669,6 +702,67 @@ publish it.
 
 \clearpage
 
+\section{The \texttt{base} Package}
+\label{sec:basepackage}
+
+Every Curry distribution comes with some libraries
+to support basic operations, like list operations,
+actions to read and write files, etc.
+The most prominent library is the \code{Prelude}
+which is implicitly added to the import list of a Curry module.
+In order to manage different versions of these base libraries,
+there is a distinguished package \code{base} containing
+these libraries.
+Thus, one can include a dependency to a specific version
+of the \code{base} package in the \code{package.json} file, e.g.:
+%
+\begin{lstlisting}
+{
+  ...,
+  "dependencies": {
+    "base": ">= 2.1.0, < 3.0.0",
+    "html": ">= 2.0.0, < 2.2.0"
+    "json": "~1.1.0"
+  }
+  ...
+}
+\end{lstlisting}
+%
+Each Curry system comes with a specific version of the \code{base}
+package. This version can be queried with the option \code{--base-version},
+e.g.,
+%
+\begin{lstlisting}
+> pakcs --base-version
+3.0.0
+\end{lstlisting}
+%
+If CPM tries to install a package, it adds the condition
+that the version of package \code{base} must be identical to the \code{base}
+version of the compiler used by CPM.
+For instance, if \code{pakcs} is used by CPM
+(see Section~\ref{sec:config} how to change the default compiler of CPM),
+the dependencies shown above are changed to
+%
+\begin{lstlisting}
+{
+  ...,
+  "dependencies": {
+    "base": "= 3.0.0, >= 2.1.0, < 3.0.0",
+    "html": ">= 2.0.0, < 2.2.0"
+    "json": "~1.1.0"
+  }
+  ...
+}
+\end{lstlisting}
+%
+before resolving all constraints.
+Of course, in this case, the constraints are not solvable
+so that one has to choose another Curry compiler for this package.
+
+
+\clearpage
+
 \section{Configuration}
 \label{sec:config}
 
@@ -676,10 +770,11 @@ CPM can be configured via the \code{\$HOME/.cpmrc} configuration file. The
 following list shows all configuration options and their default values.
 
 \begin{description}
-\item[\fbox{\code{PACKAGE_INDEX_URL}}]
-The URL of the central package index
-which is used by the \code{update} command to download the
-index of all repositories.
+\item[\fbox{\code{CURRY_BIN}}]
+The name of the executable of the Curry system used
+to compile and test packages.
+The default value is the binary of the Curry system which has been used
+to compile CPM.
 
 \item[\fbox{\code{REPOSITORY_PATH}}] The path to the index of all packages.
 Default value: \code{\$HOME/.cpm/index}.
@@ -705,33 +800,49 @@ The path to the meta-package which is used if you are outside another
 package (see Section~\ref{sec:meta-package}).
 Default value: \code{\$HOME/.cpm/$Curry system$-homepackage}.
 
-\item[\fbox{\code{CURRY_BIN}}]
-The name of the executable of the Curry system used
-to compile and test packages.
-The default value is the binary of the Curry system which has been used
-to compile CPM.
+\item[\fbox{\code{PACKAGE_INDEX_URL}}]
+The URL of the central package index
+which is used by the \code{update} command to download the
+index of all repositories.
+Default value:
+\begin{lstlisting}
+https://www-ps.informatik.uni-kiel.de/~cpm/PACKAGES/INDEX.tar.gz
+\end{lstlisting}
+One can also provide more than one URL which are tried in sequential order
+until one index could be downloaded.
+In this case, the URLs should be separated by a vertical bar (\ccode{|}).
 
-\item[\fbox{\code{BASE_VERSION}}]
-The version of the base libraries which is used for package installations.
-In the default case, the base version is the version of the system libraries
-used by the Curry compiler. These system libraries are also available
-as package \ccode{base} so that they can listed as a dependency
-in the package specification.
-If the base version of the package is identical to the base version
-of the Curry compiler used by CPM, the installed copy
-of the base libraries is ignored.\footnote{Since the system libraries
-of a Curry compiler are usually pre-compiled, the usage of the
-system libraries instead of the \code{base} package might result
-in faster compilation times.}
-If one uses a different base version, e.g., enforced by a package
-dependency or by setting this configuration variable,
-then this version of the base package is used.
-Thus, one can use a package even if the current compiler
-has a different version of the base libraries.
+\item[\fbox{\code{PACKAGE_TARFILES_URL}}]
+The URL prefix to the directory containing the ``tar'' files of all packages.
+If a package $p$ with version $v$ is downloaded
+(via the \code{install} or \code{checkout} command),
+the source of the package is downloaded from this location
+as file \code{$p$-$v$.tar.gz}.
+Default value:
+\begin{lstlisting}
+https://www-ps.informatik.uni-kiel.de/~cpm/PACKAGES/
+\end{lstlisting}
+For instance, the package \code{cpm} with version \code{2.2.0}
+is downloaded from
+\begin{lstlisting}
+https://www-ps.informatik.uni-kiel.de/~cpm/PACKAGES/cpm-2.2.0.tar.gz
+\end{lstlisting}
+One can also provide more than one URL prefix
+which are tried in sequential order until the package could be downloaded
+from one of them.
+In this case, the URL prefixes should be separated
+by a vertical bar (\ccode{|}).
+
 \end{description}
 %
+The CPM command
+\begin{lstlisting}
+> cypm config
+\end{lstlisting}
+shows the current values of the configuration options.
+
 Note that one write the option names also in lowercase or omit
-the underscores. For instance, one can also write \code{currybin}
+the underscores. For instance, one can write \code{currybin}
 instead of \code{CURRY_BIN}.
 Moreover, one can override the values of these configuration options
 by the CPM options \code{-d} or \code{--define}.
@@ -748,12 +859,16 @@ one can execute the command
 \section{Some CPM Internals}
 \label{sec:internals}
 
-CPM's central package index is contains all package specification files.
+CPM's central package index contains all package specification files.
 It is stored at a central server where the actual location is defined
 by CPM's configuration variable \code{PACKAGE_INDEX_URL},
 see Section~\ref{sec:config}.
-A copy of this index is stored on your
-local system in the \code{\$HOME/.cpm/index} directory, unless you
+When the command
+\begin{lstlisting}
+> cypm update
+\end{lstlisting}
+is executed, a copy of this index is downloaded and stored on your
+local system in the directory \code{\$HOME/.cpm/index}, unless you
 changed the location using the \code{REPOSITORY_PATH} setting. CPM
 uses the package index when searching for and installing packages and
 during dependency resolution.
@@ -823,10 +938,13 @@ The option \code{--all} shows more information.
 Prints basic information on the given package version.
 The option \code{--all} shows more information.
 
-\item[\fbox{\code{list [--versions] [--csv]}}]
+\item[\fbox{\code{list [--system] [--versions] [--csv]}}]
 List the names and synopses of all packages of the central package index.
 Unless the option \code{--versions} is set, only the newest version
-of a package (compatible to the current compiler) is shown.
+of a package is shown.
+The option \code{--system} restricts the list to those packages
+which are compatible with the current compiler (if it is
+explicitly specified in the package).
 The option \code{--versions} shows all versions of the packages.
 If a package is not compatible to the current compiler, then
 the package version is shown in brackets (e.g., \ccode{(1.5.4)}).
@@ -909,10 +1027,6 @@ Uninstalls the executable installed for the current package.
 \item[\fbox{\code{uninstall $package$}}]
 Uninstalls the executable and the cached copy of a package
 which has been installed by the \code{install} command.
-
-\item[\fbox{\code{uninstall $package$ $version$}}]
-Uninstalls a specific version
-of a package from the global package cache.
 
 \item[\fbox{\code{uninstall $package$ $version$}}]
 Uninstalls a specific version
@@ -1179,13 +1293,15 @@ a valid URL.
 The suggested formats are either a valid URL to a bug tracker
 or an email address.
 
-\item[\fbox{\code{repository}}] The location of a SCM repository containing the
-package's source code. Should be a valid URL to either a repository (e.g. a Git
-URL), or a website representing the repository.
+\item[\fbox{\code{repository}}]
+The location of a SCM repository containing the package's source
+code. Should be a valid URL to either a repository (e.g. a Git URL),
+or a website representing the repository.
 
-\item[\fbox{\code{dependencies*}}] The package's dependencies. This must be JSON
+\item[\fbox{\code{dependencies*}}]
+The package's dependencies. This must be JSON
 object where the keys are package names and the values are version 
-constraints. See Section~\ref{sec:package-basics}.
+constraints. See Section~\ref{sec:package-basics} for more details.
 
 \item[\fbox{\code{compilerCompatibility}}] The package's compatibility to 
 different Curry compilers. Expects a JSON object where the keys are compiler 
@@ -1270,6 +1386,30 @@ If a package contains an \code{executable} specification,
 the command \code{cypm install} also compiles the main module
 and installs the executable in the \code{bin} install directory of CPM
 (see Section~\ref{sec:config} for details).
+
+\item[\fbox{\code{executables}}]
+It is also possible to specify more than one executable
+in package which will be installed by the command \code{cypm install}.
+In this case, one can use \code{executables}
+instead of \code{executable}.
+The value of \code{executables} is an array of JSON objects as used
+as \code{executable} values.
+For instance, a possible specification could be
+%
+\begin{lstlisting}
+{
+  ...,
+  "executables": [ {
+                   "name": "compiler",
+                   "main": "Compiler.Main"
+                   },
+                   {
+                   "name": "repl",
+                   "main": "REPL.Main"
+                   }
+                 ]
+}
+\end{lstlisting}
 
 \item[\fbox{\code{testsuite}}]
 A JSON object specifying a test suite for this package.
@@ -1395,8 +1535,9 @@ are used:
     "repository": "THE (GIT) URL OF THE WEB SITE REPOSITORY",
     "dependencies": {
         "PACKAGE1" : ">= 0.0.1, < 1.5.0",
-        "PACKAGE2" : "~> 1.2.3",
-        "PACKAGE3" : ">= 2.1.4, < 3.0.0 || >= 4.0.0"
+        "PACKAGE2" : "~1.2.3",
+        "PACKAGE3" : ">= 2.1.4, < 3.0.0 || >= 4.0.0",
+        "PACKAGE2" : "^2.1.3",
     },
     "compilerCompatibility": {
         "pakcs": ">= 1.14.0, < 2.0.0",
