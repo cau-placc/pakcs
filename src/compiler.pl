@@ -1764,7 +1764,7 @@ genHnfClause(_,_) :- !.
 % translation of clauses for solving equational constraints
 
 transConstrEq(Suffix) :-
-	appendAtom('Prelude.=:=',Suffix,ConstrEqOrg),
+	appendAtom('Prelude.constrEq',Suffix,ConstrEqOrg),
 	genBlockDecl(ConstrEqOrg,5,[4],ConstrEq),
 	appendAtom(constrEqHnf,Suffix,ConstrEqHnfOrg),
 	ConstrEq_A_B_R_E0_E =.. [ConstrEq,A,B,R,E0,E],
@@ -1813,7 +1813,7 @@ transConstrEq(Suffix) :-
 	GenConstrEqHnfBody_N_NA_Succ =..
              [GenConstrEqHnfBody,N,NA,_,_,'Prelude.True'],
 	writeClause((GenConstrEqHnfBody_N_NA_Succ :- N>NA,!)),
-	appendAtom('Prelude.=:=',Suffix,Eq),
+	appendAtom('Prelude.constrEq',Suffix,Eq),
 	Eq_ArgA_ArgB =.. [Eq,ArgA,ArgB],
 	GenConstrEqHnfBody_N_NA_Eq =.. [GenConstrEqHnfBody,N,NA,A,B,Eq_ArgA_ArgB],
 	writeClause((GenConstrEqHnfBody_N_NA_Eq :- N=NA, !,

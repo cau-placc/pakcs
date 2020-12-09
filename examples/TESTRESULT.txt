@@ -35,7 +35,7 @@ grandfather g c
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
 Loading program "family_fun"...
-(father child) =:= John
+(=:=) (_inst#Prelude.Data#family_fun.Person) (father child) John
 {child=Susan} True
 {child=Peter} True
 grandfather g c
