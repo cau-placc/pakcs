@@ -177,6 +177,7 @@ make_manual:
 
 # run for the nightly and release runs
 make_libdoc:
+  allow_failure: true
   stage: doc
   tags:
     - docker
