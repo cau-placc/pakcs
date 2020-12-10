@@ -260,9 +260,26 @@ release_job:
     ref: "$CI_COMMIT_TAG"
 
 
+upload_release:
+  stage: package_upload
+  tags:
+    - docker
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+  script: ci/upload_release.sh release
+
+upload_nightly:
+  stage: package_upload
+  tags:
+    - docker
+  rules:
+      - if: '$BUILD_NIGHTLY == "yes"'
+  script: ci/upload_release.sh nightly
+
 # run for release runs
-# genrate a .tar for the files that should be deployed for the updated pakcs download page
-upload_tar:
+# generate a .tar for the files that should be deployed for the updated pakcs download page
+upload_page_tar:
   stage: package_upload
   tags:
     - docker
