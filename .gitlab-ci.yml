@@ -11,7 +11,7 @@ image: "skgland/pakcs-swi-ci:latest"
 # the curry-lang.org project, it SHOULD NOT be committed in the git project
 # but configured via Gitlab Settings > CI > Variables and should at least be masked
 # the corresponding username is currently hard-coded in
-#  update_release_version.sh and update_nightly_version.sh
+#  update_version.sh
 
 variables:
   DOWNLOAD_VERSION: "2.3.0"
@@ -27,6 +27,8 @@ variables:
   BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
   # make the ci checkout submodules recursively
   GIT_SUBMODULE_STRATEGY: recursive
+  CURRY_LANG_USER: project_457_bot # the username corresponding to the access token
+  CURRY_LANG_EMAIL: project457_bot@example.com # email without '_' before project id
   CURRY_LANG_PROJECT: curry/curry-lang.org
   CURRY_LANG_BRANCH: hakyll
   CURRY_CHECK_VERSION: "3.0.0"
@@ -324,7 +326,7 @@ link_nightly:
       artifacts: true # need environment variables for manual_job_id
   script:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
-    - ci/update_nightly_version.sh
+      - ci/update_version.sh nightly
 
 
 # run for release runs
@@ -339,7 +341,7 @@ link_release:
     - if: '$BUILD_RELEASE == "yes"'
   script:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
-    - ci/update_release_version.sh
+    - ci/update_version.sh release
 
 
 # run for nightly and release runs
