@@ -20,7 +20,7 @@ VERSION=$(${CI_PROJECT_DIR}/bin/pakcs --numeric-version)
 VERSION_FILE="./curry-lang.org/data/version/pakcs/v${VERSION}.version"
 
 # replace the latest-nightly.version file
-cat >"${LATEST_FILE}" <<LATEST_VERSION
+install -D /dev/stdin "${LATEST_FILE}" <<LATEST_VERSION
 ---
 # THIS FILE IS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT RELEASE RUN
@@ -37,7 +37,7 @@ pipeline_url: ${CI_PIPELINE_URL}
 LATEST_VERSION
 
 # don't include warning here as this file is usually not regenerated
-cat >"${VERSION_FILE}" <<CURRENT_VERSION
+install -D /dev/stdin "${VERSION_FILE}" <<CURRENT_VERSION
 ---
 # THIS FILE WAS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 date: $(date +%Y-%0m-%0d)

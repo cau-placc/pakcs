@@ -18,7 +18,7 @@ git subtree add --prefix=curry-lang.org ${REPOSITORY} ${REF}
 VERSION=$(${CI_PROJECT_DIR}/bin/pakcs --numeric-version)
 
 # replace the latest-nightly.version file
-cat >"${NIGHTLY_FILE}" <<NIGHTLY_VERSION
+install -D /dev/stdin "${NIGHTLY_FILE}" <<NIGHTLY_VERSION
 ---
 # THIS FILE IS GENERATED AUTOMATICALLY BY THE PACKS NIGHLY PIPELINE
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT NIGHTY RUN
