@@ -48,8 +48,8 @@ stages:
   - test            # run test suite and check versioned tag
   - doc             # build lib and manual
   - package_release # build distribution
-  - release         # create release
-  - package_upload  # create tar for webserver
+  - upload_release  # create tar for webserver
+  - tag_release         # create release
   - curry-lang      # commit updated download data to curry-lang.org repo
   - curry-lang-ci   # trigger curry-lang.org repo CI
 
@@ -232,56 +232,41 @@ bundle_tar:
     paths:
       - pakcs-*.tar.gz
 
-
-# TODO gitlab ci currently has no easy way to add files to a release
-# we would like to add:
-#  pakcs-${VERSION}-amd64.tar.gz (produced by bundle_tar job)
-#  pakcs-${VERSION}-src.tar.gz (produced by bundle_tar job)
-#  Manual.pdf (produced by make_manual job)
-#
-# run for release runs triggered by version tag
-release_job:
-  stage: release
-  tags:
-    - docker
-  rules:
-    # only for tags matching the versioning scheme v<major>.<minor>.<release>
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
-#  needs:
-#    - job: "bundle_tar"
-#      artifacts: true
-#    - job: "make_manual"
-#      artifacts: true
-  script:
-    echo "Script can't be blank and is required!"
-  release:
-    name: "Release $CI_COMMIT_TAG"
-    description: 'Created by the Release CI'
-    tag_name: "$CI_COMMIT_TAG"
-    ref: "$CI_COMMIT_TAG"
-
-
 upload_release:
-  stage: package_upload
+  stage: upload_release
   tags:
     - docker
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+  needs:
+    - job: "run_make"
+      artifacts: true     # need pakcs binary to determine version
+    - job: "make_manual"  # needed for Manual.pdf
+      artifacts: true
+    - job: "bundle_tar"   # needed for pakcs-<version>-src.tar.gz and pakcs-<version>-<arch>.tar.gz
+      artifacts: true
   script: ci/upload_release.sh release
 
 upload_nightly:
-  stage: package_upload
+  stage: upload_release
   tags:
     - docker
   rules:
       - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true     # need pakcs binary to determine version
+    - job: "make_manual"  # needed for Manual.pdf
+      artifacts: true
+    - job: "bundle_tar"   # needed for pakcs-<version>-src.tar.gz and pakcs-<version>-<arch>.tar.gz
+      artifacts: true
   script: ci/upload_release.sh nightly
 
 # run for release runs
 # generate a .tar for the files that should be deployed for the updated pakcs download page
 upload_page_tar:
-  stage: package_upload
+  stage: upload_release
   tags:
     - docker
   rules:
@@ -327,6 +312,34 @@ upload_page_tar:
     paths:
       - "${PUBLIC_HTML}"
 
+
+# TODO gitlab ci currently has no easy way to add files to a release
+# we would like to add:
+#  pakcs-${VERSION}-amd64.tar.gz (produced by bundle_tar job)
+#  pakcs-${VERSION}-src.tar.gz (produced by bundle_tar job)
+#  Manual.pdf (produced by make_manual job)
+#
+# run for release runs triggered by version tag
+tag_release:
+  stage: tag_release
+  tags:
+    - docker
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+  #  needs:
+  #    - job: "bundle_tar"
+  #      artifacts: true
+  #    - job: "make_manual"
+  #      artifacts: true
+  script:
+    echo "Script can't be blank and is required!"
+  release:
+    name: "Release $CI_COMMIT_TAG"
+    description: 'Created by the Release CI'
+    tag_name: "$CI_COMMIT_TAG"
+    ref: "$CI_COMMIT_TAG"
+
 # run for nightly runs
 # update the latest_nightly.version in the curry-lang.org repo
 link_nightly:
@@ -337,7 +350,7 @@ link_nightly:
     - if: '$BUILD_NIGHTLY == "yes"'
   needs:
     - job: "run_make"
-      artifacts: true # need pakcs binary vor pakcs version
+      artifacts: true # need pakcs binary for pakcs version
     - job: "bundle_tar"
       artifacts: true # need environment variables for bundle_job_id
     - job: "make_manual"
@@ -357,6 +370,13 @@ link_release:
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
     # or if we explicitly fore a release build
     - if: '$BUILD_RELEASE == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true # need pakcs binary for pakcs version
+    - job: "bundle_tar"
+      artifacts: true # need environment variables for bundle_job_id
+    - job: "make_manual"
+      artifacts: true # need environment variables for manual_job_id
   script:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
     - ci/update_version.sh release
