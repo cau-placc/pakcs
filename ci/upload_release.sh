@@ -31,4 +31,4 @@ function upload() {
 
 upload "pakcs-${VERSION}-src.tar.gz" "${fullname}${upload_suffix}-src.tar.gz"
 upload "pakcs-${VERSION}-${arch}.tar.gz" "${fullname}${upload_suffix}-${arch}.tar.gz"
-upload "docs/Manual.pdf" "Manual.pdf"
+upload "docs/Manual.pdf" "${fullname}${upload_suffix}-manual.pdf"
