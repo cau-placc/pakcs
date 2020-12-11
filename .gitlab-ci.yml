@@ -214,7 +214,8 @@ upload_release:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$CI_PIPELINE_SOURCE == "tag"'
+    - if: '$BUILD_RELEASE == "yes"'
   needs:
     - job: "run_make"
       artifacts: true     # need pakcs binary to determine version
@@ -325,7 +326,7 @@ link_nightly:
     - job: upload_nightly # wait for upload
   script:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
-      - ci/update_version.sh nightly
+    - ci/update_version.sh nightly
 
 
 # run for release runs
