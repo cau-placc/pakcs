@@ -137,8 +137,11 @@ run_test:
     - echo ${PATH}
     - ./ci/before_make.sh
     - ./bin/pakcs-cypm config
-    - ./bin/pakcs-cypm update
-    - ./ci/install_currycheck.sh
+    - |
+      set -ve
+      source ci/cypm_helper.sh
+      cypm_update
+      cypm_install_binary currycheck "${CURRY_CHECK_VERSION}"
   script:
     - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
 
@@ -159,9 +162,12 @@ make_manual:
     - echo ${PATH}
     - ./ci/before_make.sh
     - ./bin/pakcs-cypm config
-    - ./bin/pakcs-cypm update
-    - ./ci/install_currydoc.sh
-    - ./ci/install_markdown.sh
+    - |
+      set -ve
+      source ci/cypm_helper.sh
+      cypm_update
+      cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
+      cypm_install_binary markdown "${MARKDOWN_VERSION}"
   script:
     - time make CI_BUILD=yes manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
