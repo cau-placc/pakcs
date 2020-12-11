@@ -1,167 +1,176 @@
-\section{External Functions}
-\label{sec-external-functions}
+\section{External Operations}
+\label{sec-external-operations}
 
-\index{function!external}\index{external function}
-Currently, \CYS has no general interface to external functions.
-Therefore, if a new external function should be added
-to the system, this function must be declared as \code{external}
+\index{function!external}\index{operation!external}\index{external operation}
+An \emph{external operation} is an operation which have no defined rules
+in a Curry program.
+Instead, such an operation must be declared as \code{external}
 in the Curry source code
-and then an implementation for this external function
+and an implementation for this external operation
 must be inserted in the corresponding back end.
-An external function is defined as follows in the Curry source code:
+In this section we describe how external operations
+can be implemented in \CYS.
+
+In general, an external operation is defined as follows
+in the Curry source code:
 \begin{enumerate}
 \item
-Add a type declaration for the external function somewhere
-in the body of the appropriate file (usually, the prelude
-or some system module).
+Provide a type declaration for the external operation somewhere
+in the body of the appropriate Curry file.
+Note that external operations should not be overloaded,
+i.e., the type declaration should not contain any type class constraint.
 \item
-For external functions it is not allowed to define any
+For external operations it is not allowed to define any
 rule since their semantics is determined by an external implementation.
-Instead of the defining rules, you have to write
+Instead of the defining rules, one has to write
 \begin{curry}
 f external
 \end{curry}
 somewhere in the file containing the type declaration for 
-the external function \code{f}.
+the external operation \code{f}.
 \end{enumerate}
 For instance, the addition on integers can be declared as
-an external function as follows:
+an external operation as follows:
 \begin{curry}
 (+) :: Int -> Int -> Int
 (+) external
 \end{curry}
-The further modifications to be done for an inclusion of
-an external function has to be done in the back end.
-A new external function is added to the back end of \CYS
-by informing the compiler about the existence of an external function
-and adding an implementation of this function in the run-time
-system. Therefore, the following items must be added
-in the \CYS compiler system:
+Since \CYS compiles Curry programs into Prolog programs,
+the actual implementation of an external operation
+must be contained in some Prolog code that
+is added to the compiled code by \CYS.
+This can be done as follows:
+%
 \begin{enumerate}
 \item
-If the Curry module \code{Mod} contains external functions,
+The Prolog code implementing the external operations declared
+in module \code{M} must be put into the Prolog file \code{M.pakcs.pl}.
+This file must be stored in the directory
+containing the source code of the corresponding Curry module.
+The contents of this file will be automatically added to the
+compiler Curry program.
+
+\item
+In the general case (see below for exceptions),
+the \CYS compiler generates a \emph{standard interface} to
+external operations so that an $n$-ary operation is
+implemented by an $(n+1)$-ary predicate where the last argument must
+be instantiated to the result of evaluating the operation.
+If \code{M.f} is the qualified name of the
+external operation \code{f} defined in module \code{M},
+then the predicate implementing this operation
+must have the name \code{'M.f'} (note that this name
+must be enclosed in ticks in Prolog).
+The standard interface passes all arguments in their current form
+to the predicate, i.e., it can be used if it is ensured that
+all arguments are fully evaluated.
+For the operation \code{(+)} shown above, this might not be the
+case: in a call like \ccode{fac 4 + 3 * 7}, both arguments
+mube be evaluated to some number before the external code
+for the addition is called.
+This can be ensured by enforcing the evaluation of the arguments
+before calling the actual external operation.
+For instance, the external operation for adding two integers
+requires that both arguments must be evaluated to
+a non-variable head normal form
+(which is identical to the ground constructor normal form). Therefore,
+the operation \ccode{+} can be implemented in the prelude by
+\begin{curry}
+(+)   :: Int -> Int -> Int
+x + y = (prim_plusInt $\$$# y) $\$$# x
+
+prim_plusInt :: Int -> Int -> Int
+prim_plusInt external
+\end{curry}
+where \code{prim_plusInt} is the actual external operation implementing
+the addition on integers.
+Hence, the Prolog code implementing \code{prim_plusInt} can be as
+follows (note that the arguments of \code{(+)} are passed in reverse
+order to \code{prim_plusInt} in order to ensure a left-to-right
+evaluation of the original arguments by the calls to \code{(\$\#)}):
+\begin{curry}
+'Prelude.prim_plusInt'(Y,X,R) :- R is X+Y.
+\end{curry}
+
+\item
+The \emph{standard interface for I/O actions}, i.e., external operations
+with result type \code{IO~a}, assumes that the I/O action
+is implemented as a predicate (with a possible side effect)
+that instantiates the last argument to the returned value of type \ccode{a}.
+For instance, the primitive predicate \code{prim_getChar}
+implementing the prelude I/O action \code{getChar}
+can be implemented by the Prolog code
+\begin{curry}
+'Prelude.getChar'(C) :- get_code(N), char_int(C,N).
+\end{curry}
+where \code{char_int} is a predicate (from the \CYS run-time system)
+relating the internal Curry representation of a character
+with its ASCII value.
+
+\item
+If some arguments passed to the external operations are not fully evaluated
+or the external operation might suspend, the implementation must follow
+the structure of the \CYS run-time system by using the \emph{raw interface}
+instead of the standard interface.
+For this purpose, it is necessary to tell \CYS about the
+non-standard interface.
+Thus, if the Curry module \code{Mod} contains external operations
+where the standard interface should not be used,
 there must be a file named \code{Mod.pakcs} containing the
-specification of these external functions. The contents of this file
+specification of these external operations. The contents of this file
 is in XML format and has the following general structure:\footnote{%
 \url{http://www.informatik.uni-kiel.de/~pakcs/primitives.dtd} contains a DTD
 describing the exact structure of these files.}
 \begin{curry}
 <primitives>
-  $\textit{specification of external function~}f_1$
+  $\textit{specification of external operation~}f_1$
   $\ldots$
-  $\textit{specification of external function~}f_n$
+  $\textit{specification of external operation~}f_n$
 </primitives>
 \end{curry}
-The specification of an external function $f$
+The specification of an external operation $f$
 with arity $n$ has the form
 \begin{curry}
 <primitive name="$f$" arity="$n$">
-  <library>lib</library>
-  <entry>pred</entry>
+  <entry>pred[raw]</entry>
 </primitive>
 \end{curry}
-where \code{lib} is the Prolog library (stored in the directory of the
-Curry module or in the global directory
-\code{\cyshome/src/lib_src}) containing the code implementing this
-function and \code{pred} is a predicate name in this library
-implementing this function. Note that the function $f$ must be
-declared in module \code{Mod}: either as an external function
+where \code{pred} is the name of a predicate
+implementing this operation. Note that the operation $f$ must be
+declared in module \code{Mod}: either as an external operation
 or defined in Curry by equations. In the latter case,
-the Curry definition is not translated but calls to this function
+the Curry definition is not translated but calls to this operation
 are redirected to the Prolog code specified above.
 
 Furthermore, the list of specifications can also contain entries of the form
 \begin{curry}
 <ignore name="$f$" arity="$n$" />
 \end{curry}
-for functions $f$ with arity $n$ that are declared in module \code{Mod}
+for operations $f$ with arity $n$ that are declared in module \code{Mod}
 but should be ignored for code generation, e.g., since they are
-never called w.r.t.\ to the current implementation of external functions.
-For instance, this is useful when functions that can
+never called w.r.t.\ to the current implementation of external operations.
+For instance, this is useful when operations that can
 be defined in Curry should be (usually more efficiently) are implemented
-as external functions.
+as external operations.
 
-Note that the arguments are passed in their current (possibly unevaluated) form.
-Thus, if the external function requires the arguments to be evaluated
-in a particular form, this must be done before calling the external function.
-For instance, the external function for adding two integers
-requires that both arguments must be evaluated to non-variable head normal form
-(which is identical to the ground constructor normal form). Therefore,
-the function \ccode{+} is specified in the prelude by
-\begin{curry}
-(+)   :: Int -> Int -> Int
-x + y = (prim_Int_plus $\$$# y) $\$$# x
-
-prim_Int_plus :: Int -> Int -> Int
-prim_Int_plus external
-\end{curry}
-where \code{prim_Int_plus} is the actual external function implementing
-the addition on integers. Consequently, the specification file
-\code{Prelude.pakcs} has an entry of the form
-\begin{curry}
-<primitive name="prim_Int_plus" arity="2">
-  <library>prim_standard</library>
-  <entry>prim_Int_plus</entry>
-</primitive>
-\end{curry}
-where the Prolog library \code{prim_standard.pl} contains the Prolog code
-implementing this function.
-
-\item
-For most external functions, a \emph{standard interface} is
-generated by the compiler so that an $n$-ary function can be
-implemented by an $(n+1)$-ary predicate where the last argument must
-be instantiated to the result of evaluating the function.  The
-standard interface can be used if all arguments are ensured to be
-fully evaluated (e.g., see definition of \code{(+)} above) and no
-suspension control is necessary, i.e., it is ensured that the
-external function call does not suspend for all arguments.
-Otherwise, the raw interface (see below) must be used.  For
-instance, the Prolog code implementing \code{prim_Int_plus}
-contained in the Prolog library \code{prim_standard.pl} is as
-follows (note that the arguments of \code{(+)} are passed in reverse
-order to \code{prim_Int_plus} in order to ensure a left-to-right
-evaluation of the original arguments by the calls to \code{(\$\#)}):
-\begin{curry}
-prim_Int_plus(Y,X,R) :- R is X+Y.
-\end{curry}
-
-\item
-The \emph{standard interface for I/O actions}, i.e., external functions
-with result type \code{IO~a}, assumes that the I/O action
-is implemented as a predicate (with a possible side effect)
-that instantiates the last argument to the returned value of type \ccode{a}.
-For instance, the primitive predicate \code{prim_getChar}
-implementing prelude I/O action \code{getChar}
-can be implemented by the Prolog code
-\begin{curry}
-prim_getChar(C) :- get_code(N), char_int(C,N).
-\end{curry}
-where \code{char_int} is a predicate relating the internal
-Curry representation of a character with its ASCII value.
-
-\item
-If some arguments passed to the external functions are not fully evaluated
-or the external function might suspend, the implementation must follow
-the structure of the \CYS run-time system by using
-the \emph{raw interface}. In this case, the name of the external entry
-must be suffixed by \ccode{[raw]} in the \code{pakcs} file.
-For instance, if we want to use the raw interface for the external function
-\code{prim_Int_plus},
+The suffix \ccode{[raw]} used above indicates that the corresponding Prolog
+code follows the structure of the \CYS compilation scheme.
+For instance, if we want to use the raw interface for the external operation
+\code{prim_plusInt},
 the specification file \code{Prelude.pakcs} must have an entry of the form
 \begin{curry}
-<primitive name="prim_Int_plus" arity="2">
-  <library>prim_standard</library>
-  <entry>prim_Int_plus[raw]</entry>
+<primitive name="prim_plusInt" arity="2">
+  <entry>prim_plusInt[raw]</entry>
 </primitive>
 \end{curry}
-In the raw interface, the actual implementation of an $n$-ary external function consists
+In the raw interface, the actual implementation of
+an $n$-ary external operation consists
 of the definition of an $(n+3)$-ary predicate $pred$.
 The first $n$ arguments are the corresponding actual arguments.
 The $(n+1)$-th argument is a free variable which must be
-instantiated to the result of the function call after
+instantiated to the result of the operation call after
 successful execution. The last two arguments
-control the suspension behavior of the function
+control the suspension behavior of the operation
 (see \cite{AntoyHanus00FROCOS} for more details):
 The code for the predicate $pred$
 should only be executed when the $(n+2)$-th argument
@@ -170,20 +179,20 @@ SICStus-Prolog block declaration
 \begin{curry}
 ?- block $pred$(?,$\ldots$,?,-,?).
 \end{curry}
-In addition, typical external functions should suspend
+In addition, typical external operations should suspend
 until the actual arguments are instantiated. This can be ensured
 by a call to \code{ensureNotFree} or \code{(\$\#)}
-before calling the external function. Finally, the
+before calling the external operation. Finally, the
 last argument (which is a free variable at call time)
 must be unified with the $(n+2)$-th argument
-after the function call is successfully evaluated
+after the operation call is successfully evaluated
 (and does not suspend). Additionally, the actual (evaluated) arguments
 must be dereferenced before they are accessed.
 Thus, an implementation
-of the external function for adding integers is as follows in the raw interface:
+of the external operation for adding integers is as follows in the raw interface:
 \begin{curry}
-?- block prim_Int_plus(?,?,?,-,?).
-prim_Int_plus(RY,RX,Result,E0,E) :-
+?- block prim_plusInt(?,?,?,-,?).
+prim_plusInt(RY,RX,Result,E0,E) :-
      deref(RX,X), deref(RY,Y), Result is X+Y, E0=E.
 \end{curry}
 Here, \code{deref} is a predefined predicate for dereferencing the
@@ -191,14 +200,7 @@ actual argument into a constant (and \code{derefAll} for dereferencing
 complex structures).
 \end{enumerate}
 %
-The Prolog code implementing the external functions must be accessible to the run-time
-system of \CYS by putting it into the directory containing the corresponding
-Curry module or into the system directory
-\code{\cyshome/src/lib_src}.
-Then it will be automatically loaded into the run-time environment
-of each compiled Curry program.
-
-Note that arbitrary functions implemented in C or Java can be connected to
+Note that arbitrary operations implemented in C or Java can be connected to
 \CYS by using the corresponding interfaces of the underlying Prolog system.
 
 
