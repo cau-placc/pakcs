@@ -174,34 +174,6 @@ make_manual:
         - manual.env
 
 # run for the nightly and release runs
-make_libdoc:
-  allow_failure: true
-  stage: doc
-  tags:
-    - docker2
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "tag"'
-    - if: '$BUILD_NIGHTLY == "yes"'
-    - if: '$BUILD_RELEASE == "yes"'
-  needs:
-    - job: "run_make"
-      artifacts: true
-  timeout: 2h
-  before_script:
-    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
-    - echo ${PATH}
-    - ./ci/before_make.sh
-    - ./bin/pakcs-cypm config
-    - ./bin/pakcs-cypm update
-    - ./ci/install_currydoc.sh
-    - ./ci/install_markdown.sh
-  script:
-    - time make -j -O CI_BUILD=yes libdoc
-  artifacts:
-    paths:
-      - lib/CDOC
-
-# run for the nightly and release runs
 # builds the distribution
 bundle_tar:
   stage: package_release
@@ -275,16 +247,13 @@ upload_page_tar:
       artifacts: true     # need pakcs binary to determine version
     - job: "make_manual"
       artifacts: true
-    - job: "make_libdoc"
-      artifacts: true
     - job: "bundle_tar"
       artifacts: true
   variables:
     PUBLIC_HTML: "${CI_PROJECT_DIR}/public_html"
-    PUBLIC_LIB_HTML: "${CI_PROJECT_DIR}/public_html/lib_pakcs2"
     PUBLIC_DOWNLOAD: "${CI_PROJECT_DIR}/public_html/download"
   before_script:
-    - mkdir -p "${PUBLIC_HTML}" "${PUBLIC_LIB_HTML}" "${PUBLIC_DOWNLOAD}"
+    - mkdir -p "${PUBLIC_HTML}" "${PUBLIC_DOWNLOAD}"
   script:
     # copy current distribution into latest release
     - cp -p pakcs*.tar.gz "${PUBLIC_DOWNLOAD}"
@@ -303,16 +272,13 @@ upload_page_tar:
             docs/GITINSTALL.html \
             docs/CurryStyleGuide.html \
             "${PUBLIC_HTML}"
-    # copy current libraries and their documentation
-    - cp -rp lib/CDOC/* "${PUBLIC_LIB_HTML}"
-    - cp -p "${PUBLIC_LIB_HTML}/PAKCS_libs.html" "${PUBLIC_LIB_HTML}/index.html"
   artifacts:
     paths:
       - "${PUBLIC_HTML}"
 
 
 # TODO add artifact with link to the packages uploaded in the 'upload_release' job
-# we would like to add:
+# we would like to add links to:
 #  pakcs-${VERSION}-amd64.tar.gz (produced by bundle_tar job)
 #  pakcs-${VERSION}-src.tar.gz (produced by bundle_tar job)
 #  Manual.pdf (produced by make_manual job)
@@ -325,11 +291,8 @@ tag_release:
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
-  #  needs:
-  #    - job: "bundle_tar"
-  #      artifacts: true
-  #    - job: "make_manual"
-  #      artifacts: true
+  needs:
+    - job: "upload_release"
   script:
     echo "Script can't be blank and is required!"
   release:
