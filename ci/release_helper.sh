@@ -16,7 +16,7 @@ function release_helper_init() {
 
   case $1 in
   release)
-    if [[ ${TEST_BUILD} == "yes" ]] ; then
+    if [[ ${TEST_RELEASE} == "yes" ]] ; then
       package_suffix="-test"
       name_suffix="-test"
       release_tag="test-${CI_COMMIT_SHA}"
@@ -30,9 +30,9 @@ function release_helper_init() {
       name_suffix="-${CI_COMMIT_TAG}"
       release_tag="${CI_COMMIT_TAG}"
     else
-      echo "Release should be triggered by either TEST_BUILD variable being 'yes'"
+      echo "Release should be triggered by either TEST_RELEASE variable being 'yes'"
       echo "or by git tag, nighter is the case."
-      echo "Value of TEST_BUILD: ${TEST_BUILD}"
+      echo "Value of TEST_RELEASE: ${TEST_RELEASE}"
       echo "Value of CI_COMMIT_TAG: ${CI_COMMIT_TAG}"
       exit 1;
     fi
