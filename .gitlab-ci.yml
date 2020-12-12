@@ -308,8 +308,8 @@ tag_release:
   needs:
     - job: upload_release # wait for upload
   script:
-    apk add --no-cache bash
-    ci/gitlab_release.sh
+    - apk add --no-cache bash
+    - ci/gitlab_release.sh
 
 # run for nightly runs
 # update the latest_nightly.version in the curry-lang.org repo
