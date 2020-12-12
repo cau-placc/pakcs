@@ -78,14 +78,17 @@ run_make:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - time ./ci/before_make.sh
+    # prevent the build stages from disagreeing over the date by generating it once at the start
+    - export BUILD_DATE="$(date +%F)"
   script:
-    - time make CI_BUILD=yes
+    - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}"
     - |
       BUILD_PAKCS_VERSION="$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)"
       BUILD_PAKCS_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)-$(uname -s)"
       echo "
       BUILD_PAKCS_VERSION=\"${BUILD_PAKCS_VERSION}\"
       BUILD_PAKCS_ARCH=\"${BUILD_PAKCS_ARCH}\"
+      BUILD_DATE="${BUILD_DATE}"
       " >> make.env
   artifacts:
     reports:
@@ -185,7 +188,7 @@ make_manual:
       cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
       cypm_install_binary markdown "${MARKDOWN_VERSION}"
   script:
-    - time make CI_BUILD=yes manual
+    - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}" manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
   artifacts:
     paths:
@@ -215,7 +218,7 @@ bundle_tar:
     - echo ${PATH}
     - ./ci/before_make.sh
   script:
-    - time make CI_BUILD=yes dist
+    - time make CI_BUILD=yes DIST_DATE="${BUILD_DATE}" COMPILERDATE="${BUILD_DATE}" dist
     - echo "BUNDLE_JOB_ID=${CI_JOB_ID}" >> bundle.env
   artifacts:
     reports:

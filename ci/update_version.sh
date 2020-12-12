@@ -42,8 +42,8 @@ function nightly() {
 ---
 # THIS FILE IS GENERATED AUTOMATICALLY BY THE PACKS NIGHTLY PIPELINE
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT NIGHTLY RUN
-date: $(date +%Y-%0m-%0d)
-version: Latest Nightly ${CI_COMMIT_SHORT_SHA} ($(date +%0d/%0m/%y))
+date: ${BUILD_DATE}
+version: Latest Nightly ${CI_COMMIT_SHORT_SHA} ($(date --date="${BUILD_DATE}" +%0d/%0m/%y))
 source: ${BUNDLE_DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
 linux:  ${BUNDLE_DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
 manual: ${MANUAL_DOWNLOAD_URL}/docs/Manual.pdf
@@ -80,7 +80,7 @@ function release() {
 ---
 # THIS FILE IS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT RELEASE RUN
-date: $(date +%Y-%0m-%0d)
+date: ${BUILD_DATE}
 version: Latest
 source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
 linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
@@ -96,8 +96,8 @@ LATEST_VERSION
   install -D /dev/stdin "${VERSION_FILE}" <<CURRENT_VERSION
 ---
 # THIS FILE WAS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
-date: $(date +%Y-%0m-%0d)
-version: v${VERSION} $(date +%Y-%0m-%0d)
+date: ${BUILD_DATE}
+version: v${VERSION} ${BUILD_DATE}
 source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
 linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
 manual: ${DOWNLOAD_URL}/pakcs-${VERSION}-manual.pdf

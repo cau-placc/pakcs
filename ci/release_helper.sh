@@ -45,9 +45,7 @@ function release_helper_init() {
     package_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
     name_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
 
-    # this could result in a race condition when building nightly
-    # around a date change e.g. midnight this script will run multiple times over the different stages
-    release_tag="nightly-$(date +%F)"
+    release_tag="nightly-${BUILD_DATE}"
     ;;
   *)
     echo "Expected first parameter have either value 'release' or 'nightly' got '$1'"
