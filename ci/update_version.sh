@@ -34,7 +34,8 @@ function finish() {
 # update the latest nightly version
 function nightly() {
 
-  DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
+  BUNDLE_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
+  MANUAL_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw"
 
   # replace the latest-nightly.version file
   install -D /dev/stdin "${NIGHTLY_FILE}" <<NIGHTLY_VERSION
@@ -43,9 +44,9 @@ function nightly() {
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT NIGHTLY RUN
 date: $(date +%Y-%0m-%0d)
 version: Latest Nightly ${CI_COMMIT_SHORT_SHA} ($(date +%0d/%0m/%y))
-source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
-linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: ${DOWNLOAD_URL}/docs/Manual.pdf
+source: ${BUNDLE_DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
+linux:  ${BUNDLE_DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
+manual: ${MANUAL_DOWNLOAD_URL}/docs/Manual.pdf
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}
