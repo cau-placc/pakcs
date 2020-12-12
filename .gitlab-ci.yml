@@ -306,7 +306,7 @@ tag_release:
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
     - if: '$TEST_RELEASE == "yes"'
   needs:
-    - job: "upload_release"
+    - job: upload_release # wait for upload
   script:
     ci/gitlab_release.sh
 
@@ -328,7 +328,7 @@ link_nightly:
       artifacts: true # need environment variables for bundle_job_id
     - job: "make_manual"
       artifacts: true # need environment variables for manual_job_id
-    - job: upload_nightly # wait for upload
+    # - job: upload_nightly # wait for upload, TODO link to package files rather than artifacts
   script:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
     - ci/update_version.sh nightly
@@ -350,11 +350,7 @@ link_release:
   needs:
     - job: "run_make"
       artifacts: true # need pakcs binary for pakcs version
-    - job: "bundle_tar"
-      artifacts: true # need environment variables for bundle_job_id
-    - job: "make_manual"
-      artifacts: true # need environment variables for manual_job_id
-    - job: upload_release # wait for upload
+    - job: tag_release # wait for release as we are hyperlinking to release assets
   script:
     - ${CI_PROJECT_DIR}/bin/pakcs --numeric-version
     - ci/update_version.sh release
