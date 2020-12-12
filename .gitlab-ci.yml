@@ -85,11 +85,9 @@ run_make:
     - |
       BUILD_PAKCS_VERSION="$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)"
       BUILD_PAKCS_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)-$(uname -s)"
-      echo "
-      BUILD_PAKCS_VERSION=\"${BUILD_PAKCS_VERSION}\"
+      echo "BUILD_PAKCS_VERSION=\"${BUILD_PAKCS_VERSION}\"
       BUILD_PAKCS_ARCH=\"${BUILD_PAKCS_ARCH}\"
-      BUILD_DATE="${BUILD_DATE}"
-      " >> make.env
+      BUILD_DATE=\"${BUILD_DATE}\"" >> make.env
   artifacts:
     reports:
       dotenv:
