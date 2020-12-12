@@ -16,21 +16,25 @@ function release_helper_init() {
 
   case $1 in
   release)
-    if [[ ${TEST_BUILD} == "yes" ]]; then
+    if [[ ${TEST_BUILD} == "yes" ]] ; then
       package_suffix="-test"
       name_suffix="-test"
       release_tag="test-${CI_COMMIT_SHA}"
-    elif [[ ${CI_COMMIT_TAG} =~ /^v\d*.\d*.\d*$/i ]]; then
+    elif [[ ${CI_COMMIT_TAG} =~ /^v\d*.\d*.\d*$/i ]] ; then
       package_suffix="-release"
       name_suffix=""
       release_tag="${CI_COMMIT_TAG}"
-    else
+    elif [[ -n ${CI_COMMIT_TAG} ]] ; then
       # not a version number tag, don't occupy the version for the release package
       package_suffix="-release-${CI_COMMIT_TAG}"
       name_suffix="-${CI_COMMIT_TAG}"
-      # this could result in a race condition when building nightly
-      # around a date change e.g. midnight this script will run multiple times over the different stages
-      release_tag="nightly-$(date +%F)"
+      release_tag="${CI_COMMIT_TAG}"
+    else
+      echo "Release should be triggered by either TEST_BUILD variable being 'yes'"
+      echo "or by git tag, nighter is the case."
+      echo "Value of TEST_BUILD: ${TEST_BUILD}"
+      echo "Value of CI_COMMIT_TAG: ${CI_COMMIT_TAG}"
+      exit 1;
     fi
     ;;
   nightly)
@@ -40,6 +44,10 @@ function release_helper_init() {
     # this sadly means we create a package per nightly
     package_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
     name_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
+
+    # this could result in a race condition when building nightly
+    # around a date change e.g. midnight this script will run multiple times over the different stages
+    release_tag="nightly-$(date +%F)"
     ;;
   *)
     echo "Expected first parameter have either value 'release' or 'nightly' got '$1'"
