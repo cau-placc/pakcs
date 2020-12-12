@@ -8,7 +8,7 @@ function init() {
 
   REPOSITORY="https://${CURRY_LANG_USER}:${CURRY_LANG_ORG_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CURRY_LANG_PROJECT}.git"
 
-  VERSION=$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)
+  VERSION="${BUILD_PAKCS_VERSION}"
 
   VERSION_FILE="./curry-lang.org/data/version/pakcs/v${VERSION}.version"
   NIGHTLY_FILE=./curry-lang.org/data/versions/pakcs/latest-nighly.version

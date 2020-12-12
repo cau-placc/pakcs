@@ -7,8 +7,8 @@
 # takes one parameter indicating whether this is a nightly release or a release release
 function release_helper_init() {
 
-  version=$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)
-  arch="$(dpkg-architecture -qDEB_BUILD_ARCH)-$(uname -s)"
+  version="${BUILD_PAKCS_VERSION}"
+  arch="${BUILD_PAKCS_ARCH}"
 
   # FULLNAME and ARCH copied from makefile
   package_name="pakcs"
@@ -16,15 +16,15 @@ function release_helper_init() {
 
   case $1 in
   release)
-    if [[ ${TEST_RELEASE} == "yes" ]] ; then
+    if [[ ${TEST_RELEASE} == "yes" ]]; then
       package_suffix="-test"
       name_suffix="-test"
       release_tag="test-${CI_COMMIT_SHA}"
-    elif [[ ${CI_COMMIT_TAG} =~ /^v\d*.\d*.\d*$/i ]] ; then
+    elif [[ ${CI_COMMIT_TAG} =~ /^v\d*.\d*.\d*$/i ]]; then
       package_suffix="-release"
       name_suffix=""
       release_tag="${CI_COMMIT_TAG}"
-    elif [[ -n ${CI_COMMIT_TAG} ]] ; then
+    elif [[ -n ${CI_COMMIT_TAG} ]]; then
       # not a version number tag, don't occupy the version for the release package
       package_suffix="-release-${CI_COMMIT_TAG}"
       name_suffix="-${CI_COMMIT_TAG}"
@@ -34,7 +34,7 @@ function release_helper_init() {
       echo "or by git tag, nighter is the case."
       echo "Value of TEST_RELEASE: ${TEST_RELEASE}"
       echo "Value of CI_COMMIT_TAG: ${CI_COMMIT_TAG}"
-      exit 1;
+      exit 1
     fi
     ;;
   nightly)
