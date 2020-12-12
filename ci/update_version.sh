@@ -2,12 +2,11 @@
 
 set -ve
 
+# init variables used
+# and setup the subtree
 function init() {
 
-  REF="${CURRY_LANG_BRANCH}"
-  TOKEN_USERNAME="${CURRY_LANG_USER}"
-  TOKEN_USER_EMAIL="${CURRY_LANG_EMAIL}"
-  REPOSITORY="https://${TOKEN_USERNAME}:${CURRY_LANG_ORG_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CURRY_LANG_PROJECT}.git"
+  REPOSITORY="https://${CURRY_LANG_USER}:${CURRY_LANG_ORG_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CURRY_LANG_PROJECT}.git"
 
   VERSION=$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)
 
@@ -16,22 +15,26 @@ function init() {
   LATEST_FILE=./curry-lang.org/data/versions/pakcs/latest.version
 
   # configure git (user)name and email
-  git config user.name "${TOKEN_USERNAME}"
-  git config user.email "${TOKEN_USER_EMAIL}"
+  git config user.name "${CURRY_LANG_USER}"
+  git config user.email "${CURRY_LANG_EMAIL}"
 
   # clone curry-lang.org repo into a subtree
-  git subtree add --prefix=curry-lang.org "${REPOSITORY}" "${REF}"
+  git subtree add --prefix=curry-lang.org "${REPOSITORY}" "${CURRY_LANG_BRANCH}"
 
 }
 
+# finish the version update by pushing the changes of the subtree back to the repo
 function finish() {
 
   # push changed back up to curry-lang.org repo
-  git subtree push --prefix=curry-lang.org "${REPOSITORY}" "${REF}"
+  git subtree push --prefix=curry-lang.org "${REPOSITORY}" "${CURRY_LANG_BRANCH}"
 
 }
 
+# update the latest nightly version
 function nightly() {
+
+  DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
 
   # replace the latest-nightly.version file
   install -D /dev/stdin "${NIGHTLY_FILE}" <<NIGHTLY_VERSION
@@ -40,9 +43,9 @@ function nightly() {
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT NIGHTLY RUN
 date: $(date +%Y-%0m-%0d)
 version: Latest Nightly ${CI_COMMIT_SHORT_SHA} ($(date +%0d/%0m/%y))
-source: https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw/pakcs-${VERSION}-src.tar.gz
-linux:  https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw/docs/Manual.pdf
+source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
+linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
+manual: ${DOWNLOAD_URL}/docs/Manual.pdf
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}
@@ -61,19 +64,26 @@ COMMIT_MSG
 
 }
 
-
+# update the latest release and create a release entry
 function release() {
 
+  source ci/release_helper.sh
+
+  release_helper_init release
+
+  DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/${release}/downloads"
+
   # replace the latest.version file
+
   install -D /dev/stdin "${LATEST_FILE}" <<LATEST_VERSION
 ---
 # THIS FILE IS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT RELEASE RUN
 date: $(date +%Y-%0m-%0d)
 version: Latest
-source: https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-${VERSION}-src.tar.gz
-linux:  https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-${VERSION}-manual.pdf
+source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
+linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
+manual: ${DOWNLOAD_URL}/pakcs-${VERSION}-manual.pdf
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}
@@ -87,9 +97,9 @@ LATEST_VERSION
 # THIS FILE WAS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 date: $(date +%Y-%0m-%0d)
 version: v${VERSION} $(date +%Y-%0m-%0d)
-source: https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-${VERSION}-src.tar.gz
-linux:  https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-${VERSION}-manual.pdf
+source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
+linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
+manual: ${DOWNLOAD_URL}/pakcs-${VERSION}-manual.pdf
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}

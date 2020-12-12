@@ -1,23 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION=$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)
-
-# fullname and arch copied from makefile
-fullname="pakcs-${VERSION}"
-arch="$(dpkg-architecture -qDEB_BUILD_ARCH)-$(uname -s)"
-
-case $1 in
-release)
-  upload_suffix=""
-  ;;
-nightly)
-  upload_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
-  ;;
-*)
-  echo "Expected first parameter have either value 'release' or 'nightly' got '$1'"
-  exit 1
-  ;;
-esac
+set -ve
 
 function upload() {
   local local_file=$1
@@ -26,9 +9,15 @@ function upload() {
   curl \
     --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
     --upload-file "${local_file}" \
-    "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${fullname}${upload_suffix}/${VERSION}/${upload_file}"
+    "${PACKAGE_REGISTRY_URL}/${upload_file}"
 }
 
-upload "pakcs-${VERSION}-src.tar.gz" "${fullname}${upload_suffix}-src.tar.gz"
-upload "pakcs-${VERSION}-${arch}.tar.gz" "${fullname}${upload_suffix}-${arch}.tar.gz"
-upload "docs/Manual.pdf" "${fullname}${upload_suffix}-manual.pdf"
+# adjust linked assets in gitlab_release.sh when making changes to the uploaded files
+
+source ci/release_helper.sh
+
+release_helper_init "$1"
+
+for index in ${!LOCAL_FILE_NAMES[*]} ; do
+  upload "${LOCAL_FILE_NAMES[$index]}" "${UPLOAD_FILE_NAMES[$index]}"
+done

@@ -2,18 +2,18 @@ image: "skgland/pakcs-swi-ci:latest"
 
 # set TEST_DOWNLOAD=yes to run the download test
 # set BUILD_NIGHTLY=yes to build a nightly
-# set BUILD_RELEASE=yes to force build a release
-#  * won't create a release in gitlab
-#  * should probably only be used for testing
+# set TEST_RELEASE=yes to force build a release
 # add a tag with name v<major>.<minor>.<release> to trigger a release
 
 # CURRY_LANG_ORG_ACCESS_TOKEN should contain the access-token to update
 # the curry-lang.org project, it SHOULD NOT be committed in the git project
 # but configured via Gitlab Settings > CI > Variables and should at least be masked
-# the corresponding username is currently hard-coded in
-#  update_version.sh
+# the corresponding username and associated email address is set bellow,
+# using CURRY_LANG_USER and CURRY_LANG_EMAIL respectively
 
 variables:
+  # packs version to download from http://www.informatik.uni-kiel.de/~pakcs/download/
+  # in the run_download_make job
   DOWNLOAD_VERSION: "2.3.0"
   # make sure LANG and LC_ALL are well defined
   LANG: "C.UTF-8"
@@ -22,15 +22,17 @@ variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
   CABAL_DIR: "${CI_PROJECT_DIR}/.cabal/"
   # cypm configs
-  CPM_VERSION: "2.3.0"
+  CPM_VERSION: "2.3.0" # used in ci/before_make.sh
   # move .cpm dir to where we can cache it
   BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
   # make the ci checkout submodules recursively
   GIT_SUBMODULE_STRATEGY: recursive
+  # configuration for the link_release and link_nightly jobs
   CURRY_LANG_USER: project_457_bot # the username corresponding to the access token
   CURRY_LANG_EMAIL: project457_bot@example.com # email without '_' before project id
   CURRY_LANG_PROJECT: curry/curry-lang.org
   CURRY_LANG_BRANCH: hakyll
+  # versions to install using cypm for run_test and make_manual
   CURRY_CHECK_VERSION: "3.0.0"
   CURRY_DOC_VERSION: "3.0.0"
   MARKDOWN_VERSION: "3.3.0"
@@ -71,7 +73,7 @@ run_make:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
-    - if: '$BUILD_RELEASE == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -104,7 +106,8 @@ run_download_make:
   rules:
     - if: '$TEST_DOWNLOAD == "yes"'
   variables:
-    CURRY_CHECK_VERSION: "2.0.0" # may differ from default version above if download and current branch don't use the same version
+    # may differ from default version above if download and current branch don't use the same version
+    CURRY_CHECK_VERSION: "2.0.0"
   timeout: 2h
   script:
     - ci/make_download.sh
@@ -128,7 +131,7 @@ run_test:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
-    - if: '$BUILD_RELEASE == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "run_make"
       artifacts: true
@@ -153,7 +156,7 @@ make_manual:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
-    - if: '$BUILD_RELEASE == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "run_make"
       artifacts: true
@@ -193,7 +196,7 @@ bundle_tar:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "tag"'
     - if: '$BUILD_NIGHTLY == "yes"'
-    - if: '$BUILD_RELEASE == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -214,8 +217,8 @@ upload_release:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
-    - if: '$CI_PIPELINE_SOURCE == "tag"'
-    - if: '$BUILD_RELEASE == "yes"'
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "run_make"
       artifacts: true     # need pakcs binary to determine version
@@ -248,7 +251,7 @@ upload_page_tar:
     - docker2
   rules:
       - if: '$CI_PIPELINE_SOURCE == "tag"'
-      - if: '$BUILD_RELEASE == "yes"'
+      - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "run_make"
       artifacts: true     # need pakcs binary to determine version
@@ -293,29 +296,31 @@ upload_page_tar:
 # run for release runs triggered by version tag
 tag_release:
   stage: tag_release
+  # this docker image MUST be used for a release job
+  # see https://docs.gitlab.com/ee/ci/yaml/#release for reference
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "upload_release"
   script:
-    echo "Script can't be blank and is required!"
-  release:
-    name: "Release $CI_COMMIT_TAG"
-    description: 'Created by the Release CI'
-    tag_name: "$CI_COMMIT_TAG"
-    ref: "$CI_COMMIT_TAG"
+    ci/gitlab_release.sh
 
 # run for nightly runs
 # update the latest_nightly.version in the curry-lang.org repo
 link_nightly:
   stage: curry-lang
+  # make sure link nightly and link release don't run concurrently
+  resource_group: link
   tags:
     - docker2
   rules:
     - if: '$BUILD_NIGHTLY == "yes"'
+      when: on_success # wait for previous stage to finish
   needs:
     - job: "run_make"
       artifacts: true # need pakcs binary for pakcs version
@@ -332,13 +337,16 @@ link_nightly:
 # run for release runs
 link_release:
   stage: curry-lang
+  # make sure link nightly and link release don't run concurrently
+  resource_group: link
   tags:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
-    # or if we explicitly fore a release build
-    - if: '$BUILD_RELEASE == "yes"'
+      when: on_success # wait for previous stage to finish
+    - if: '$TEST_RELEASE == "yes"'
+      when: on_success # wait for previous stage to finish
   needs:
     - job: "run_make"
       artifacts: true # need pakcs binary for pakcs version
@@ -359,7 +367,7 @@ downstream:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
       when: on_success # wait for previous stage to finish
-    - if: '$BUILD_RELEASE == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
       when: on_success # wait for previous stage to finish
     - if: '$BUILD_NIGHTLY == "yes"'
       when: on_success # wait for previous stage to finish
