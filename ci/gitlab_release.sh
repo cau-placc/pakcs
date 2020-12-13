@@ -21,8 +21,8 @@ else
 fi
 
 release-cli create \
-  --name "Release ${test}" \
+  --name "Release ${release_tag}" \
   --description "Created by the Release CI" \
-  --tag-name "${test}" \
+  --tag-name "${release_tag}" \
   --ref "${CI_COMMIT_SHA}" \
   "${assets[@]}"
