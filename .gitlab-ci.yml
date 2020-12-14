@@ -132,7 +132,7 @@ check_version:
     - job: "run_make"
       artifacts: true
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
   script:
     - '[[ $CI_COMMIT_TAG == "v${BUILD_PAKCS_VERSION} ]] || { echo "Expected git tag ${CI_COMMIT_TAG} to match version v${BUILD_PAKCS_VERSION}" ; exit 1 } '
 
@@ -231,7 +231,7 @@ upload_release:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
     - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "run_make"
@@ -316,7 +316,7 @@ tag_release:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
     - if: '$TEST_RELEASE == "yes"'
   needs:
     - job: "run_make"
@@ -358,7 +358,7 @@ link_release:
     - docker2
   rules:
     # only for tags matching the versioning scheme v<major>.<minor>.<release>
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
       when: on_success # wait for previous stage to finish
     - if: '$TEST_RELEASE == "yes"'
       when: on_success # wait for previous stage to finish
@@ -375,7 +375,7 @@ link_release:
 downstream:
   stage: curry-lang-ci
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*.\d*.\d*$/i'
+    - if: '$CI_PIPELINE_SOURCE == "tag" && $CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
       when: on_success # wait for previous stage to finish
     - if: '$TEST_RELEASE == "yes"'
       when: on_success # wait for previous stage to finish

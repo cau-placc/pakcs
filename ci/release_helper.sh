@@ -20,7 +20,7 @@ function release_helper_init() {
       package_suffix="-test"
       name_suffix="-test"
       release_tag="test-${CI_COMMIT_SHA}"
-    elif [[ ${CI_COMMIT_TAG} =~ /^v\d*.\d*.\d*$/i ]]; then
+    elif [[ ${CI_COMMIT_TAG} =~ ^(v|V)[0-9]*\.[0-9]*\.[0-9]*$ ]]; then
       package_suffix="-release"
       name_suffix=""
       release_tag="${CI_COMMIT_TAG}"
