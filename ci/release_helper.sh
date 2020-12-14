@@ -17,9 +17,9 @@ function release_helper_init() {
   case $1 in
   release)
     if [[ ${TEST_RELEASE} == "yes" ]]; then
-      package_suffix="-test"
+      package_suffix="-test-${CI_COMMIT_SHORT_SHA}"
       name_suffix="-test"
-      release_tag="test-${CI_COMMIT_SHA}"
+      release_tag="test-${CI_COMMIT_SHORT_SHA}"
     elif [[ ${CI_COMMIT_TAG} =~ ^(v|V)[0-9]*\.[0-9]*\.[0-9]*$ ]]; then
       package_suffix="-release"
       name_suffix=""
