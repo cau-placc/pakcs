@@ -1,0 +1,388 @@
+image: "skgland/pakcs-swi-ci:latest"
+
+# set TEST_DOWNLOAD=yes to run the download test
+# set BUILD_NIGHTLY=yes to build a nightly
+# set TEST_RELEASE=yes to force build a release
+# add a tag with name v<major>.<minor>.<release> to trigger a release
+
+# CURRY_LANG_ORG_ACCESS_TOKEN should contain the access-token to update
+# the curry-lang.org project, it SHOULD NOT be committed in the git project
+# but configured via Gitlab Settings > CI > Variables and should at least be masked
+# the corresponding username and associated email address is set bellow,
+# using CURRY_LANG_USER and CURRY_LANG_EMAIL respectively
+
+variables:
+  # packs version to download from http://www.informatik.uni-kiel.de/~pakcs/download/
+  # in the run_download_make job
+  DOWNLOAD_VERSION: "2.3.0"
+  # make sure LANG and LC_ALL are well defined
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  # move the stack root and cabal dir to a place where we can cache them
+  STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
+  CABAL_DIR: "${CI_PROJECT_DIR}/.cabal/"
+  # cypm configs
+  CPM_VERSION: "2.3.0" # used in ci/before_make.sh
+  # move .cpm dir to where we can cache it
+  BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
+  # make the ci checkout submodules recursively
+  GIT_SUBMODULE_STRATEGY: recursive
+  # configuration for the link_release and link_nightly jobs
+  CURRY_LANG_USER: project_457_bot # the username corresponding to the access token
+  CURRY_LANG_EMAIL: project457_bot@example.com # email without '_' before project id
+  CURRY_LANG_PROJECT: curry/curry-lang.org
+  CURRY_LANG_BRANCH: hakyll
+  # versions to install using cypm for run_test and make_manual
+  CURRY_CHECK_VERSION: "3.0.0"
+  CURRY_DOC_VERSION: "3.0.0"
+  MARKDOWN_VERSION: "3.3.0"
+
+# due to the limitations that jobs of the same stage may not depend on each other
+# release is split in package_release, release and package_upload
+#
+# curry-lang-ci is part of the workaround for issue:
+# https://gitlab.com/gitlab-org/gitlab/-/issues/246784
+# when this is fixes curry-lang-ci may be removed and the [skip ci]
+# can be removed from the commit messages in the curry-lang jobs.before_script,
+# keeping it this way would keep the pipelines linked potentially giving a better overview
+stages:
+  - make            # build pakcs
+  - test            # run test suite and check versioned tag
+  - doc             # build lib and manual
+  - package_release # build distribution
+  - upload_release  # create tar for webserver
+  - tag_release         # create release
+  - curry-lang      # commit updated download data to curry-lang.org repo
+  - curry-lang-ci   # trigger curry-lang.org repo CI
+
+# cache the stack root, cabal and cpm dir
+# on a per branch basis
+cache:
+  key: "${CI_COMMIT_REF_SLUG}-stack_cache"
+  paths:
+    - .stack-root/
+    - .cabal/
+    - .cpm/
+
+# always run except for the nightly download test run
+run_make:
+  stage: make
+  tags: 
+    - docker2
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_TAG != null'
+    - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - time ./ci/before_make.sh
+    # prevent the build stages from disagreeing over the date by generating it once at the start
+    - export BUILD_DATE="$(date +%F)"
+  script:
+    - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}"
+    - |
+      BUILD_PAKCS_VERSION="$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)"
+      BUILD_PAKCS_ARCH="$(dpkg-architecture -qDEB_BUILD_ARCH)-$(uname -s)"
+      echo "BUILD_PAKCS_VERSION=${BUILD_PAKCS_VERSION}
+      BUILD_PAKCS_ARCH=${BUILD_PAKCS_ARCH}
+      BUILD_DATE=${BUILD_DATE}" >> make.env
+  artifacts:
+    reports:
+      dotenv:
+        - make.env
+    paths:
+      # this are currently all files that are added from a clean state during `make CI_BUILD=yes`
+      - "**/.curry"
+      - "**/dist"
+      - bin
+      - currytools/cpm/src/CPM.Main
+      - currytools/optimize/BindingOpt
+      - frontend/bin
+      - frontend/pkg
+      - lib
+      - pakcsinitrc
+      - scripts/makesavedstate
+      - src/pakcs
+      - src/pakcsversion.pl
+      - src/prologbasics.pl
+
+
+# only run for the nightly download test run
+run_download_make:
+  stage: test
+  tags:
+    - docker2
+  rules:
+    - if: '$TEST_DOWNLOAD == "yes"'
+  variables:
+    # may differ from default version above if download and current branch don't use the same version
+    CURRY_CHECK_VERSION: "2.0.0"
+  timeout: 3h
+  script:
+    - ci/make_download.sh
+
+# check that the tag version matches pakcs version
+# this failing indicates an incorrect tag version or
+# having forgotten to bump pakcs version
+check_version:
+  stage: test
+  needs:
+    - job: "run_make"
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
+  script:
+    - '[[ $CI_COMMIT_TAG == "v${BUILD_PAKCS_VERSION} ]] || { echo "Expected git tag ${CI_COMMIT_TAG} to match version v${BUILD_PAKCS_VERSION}" ; exit 1 } '
+
+# run_make is run except for the nightly download test run
+run_test:
+  stage: test
+  tags:
+    - docker2
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_TAG != null'
+    - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+    - ./bin/pakcs-cypm config
+    - |
+      set -ve
+      source ci/cypm_helper.sh
+      cypm_update
+      cypm_install_binary currycheck "${CURRY_CHECK_VERSION}"
+  script:
+    - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
+
+# run for the nightly and release runs
+make_manual:
+  stage: doc
+  tags:
+    - docker2
+  rules:
+    - if: '$CI_COMMIT_TAG != null'
+    - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true
+  timeout: 2h
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+    - ./bin/pakcs-cypm config
+    - |
+      set -ve
+      source ci/cypm_helper.sh
+      cypm_update
+      cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
+      cypm_install_binary markdown "${MARKDOWN_VERSION}"
+  script:
+    - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}" manual
+    - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
+  artifacts:
+    paths:
+      - docs/**.pdf
+      - docs/**.html
+    reports:
+      dotenv:
+        - manual.env
+
+# run for the nightly and release runs
+# builds the distribution
+bundle_tar:
+  stage: package_release
+  tags:
+    - docker2
+  needs:
+    - job: "run_make"
+      artifacts: true
+    - job: "make_manual"
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_TAG != null'
+    - if: '$BUILD_NIGHTLY == "yes"'
+    - if: '$TEST_RELEASE == "yes"'
+  before_script:
+    - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
+    - echo ${PATH}
+    - ./ci/before_make.sh
+  script:
+    - time make CI_BUILD=yes DIST_DATE="${BUILD_DATE}" COMPILERDATE="${BUILD_DATE}" dist
+    - echo "BUNDLE_JOB_ID=${CI_JOB_ID}" >> bundle.env
+  artifacts:
+    reports:
+      dotenv:
+        - bundle.env
+    paths:
+      - pakcs-*.tar.gz
+
+upload_release:
+  stage: upload_release
+  tags:
+    - docker2
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
+    - if: '$TEST_RELEASE == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true     # need pakcs binary to determine version
+    - job: "make_manual"  # needed for Manual.pdf
+      artifacts: true
+    - job: "bundle_tar"   # needed for pakcs-<version>-src.tar.gz and pakcs-<version>-<arch>.tar.gz
+      artifacts: true
+  script: ci/upload_release.sh release
+
+upload_nightly:
+  stage: upload_release
+  tags:
+    - docker2
+  rules:
+      - if: '$BUILD_NIGHTLY == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true     # need pakcs binary to determine version
+    - job: "make_manual"  # needed for Manual.pdf
+      artifacts: true
+    - job: "bundle_tar"   # needed for pakcs-<version>-src.tar.gz and pakcs-<version>-<arch>.tar.gz
+      artifacts: true
+  script: ci/upload_release.sh nightly
+
+# run for release runs
+# generate a .tar for the files that should be deployed for the updated pakcs download page
+upload_page_tar:
+  stage: upload_release
+  tags:
+    - docker2
+  rules:
+      - if: '$CI_COMMIT_TAG != null'
+      - if: '$TEST_RELEASE == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true # need environment variables for build_pakcs_version
+    - job: "make_manual"
+      artifacts: true
+    - job: "bundle_tar"
+      artifacts: true
+  variables:
+    PUBLIC_HTML: "${CI_PROJECT_DIR}/public_html"
+    PUBLIC_DOWNLOAD: "${CI_PROJECT_DIR}/public_html/download"
+  before_script:
+    - mkdir -p "${PUBLIC_HTML}" "${PUBLIC_DOWNLOAD}"
+  script:
+    # copy current distribution into latest release
+    - cp -p pakcs*.tar.gz "${PUBLIC_DOWNLOAD}"
+    # copy manual
+    - cp -p docs/Manual.pdf "${PUBLIC_HTML}"
+    - cp -p docs/Manual.pdf "${PUBLIC_DOWNLOAD}/pakcs-${BUILD_PAKCS_VERSION}-manual.pdf"
+    - cp -p docs/markdown_syntax.html "${PUBLIC_HTML}"
+    # copy release notes etc
+    - |
+      cp -p OLDRELNOTES.html \
+            CHANGELOG.html \
+            RESOURCES.html \
+            docs/RELNOTES.html \
+            docs/INSTALL.html \
+            docs/GITINSTALL.html \
+            docs/CurryStyleGuide.html \
+            "${PUBLIC_HTML}"
+  artifacts:
+    paths:
+      - "${PUBLIC_HTML}"
+
+
+# TODO add artifact with link to the packages uploaded in the 'upload_release' job
+# we would like to add links to:
+#  pakcs-${VERSION}-amd64.tar.gz (produced by bundle_tar job)
+#  pakcs-${VERSION}-src.tar.gz (produced by bundle_tar job)
+#  Manual.pdf (produced by make_manual job)
+#
+# run for release runs triggered by version tag
+tag_release:
+  stage: tag_release
+  # this docker image MUST be used for a release job
+  # see https://docs.gitlab.com/ee/ci/yaml/#release for reference
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  tags:
+    - docker2
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
+    - if: '$TEST_RELEASE == "yes"'
+  needs:
+    - job: "run_make"
+      artifacts: true # need environment variables for build_pakcs_version
+    - job: upload_release # wait for upload
+  script:
+    - apk add --no-cache bash
+    - ci/gitlab_release.sh
+
+# run for nightly runs
+# update the latest_nightly.version in the curry-lang.org repo
+link_nightly:
+  stage: curry-lang
+  # make sure link nightly and link release don't run concurrently
+  resource_group: link
+  tags:
+    - docker2
+  rules:
+    - if: '$BUILD_NIGHTLY == "yes"'
+      when: on_success # wait for previous stage to finish
+  needs:
+    - job: "run_make"
+      artifacts: true # need environment variables for build_pakcs_version
+    - job: "bundle_tar"
+      artifacts: true # need environment variables for bundle_job_id
+    - job: "make_manual"
+      artifacts: true # need environment variables for manual_job_id
+    # - job: upload_nightly # wait for upload, TODO link to package files rather than artifacts
+  script:
+    - ci/update_version.sh nightly
+
+
+# run for release runs
+link_release:
+  stage: curry-lang
+  # make sure link nightly and link release don't run concurrently
+  resource_group: link
+  tags:
+    - docker2
+  rules:
+    # only for tags matching the versioning scheme v<major>.<minor>.<release>
+    - if: '$CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
+      when: on_success # wait for previous stage to finish
+    - if: '$TEST_RELEASE == "yes"'
+      when: on_success # wait for previous stage to finish
+  needs:
+    - job: "run_make"
+      artifacts: true # need environment variables for build_pakcs_version
+    - job: tag_release # wait for release as we are hyperlinking to release assets
+  script:
+    - ci/update_version.sh release
+
+
+# run for nightly and release runs
+# the commit done by the link_nightly job should be enough once https://gitlab.com/gitlab-org/gitlab/-/issues/246784 is fixed
+downstream:
+  stage: curry-lang-ci
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d*\.\d*\.\d*$/i'
+      when: on_success # wait for previous stage to finish
+    - if: '$TEST_RELEASE == "yes"'
+      when: on_success # wait for previous stage to finish
+    - if: '$BUILD_NIGHTLY == "yes"'
+      when: on_success # wait for previous stage to finish
+  trigger:
+    project: curry/curry-lang.org
+    branch: "${CURRY_LANG_BRANCH}"
+    strategy: depend

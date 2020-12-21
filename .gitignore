@@ -18,20 +18,19 @@ pakcsinitrc
 *.idx
 *.ilg
 *.ind
-*.tpt
 *.synctex.gz
 *.backup
 *~
 
 # intermediate files
-*.bak
-make.log
 src/pakcsversion.pl
 docs/src/version.tex
 docs/src/tooldocs/casc/curry-style-guide.html
 lib/
 pkg/
 scripts/makesavedstate
+/frontend/.stack-work/
+*.yaml.lock
 
 # binaries
 *.state
@@ -61,3 +60,7 @@ docs/RELNOTES.html
 
 # distribution
 pakcs-*.tar.gz
+/pakcs-*/
+
+# editor/ide
+/.idea/

@@ -41,7 +41,11 @@ markdown_syntax.tex: markdown_syntax.md
 # format Curry style guide as HTML page
 ../CurryStyleGuide.html: tooldocs/casc/curry-style-guide.md
 	cd tooldocs/casc && $(MAKE)
+ifeq ($(CI_BUILD),yes)
+	cp tooldocs/casc/curry-style-guide.html $@
+else
 	@if [ -f "tooldocs/casc/curry-style-guide.html" ] ; then cp tooldocs/casc/curry-style-guide.html $@ ; fi
+endif
 
 # generate documentation for all libraries
 .PHONY: libdoc
