@@ -206,10 +206,13 @@ cleanscripts:
 
 # install the library sources from the trunk directory:
 .PHONY: copylibs
-copylibs:
+copylibs: $(LIBDIR)/Makefile
 	@if [ -d $(CURRYLIBSDIR) ] ; then \
-	  $(MAKE) -f $(ROOT)/Makefile_install_lib ; \
-	  cp Makefile_lib lib/Makefile ; fi
+	  $(MAKE) -f $(ROOT)/Makefile_install_lib ; fi
+
+$(LIBDIR)/Makefile: lib_Makefile
+	mkdir -p $(LIBDIR)
+	cp $< $@
 
 # if the directory `currytools` is not present, copy it from the sources:
 # (only necessary for the installation of a (Debian) packages, otherwise
@@ -410,7 +413,7 @@ distdated: dist
 .PHONY: cleandist
 cleandist:
 	rm -rf .git .gitmodules .gitignore
-	rm -r Makefile_install_lib Makefile_lib
+	rm -r Makefile_install_lib lib_Makefile
 	rm -rf $(CURRYLIBSDIR)
 	rm -rf currytools/.git currytools/.gitignore
 	rm -f currytools/download_tools.sh

@@ -24,7 +24,7 @@ LIB_NAMES     = $(subst /,., $(basename $(LIB_CURRY)))
 LIB_DOCNAMES = $(filter-out $(DOCEXCLUDES), $(LIB_NAMES))
 # Generated files:
 LIB_FCY   = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.fcy), $(lib))
-LIB_TFCY  = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.tfcy),$(lib))
+LIB_TAFCY  = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.tafcy),$(lib))
 LIB_ACY   = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.acy), $(lib))
 LIB_PL    = $(foreach lib, $(LIB_CURRY:%.curry=.curry/pakcs-$(VERSION)/%.pl), $(lib))
 LIB_HTML  = $(foreach lib, $(LIB_CURRY:.curry=.html), $(LIBDOCDIR)/$(subst /,.,$(lib)))
@@ -72,8 +72,8 @@ cleanpl:
 fcy: $(LIB_FCY)
 
 # generate the type-annotated FlatCurry files of all libraries:
-.PHONY: tfcy
-tfcy: $(LIB_TFCY)
+.PHONY: tafcy
+tafcy: $(LIB_TAFCY)
 
 # generate the AbstractCurry files of all libraries:
 .PHONY: acy
@@ -89,8 +89,8 @@ pl: .curry/pakcs-$(VERSION)/$(ALLLIBS).pl $(LIB_PL)
 	"$(CYMAKE)" --flat $(CYMAKEPARAMS) $(subst /,.,$*) -Odesugar-newtypes -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
 
 # generate type-annotated FlatCurry file in subdirectory of .curry:
-.curry/pakcs-$(VERSION)/%.tfcy: %.curry
-	"$(CYMAKE)" --typed-flat $(CYMAKEPARAMS) $(subst /,.,$*) -Odesugar-newtypes -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+.curry/pakcs-$(VERSION)/%.tafcy: %.curry
+	"$(CYMAKE)" -type-annotated-flat --flat --flat $(CYMAKEPARAMS) $(subst /,.,$*) -Odesugar-newtypes -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
 
 # generate all AbstractCurry files in subdirectory of .curry:
 .curry/pakcs-$(VERSION)/%.acy: %.curry
