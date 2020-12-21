@@ -206,9 +206,10 @@ cleanscripts:
 
 # install the library sources from the trunk directory:
 .PHONY: copylibs
-copylibs: $(LIBDIR)/Makefile
+copylibs:
 	@if [ -d $(CURRYLIBSDIR) ] ; then \
-	  $(MAKE) -f $(ROOT)/Makefile_install_lib ; fi
+	  $(MAKE) -f $(ROOT)/Makefile_install_lib ; \
+	  $(MAKE) $(LIBDIR)/Makefile ; fi
 
 $(LIBDIR)/Makefile: lib_Makefile
 	mkdir -p $(LIBDIR)
