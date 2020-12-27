@@ -1,0 +1,84 @@
+FROM haskell:8.6.5
+
+# asymptote to vprerex are the packages of texlive-full without the -doc packages
+# some packages have been removed because they couldn't be found:
+# texlive-fonts-extra-links, texlive-plain-generic
+#
+# sqlite2 is needed for better speed using cypm
+#
+# lockfile-progs is needed for one of the testsuite tests
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        build-essential \
+        swi-prolog \
+        unzip \
+        sqlite3 \
+        wget \
+        pandoc \
+        lockfile-progs \
+        libnuma-dev \
+        asymptote \
+        biber \
+        chktex \
+        cm-super \
+        context \
+        dvidvi \
+        dvipng \
+        feynmf \
+        fragmaster \
+        info \
+        lacheck \
+        latex-cjk-all \
+        latexdiff \
+        latexmk \
+        lcdf-typetools \
+        lmodern \
+        prerex \
+        psutils \
+        purifyeps \
+        t1utils \
+        tex-gyre \
+        texinfo \
+        texlive-base \
+        texlive-bibtex-extra \
+        texlive-binaries \
+        texlive-extra-utils \
+        texlive-font-utils \
+        texlive-fonts-extra \
+        texlive-fonts-recommended \
+        texlive-formats-extra \
+        texlive-games \
+        texlive-humanities \
+        texlive-lang-arabic \
+        texlive-lang-chinese \
+        texlive-lang-cjk \
+        texlive-lang-cyrillic \
+        texlive-lang-czechslovak \
+        texlive-lang-english \
+        texlive-lang-european \
+        texlive-lang-french \
+        texlive-lang-german \
+        texlive-lang-greek \
+        texlive-lang-italian \
+        texlive-lang-japanese \
+        texlive-lang-korean \
+        texlive-lang-other \
+        texlive-lang-polish \
+        texlive-lang-portuguese \
+        texlive-lang-spanish \
+        texlive-latex-base \
+        texlive-latex-extra \
+        texlive-latex-recommended \
+        texlive-luatex \
+        texlive-metapost \
+        texlive-music \
+        texlive-pictures \
+        texlive-pstricks \
+        texlive-publishers \
+        texlive-science \
+        texlive-xetex \
+        tipa \
+        vprerex \
+    && rm -rf /var/lib/apt/lists/*
+    
+
