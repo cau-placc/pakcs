@@ -1065,8 +1065,10 @@ processCommand("show",ShTail) :- % show source of a module
 	appendAtoms([Pager,' "',File,'"'],Cmd),
 	shellCmdWithReport(Cmd).
 
-processCommand("show",_) :- !,
-	writeLnErr('ERROR: Source file not found').
+processCommand("show",ShTail) :- !,
+	writeErr('ERROR: Source file "'),
+        atom_codes(ShTailA,ShTail), writeErr(ShTailA),
+        writeLnErr('" not found!').
 
 processCommand("source",Arg) :-
 	append(PModS,[46|FunS],Arg),
@@ -2015,11 +2017,15 @@ showSourceCode(F) :- var(F),
 	writeLnErr('Cannot show source code of a variable!').
 showSourceCode(partcall(_,QF,_)) :- !,
 	atom_codes(QF,QFS),
-	append(ModS,[46|FS],QFS), !,
+	append(ModS,[46|FS],QFS),
+        (\+ member(46,FS) ; isOperatorName(FS)),
+        !,
 	showSourceCodeOfFunction(ModS,FS).
 showSourceCode(FCall) :- FCall =.. [QF|_],
 	atom_codes(QF,QFS),
-	append(ModS,[46|FS],QFS), !,
+	append(ModS,[46|FS],QFS),
+        (\+ member(46,FS) ; isOperatorName(FS)),
+        !,
 	showSourceCodeOfFunction(ModS,FS).
 
 % show source code of a function via the simple GUI for showing complete fun's:
@@ -2052,6 +2058,8 @@ getModStream(ModS,InStream) :-
         checkCpmTool('curry-showsource','sourceproggui',ShowSource),
 	atom_codes(ModA,ModS),
 	appendAtoms([ShowSource,' ',ModA,' 2>/dev/null'],Cmd),
+	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
+	flush_output(user_output),
    	execCommand(Cmd,InStream,_,std),
 	assertz(sourceCodeGUI(ModS,InStream)).
 
