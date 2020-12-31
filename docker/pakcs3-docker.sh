@@ -1,14 +1,17 @@
 #!/bin/sh
-# shell script to run the Docker image caups/pakcs3
+# This is a shell script to run the Docker image caups/pakcs3
 # with appropriate options in order to use PAKCS
-# with local files and invoke tools contained in the image
+# with local files and invoke tools contained in the image.
+# Adapt this file according to further requirements, e.g.,
+# if you run the docker daemon as a non-root user (rootless mode, see below).
 
-# set docker options:
-# run interactive, remove container after execution
+# Set docker options:
+# Run interactive and remove container after execution:
 DOCKEROPTS="-it --rm"
-# mount current working directory and user's home directory
+# Mount current working directory and user's home directory:
 DOCKEROPTS="$DOCKEROPTS -v `pwd`:`pwd` -w `pwd` -v $HOME:$HOME -e HOME=$HOME"
-# set docker user to host user
+# Set docker user to host user:
+# NOTE: if you use docker in rootless mode, remove the following line.
 DOCKEROPTS="$DOCKEROPTS -u $(id -u):$(id -g)"
 
 DOCKERTAG="caups/pakcs3"
