@@ -34,7 +34,7 @@ Now you can install the complete system by the command
     make
 
 similar to the standard
-[PAKCS installation instructions](http://www.informatik.uni-kiel.de/~pakcs/download/INSTALL.html).
+[PAKCS installation instructions](http://www.informatik.uni-kiel.de/~pakcs/INSTALL.html).
 
 -------------------------------------------------------------
 

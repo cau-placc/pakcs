@@ -24,13 +24,12 @@ How to generate and install the PAKCS kernel:
    this file). In the following, we assume that `pakcshome`
    is the name of this directory.
 
-2. If you have the executables `sicstus` (for SICStus-Prolog)
-   or `swipl` (for SWI-Prolog) in your path,
-   execute "`make`" which installs PAKCS.
-   The environment variables `SICSTUSPROLOG` or `SWIPROLOG` are automatically
-   set to appropriate values.
+2. If you have the executables `sicstus` (for SICStus-Prolog) or
+   `swipl` (for SWI-Prolog) in your path, execute `make` to install PAKCS.
 
-3. Otherwise, pass these values to `make`, e.g., by
+3. Otherwise, values defining one of these executables can be passed
+   as environment variables `SICSTUSPROLOG` or `SWIPROLOG` to `make`,
+   e.g., by
 
        make SICSTUSPROLOG=/opt/sicstus/bin/sicstus
 
@@ -38,41 +37,41 @@ How to generate and install the PAKCS kernel:
 
        make SWIPROLOG=/usr/bin/swipl
 
-   If both variables are undefined, the PAKCS compiler system
-   cannot be installed.
+   If both variables are undefined and the executables `sicstus`
+   or `swipl` cannot be found, the PAKCS compiler system cannot
+   be installed.
 
 4. If you install PAKCS from the source code distribution, you need also the
    [Haskell Tool Stack](http://www.haskellstack.org/)
    (version 2.x or higher) to compile the front end of PAKCS,
-   i.e., the executable "`stack`" must be in your path.
+   i.e., the executable `stack` must be in your path.
 
-5. Now, install PAKCS by "`make`" (if you have already an older
-   installation of PAKCS, do "`make clean`" before).
-
-6. Add the directory "`pakcshome/bin`" to your path, e.g., by the command
+5. After the installation, add the directory `pakcshome/bin` to
+   your path, e.g., by the command
 
        export PATH=pakcshome/bin:$PATH
 
    in the `bash`.
+
    If you do no want to have the specific version number of PAKCS
    included in your path, you can set a symbolic link like
 
        ln -s pakcs-<version> pakcs
 
    and put the directory `pakcs/bin` into your path.
-   Now you can start the PAKCS compiler system via the command "`pakcs`".
+   Now you can start the PAKCS compiler system via the command `pakcs`.
 
-7. You can configure the behavior of PAKCS by various settings
-   in a "pakcsrc" file. For doing so, copy the file
-   `pakcshome/pakcsrc.default` as "`.pakcsrc`"
+6. You can configure the behavior of PAKCS by various settings
+   in a `pakcsrc` file. For doing so, copy the file
+   `pakcshome/pakcsrc.default` as `.pakcsrc`
    (which will be automatically done when you start PAKCS for the first time)
-   into you home directory and modify the settings.
+   into you home directory and modify the settings in this file.
 
-8. If you like to have support for _line editing or history functionality_
+7. If you like to have support for _line editing or history functionality_
    in the PAKCS interactive environment (as supported by the readline
-   library), you should have the Unix/Linux command "`rlwrap`" installed
-   on your local machine. PAKCS uses "`rlwrap`" if it is invoked on a terminal
-   without the parameter "`--noreadline`".
+   library), you should have the Unix/Linux command `rlwrap` installed
+   on your local machine. PAKCS uses `rlwrap` if it is invoked on a terminal
+   without the parameter `--noreadline`.
 
 
 Configuring the installation
