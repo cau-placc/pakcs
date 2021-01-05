@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.3.0 (December 11, 2020)
----------------------------------------------------------
+Release notes for PAKCS Version 3.3.0 (January 5, 2021)
+-------------------------------------------------------
 
 Changes to version 3.2.0:
 
@@ -15,6 +15,9 @@ Changes to version 3.2.0:
     `constrEq` and `nonstrictEq`, respectively. This is meaningful
     to keep the `Data` constraint for `(=:=)` and `(=:<=)` whereas
     external operations have no class contexts.
+  * Installation slightly simplified: SICStus-Prolog or SWI-Prolog
+    executables are searched in the load path so that the old
+    installation cache file `pakcsinitrc` is no longer used.
 
 
 Release notes for PAKCS Version 3.2.0 (November 24, 2020)

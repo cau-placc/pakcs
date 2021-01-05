@@ -14,33 +14,38 @@ ERROR: local
 the Prolog system runs out of the local stack (although there
 might be enough memory available on the host machine).
 
-In such a case, one can modify the script
-\ccode{\cyshome/scripts/makesavedstate}
+To avoid such problem, one can try to modify the script
+\begin{curry}
+$\cyshome$/scripts/pakcs-makesavedstate.sh
+\end{curry}
 in order to change the SWI-Prolog default settings
-for memory limits of generated Curry applications.\footnote{%
+for memory limits of generated Curry applications
+and before installing the system by \ccode{make}.\footnote{%
 Note that this script is generated
 during the installation of \CYS. Hence, it might be necessary
 to redo the changes after a new installation of \CYS.}
-This can be done by changing the definition of the variable
+To change the actual memory limits, one should change
+the definition of the variable
 \code{SWILIMITS} at the beginning of this script.
 Since different versions of SWI-Prolog have different command-line options,
 the correct setting depends on the version of SWI-Prolog:
 \begin{description}
 \item[SWI-Prolog 7.*:]
 For instance, to set the maximum limit for
-the local stack to 2 GB (on 64bit machines, the default of SWI-Prolog
+the local stack to 4 GB (on 64bit machines, the default of SWI-Prolog
 is 1 GB), one change the definition in this script to
 \begin{curry}
-SWILIMITS="-L2G -G0 -T0"
+SWILIMITS="-L4G -G0 -T0"
 \end{curry}
 \item[SWI-Prolog 8.*:]
-For instance, to use 4 GB for all stacks
+For instance, to use 8 GB for all stacks
 (on 64bit machines, the default of SWI-Prolog is 1 GB),
 one change the definition in this script to
 \begin{curry}
-SWILIMITS="--stack_limit=4g"
+SWILIMITS="--stack_limit=8g"
 \end{curry}
 \end{description}
+%
 After this change, recompile (with the \CYS command \ccode{:save})
 the Curry application.
 

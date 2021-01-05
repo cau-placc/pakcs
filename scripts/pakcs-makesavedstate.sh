@@ -9,9 +9,12 @@
 ##############################################################################
 # Global settings:
 
-# Directory of the SICStus-Prolog installation, i.e.,
-# $SICSTUSDIR/bin/sicstus should be the name of the interpreter executable:
-SICSTUSDIR=
+# bin directory of the SICStus-Prolog installation, i.e.,
+# $SICSTUSBINDIR/sicstus should be the name of the interpreter executable:
+SICSTUSBINDIR=
+
+# Executable of SWI-Prolog
+SWIPROLOG=
 
 # Settings for memory limits for a SWI-Prolog saved state
 # (compare the SWI-Prolog manual for supported values).
@@ -19,10 +22,22 @@ SICSTUSDIR=
 # put a limit of 1GB on every memory area in this case (on 64bit machines).
 # Thus, if there is a local stack overflow in your application (e.g.,
 # you see a message like "ERROR: local"), you should increase the stack sizes
-# by redefining this definition:
-# SWI-Prolog 7.*: to use 2GB for the local stack, set SWILIMITS="-L2G -G0 -T0"
-# SWI-Prolog 8.*: to use 4GB for all stacks, set SWILIMITS="--stack_limit=4g"
-SWILIMITS=""
+# by redefining the definition of SWILIMITS
+
+if [ -x "$SWIPROLOG" ] ; then
+  # determin major version of SWI-Prolog:
+  SWIVERSION=`"$SWIPROLOG" --version`
+  SWI_MAJOR_VERSION=`expr "$SWIVERSION" : '.*version \([0-9]*\).*'`
+  # set limits according to SWI-Prolog version:
+  case "$SWI_MAJOR_VERSION" in
+    # SWI-Prolog 7.*: use 4GB for the local stack
+    7 ) SWILIMITS="-L4G -G0 -T0" ;;
+    # SWI-Prolog 8.*: use 8GB for all stacks
+    8 ) SWILIMITS="--stack_limit=8g" ;;
+    # no default for other versions:
+    * ) SWILIMITS="" ;;
+  esac
+fi
 
 ##############################################################################
 # Process arguments:
@@ -51,9 +66,9 @@ else
   exit 1
 fi
 
-# add $SICSTUSDIR/bin to path so that command "sicstus..." becomes executable:
-if [ -n "$SICSTUSDIR" ] ; then
-  PATH=$SICSTUSDIR/bin:$PATH
+# add $SICSTUSBINDIR to path so that command "sicstus..." becomes executable:
+if [ -n "$SICSTUSBINDIR" ] ; then
+  PATH=$SICSTUSBINDIR:$PATH
   export PATH
 fi
 
@@ -63,8 +78,8 @@ if test ! -f "$STATE" ; then
 fi
 
 if [ $STANDALONE = yes ] ; then
-  if [ -n "$SICSTUSDIR" ] ; then
-    SPLD=$SICSTUSDIR/bin/spld
+  if [ -n "$SICSTUSBINDIR" ] ; then
+    SPLD=$SICSTUSBINDIR/spld
     if [ ! -x "$SPLD" ] ; then
       echo "ERROR: SICStus Prolog application builder '$SPLD' not found!" >&2
       exit 1
@@ -90,7 +105,7 @@ else
   TMPSTATE=$STATE
 fi
 
-if [ -z "$SICSTURDIR" ] ; then
+if [ -z "$SICSTUSBINDIR" ] ; then
   # patch SWI-Prolog saved state with optimization and stack limit options:
   SWIOPTIONS="$SWILIMITS -O"
   sed "3s/-x/$SWIOPTIONS -x/" < $TMPSTATE > $TMPSTATE$$
@@ -108,15 +123,15 @@ if test -n "$LC_ALL" ; then
   echo "export LC_ALL" >> $TMPFILE
 fi
 
-if [ -n "$SICSTUSDIR" ] ; then
-  # add SICSTUSDIR/bin to path so that SICStus can find its binary:
-  echo "PATH=\"\$PATH:$SICSTUSDIR/bin\"" >> $TMPFILE
+if [ -n "$SICSTUSBINDIR" ] ; then
+  # add SICSTUSBINDIR to path so that SICStus can find its binary:
+  echo "PATH=\"\$PATH:$SICSTUSBINDIR\"" >> $TMPFILE
   echo "export PATH" >> $TMPFILE
   # check whether --noinfo parameter is accepted (e.g., not for SICStus 3.7):
-  $SICSTUSDIR/bin/sicstus --noinfo --help > /dev/null 2>&1
+  $SICSTUSBINDIR/sicstus --noinfo --help > /dev/null 2>&1
   if [ $? -eq 0 ] ; then
     # suppress "restoring" message of SICStus-Prolog:
-    echo "exec $SICSTUSDIR/bin/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
+    echo "exec $SICSTUSBINDIR/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
   fi
 fi
 cat $TMPFILE $TMPSTATE > $TARGET

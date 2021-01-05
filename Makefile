@@ -169,8 +169,6 @@ endif
 # install the kernel system (binaries and libraries)
 .PHONY: kernel
 kernel: scripts copylibs copytools
-	@echo "PAKCS installation configuration (file pakcsinitrc):"
-	@cat pakcsinitrc
 	# install front end:
 	$(MAKE) frontend
 	# pre-compile all libraries:
@@ -198,10 +196,10 @@ cleanoldinfos:
 	@if [ -d $(HOME)/.curry/Analysis ] ; then \
 	  find $(HOME)/.curry/Analysis -name \*.RequiredValue.p\* -exec rm -f \{\} \; ; fi
 
-# Configure installation w.r.t. variables in pakcsinitrc:
+# Configure installation, i.e., set the Prolog back end and install scripts:
 .PHONY: config
 config: scripts
-	@scripts/configure-pakcs
+	@scripts/configure-prolog.sh
 
 # install the scripts of PAKCS in the bin directory:
 .PHONY: scripts
@@ -390,7 +388,7 @@ $(CLEANCURRY):
 	$(MAKE) -C scripts $@
 
 # Clean the system files, i.e., remove the installed PAKCS components
-# except for the front end
+# except for the front end and the reference to the Prolog back end.
 .PHONY: clean
 clean: $(CLEANCURRY)
 	rm -f $(MAKELOG)
@@ -398,7 +396,6 @@ clean: $(CLEANCURRY)
 	if [ -d lib ] ; then cd lib && $(MAKE) clean ; fi
 	cd examples && $(CLEANCURRY) -r
 	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
-	cd bin && rm -f sicstusprolog swiprolog
 	cd scripts && $(MAKE) clean
 	if [ -d $(FRONTENDDIR) ] ; then cd $(FRONTENDDIR) && $(MAKE) clean ; fi
 
@@ -409,16 +406,16 @@ cleantools: $(CLEANCURRY)
 	$(MAKE) -C currytools uninstall
 	cd bin && rm -f pakcs
 
-# Clean everything (including the front end)
+# Clean everything (including the front end, reference to Prolog back end)
 .PHONY: cleanall
 cleanall:
+	cd bin && rm -f sicstusprolog swiprolog
 	rm -rf $(LIBDIR)
 	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
 	if [ -d $(FRONTENDDIR) ]; \
 	  then rm -rf $(BINDIR) ; \
 	  else rm -f $(CYMAKE) ; \
 	fi
-	rm -f pakcsinitrc pakcsinitrc.bak
 	$(MAKE) clean
 
 

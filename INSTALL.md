@@ -14,8 +14,7 @@ on your computer, you need the following software:
   (Version 4.0 or higher) (recommended)
 * [SWI-Prolog](http://www.swi-prolog.org)
   (if you do not have SICStus-Prolog, but then the execution is less
-  efficient and some libraries (e.g., Boolean constraint solvers) are
-  not available.
+  efficient)
 
 
 How to generate and install the PAKCS kernel:
@@ -28,17 +27,12 @@ How to generate and install the PAKCS kernel:
 2. If you have the executables `sicstus` (for SICStus-Prolog)
    or `swipl` (for SWI-Prolog) in your path,
    execute "`make`" which installs PAKCS.
-   The environment variables `SICSTUSDIR` or `SWIPROLOG` are automatically
-   set to appropriate values. These values are also stored in the
-   home directory in file `.pakcsinitrc` so that they are available
-   for future installations of new versions of PAKCS.
+   The environment variables `SICSTUSPROLOG` or `SWIPROLOG` are automatically
+   set to appropriate values.
 
-3. Otherwise, modify in the shell script "`pakcshome/pakcsinitrc`"
-   the definition of the variables `SICSTUSDIR` or `SWIPROLOG`
-   according to your local installation, or pass these values to `make`,
-   e.g., by
+3. Otherwise, pass these values to `make`, e.g., by
 
-       make SICSTUSDIR=/opt/sicstus
+       make SICSTUSPROLOG=/opt/sicstus/bin/sicstus
 
    or
 
@@ -68,39 +62,16 @@ How to generate and install the PAKCS kernel:
    and put the directory `pakcs/bin` into your path.
    Now you can start the PAKCS compiler system via the command "`pakcs`".
 
-7. You can access the libraries documentation on-line at
-   <http://www.informatik.uni-kiel.de/~pakcs/lib/>.  If you want to
-   create a local copy of the documentation of all system libraries
-   to work off-line, follow the steps.
-
-   1. Install curl, git and preferably sqlite3 on your system.
-      On Ubuntu or Debian:
-
-          sudo apt install curl git sqlite3
-
-   2. Install the Curry documentation tool `currydoc`.
-      Ensure the pakcs bin directory is on the PATH as per point 6 above.
-      Then execute
-
-          cypm update
-          cypm install currydoc
-
-   3. Finally, make the libraries documentation:
-
-          make libdoc
-
-      The documentation is in the directory "`pakcshome/lib/CDOC`".
-
-8. You can configure the behavior of PAKCS by various setting
+7. You can configure the behavior of PAKCS by various settings
    in a "pakcsrc" file. For doing so, copy the file
    `pakcshome/pakcsrc.default` as "`.pakcsrc`"
    (which will be automatically done when you start PAKCS for the first time)
    into you home directory and modify the settings.
 
-9. If you like to have support for _line editing or history functionality_
+8. If you like to have support for _line editing or history functionality_
    in the PAKCS interactive environment (as supported by the readline
    library), you should have the Unix/Linux command "`rlwrap`" installed
-   on your local machine. PAKCS uses "`rlwrap`" if called on a terminal
+   on your local machine. PAKCS uses "`rlwrap`" if it is invoked on a terminal
    without the parameter "`--noreadline`".
 
 
@@ -119,35 +90,6 @@ and move it later to `/opt/pakcs`, you can do it by
     mv /path/to/pakcs /opt/pakcs
 
 
-Additional packages for specific libraries:
--------------------------------------------
-
-The distribution of PAKCS contains various additional packages
-and libraries. Some require additional software packages that are
-described below.
-
-1. If you want to use the **library for GUI programming in Curry**
-   (`pakcshome/lib/GUI.curry`), you need also a
-   Tcl/Tk implementation (including the windowing shell `wish`)
-   which can be downloaded
-   [here](http://www.scriptics.com/software/tcltk/)) or
-   installed in a Ubuntu distribution by
-
-       sudo apt-get install tk tcl
-
-   In this case, the windowing shell `wish` must be
-   in your path (or you can also modify the definition of the
-   function `openWish` in the library `GUI.curry`).
-
-2. If you want to use the **database libraries** (`Database.*`)
-   or the web framework Spicey, the database
-   [SQLite](https://www.sqlite.org/) must be installed
-   together with the command line interface `sqlite3`.
-   This can be done in a Ubuntu distribution by
-
-       sudo apt-get install sqlite3
-
-
 Changing system constants:
 --------------------------
 
@@ -159,11 +101,12 @@ tuple sizes cannot be compiled. If you want to increase this size
 two system files and install your system as follows:
 
 1. Change the definition of the constant `maxTupleArity` in the files
-   `pakcshome/frontend/src/Generators/GenFlatCurry.hs`
+   `pakcshome/frontend/src/Generators/GenAnnotatedFlatCurry.hs`
    and `pakcshome/src/compiler.pl`
    according to your required maximal arity.
-2. Delete the file `pakcshome/lib/Prelude.fcy`.
+2. Delete all auxiliary files in the directory `pakcshome/lib/.curry`.
 3. Re-install PAKCS by `make`.
+
 
 Hints for specific platforms
 ----------------------------
