@@ -7,10 +7,10 @@ ifndef BINDIR
 BINDIR = $(dir $(CURDIR))/bin
 endif
 
-# The SICStus Prolog interpreter:
+# The SICStus Prolog system:
 SICSTUS=$(BINDIR)/sicstusprolog
 
-# The SWI-Prolog interpreter:
+# The SWI-Prolog system:
 SWI=$(BINDIR)/swiprolog
 
 # Standard options for SWI-Prolog: quiet and optimized compilation
@@ -77,31 +77,8 @@ swi.state: prologbasics.pl basics.pl version.pl loader.pl evaluator.pl c2p.pl \
 $(LIBDIR)/.curry/pakcs-$(VERSION)/Prelude.fcy: $(LIBDIR)/Prelude.curry
 	cd $(LIBDIR) && $(MAKE) .curry/pakcs-$(VERSION)/Prelude.fcy
 
-#
-# generate correct versions of run-time libraries for SWI-Prolog
-#
-.PHONY: libswi
-libswi:
-	@mkdir -p libswi
-	@for i in $(PRIMLIBSRC) ; do $(MAKE) libswi/$$i ; done
-
-libswi/%.pl: lib_src/%.pl
-	echo "[block2freeze]. transFile('$*.pl')." | "$(SWI)" $(SWIOPTIONS)
-
-#
-# generate correct versions of run-time libraries for SICStus-Prolog
-#
-.PHONY: libsicstus
-libsicstus:
-	@mkdir -p libsicstus
-	@for i in $(PRIMLIBSRC) ; do $(MAKE) libsicstus/$$i ; done
-
-libsicstus/%.pl: lib_src/%.pl
-	echo "[sicstus_processing]. transFile('$*.pl')." | "$(SICSTUS)"
-
 # clean up everything
 .PHONY: clean
 clean: uninstall
 	rm -f c2p.state pakcs $(LIBDIR)/.curry/pakcs-$(VERSION)/Prelude.pl prologbasics.pl
 	rm -f pakcsversion.pl
-	rm -rf libswi/ libsicstus/
