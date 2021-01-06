@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.3.0 (January 5, 2021)
+Release notes for PAKCS Version 3.3.0 (January 6, 2021)
 -------------------------------------------------------
 
 Changes to version 3.2.0:
@@ -10,6 +10,7 @@ Changes to version 3.2.0:
     with 0-ary non-deterministic definitions in instance declarations.
     Dictionaries are now represented as functions in order to
     enforce the evaluation of all instance operations.
+  * Prelude: operation `(/==)` added.
   * The prelude operations `(=:=)` and `(=:<=)` changed from external
     to defined operations that call the external operations
     `constrEq` and `nonstrictEq`, respectively. This is meaningful

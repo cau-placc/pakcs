@@ -359,6 +359,8 @@ refer to other first-order types only.
 \end{enumerate}
 %
 Thus, the prelude base types \code{Bool}, \code{Char}, \code{Int},
+\code{Float},\footnote{Since there is no reasonable value generator
+for floats, \texttt{aValue~::~Float} returns a free variable.}
 \code{Ordering} as well as type constructors like
 \code{Maybe}, \code{Either}, list and tuple constructors
 have \code{Data} instances.
