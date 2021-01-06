@@ -245,7 +245,7 @@ so that one can look there to find a detailed description.
 
 Curry extends purely functional programming languages, like Haskell,
 with built-in non-determinism and free variables.
-The value of a \emph{free variables}\index{free variable}\index{variable!free}
+The value of a \emph{free variable}\index{free variable}\index{variable!free}
 is unknown when it is introduced.
 A free variable is instantiated to some value if it occurs
 as a demanded argument of an operation to be evaluated
@@ -362,7 +362,7 @@ Thus, the prelude base types \code{Bool}, \code{Char}, \code{Int},
 \code{Ordering} as well as type constructors like
 \code{Maybe}, \code{Either}, list and tuple constructors
 have \code{Data} instances.
-Thus, we can non-deterministically enumerate values
+For instance, we can non-deterministically enumerate values
 by specifying the desired type instance for \code{aValue}:
 %
 \begin{curry}
@@ -387,9 +387,9 @@ The type signature implies that \code{last} cannot be applied
 to a list of functional values.
 
 The unification operation \ccode{=:=} returns \code{True}
-if its arguments can be evaluated to unifiable data values.
+if both arguments can be evaluated to unifiable data values.
 Thus, it can be considered as an optimization of \ccode{===}
-that can be used when only \code{True} values should be computed,
+that can be used when only \code{True} should be computed,
 as in conditions of rules (see \cite{AntoyHanus17FAoC}).
 As a consequence, the type of \ccode{=:=} is identical
 to the type of \ccode{===}:
@@ -443,8 +443,13 @@ command line argument string passed to the front end.
 If one wishes to provide options containing spaces, e.g., directory paths,
 this can be achieved by quoting the respective argument
 using either single or double quotes.
-
-Note that following options are excluded:
+The list of all available options can be listed by the help command
+of the front end:
+\begin{curry}
+$\cyshome$/bin/pakcs-frontend --help
+\end{curry}
+%
+Note that the following options are excluded:
 \begin{itemize}
 \item A change of the compilation targets
       (e.g., change from FlatCurry to AbstractCurry).
@@ -487,7 +492,7 @@ Thus, if the front end is invoked with option
 \begin{curry}
 -D__PAKCS__=303
 \end{curry}
-(which is done by \CYS in version 3.3.x),
+(which is automatically done by \CYS in version 3.3.x),
 the first three and the last lines are removed from the
 source code above before it is passed to the parser.
 
