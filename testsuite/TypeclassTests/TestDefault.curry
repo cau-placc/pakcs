@@ -8,7 +8,7 @@ default (Int,Float)
 
 -- Due to this default declaration, the following definiton will
 -- be accepted and the `x` and `y` will be defaulted to type `Int`:
-withDefault | x==3 & x+x == y = () where x,y free
+withDefault | x===3 & x+x === y = () where x,y free
 
 -- If we omit defaulting, which can be obtained by setting
 --
