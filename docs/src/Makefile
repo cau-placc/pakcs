@@ -8,8 +8,7 @@ MD2PDF := $(shell which md2pdf)
 .PHONY: pdf
 pdf : manual.pdf
 
-manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex) \
-	    markdown_syntax.tex
+manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex)
 	pdflatex manual
 	bibtex manual
 	pdflatex manual
@@ -19,9 +18,6 @@ manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex) \
 ../Manual.pdf: manual.pdf
 	rm -f $@
 	cp $< $@
-
-markdown_syntax.tex: markdown_syntax.md
-	$(MD2PDF) --include --tex -o "$@" "$<"
 
 ../markdown_syntax.html: markdown_syntax.md
 	$(MD2PDF) -t "Markdown Syntax" --html -o "$@" "$<"

@@ -7,10 +7,11 @@ the writing of texts whose source is readable and can be easily formatted,
 e.g., as part of a web document.
 It is a subset of the
 [original markdown syntax](http://en.wikipedia.org/wiki/Markdown)
-(basically, only internal links and pictures are missing)
+(e.g., internal links and pictures are missing)
 supported by the
-[Curry](http://curry-lang.org/) library
-[Markdown](http://www.informatik.uni-kiel.de/~pakcs/lib/CDOC/Markdown.html).
+[Curry](http://curry-lang.org/) package
+[markdown](https://www-ps.informatik.uni-kiel.de/~cpm/pkgs/markdown.html).
+
 
 Paragraphs and Basic Formatting
 -------------------------------
@@ -37,8 +38,6 @@ link <http://www.google.com>:
 
     <http://www.google.com>
 
-Currently, only links starting with 'http' are recognized
-(so that one can also use HTML markup).
 If one wants to put a link under a text,
 one can put the text in square brackets directly followed by the
 link in round brackets, as in
@@ -54,24 +53,25 @@ source text is translated into the given character
 (this also holds for program code, see below).
 For instance, the input text
 
-    \\_word\\_
+    \_word\_
 
 produces the output "\_word\_".
 The following backslash escapes are recognized:
 
-    \\   backslash
-    \`   backtick
-    \*   asterisk
-    \_   underscore
-    \{\}  curly braces
-    \[\]  square brackets
-    \(\)  parentheses
-    \#   hash symbol
-    \+   plus symbol
-    \-   minus symbol (dash)
-    \.   dot
-    \    blank
-    \!   exclamation mark
+    \   backslash
+    `   backtick
+    *   asterisk
+    _   underscore
+    {}  curly braces
+    []  square brackets
+    <>  angle brackets
+    ()  parentheses
+    #   hash symbol
+    +   plus symbol
+    -   minus symbol (dash)
+    .   dot
+        blank
+    !   exclamation mark
 
 Lists and Block Formatting
 --------------------------
@@ -81,7 +81,7 @@ is introduced by putting a star in front of the list elements
 (where the star can be preceded by blanks). The individual
 list elements must contain the same indentation, as in
 
-    \* First list element
+    * First list element
       with two lines
     
     * Next list element.
@@ -105,23 +105,23 @@ Instead of a star, one can also put dashes or plus to mark
 unordered list items. Furthermore, one could nest lists.
 Thus, the input text
 
-    \- Color:
-      + Yellow
-      + Read
-      + Blue
-    \- BW:
-      + Black
-      + White
+     - Color:
+         + Yellow
+         + Read
+         + Blue
+     - BW:
+         + Black
+         + White
 
 is formatted as
 
  - Color:
-   + Yellow
-   + Read
-   + Blue
+     + Yellow
+     + Read
+     + Blue
  - BW:
-   + Black
-   + White
+     + Black
+     + White
 
 Similarly, **ordered lists** (i.e., with numbering each item)
 are introduced by a number followed by a dot and at least one blank.
@@ -129,7 +129,7 @@ All following lines belonging to the same numbered item
 must have the same indent as the first line.
 The actual value of the number is not important. Thus, the input
 
-    1\. First element
+    1. First element
     
     99. Second
         element
@@ -157,19 +157,24 @@ marked by intending each input line by _at least four spaces_ where
 all following lines must have at least the same indentation as the
 first non-blank character of the first line:
 
-    \    f x y = let z = (x,y)
-    \             in (z,z)
+    Here we see a program text:
 
-The indentation is removed in the output:
+        f x y = let z = (x,y)
+                in (z,z)
+
+The program code indentation is removed in the output so that this input
+is formatted as follows:
+
+Here we see a program text:
 
     f x y = let z = (x,y)
-             in (z,z)
+            in (z,z)
 
 To visualize the structure of a document, one can also put a line
 containing only blanks and at least three dashes (stars would also work)
 in the source text:
 
-    \-------------------------------------------------
+    -------------------------------------------------
 
 This is formatted as a horizontal line:
 
