@@ -174,7 +174,7 @@ make_manual:
   needs:
     - job: "run_make"
       artifacts: true
-  timeout: 2h
+  timeout: 3h
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -183,9 +183,9 @@ make_manual:
     - |
       set -ve
       source ci/cypm_helper.sh
-      cypm_update
-      cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
-      cypm_install_binary markdown "${MARKDOWN_VERSION}"
+      time cypm_update
+      time cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
+      time cypm_install_binary markdown "${MARKDOWN_VERSION}"
   script:
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}" manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
