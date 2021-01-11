@@ -174,7 +174,7 @@ make_manual:
   needs:
     - job: "run_make"
       artifacts: true
-  timeout: 3h
+  timeout: 4h
   before_script:
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
