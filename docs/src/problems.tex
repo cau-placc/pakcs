@@ -52,8 +52,9 @@ the Curry application.
 
 \subsection{Distributed Programming and Sockets}
 
-Due to the fact that Curry is intended to implement
-distributed systems (see Appendix~\ref{sec-ports}),
+If Curry is used to implement distributed systems
+with the package \code{cpns},\footnote{%
+\url{https://www-ps.informatik.uni-kiel.de/~cpm/pkgs/cpns.html}}
 it might be possible that some technical problems
 arise due to the use of sockets for implementing these
 features. Therefore, this section gives some information
@@ -64,10 +65,11 @@ There is one fixed port that is used by the implementation of \CYS:
 \begin{description}
 \item[Port 8769:] This port is used by the
 {\bf Curry Port Name Server} (CPNS) to implement symbolic names for
-named sockets in Curry.
+named sockets in Curry (see package \code{cpns}).
 If some other process uses this port on the machine,
-the distribution facilities defined in the module \code{Ports}
-(see Appendix~\ref{sec-ports}) cannot be used.
+the distribution facilities defined in the the package \code{cpns}
+%module \code{Ports} (see Appendix~\ref{sec-ports})
+cannot be used.
 \end{description}
 If these features do not work, you can try to find out
 whether this port is in use by the shell command

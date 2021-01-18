@@ -3,300 +3,305 @@
 
 {\setlength{\parindent}{0.0cm}
 
-The \CYS distribution comes with an extensive collection
-of libraries for application programming.
-The libraries for arithmetic constraints over real numbers,
+The \CYS distribution comes with a set of base libraries
+and an extensive collection of libraries for application programming
+that can be downloaded with the Curry Package Manager
+(see Section~\ref{sec-cpm}).
+The available packages (including packages
+for arithmetic constraints over real numbers,
 finite domain constraints,
-ports for concurrent and distributed programming, and
-meta-programming by representing Curry programs in Curry
-are described in the following subsection in more detail.
-The complete set of libraries with all exported types and functions
-are described in the further subsections.
-For a more detailed online documentation of all libraries of \CYS,
-see \url{http://www.informatik.uni-kiel.de/~pakcs/lib/index.html}.
+ports for concurrent and distributed programming, or
+meta-programming) can be found on-line.\footnote{%
+\url{https://www-ps.informatik.uni-kiel.de/~cpm/}}
+Below we sketch some packages for meta-programming
+followed by the complete description of the base libraries
+with all exported types and functions.
+For a more detailed online documentation of the base libraries of \CYS,
+see \url{https://www-ps.informatik.uni-kiel.de/~cpm/pkgs/base.html}.
 
-\subsection{Constraints, Ports, Meta-Programming}
+% \subsection{Constraints, Ports, Meta-Programming}
+% 
+% \subsubsection{Arithmetic Constraints}
+% 
+% The primitive entities for the use of arithmetic constraints
+% are defined in the system module \code{CLPR}
+% (cf.\ Section~\ref{sec-modules}), i.e., in order to use them,
+% the program must contain the import declaration
+% \begin{curry}
+% import CLPR
+% \end{curry}
+% Floating point arithmetic is supported in \CYS
+% via arithmetic constraints, i.e., the equational constraint
+% \ccode{2.3 +.~x =:= 5.5} is solved by binding \code{x} to \code{3.2}
+% (rather than suspending the evaluation of the addition,
+% as in corresponding constraints on integers like
+% \ccode{3+x=:=5}). All operations related to
+% floating point numbers are suffixed by \ccode{.}.
+% The following functions and constraints on floating point
+% numbers are supported in \CYS:
+% \begin{description}
+% \item[\code{(+.)   :: Float -> Float -> Float}]~\\
+% Addition on floating point numbers.
+% \item[\code{(-.)   :: Float -> Float -> Float}]~\\
+% Subtraction on floating point numbers.
+% \item[\code{(*.)   :: Float -> Float -> Float}]~\\
+% Multiplication on floating point numbers.
+% \item[\code{(/.)   :: Float -> Float -> Float}]~\\
+% Division on floating point numbers.
+% \item[\code{(<.)   :: Float -> Float -> Bool}]~\\
+% Comparing two floating point numbers with the ``less than'' relation.
+% \item[\code{(>.)   :: Float -> Float -> Bool}]~\\
+% Comparing two floating point numbers with the ``greater than'' relation.
+% \item[\code{(<=.)  :: Float -> Float -> Bool}]~\\
+% Comparing two floating point numbers with the ``less than or equal'' relation.
+% \item[\code{(>=.)  :: Float -> Float -> Bool}]~\\
+% Comparing two floating point numbers with the ``greater than or equal''
+% relation.
+% \item[\code{i2f    :: Int -> Float}]~\\
+% Converting an integer number into a floating point number.
+% \end{description}
+% As an example, consider a constraint \code{mortgage}
+% which relates the principal \code{p},
+% the lifetime of the mortgage in months \code{t},
+% the monthly interest rate \code{ir},
+% the monthly repayment \code{r},
+% and the outstanding balance at the end of the lifetime \code{b}.
+% The financial calculations
+% can be defined by the following two rules in Curry (the second rule
+% describes the repeated accumulation of the interest):
+% \begin{curry}
+% import CLPR
+% 
+% mortgage p t ir r b | t >. 0.0 \& t <=. 1.0  --lifetime not more than 1 month?
+%                     =  b =:= p *. (1.0 +. t *. ir) -. t*.r $\listline$
+% mortgage p t ir r b | t >. 1.0               --lifetime more than 1 month?
+%                     =  mortgage (p *. (1.0+.ir)-.r) (t-.1.0) ir r b
+% \end{curry}
+% Then we can calculate the monthly payment for paying back
+% a loan of \$100,000 in 15 years with a monthly interest rate of 1\%
+% by solving the goal
+% \begin{curry}
+% mortgage 100000.0 180.0 0.01 r 0.0
+% \end{curry}
+% which yields the solution \code{r=1200.17}.
+% 
+% Note that only linear arithmetic equalities or inequalities
+% are solved by the constraint solver. Non-linear constraints
+% like \ccode{x *.~x =:= 4.0} are suspended until they become
+% linear.
+% 
+% 
+% \subsubsection{Finite Domain Constraints}
+% 
+% Finite domain constraints are constraints where all variables
+% can only take a finite number of possible values.
+% For simplicity, the domain of finite domain variables are
+% identified with a subset of the integers, i.e., the type
+% of a finite domain variable is \code{Int}. The arithmetic
+% operations related to finite domain variables are suffixed by \ccode{\#}.
+% The following functions and constraints for finite domain constraint solving
+% are currently supported in \CYS:\footnote{Note that
+% this library is based on the corresponding library of SICStus-Prolog
+% but does not implement the complete functionality of the SICStus-Prolog library.
+% However, using the \CYS interface for external functions (see
+% Appendix~\ref{sec-external-operations}), it is relatively
+% easy to provide the complete functionality.}
+% 
+% \begin{description}
+% \item[\code{domain :: [Int] -> Int -> Int -> Bool}]~\\
+% The constraint \ccode{domain [$x_1,\ldots,x_n$] $l$ $u$}
+% is satisfied if the domain of all variables $x_i$ is the interval $[l,u]$.
+% \item[\code{(+\#)   :: Int -> Int -> Int}]~\\
+% Addition on finite domain values.
+% \item[\code{(-\#)   :: Int -> Int -> Int}]~\\
+% Subtraction on finite domain values.
+% \item[\code{(*\#)   :: Int -> Int -> Int}]~\\
+% Multiplication on finite domain values.
+% \item[\code{(=\#)   :: Int -> Int -> Bool}]~\\
+% Equality of finite domain values.
+% \item[\code{(/=\#)  :: Int -> Int -> Bool}]~\\
+% Disequality of finite domain values.
+% \item[\code{(<\#)   :: Int -> Int -> Bool}]~\\
+% ``less than'' relation on finite domain values.
+% \item[\code{(<=\#)  :: Int -> Int -> Bool}]~\\
+% ``less than or equal'' relation on finite domain values.
+% \item[\code{(>\#)   :: Int -> Int -> Bool}]~\\
+% ``greater than'' relation on finite domain values.
+% \item[\code{(>=\#)  :: Int -> Int -> Bool}]~\\
+% ``greater than or equal'' relation on finite domain values.
+% \item[\code{sum :: [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
+% The constraint \ccode{sum [$x_1,\ldots,x_n$] $op$ $x$}
+% is satisfied if all $x_1+\cdots + x_n \mathrel{op} x$ is satisfied,
+% where $op$ is one of the above finite domain constraint relations
+% (e.g., \ccode{=\#}).
+% \item[\code{scalar_product :: [Int] -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
+% The constraint \ccode{scalar_product [$c_1,\ldots,c_n$] [$x_1,\ldots,x_n$] $op$ $x$}
+% is satisfied if all $c_1 x_1+\cdots + c_n x_n \mathrel{op} x$ is satisfied,
+% where $op$ is one of the above finite domain constraint relations.
+% \item[\code{count :: Int -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
+% The constraint \ccode{count $k$ [$x_1,\ldots,x_n$] $op$ $x$}
+% is satisfied if all $k \mathrel{op} x$ is satisfied,
+% where $n$ is the number of the $x_i$ that are equal to $k$ and
+% $op$ is one of the above finite domain constraint relations.
+% \item[\code{allDifferent :: [Int] -> Bool}]~\\
+% The constraint \ccode{allDifferent [$x_1,\ldots,x_n$]}
+% is satisfied if all $x_i$ have pairwise different values.
+% \item[\code{labeling :: [LabelingOption] -> [Int] -> Bool}]~\\
+% The constraint \ccode{labeling $os$ [$x_1,\ldots,x_n$]}
+% non-deterministically instantiates all $x_i$ to the values
+% of their domain according to the options $os$ (see the module documentation
+% for further details about these options).
+% \end{description}
+% These entities are defined in the system module \code{CLPFD}
+% (cf.\ Section~\ref{sec-modules}), i.e., in order to use it,
+% the program must contain the import declaration
+% \begin{curry}
+% import CLPFD
+% \end{curry}
+% As an example, consider the classical \ccode{send+more=money} problem
+% where each letter must be replaced by a different digit such that this
+% equation is valid and there are no leading zeros.
+% The usual way to solve finite domain constraint problems
+% is to specify the domain of the involved variables followed
+% by a specification of the constraints and the labeling
+% of the constraint variables in order to start the search for solutions.
+% Thus, the \ccode{send+more=money} problem can be solved as follows:
+% \begin{curry}
+% import CLPFD
+% 
+% smm l =
+%         l =:= [s,e,n,d,m,o,r,y] &
+%         domain l 0 9 &
+%         s ># 0 &
+%         m ># 0 &
+%         allDifferent l  &
+%                          1000 *# s +# 100 *# e +# 10 *# n +# d
+%         +#               1000 *# m +# 100 *# o +# 10 *# r +# e
+%         =# 10000 *# m +# 1000 *# o +# 100 *# n +# 10 *# e +# y &
+%         labeling [FirstFail] l
+%         where s,e,n,d,m,o,r,y free
+% \end{curry}
+% Then we can solve this problem by evaluating the goal
+% \ccode{smm [s,e,n,d,m,o,r,y]} which yields the unique solution
+% \code{\{s=9,e=5,n=6,d=7,m=1,o=0,r=8,y=2\}}.
+% 
+% 
+% \subsubsection{Ports: Distributed Programming in Curry}
+% \label{sec-ports}
+% 
+% To support the development of concurrent and distributed applications,
+% \CYS supports internal and external ports\index{ports} as
+% described in \cite{Hanus99PPDP}.
+% Since \cite{Hanus99PPDP} contains a detailed description of this
+% concept together with various programming examples, we only summarize here
+% the functions and constraints supported for ports in \CYS.
+% 
+% The basic datatypes, functions, and constraints for ports
+% are defined in the system module \code{Ports}
+% (cf.\ Section~\ref{sec-modules}), i.e., in order to use ports,
+% the program must contain the import declaration
+% \begin{curry}
+% import Ports
+% \end{curry}
+% This declaration includes the following entities in the program:
+% \begin{description}
+% \item[\code{Port a}\pindex{Port}]~\\
+% This is the datatype of a port to which one can send messages of type \code{a}.
+% 
+% \item[\code{openPort :: Port a -> [a] -> Bool}]~\\
+% The constraint \ccode{openPort p s}\pindex{openPort}
+% establishes a new \emph{internal port}
+% \code{p} with an associated message stream \code{s}. \code{p} and \code{s} must be
+% unbound variables,
+% otherwise the constraint fails (and causes a runtime error).
+% 
+% \item[\code{send :: a -> Port a -> Bool}]~\\
+% The constraint \ccode{send m p}\pindex{send}
+% is satisfied if \code{p} is constrained
+% to contain the message \code{m}, i.e., \code{m} will be sent to the port
+% \code{p} so that it appears in the corresponding stream.
+% 
+% \item[\code{doSend :: a -> Port a -> IO ()}]~\\
+% The I/O action \ccode{doSend m p}\pindex{doSend} solves the constraint
+% \ccode{send m p} and returns nothing.
+% 
+% \item[\code{openNamedPort :: String -> IO [a]}]~\\
+% The I/O action \ccode{openNamedPort n}\pindex{openNamedPort}
+% opens a new \emph{external port} with
+% symbolic name \code{n} and returns the associated stream of messages.
+% 
+% \item[\code{connectPort :: String -> IO (Port a)}]~\\
+% The I/O action \ccode{connectPort n}\pindex{connectPort}
+% returns a port with symbolic name
+% \code{n} (i.e., \code{n} must have the form ``\emph{portname@machine})
+% to which one can send messages by the \code{send} constraint.
+% Currently, no dynamic type checking is done for external ports,
+% i.e., sending messages of the wrong type to a port might lead to
+% a failure of the receiver.
+% \end{description}
+% 
+% \paragraph{Restrictions:}
+% Every expression, possibly containing logical variables, can be sent to
+% a port. However, as discussed in \cite{Hanus99PPDP},
+% port communication is strict, i.e., the expression is
+% evaluated to normal form before sending it by the
+% constraint \code{send}. Furthermore, if messages containing
+% logical variables are sent to \emph{external ports},
+% the behavior is as follows:
+% \begin{enumerate}
+% \item The sender waits until all logical variables in the message
+% have been bound by the receiver.
+% \item The binding of a logical variable received by a process
+% is sent back to the sender of this logical variable only if
+% it is bound to a \emph{ground} term, i.e., as long as the binding contains
+% logical variables, the sender is not informed about the binding
+% and, therefore, the sender waits.
+% \end{enumerate}
+% 
+% \paragraph{External ports on local machines:}
+% The implementation of external ports assumes that the
+% host machine running the application is connected to the Internet
+% (i.e., it uses the standard IP address of the host machine
+% for message sending). If this is not the case and the application
+% should be tested by using external ports only on the local host
+% without a connection to the Internet,
+% the environment variable \ccode{PAKCS_LOCALHOST}\pindex{PAKCS_LOCALHOST}
+% must be set to \ccode{yes}
+% \emph{before \CYS is started}.
+% In this case, the IP address \code{127.0.0.1} and the hostname
+% \ccode{localhost} are used for identifying the local machine.
+% 
+% \paragraph{Selection of Unix sockets for external ports:}
+% The implementation of ports uses sockets to communicate
+% messages sent to external ports.
+% Thus, if a Curry program uses the
+% I/O action \code{openNamedPort}\pindex{openNamedPort}
+% to establish an externally visible server,
+% \CYS selects a Unix socket for the port communication.
+% Usually, a free socket is selected by the operating system.
+% If the socket number should be fixed in an application (e.g.,
+% because of the use of firewalls\index{firewall} that allow only
+% communication over particular sockets), then one
+% can set the environment variable \ccode{PAKCS_SOCKET}\pindex{PAKCS_SOCKET}
+% to a distinguished socket number before \CYS is started.
+% This has the effect that \CYS uses only this socket
+% number for communication (even for several external ports
+% used in the same application program).
+% 
+% \paragraph{Debugging:}
+% To debug distributed systems,
+% it is sometimes helpful to see all messages sent to external ports.
+% This is supported by the environment variable
+% \ccode{PAKCS_TRACEPORTS}.\pindex{PAKCS_TRACEPORTS}
+% If this variable is set to \ccode{yes}
+% \emph{before \CYS is started}, then all
+% connections to external ports and all
+% messages sent and received on external ports are
+% printed on the standard error stream.
 
-\subsubsection{Arithmetic Constraints}
+\newpage
 
-The primitive entities for the use of arithmetic constraints
-are defined in the system module \code{CLPR}
-(cf.\ Section~\ref{sec-modules}), i.e., in order to use them,
-the program must contain the import declaration
-\begin{curry}
-import CLPR
-\end{curry}
-Floating point arithmetic is supported in \CYS
-via arithmetic constraints, i.e., the equational constraint
-\ccode{2.3 +.~x =:= 5.5} is solved by binding \code{x} to \code{3.2}
-(rather than suspending the evaluation of the addition,
-as in corresponding constraints on integers like
-\ccode{3+x=:=5}). All operations related to
-floating point numbers are suffixed by \ccode{.}.
-The following functions and constraints on floating point
-numbers are supported in \CYS:
-\begin{description}
-\item[\code{(+.)   :: Float -> Float -> Float}]~\\
-Addition on floating point numbers.
-\item[\code{(-.)   :: Float -> Float -> Float}]~\\
-Subtraction on floating point numbers.
-\item[\code{(*.)   :: Float -> Float -> Float}]~\\
-Multiplication on floating point numbers.
-\item[\code{(/.)   :: Float -> Float -> Float}]~\\
-Division on floating point numbers.
-\item[\code{(<.)   :: Float -> Float -> Bool}]~\\
-Comparing two floating point numbers with the ``less than'' relation.
-\item[\code{(>.)   :: Float -> Float -> Bool}]~\\
-Comparing two floating point numbers with the ``greater than'' relation.
-\item[\code{(<=.)  :: Float -> Float -> Bool}]~\\
-Comparing two floating point numbers with the ``less than or equal'' relation.
-\item[\code{(>=.)  :: Float -> Float -> Bool}]~\\
-Comparing two floating point numbers with the ``greater than or equal''
-relation.
-\item[\code{i2f    :: Int -> Float}]~\\
-Converting an integer number into a floating point number.
-\end{description}
-As an example, consider a constraint \code{mortgage}
-which relates the principal \code{p},
-the lifetime of the mortgage in months \code{t},
-the monthly interest rate \code{ir},
-the monthly repayment \code{r},
-and the outstanding balance at the end of the lifetime \code{b}.
-The financial calculations
-can be defined by the following two rules in Curry (the second rule
-describes the repeated accumulation of the interest):
-\begin{curry}
-import CLPR
-
-mortgage p t ir r b | t >. 0.0 \& t <=. 1.0  --lifetime not more than 1 month?
-                    =  b =:= p *. (1.0 +. t *. ir) -. t*.r $\listline$
-mortgage p t ir r b | t >. 1.0               --lifetime more than 1 month?
-                    =  mortgage (p *. (1.0+.ir)-.r) (t-.1.0) ir r b
-\end{curry}
-Then we can calculate the monthly payment for paying back
-a loan of \$100,000 in 15 years with a monthly interest rate of 1\%
-by solving the goal
-\begin{curry}
-mortgage 100000.0 180.0 0.01 r 0.0
-\end{curry}
-which yields the solution \code{r=1200.17}.
-
-Note that only linear arithmetic equalities or inequalities
-are solved by the constraint solver. Non-linear constraints
-like \ccode{x *.~x =:= 4.0} are suspended until they become
-linear.
-
-
-\subsubsection{Finite Domain Constraints}
-
-Finite domain constraints are constraints where all variables
-can only take a finite number of possible values.
-For simplicity, the domain of finite domain variables are
-identified with a subset of the integers, i.e., the type
-of a finite domain variable is \code{Int}. The arithmetic
-operations related to finite domain variables are suffixed by \ccode{\#}.
-The following functions and constraints for finite domain constraint solving
-are currently supported in \CYS:\footnote{Note that
-this library is based on the corresponding library of SICStus-Prolog
-but does not implement the complete functionality of the SICStus-Prolog library.
-However, using the \CYS interface for external functions (see
-Appendix~\ref{sec-external-operations}), it is relatively
-easy to provide the complete functionality.}
-
-\begin{description}
-\item[\code{domain :: [Int] -> Int -> Int -> Bool}]~\\
-The constraint \ccode{domain [$x_1,\ldots,x_n$] $l$ $u$}
-is satisfied if the domain of all variables $x_i$ is the interval $[l,u]$.
-\item[\code{(+\#)   :: Int -> Int -> Int}]~\\
-Addition on finite domain values.
-\item[\code{(-\#)   :: Int -> Int -> Int}]~\\
-Subtraction on finite domain values.
-\item[\code{(*\#)   :: Int -> Int -> Int}]~\\
-Multiplication on finite domain values.
-\item[\code{(=\#)   :: Int -> Int -> Bool}]~\\
-Equality of finite domain values.
-\item[\code{(/=\#)  :: Int -> Int -> Bool}]~\\
-Disequality of finite domain values.
-\item[\code{(<\#)   :: Int -> Int -> Bool}]~\\
-``less than'' relation on finite domain values.
-\item[\code{(<=\#)  :: Int -> Int -> Bool}]~\\
-``less than or equal'' relation on finite domain values.
-\item[\code{(>\#)   :: Int -> Int -> Bool}]~\\
-``greater than'' relation on finite domain values.
-\item[\code{(>=\#)  :: Int -> Int -> Bool}]~\\
-``greater than or equal'' relation on finite domain values.
-\item[\code{sum :: [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
-The constraint \ccode{sum [$x_1,\ldots,x_n$] $op$ $x$}
-is satisfied if all $x_1+\cdots + x_n \mathrel{op} x$ is satisfied,
-where $op$ is one of the above finite domain constraint relations
-(e.g., \ccode{=\#}).
-\item[\code{scalar_product :: [Int] -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
-The constraint \ccode{scalar_product [$c_1,\ldots,c_n$] [$x_1,\ldots,x_n$] $op$ $x$}
-is satisfied if all $c_1 x_1+\cdots + c_n x_n \mathrel{op} x$ is satisfied,
-where $op$ is one of the above finite domain constraint relations.
-\item[\code{count :: Int -> [Int] -> (Int -> Int -> Bool) -> Int -> Bool}]~\\
-The constraint \ccode{count $k$ [$x_1,\ldots,x_n$] $op$ $x$}
-is satisfied if all $k \mathrel{op} x$ is satisfied,
-where $n$ is the number of the $x_i$ that are equal to $k$ and
-$op$ is one of the above finite domain constraint relations.
-\item[\code{allDifferent :: [Int] -> Bool}]~\\
-The constraint \ccode{allDifferent [$x_1,\ldots,x_n$]}
-is satisfied if all $x_i$ have pairwise different values.
-\item[\code{labeling :: [LabelingOption] -> [Int] -> Bool}]~\\
-The constraint \ccode{labeling $os$ [$x_1,\ldots,x_n$]}
-non-deterministically instantiates all $x_i$ to the values
-of their domain according to the options $os$ (see the module documentation
-for further details about these options).
-\end{description}
-These entities are defined in the system module \code{CLPFD}
-(cf.\ Section~\ref{sec-modules}), i.e., in order to use it,
-the program must contain the import declaration
-\begin{curry}
-import CLPFD
-\end{curry}
-As an example, consider the classical \ccode{send+more=money} problem
-where each letter must be replaced by a different digit such that this
-equation is valid and there are no leading zeros.
-The usual way to solve finite domain constraint problems
-is to specify the domain of the involved variables followed
-by a specification of the constraints and the labeling
-of the constraint variables in order to start the search for solutions.
-Thus, the \ccode{send+more=money} problem can be solved as follows:
-\begin{curry}
-import CLPFD
-
-smm l =
-        l =:= [s,e,n,d,m,o,r,y] &
-        domain l 0 9 &
-        s ># 0 &
-        m ># 0 &
-        allDifferent l  &
-                         1000 *# s +# 100 *# e +# 10 *# n +# d
-        +#               1000 *# m +# 100 *# o +# 10 *# r +# e
-        =# 10000 *# m +# 1000 *# o +# 100 *# n +# 10 *# e +# y &
-        labeling [FirstFail] l
-        where s,e,n,d,m,o,r,y free
-\end{curry}
-Then we can solve this problem by evaluating the goal
-\ccode{smm [s,e,n,d,m,o,r,y]} which yields the unique solution
-\code{\{s=9,e=5,n=6,d=7,m=1,o=0,r=8,y=2\}}.
-
-
-\subsubsection{Ports: Distributed Programming in Curry}
-\label{sec-ports}
-
-To support the development of concurrent and distributed applications,
-\CYS supports internal and external ports\index{ports} as
-described in \cite{Hanus99PPDP}.
-Since \cite{Hanus99PPDP} contains a detailed description of this
-concept together with various programming examples, we only summarize here
-the functions and constraints supported for ports in \CYS.
-
-The basic datatypes, functions, and constraints for ports
-are defined in the system module \code{Ports}
-(cf.\ Section~\ref{sec-modules}), i.e., in order to use ports,
-the program must contain the import declaration
-\begin{curry}
-import Ports
-\end{curry}
-This declaration includes the following entities in the program:
-\begin{description}
-\item[\code{Port a}\pindex{Port}]~\\
-This is the datatype of a port to which one can send messages of type \code{a}.
-
-\item[\code{openPort :: Port a -> [a] -> Bool}]~\\
-The constraint \ccode{openPort p s}\pindex{openPort}
-establishes a new \emph{internal port}
-\code{p} with an associated message stream \code{s}. \code{p} and \code{s} must be
-unbound variables,
-otherwise the constraint fails (and causes a runtime error).
-
-\item[\code{send :: a -> Port a -> Bool}]~\\
-The constraint \ccode{send m p}\pindex{send}
-is satisfied if \code{p} is constrained
-to contain the message \code{m}, i.e., \code{m} will be sent to the port
-\code{p} so that it appears in the corresponding stream.
-
-\item[\code{doSend :: a -> Port a -> IO ()}]~\\
-The I/O action \ccode{doSend m p}\pindex{doSend} solves the constraint
-\ccode{send m p} and returns nothing.
-
-\item[\code{openNamedPort :: String -> IO [a]}]~\\
-The I/O action \ccode{openNamedPort n}\pindex{openNamedPort}
-opens a new \emph{external port} with
-symbolic name \code{n} and returns the associated stream of messages.
-
-\item[\code{connectPort :: String -> IO (Port a)}]~\\
-The I/O action \ccode{connectPort n}\pindex{connectPort}
-returns a port with symbolic name
-\code{n} (i.e., \code{n} must have the form ``\emph{portname@machine})
-to which one can send messages by the \code{send} constraint.
-Currently, no dynamic type checking is done for external ports,
-i.e., sending messages of the wrong type to a port might lead to
-a failure of the receiver.
-\end{description}
-
-\paragraph{Restrictions:}
-Every expression, possibly containing logical variables, can be sent to
-a port. However, as discussed in \cite{Hanus99PPDP},
-port communication is strict, i.e., the expression is
-evaluated to normal form before sending it by the
-constraint \code{send}. Furthermore, if messages containing
-logical variables are sent to \emph{external ports},
-the behavior is as follows:
-\begin{enumerate}
-\item The sender waits until all logical variables in the message
-have been bound by the receiver.
-\item The binding of a logical variable received by a process
-is sent back to the sender of this logical variable only if
-it is bound to a \emph{ground} term, i.e., as long as the binding contains
-logical variables, the sender is not informed about the binding
-and, therefore, the sender waits.
-\end{enumerate}
-
-\paragraph{External ports on local machines:}
-The implementation of external ports assumes that the
-host machine running the application is connected to the Internet
-(i.e., it uses the standard IP address of the host machine
-for message sending). If this is not the case and the application
-should be tested by using external ports only on the local host
-without a connection to the Internet,
-the environment variable \ccode{PAKCS_LOCALHOST}\pindex{PAKCS_LOCALHOST}
-must be set to \ccode{yes}
-\emph{before \CYS is started}.
-In this case, the IP address \code{127.0.0.1} and the hostname
-\ccode{localhost} are used for identifying the local machine.
-
-\paragraph{Selection of Unix sockets for external ports:}
-The implementation of ports uses sockets to communicate
-messages sent to external ports.
-Thus, if a Curry program uses the
-I/O action \code{openNamedPort}\pindex{openNamedPort}
-to establish an externally visible server,
-\CYS selects a Unix socket for the port communication.
-Usually, a free socket is selected by the operating system.
-If the socket number should be fixed in an application (e.g.,
-because of the use of firewalls\index{firewall} that allow only
-communication over particular sockets), then one
-can set the environment variable \ccode{PAKCS_SOCKET}\pindex{PAKCS_SOCKET}
-to a distinguished socket number before \CYS is started.
-This has the effect that \CYS uses only this socket
-number for communication (even for several external ports
-used in the same application program).
-
-\paragraph{Debugging:}
-To debug distributed systems,
-it is sometimes helpful to see all messages sent to external ports.
-This is supported by the environment variable
-\ccode{PAKCS_TRACEPORTS}.\pindex{PAKCS_TRACEPORTS}
-If this variable is set to \ccode{yes}
-\emph{before \CYS is started}, then all
-connections to external ports and all
-messages sent and received on external ports are
-printed on the standard error stream.
-
-
-\subsubsection{AbstractCurry and FlatCurry: Meta-Programming in Curry}
+\subsection{AbstractCurry and FlatCurry: Meta-Programming in Curry}
 \label{sec-flatcurry}
 
 \index{AbstractCurry}
@@ -325,40 +330,41 @@ in the modules \code{AbstractCurry.Types} and \code{FlatCurry.Types}).
 
 Since all datatypes are explained in detail in these modules,
 we refer to the online documentation\footnote{%
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/FlatCurry.Types.html} and
-\url{http://www.informatik.uni-kiel.de/~pakcs/lib/AbstractCurry.Types.html}}
-of these modules.
+\url{https://www-ps.informatik.uni-kiel.de/~cpm/pkgs/flatcurry.html}\\
+\url{https://www-ps.informatik.uni-kiel.de/~cpm/pkgs/abstract-curry.html}}
+of these packages.
 
 As an example, consider a program file \ccode{test.curry}
 containing the following two lines:
 \begin{curry}
+rev :: [a] -> [a]
 rev []     = []
 rev (x:xs) = (rev xs) ++ [x]
 \end{curry}
 Then the I/O action \code{(FlatCurry.Files.readFlatCurry "test")} returns the
 following term:
 \begin{curry}
- (Prog "test"
+Prog "test"
   ["Prelude"]
   []
   [Func ("test","rev") 1 Public
-        (FuncType (TCons ("Prelude","[]") [(TVar 0)])
-                  (TCons ("Prelude","[]") [(TVar 0)]))
-        (Rule [0]
-           (Case Flex (Var 1)
-              [Branch (Pattern ("Prelude","[]") [])
-                  (Comb ConsCall ("Prelude","[]") []),
-               Branch (Pattern ("Prelude",":") [2,3])
-                  (Comb FuncCall ("Prelude","++")
-                        [Comb FuncCall ("test","rev") [Var 3],
-                         Comb ConsCall ("Prelude",":")
-                              [Var 2,Comb ConsCall ("Prelude","[]") []]
-                        ])
-              ]))]
+    (ForallType [(0,KStar)] (FuncType (TCons ("Prelude","[]") [TVar 0])
+                                      (TCons ("Prelude","[]") [TVar 0])))
+    (Rule [1]
+       (Case Flex (Var 1)
+          [Branch (Pattern ("Prelude","[]") [])
+             (Comb ConsCall ("Prelude","[]") []),
+           Branch (Pattern ("Prelude",":") [2,3])
+             (Comb FuncCall ("Prelude","++")
+                   [Comb FuncCall ("test","rev") [Var 3],
+                    Comb ConsCall ("Prelude",":")
+                         [Var 2,Comb ConsCall ("Prelude","[]") []]
+                   ])]))]
   []
- )
 \end{curry}
 
+
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Definitions in order to LaTeX documents generated by "currydoc --tex"
@@ -384,25 +390,45 @@ following term:
 \subsection{System Libraries}
 
 \input{lib/Control.Applicative}
+\newpage
 \input{lib/Control.Monad}
+\newpage
 \input{lib/Curry.Compiler.Distribution}
+\newpage
 \input{lib/Data.Char}
+\newpage
 \input{lib/Data.Either}
+\newpage
 \input{lib/Data.Function}
+\newpage
 \input{lib/Data.Functor.Identity}
+\newpage
 \input{lib/Data.IORef}
+\newpage
 \input{lib/Data.List}
+\newpage
 \input{lib/Data.Maybe}
+\newpage
 \input{lib/Debug.Trace}
+\newpage
 \input{lib/Numeric}
+\newpage
 \input{lib/Prelude}
+\newpage
 \input{lib/System.Console.GetOpt}
+\newpage
 \input{lib/System.CPUTime}
+\newpage
 \input{lib/System.Environment}
+\newpage
 \input{lib/System.IO}
+\newpage
 \input{lib/System.IO.Unsafe}
+\newpage
 \input{lib/Test.Prop}
+\newpage
 \input{lib/Test.Prop.Types}
+\newpage
 \input{lib/Text.Show}
 
 } % end setlength parindent
