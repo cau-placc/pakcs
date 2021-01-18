@@ -464,8 +464,10 @@ These options can only be set via the command line.
 
 \subsection{Conditional Compilation}
 
-\CYS also supports conditional compilation in the C preprocessor (CPP)
-style. Although conditional compilation might cause problems
+\CYS also supports conditional compilation in the C preprocessor (CPP) style.
+Actually, only a subset of the C preprocessor is supported.
+For instance, ``includes'' are not allowed.
+Although conditional compilation might cause problems
 and should be avoided, sometimes it is useful to support libraries
 across different Curry compilers with different features
 in their back ends.
@@ -495,8 +497,10 @@ Thus, if the front end is invoked with option
 -D__PAKCS__=303
 \end{curry}
 (which is automatically done by \CYS in version 3.3.x),
-the first three and the last lines are removed from the
-source code above before it is passed to the parser.
+the first three and the last lines are replaced by blank lines
+in the source code above before it is passed to the parser.
+Thus, the line numbers of the remaining code are not changed
+by preprocessing.
 
 %%% Local Variables:
 %%% mode: latex
