@@ -35,9 +35,9 @@ editcommand=
 # (if not defined, the value of the environment variable PAGER is used)
 showcommand=
 
-# System command to view dot graph specifications that come from stdin
-# (e.g., used in the Curry browser and the erd2curry tools)
-dotviewcommand=dot -Tps > /tmp/dotxxx ; gv /tmp/dotxxx
+# System command to view (Graphviz) dot graphs that come from stdin
+# (e.g., used in CPM, Curry browser, erd2curry tools)
+dotviewcommand=dot -Tpdf > /tmp/dotxxx.pdf && evince /tmp/dotxxx.pdf
 
 # Optimize Boolean equalities (==): transform them into binding
 # constraints (=:=) whenever they must be evaluated only to True.
