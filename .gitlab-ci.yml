@@ -51,7 +51,7 @@ stages:
   - doc             # build lib and manual
   - package_release # build distribution
   - upload_release  # create tar for webserver
-  - tag_release         # create release
+  - tag_release     # create release
   - curry-lang      # commit updated download data to curry-lang.org repo
   - curry-lang-ci   # trigger curry-lang.org repo CI
 
@@ -301,12 +301,7 @@ upload_page_tar:
       - "${PUBLIC_HTML}"
 
 
-# TODO add artifact with link to the packages uploaded in the 'upload_release' job
-# we would like to add links to:
-#  pakcs-${VERSION}-amd64.tar.gz (produced by bundle_tar job)
-#  pakcs-${VERSION}-src.tar.gz (produced by bundle_tar job)
-#  Manual.pdf (produced by make_manual job)
-#
+# TODO release asset links accessible without being logged in see [Issue 289848](https://gitlab.com/gitlab-org/gitlab/-/issues/289848)
 # run for release runs triggered by version tag
 tag_release:
   stage: tag_release
@@ -370,9 +365,9 @@ link_release:
   script:
     - ci/update_version.sh release
 
-
 # run for nightly and release runs
 # the commit done by the link_nightly job should be enough once https://gitlab.com/gitlab-org/gitlab/-/issues/246784 is fixed
+# it may still be wanted to keep it this way to keep the pipelines linked
 downstream:
   stage: curry-lang-ci
   rules:
