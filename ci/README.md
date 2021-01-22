@@ -125,6 +125,20 @@ For tags the jobs:
 - `downstream`
 are (potentially) executed.
 
+For tags that match the regex `/^v\d*\.\d*\.\d*$/i` the ci will check that it matches packs version number
+and create a new release in gitlab and on curry-lang.org. The links on curry-lang.org will point to 
+the assets links of the gitlab release which in turn points to the generic package created by the ci.
+The links used by the gitlab release to point at the generic package are unfortunately only accessible while 
+logged in to gitlab, accessible links are available, but not easily generated from CI, 
+changing the links of the gitlab release manually it is therefore recommended.
+
+To change the links edit the release under `packs >> Releases > Edit this release`,
+the link urls should currently be of the form `https://git.ps.informatik.uni-kiel.de/api/v4/projects/88/packages/generic/<package>/<version>/<filename>`.
+The accessible link will be of the form `https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/package_files/<id>/download`,
+to find the correct link navigate in another tab/window to `packs >> Package Registry > <package>`,
+this most likely already opens the correct version, if not go further to `Other versions >> <version>`.
+Now should see the generic package `<package>` in the version `<version>`, now you can hover over each filename corresponding to `<filename>` and copy the link into the corresponding URL Field of the release.
+
 ### Schedule
 #### Nightly Test
 Only the job `run_download_make` is run, to test the distribution download
