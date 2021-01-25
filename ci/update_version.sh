@@ -34,6 +34,10 @@ function finish() {
 # update the latest nightly version
 function nightly() {
 
+  # These links will expire as the artifacts are by default only kept for a limited time
+  # but as these are nightlies this should be fine.
+  # When it is possible to lik to the generic packages, we create it would be best to change to links to point there
+  # as the job id would then also be irrelevant
   BUNDLE_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
   MANUAL_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw"
 
@@ -56,6 +60,7 @@ NIGHTLY_VERSION
 
   # commit updated file
   git add "${NIGHTLY_FILE}"
+  # regarding the mentioned issue it may still be wanted to keep it this way to keep the pipelines linked
   git commit -F - <<COMMIT_MSG
 [Pakcs CI] Update Nightly
 
@@ -75,7 +80,6 @@ function release() {
   DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/${release}/downloads"
 
   # replace the latest.version file
-
   install -D /dev/stdin "${LATEST_FILE}" <<LATEST_VERSION
 ---
 # THIS FILE IS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
@@ -110,6 +114,7 @@ CURRENT_VERSION
 
   # commit updated file
   git add "${LATEST_FILE}" "${VERSION_FILE}"
+  # regarding the mentioned issue it may still be wanted to keep it this way to keep the pipelines linked
   git commit -F - <<COMMIT_MSG
 [Pakcs CI] Update Release
 

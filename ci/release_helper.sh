@@ -42,6 +42,15 @@ function release_helper_init() {
     # but gitlab restricts the version to the regex /\A\d+.\d+.\d+.\z/
     # so we add it as a suffix to the package name and the file name
     # this sadly means we create a package per nightly
+    # TODO when [Issue 273034](https://gitlab.com/gitlab-org/gitlab/-/issues/273034) is fixed
+    # use a SemVer lable instead of creating a package per nightly
+    # could also drop the package_suffix entirely than releases and nightly would be under the same package
+    #
+    # package_suffix="-nightly"
+    # version="${version}-nightly-${CI_COMMIT_SHORT_SHA}"
+    #
+    # release_tag and name_suffix stay as is
+
     package_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
     name_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
 
@@ -65,7 +74,7 @@ function release_helper_init() {
     "docs/Manual.pdf"
   )
 
-  # name given to the file in the package and for the release asset
+  # name given to the file in the package and for the release asset link
   UPLOAD_FILE_NAMES=(
     "${full_name}-src.tar.gz"
     "${full_name}-${arch}.tar.gz"
