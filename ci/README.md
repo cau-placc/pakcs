@@ -20,6 +20,7 @@ CI Readme
 |   +-- make_download.sh         -- script run to test the website download
 |   +-- README.md                -- this Readme explaining the CI setup
 |   +-- release_helper.sh        -- script with helper function to setup the release environment
+|   +-- section_helper.sh        -- helper script for adding custom sections to the gitlab ci log
 |   +-- update_version.sh        -- script to update the latest release/nightly referenced on curry-lang.org
 |   +-- upload_release.sh        -- script to create a new generic package for releases and nightlies
 ```

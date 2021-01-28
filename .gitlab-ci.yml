@@ -75,11 +75,14 @@ run_make:
     - if: '$BUILD_NIGHTLY == "yes"'
     - if: '$TEST_RELEASE == "yes"'
   before_script:
+    - ./ci/section_helper.sh
+    - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - time ./ci/before_make.sh
     # prevent the build stages from disagreeing over the date by generating it once at the start
     - export BUILD_DATE="$(date +%F)"
+    - end_section before_script
   script:
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}"
     - |
@@ -150,15 +153,20 @@ run_test:
     - job: "run_make"
       artifacts: true
   before_script:
+    - ./ci/section_helper.sh
+    - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - ./ci/before_make.sh
+    - end_section before_script
+    - start_section cypm "Updating cypm index and installing tools"
     - ./bin/pakcs-cypm config
     - |
       set -ve
       source ci/cypm_helper.sh
       cypm_update
       cypm_install_binary currycheck "${CURRY_CHECK_VERSION}"
+    - end_section cypm
   script:
     - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
 
@@ -176,16 +184,21 @@ make_manual:
       artifacts: true
   timeout: 4h
   before_script:
+    - ./ci/section_helper.sh
+    - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - ./ci/before_make.sh
     - ./bin/pakcs-cypm config
+    - end_section before_script # ending this here as I want a separate section for the cypm stuff and nested section appear to have problems
+    - start_section cypm "Updating cypm index and installing tools"
     - |
       set -ve
       source ci/cypm_helper.sh
       time cypm_update
       time cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
       time cypm_install_binary markdown "${MARKDOWN_VERSION}"
+    - end_section cypm
   script:
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}" manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
