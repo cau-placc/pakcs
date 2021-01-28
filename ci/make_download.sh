@@ -2,6 +2,8 @@
 
 set -ve
 
+source ci/section_helper.sh
+
 # Generate local version of CurryCheck:
 gen_currycheck() {
   bin/cypm \
@@ -28,20 +30,32 @@ build_download_pakcs() {
 
   rm -rf "${PAKCSVERSION}"
 
+  start_section "download_${PAKCSVERSION}_${DLVERSION}" "Downloading ${PAKCSVERSION}-${DLVERSION}"
+
   # download dirtibution
   wget http://www.informatik.uni-kiel.de/~pakcs/download/${PAKCSVERSION}-${DLVERSION}.tar.gz
   tar xvzf ${PAKCSVERSION}-${DLVERSION}.tar.gz
   rm ${PAKCSVERSION}-${DLVERSION}.tar.gz
 
+  end_section "download_${PAKCSVERSION}_${DLVERSION}"
+
   pushd "${PAKCSVERSION}"
+
+  start_section "build_${PAKCSVERSION}_${DLVERSION}" "Building ${PAKCSVERSION}-${DLVERSION}"
 
   # build system
   make CI_BUILD=yes
   bin/curry :load AllLibraries :eval "3*13+3" :quit
 
+  end_section "build_${PAKCSVERSION}_${DLVERSION}"
+
+  start_section "test_${PAKCSVERSION}_${DLVERSION}" "Testing ${PAKCSVERSION}-${DLVERSION}"
+
   # run unit tests
   gen_currycheck
   make CI_BUILD=yes runtestverbose
+
+  end_section "test_${PAKCSVERSION}_${DLVERSION}"
 
   popd
 }
