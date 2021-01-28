@@ -75,7 +75,7 @@ run_make:
     - if: '$BUILD_NIGHTLY == "yes"'
     - if: '$TEST_RELEASE == "yes"'
   before_script:
-    - ./ci/section_helper.sh
+    - source ci/section_helper.sh
     - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -153,7 +153,7 @@ run_test:
     - job: "run_make"
       artifacts: true
   before_script:
-    - ./ci/section_helper.sh
+    - source ci/section_helper.sh
     - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
@@ -184,7 +184,7 @@ make_manual:
       artifacts: true
   timeout: 4h
   before_script:
-    - ./ci/section_helper.sh
+    - source ci/section_helper.sh
     - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}

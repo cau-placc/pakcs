@@ -2,7 +2,7 @@
 
 set -ve
 
-./ci/section_helper.sh
+source ci/section_helper.sh
 
 # Generate local version of CurryCheck:
 gen_currycheck() {
