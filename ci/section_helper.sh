@@ -8,7 +8,7 @@
 function start_section() {
   id=$1
   title=$2
-  echo -e "\e[0Ksection_start:$(date +%s):${id}[collapsed=true]\r\e[0K\e[96${title}\e[0m"
+  echo -e "\e[0Ksection_start:$(date +%s):${id}[collapsed=true]\r\e[0K\e[96m${title}\e[0m"
 }
 
 #
