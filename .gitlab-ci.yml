@@ -84,6 +84,7 @@ run_make:
     - export BUILD_DATE="$(date +%F)"
     - end_section before_script
   script:
+    - start_section main_script "Building PAKCS"
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}"
     - |
       BUILD_PAKCS_VERSION="$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)"
@@ -91,6 +92,7 @@ run_make:
       echo "BUILD_PAKCS_VERSION=${BUILD_PAKCS_VERSION}
       BUILD_PAKCS_ARCH=${BUILD_PAKCS_ARCH}
       BUILD_DATE=${BUILD_DATE}" >> make.env
+    - end_section main_script
   artifacts:
     reports:
       dotenv:
@@ -168,7 +170,9 @@ run_test:
       cypm_install_binary currycheck "${CURRY_CHECK_VERSION}"
     - end_section cypm
   script:
+    - start_section main_script "Running Testsuite"
     - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
+    - end_section main_script "Building Manual"
 
 # run for the nightly and release runs
 make_manual:
@@ -200,8 +204,10 @@ make_manual:
       time cypm_install_binary markdown "${MARKDOWN_VERSION}"
     - end_section cypm
   script:
+    - start_section main_script "Building Manual"
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}" manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
+    - end_section main_script
   artifacts:
     paths:
       - docs/**.pdf
