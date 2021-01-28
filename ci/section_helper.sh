@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Reference: https://docs.gitlab.com/ee/ci/jobs/#custom-collapsible-sections
+
 #
 # Takes 2 Parameters a new section id and a heading/title
 #
