@@ -113,20 +113,34 @@ run_make:
       - src/pakcsversion.pl
       - src/prologbasics.pl
 
-
-# only run for the nightly download test run
-run_download_make:
+# template for test_download_src and test_download_amd64_linux
+.test_download:
   stage: test
   tags:
     - docker2
   rules:
+    # only run for the nightly download test run
     - if: '$TEST_DOWNLOAD == "yes"'
   variables:
     # may differ from default version above if download and current branch don't use the same version
     CURRY_CHECK_VERSION: "2.0.0"
-  timeout: 3h
+  timeout: 2h
+  before_script:
+    - source ci/make_download.sh
   script:
-    - ci/make_download.sh
+    - build_download_pakcs "${DOWNLOAD_VERSION}" tar_version
+
+# instance of .test_download to test src tar
+test_download_src:
+  extends: .test_download
+  script:
+    - build_download_pakcs "${DOWNLOAD_VERSION}" src
+
+# instance of .test_download to test amd64-Linux tar
+test_download_amd64_linux:
+  extends: .test_download
+  script:
+    - build_download_pakcs "${DOWNLOAD_VERSION}" amd64-Linux
 
 # check that the tag version matches pakcs version
 # this failing indicates an incorrect tag version or

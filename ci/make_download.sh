@@ -23,6 +23,10 @@ gen_currycheck() {
 }
 
 build_download_pakcs() {
+
+  mkdir -p download
+  pushd download
+
   VERSION=$1   # version number
   DLVERSION=$2 # download version (src, amd64-Linux)
 
@@ -57,13 +61,9 @@ build_download_pakcs() {
 
   end_section "test_${PAKCSVERSION}_${DLVERSION}"
 
-  popd
+  popd # pop "${PAKCSVERSION}"
+  popd # pop download
 }
-
-mkdir -p download
-pushd download
 
 build_download_pakcs "${DOWNLOAD_VERSION}" src
 build_download_pakcs "${DOWNLOAD_VERSION}" amd64-Linux
-
-popd
