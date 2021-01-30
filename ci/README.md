@@ -187,7 +187,7 @@ make            |                       run_make
                 |                          |
                 |  +-------------+---------+------------+------------+       
                 |  |             |         |            |            |
-test            |  |             |         |         run_test   check_version  run_download_make    
+test            |  |             |         |         run_test   check_version  test_download_src  test_download_amd64_linux   
                 |  |             |         |       
                 |  |             |         +----------+-------------------+
                 |  |             v         v          v                   v
