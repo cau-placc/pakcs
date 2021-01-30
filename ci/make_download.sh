@@ -64,6 +64,3 @@ build_download_pakcs() {
   popd # pop "${PAKCSVERSION}"
   popd # pop download
 }
-
-build_download_pakcs "${DOWNLOAD_VERSION}" src
-build_download_pakcs "${DOWNLOAD_VERSION}" amd64-Linux
