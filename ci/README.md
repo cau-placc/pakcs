@@ -142,7 +142,8 @@ Now should see the generic package `<package>` in the version `<version>`, now y
 
 ### Schedule
 #### Nightly Test
-Only the job `run_download_make` is run, to test the distribution download
+Only the jobs `test_download_src` and `test_download_amd64_linux` are run,
+to test the distribution downloads.
 The pipeline is run with Variable `TEST_DOWNLOAD` set to `yes`
 
 #### Nightly Release Build
