@@ -6,15 +6,34 @@ Installation Instructions
 
 The current version of PAKCS runs on Unix-based platforms
 and has been developed and tested under Linux (Debian/Ubuntu).
-However, it should also run on similar platforms like Mac OS X or SunOS.
+However, it should also run on similar platforms like macOS.
 If you want to install and run the complete system
 on your computer, you need the following software:
 
 * [SICStus-Prolog](http://www.sics.se/sicstus.html)
-  (Version 4.0 or higher) (recommended)
+  (Version 4.0 or higher) (recommended), or
 * [SWI-Prolog](http://www.swi-prolog.org)
   (if you do not have SICStus-Prolog, but then the execution is less
   efficient)
+
+If you install PAKCS from the source code distribution,
+you need also the Haskell build tool
+[Stack](https://docs.haskellstack.org/)
+to compile the front end of PAKCS.
+
+
+A note on encoding source files
+-------------------------------
+
+PAKCS assumes that non-ASCII characters in source files are UTF-8 encoded.
+Therefore, the locale environment variable `LC_ALL` must be
+set to some UTF-8 encoding which will be used by the interactive
+environment, the compiler, and in generated executables.
+For instance, this can be achieved by setting
+
+    > export LC_ALL=C.UTF-8
+
+before installing PAKCS.
 
 
 How to generate and install the PAKCS kernel:

@@ -4,10 +4,15 @@
 # a saved state that is executable independent of the
 # generation environment, i.e.,
 # - add path information to the saved state
-# - add locale information (LANG, LC_ALL) to the saved state
+# - add locale information (LC_ALL) to the saved state
 
 ##############################################################################
 # Global settings:
+
+# The value of the locale environment variable LC_ALL when PAKCS is
+# configured. It must be a UTF-8 encoding and will be set in generated
+# executables (see below).
+LCALL=
 
 # bin directory of the SICStus-Prolog installation, i.e.,
 # $SICSTUSBINDIR/sicstus should be the name of the interpreter executable:
@@ -114,14 +119,11 @@ fi
 
 TMPFILE=TMPSAVEDSTATE$$
 echo "#!/bin/sh" > $TMPFILE
-if test -n "$LANG" ; then
-  echo "LANG=$LANG" >> $TMPFILE
-  echo "export LANG" >> $TMPFILE
-fi
-if test -n "$LC_ALL" ; then
-  echo "LC_ALL=$LC_ALL" >> $TMPFILE
-  echo "export LC_ALL" >> $TMPFILE
-fi
+# Set LC_ALL in saved states to the installation value of LC_ALL.
+# When PAKCS is installed, LC_ALL should be UTF-8 encoding to ensure
+# the correct reading of source programs with UTF-8 encoding.
+echo "LC_ALL=$LCALL" >> $TMPFILE
+echo "export LC_ALL" >> $TMPFILE
 
 if [ -n "$SICSTUSBINDIR" ] ; then
   # add SICSTUSBINDIR to path so that SICStus can find its binary:

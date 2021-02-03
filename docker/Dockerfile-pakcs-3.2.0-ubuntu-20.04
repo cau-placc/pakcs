@@ -15,8 +15,8 @@ RUN apt-get --assume-yes install swi-prolog
     
 RUN rm -rf /var/lib/apt/lists/*
 
-# just to be sure
-ENV LANG C.UTF-8
+# ensure UTF-8 encoding
+ENV LC_ALL C.UTF-8
 
 # copy, unpack and install pakcs
 WORKDIR /pakcs

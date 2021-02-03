@@ -5,6 +5,23 @@
 # PAKCSHOME/bin/sicstusprolog  (if SICStus-Prolog is available)
 # PAKCSHOME/bin/swiprolog      (if SWI-Prolog is available)
 
+# Check LC_ALL, LC_CTYPE, or LANG for UTF-8 encoding:
+if [ -n "$LC_ALL" ] ; then
+  LCALL=$LC_ALL
+elif [ -n "$LC_CTYPE" ] ; then
+  LCALL=$LC_CTYPE
+else
+  LCALL=$LANG
+fi
+case "$LCALL" in
+  *UTF-8 | *UTF8 | *utf-8 | *utf8 ) ;;
+  * ) echo "WARNING: locale/LC_ALL has no UTF-8 encoding but value '$LCALL'"
+      echo "Since PAKCS might not work correctly with non-ASCII files,"
+      echo "LC_ALL is set to 'C.UTF-8' in generated executables."
+      echo "If this does not work, please set LC_ALL to another UTF-8 value."
+      LCALL=C.UTF-8 ;;
+esac
+
 # Compute home of PAKCS installation:
 PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`/..
 
@@ -62,6 +79,7 @@ if [ -z "$SICSTUSPROLOG" -a -z "$SWIPROLOG" ] ; then
   exit 1
 fi
 
+# Configure `scripts/makesavedstate` which is used to generate executables:
 ORGMAKESTATE=scripts/pakcs-makesavedstate.sh
 MAKESTATE=scripts/makesavedstate
 # Create symbolic links in PAKCSHOME/bin and create scripts/makesavedstate:
@@ -70,13 +88,17 @@ if [ -n "$SICSTUSPROLOG" ] ; then
   ln -s "$SICSTUSPROLOG" bin/sicstusprolog
   SICSTUSBINDIR=`expr $SICSTUSPROLOG : '\(.*\)/sicstus'`
   # store the value of SICSTUSBINDIR in script scripts/makesavedstate :
-  sed "s|^SICSTUSBINDIR=.*$|SICSTUSBINDIR=$SICSTUSBINDIR|" < $ORGMAKESTATE > $MAKESTATE
+  cat $ORGMAKESTATE |
+    sed "s|^LCALL=.*$|LCALL=$LCALL|" |
+    sed "s|^SICSTUSBINDIR=.*$|SICSTUSBINDIR=$SICSTUSBINDIR|" > $MAKESTATE
   chmod 755 $MAKESTATE
 fi
 if [ -n "$SWIPROLOG" ] ; then
   ln -s "$SWIPROLOG" bin/swiprolog
   # store the value of SWIPROLOG in script scripts/makesavedstate :
-  sed "s|^SWIPROLOG=.*$|SWIPROLOG=$SWIPROLOG|" < $ORGMAKESTATE > $MAKESTATE
+  cat $ORGMAKESTATE |
+    sed "s|^LCALL=.*$|LCALL=$LCALL|" |
+    sed "s|^SWIPROLOG=.*$|SWIPROLOG=$SWIPROLOG|" > $MAKESTATE
   chmod 755 $MAKESTATE
 fi
 
