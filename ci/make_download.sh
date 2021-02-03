@@ -2,6 +2,8 @@
 
 set -ve
 
+source ci/section_helper.sh
+
 # Generate local version of CurryCheck:
 gen_currycheck() {
   bin/cypm \
@@ -21,6 +23,10 @@ gen_currycheck() {
 }
 
 build_download_pakcs() {
+
+  mkdir -p download
+  pushd download
+
   VERSION=$1   # version number
   DLVERSION=$2 # download version (src, amd64-Linux)
 
@@ -28,28 +34,33 @@ build_download_pakcs() {
 
   rm -rf "${PAKCSVERSION}"
 
+  start_section "download_${PAKCSVERSION}_${DLVERSION}" "Downloading ${PAKCSVERSION}-${DLVERSION}"
+
   # download dirtibution
   wget http://www.informatik.uni-kiel.de/~pakcs/download/${PAKCSVERSION}-${DLVERSION}.tar.gz
   tar xvzf ${PAKCSVERSION}-${DLVERSION}.tar.gz
   rm ${PAKCSVERSION}-${DLVERSION}.tar.gz
 
+  end_section "download_${PAKCSVERSION}_${DLVERSION}"
+
   pushd "${PAKCSVERSION}"
+
+  start_section "build_${PAKCSVERSION}_${DLVERSION}" "Building ${PAKCSVERSION}-${DLVERSION}"
 
   # build system
   make CI_BUILD=yes
   bin/curry :load AllLibraries :eval "3*13+3" :quit
 
+  end_section "build_${PAKCSVERSION}_${DLVERSION}"
+
+  start_section "test_${PAKCSVERSION}_${DLVERSION}" "Testing ${PAKCSVERSION}-${DLVERSION}"
+
   # run unit tests
   gen_currycheck
   make CI_BUILD=yes runtestverbose
 
-  popd
+  end_section "test_${PAKCSVERSION}_${DLVERSION}"
+
+  popd # pop "${PAKCSVERSION}"
+  popd # pop download
 }
-
-mkdir -p download
-pushd download
-
-build_download_pakcs "${DOWNLOAD_VERSION}" src
-build_download_pakcs "${DOWNLOAD_VERSION}" amd64-Linux
-
-popd

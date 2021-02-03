@@ -75,12 +75,16 @@ run_make:
     - if: '$BUILD_NIGHTLY == "yes"'
     - if: '$TEST_RELEASE == "yes"'
   before_script:
+    - source ci/section_helper.sh
+    - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - time ./ci/before_make.sh
     # prevent the build stages from disagreeing over the date by generating it once at the start
     - export BUILD_DATE="$(date +%F)"
+    - end_section before_script
   script:
+    - start_section main_script "Building PAKCS"
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}"
     - |
       BUILD_PAKCS_VERSION="$("${CI_PROJECT_DIR}"/bin/pakcs --numeric-version)"
@@ -88,6 +92,7 @@ run_make:
       echo "BUILD_PAKCS_VERSION=${BUILD_PAKCS_VERSION}
       BUILD_PAKCS_ARCH=${BUILD_PAKCS_ARCH}
       BUILD_DATE=${BUILD_DATE}" >> make.env
+    - end_section main_script
   artifacts:
     reports:
       dotenv:
@@ -108,20 +113,34 @@ run_make:
       - src/pakcsversion.pl
       - src/prologbasics.pl
 
-
-# only run for the nightly download test run
-run_download_make:
+# template for test_download_src and test_download_amd64_linux
+.test_download:
   stage: test
   tags:
     - docker2
   rules:
+    # only run for the nightly download test run
     - if: '$TEST_DOWNLOAD == "yes"'
   variables:
     # may differ from default version above if download and current branch don't use the same version
     CURRY_CHECK_VERSION: "2.0.0"
-  timeout: 3h
+  timeout: 2h
+  before_script:
+    - source ci/make_download.sh
   script:
-    - ci/make_download.sh
+    - build_download_pakcs "${DOWNLOAD_VERSION}" tar_version
+
+# instance of .test_download to test src tar
+test_download_src:
+  extends: .test_download
+  script:
+    - build_download_pakcs "${DOWNLOAD_VERSION}" src
+
+# instance of .test_download to test amd64-Linux tar
+test_download_amd64_linux:
+  extends: .test_download
+  script:
+    - build_download_pakcs "${DOWNLOAD_VERSION}" amd64-Linux
 
 # check that the tag version matches pakcs version
 # this failing indicates an incorrect tag version or
@@ -150,17 +169,24 @@ run_test:
     - job: "run_make"
       artifacts: true
   before_script:
+    - source ci/section_helper.sh
+    - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - ./ci/before_make.sh
+    - end_section before_script
+    - start_section cypm "Updating cypm index and installing tools"
     - ./bin/pakcs-cypm config
     - |
       set -ve
       source ci/cypm_helper.sh
       cypm_update
       cypm_install_binary currycheck "${CURRY_CHECK_VERSION}"
+    - end_section cypm
   script:
+    - start_section main_script "Running Testsuite"
     - time make CI_BUILD=yes runalltests RUNTESTPARAMS=-v
+    - end_section main_script "Building Manual"
 
 # run for the nightly and release runs
 make_manual:
@@ -176,19 +202,26 @@ make_manual:
       artifacts: true
   timeout: 4h
   before_script:
+    - source ci/section_helper.sh
+    - start_section before_script "Preparing for Job"
     - export PATH="${CI_PROJECT_DIR}/bin:${BIN_INSTALL_PATH}:${PATH}"
     - echo ${PATH}
     - ./ci/before_make.sh
     - ./bin/pakcs-cypm config
+    - end_section before_script # ending this here as I want a separate section for the cypm stuff and nested section appear to have problems
+    - start_section cypm "Updating cypm index and installing tools"
     - |
       set -ve
       source ci/cypm_helper.sh
       time cypm_update
       time cypm_install_binary currydoc "${CURRY_DOC_VERSION}"
       time cypm_install_binary markdown "${MARKDOWN_VERSION}"
+    - end_section cypm
   script:
+    - start_section main_script "Building Manual"
     - time make CI_BUILD=yes COMPILERDATE="${BUILD_DATE}" manual
     - echo "MANUAL_JOB_ID=${CI_JOB_ID}" >> manual.env
+    - end_section main_script
   artifacts:
     paths:
       - docs/**.pdf
