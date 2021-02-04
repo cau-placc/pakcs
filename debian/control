@@ -6,15 +6,15 @@ Uploaders:
  Mike Gabriel <sunweaver@debian.org>,
  Michael Hanus <mh@informatik.uni-kiel.de>,
 Build-Depends: cdbs,
- debhelper (>= 9),
+ debhelper (>= 10),
  quilt,
- curry-frontend (>= 2:1.0.2~),
-# curry-libs-source (>= 1.0.3-1~),
-# curry-tools-source (>= 1.0.3+dfsg1-1~),
+ curry-frontend (>= 2:2.0.0~),
+# curry-libs-source (>= 3.0.0-1~),
+# curry-tools-source (>= 3.3.0-1~),
  swi-prolog-nox (>= 7.2.3),
  sqlite3,
  lockfile-progs,
-Standards-Version: 4.1.3
+Standards-Version: 4.5.1
 Homepage: https://www.informatik.uni-kiel.de/~pakcs/
 Vcs-Browser: https://anonscm.debian.org/git/pkg-curry/pakcs.git
 Vcs-Git: https://anonscm.debian.org/git/pkg-curry/pakcs.git
@@ -24,8 +24,7 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
- curry-frontend (>= 2:1.0.2~),
- libjs-prototype (>= 1.6),
+ curry-frontend (>= 2:2.0.0~),
  swi-prolog-nox (>= 7.2.3),
  lockfile-progs,
 Recommends:

@@ -1,3 +1,10 @@
+pakcs (2:3.3.0-0) unstable; urgency=medium
+
+  * Upstream-provided Debian package for pakcs.
+    See upstream RELNOTES.txt for recent changes.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Thu, 04 Feb 2021 16:58:23 +0100
+
 pakcs (2:2.1.1-0) unstable; urgency=medium
 
   * Upstream-provided Debian package for pakcs.

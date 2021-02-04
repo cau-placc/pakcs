@@ -6,8 +6,8 @@ include usr/lib/pakcs/
 lib usr/lib/pakcs/
 Makefile usr/lib/pakcs/
 pakcsrc.default usr/lib/pakcs/
-README usr/lib/pakcs/
-RELNOTES.txt usr/lib/pakcs/
+README.md usr/lib/pakcs/
+RELNOTES.md usr/lib/pakcs/
 RESOURCES.html usr/lib/pakcs/
 scripts usr/lib/pakcs/
 src usr/lib/pakcs/

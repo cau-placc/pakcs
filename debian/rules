@@ -32,7 +32,7 @@ DEB_MAKE_CHECK_TARGET =
 DEB_MAKE_BUILD_TARGET = all DISTPKGINSTALL=$(DISTPKGINSTALL) CURRYFRONTEND=$(CURRYFRONTEND) CURRYLIBSDIR=$(CURRYLIBSDIR) CURRYTOOLSDIR=$(CURRYTOOLSDIR) PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)
 DEB_MAKE_CLEAN_TARGET = cleanall
 
-DEB_DH_INSTALLCHANGELOGS_ARGS = RELNOTES.txt
+DEB_DH_INSTALLCHANGELOGS_ARGS = RELNOTES.md
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/makefile.mk
@@ -50,9 +50,6 @@ pre-build::
 	#    cd debian/build/curry-tools && tar xf /usr/src/curry-tools-source.tar.xz && cd - 1>/dev/null; \
 	#fi
 
-	# deploy Debianic pakcsinitrc into source tree...
-	cp debian/pakcsinitrc .
-
 	# make sure cleancurry is available in PAKCSHOME/bin, required for test suite
 	mkdir -p bin/
 	ln -fs ../scripts/cleancurry.sh bin/cleancurry
@@ -61,12 +58,10 @@ binary-post-install/pakcs::
 	chmod a+x debian/pakcs/usr/lib/pakcs/bin/cleancurry
 	chmod a+x debian/pakcs/usr/lib/pakcs/bin/pakcs
 	chmod a+x debian/pakcs/usr/lib/pakcs/bin/pakcs-fcypp
-	chmod a+x debian/pakcs/usr/lib/pakcs/bin/pakcs-makecgi
 	chmod a+x debian/pakcs/usr/lib/pakcs/scripts/*.sh
-	chmod a+x debian/pakcs/usr/lib/pakcs/scripts/configure-pakcs
 	chmod a+x debian/pakcs/usr/lib/pakcs/scripts/makesavedstate
 
-	# remove superfluous LICENSE files
+	# remove superfluous LICENSE file
 	rm debian/pakcs/usr/lib/pakcs/currytools/LICENSE
 
 clean::

@@ -3,7 +3,7 @@ Author: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
 
 --- a/Makefile
 +++ b/Makefile
-@@ -92,7 +92,7 @@
+@@ -113,7 +113,7 @@
  # The front end binary
  export CYMAKE       = $(BINDIR)/$(CURRYSYSTEM)-frontend
  # The cleancurry binary
@@ -14,17 +14,17 @@ Author: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
  MAKELOG=make.log
 --- a/scripts/Makefile
 +++ b/scripts/Makefile
-@@ -4,7 +4,7 @@
+@@ -3,7 +3,7 @@
+ ##############################################################################
  
  # the scripts to be installed
- BINS = $(BINDIR)/pakcs $(BINDIR)/pakcs-makecgi \
--       $(BINDIR)/cleancurry \
-+       ../debian/bin/cleancurry \
-        $(BINDIR)/pakcs-fcypp
+-BINS = $(BINDIR)/pakcs $(BINDIR)/cleancurry $(BINDIR)/pakcs-fcypp
++BINS = $(BINDIR)/pakcs ../debian/bin/cleancurry $(BINDIR)/pakcs-fcypp
  
  
+ .PHONY: all
 @@ -20,6 +20,14 @@
- 	 sed "s|^PAKCSINSTALLDIR=.*$$|PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)|" > $@
+ 	 sed "s|^COMPILERVERSION=.*$$|COMPILERVERSION=$(CURRYSYSTEM)-$(VERSION)|" > $@
  	chmod 755 $@
  
 +# the cleancurry script must be run from inside debian/ subfolder
@@ -38,14 +38,14 @@ Author: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
  .PHONY: clean
  clean:
  	rm -f $(BINS)
---- a/testsuite2/test.sh
-+++ b/testsuite2/test.sh
-@@ -34,7 +34,7 @@
+--- a/testsuite/test.sh
++++ b/testsuite/test.sh
+@@ -52,7 +52,7 @@
  export PATH
  
  # clean up before
--$CURRYBIN/cleancurry
-+../debian/bin/cleancurry
+-$CURRYBIN/cleancurry -r
++../debian/bin/cleancurry -r
  
  LOGFILE=xxx$$
  
