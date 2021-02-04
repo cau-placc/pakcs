@@ -327,7 +327,8 @@ Hence, instead of the actual last element, we get a rather general
 representation of it where \ccode{\us} denotes a free variable
 of type \code{Char}.
 
-These problems are avoided in \CYS by the predefined type class \code{Data},
+These problems are avoided in \CYS by the predefined type class
+\code{Data}\pindex{Data},
 as proposed in \cite{HanusTeegen20}:
 %
 \begin{curry}
@@ -336,11 +337,11 @@ class Data a where
   aValue :: a
 \end{curry}
 %
-The operation \ccode{===} implements strict equality
+The operation \ccode{===}\pindex{===} implements strict equality
 (rather than an equivalence relation) on type \code{a},
 i.e., \code{$e_1\;$===$\;e_2$} evaluates to \code{True}
 if both expressions $e_1$ and $e_2$ evaluate to some ground value $v$.
-The operation \code{aValue} non-deterministically returns
+The operation \code{aValue}\pindex{aValue} non-deterministically returns
 all values of type \code{a}.
 In contrast to other type classes, \code{Data} is predefined
 so that the following holds:
@@ -464,9 +465,10 @@ These options can only be set via the command line.
 
 \subsection{Conditional Compilation}
 
-\CYS also supports conditional compilation in the C preprocessor (CPP) style.
-Actually, only a subset of the C preprocessor is supported.
-For instance, ``includes'' are not allowed.
+\CYS also supports conditional compilation\index{conditional compilation}
+in the C preprocessor (CPP) style.
+Actually, only a subset of the C preprocessor is supported (see below),
+e.g., ``includes'' are not allowed.
 Although conditional compilation might cause problems
 and should be avoided, sometimes it is useful to support libraries
 across different Curry compilers with different features
@@ -501,6 +503,87 @@ the first three and the last lines are replaced by blank lines
 in the source code above before it is passed to the parser.
 Thus, the line numbers of the remaining code are not changed
 by preprocessing.
+
+Each directive has to be written in a separate line and will
+be replaced by a blank line after processing it.
+In the following, we discuss the supported directives.
+
+\subsubsection*{\code{\#define $\mathit{id}$ $\mathit{val}$}}
+\pindex{\#define}
+
+In the subsequent source text following that directive,
+the identifier $\mathit{id}$ is defined with value $\mathit{val}$.
+An identifier is a letter or an underscore followed by zero or more letters,
+underscores or digits.
+The value $\mathit{val}$ consists of one or more digits.
+
+\subsubsection*{\code{\#undef $\mathit{id}$}}
+\pindex{\#undef}
+
+In the subsequent source text following that directive,
+the identifier $\mathit{id}$ becomes undefined
+(regardless whether it was defined before).
+
+\subsubsection*{\code{\#if $\mathit{cond}$}}
+\pindex{\#if}
+
+If the condition $\mathit{cond}$ is true,
+then all lines between the subsequent matching
+\code{\#else} or \code{\#elif} and the corresponding
+\code{\#endif} directive, if present,
+are replaced by blank lines.
+Otherwise, all lines up to the subsequent matching
+\code{\#else}, \code{\#elif}, or \code{\#endif} directive, if present,
+are replaced by blank lines.
+%
+Conditions have one of the following forms:
+\begin{itemize}
+\item
+$\mathit{id}~\mathit{op}~\mathit{val}$:
+If the comparison expression evaluates to true, this condition is true.
+The operator $\mathit{op}$ is one of
+\code{==}, \code{/=}, \code{<}, \code{<=}, \code{>}, or \code{>=}.
+If the identifier used in the expression is not currently defined,
+it is assumed to have value \code{0}.
+\item
+\code{defined($\mathit{id}$)}:
+If the identifier $\mathit{id}$ is currently defined,
+then this condition is true.
+\item
+\code{!defined($\mathit{id}$)}:
+If the identifier $\mathit{id}$ is not currently defined,
+then this condition is true.
+\end{itemize}
+
+
+\subsubsection*{\code{\#ifdef $\mathit{id}$}}
+\pindex{\#ifdef}
+
+This directive is equivalent to \code{\#if defined($\mathit{id}$)}.
+
+\subsubsection*{\code{\#ifndef $\mathit{id}$}}
+\pindex{\#ifndef}
+
+This directive is equivalent to \code{\#if !defined($\mathit{id}$)}.
+
+\subsubsection*{\code{\#else}}
+\pindex{\#else}
+
+This directive marks the start of the lines which are kept
+if the preceding \code{\#if} or \code{\#elif} has a false condition.
+
+\subsubsection*{\code{\#elif $\mathit{cond}$}}
+\pindex{\#elif}
+
+This directive is interpreted as an \code{\#else} followed by
+a new \code{\#if}.
+
+\subsubsection*{\code{\#endif}}
+\pindex{\#endif}
+
+This directive terminates the preceding
+\code{\#if}, \code{\#else}, or \code{\#elif} directive.
+
 
 %%% Local Variables:
 %%% mode: latex
