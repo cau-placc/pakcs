@@ -28,8 +28,8 @@ CI Readme
 ## Configuration
 
 ### Repo Source
-Most Configuration is Configured in one of the Files listed above.
-Things that one may want to override is where possible configured via Variables in .gitlab-cyí.yml
+Most configuration is configured in one of the files listed above.
+Things that one may want to override is where possible configured via variables in .gitlab-cyí.yml
 
 #### .gitlab-ci.yml Docker
 The default docker image used is defined by the top-level `image` entry,
@@ -52,7 +52,7 @@ they are configured to not run concurrently by sharing a `resource_group`
    unless configured by a Gitlab Admin, no clue how I found that out 
 - `CURRY_LANG_PROJECT`\: The Repo ID for the curry-lang.org repo, assumed to be in the same gitlab instance
 - `CURRY_LANG_BRANCH` \: The branch to update for releases/nightlies in the curry-lang.org repo
-- `URRY_CHECK_VERSION`, `CURRY_DOC_VERSION`, `MARKDOWN_VERSION`\: the version of the corresponding package to install using cypm 
+- `CURRY_CHECK_VERSION`, `CURRY_DOC_VERSION`, `MARKDOWN_VERSION`\: the version of the corresponding package to install using cypm 
 
 ##### `gitlab-ci.yml` job `run_download_make` Variables
 - `CURRY_CHECK_VERSION` override as this may need a different version than the other jobs
@@ -79,7 +79,7 @@ Also, defined the mapping of paths to filenames for the files that are added to 
 `ÙPLOAD_FILE_NAMES` contains the corresponding name for the file upload.
 
 #### `make_download.sh`
-Has a hard coded download url
+Has a hard coded download URL
 
 #### `gitlab_release.sh`
 Contains the release name, description and tag
@@ -159,7 +159,7 @@ are executed.
 The pipeline is run with Variable `BUILD_NIGHTLY` set to `yes`
 
 ### Manual
-Manuel Pipelines are started from the Gitlab Web Interface under `packs >> CI/CD > Pipelines >> Run Pipeline`,
+Manual pipelines are started from the Gitlab Web Interface under `packs >> CI/CD > Pipelines >> Run Pipeline`,
 than the branch/tag that should be run can be selected and override Variables can be set.
 
 #### Nightly Release Build

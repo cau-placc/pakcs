@@ -36,7 +36,7 @@ build_download_pakcs() {
 
   start_section "download_${PAKCSVERSION}_${DLVERSION}" "Downloading ${PAKCSVERSION}-${DLVERSION}"
 
-  # download dirtibution
+  # download distribution
   wget http://www.informatik.uni-kiel.de/~pakcs/download/${PAKCSVERSION}-${DLVERSION}.tar.gz
   tar xvzf ${PAKCSVERSION}-${DLVERSION}.tar.gz
   rm ${PAKCSVERSION}-${DLVERSION}.tar.gz
