@@ -10,7 +10,7 @@ function init() {
 
   VERSION="${BUILD_PAKCS_VERSION}"
 
-  VERSION_FILE="./curry-lang.org/data/version/pakcs/v${VERSION}.version"
+  VERSION_FILE="./curry-lang.org/data/versions/pakcs/v${VERSION}.version"
   NIGHTLY_FILE=./curry-lang.org/data/versions/pakcs/latest-nighly.version
   LATEST_FILE=./curry-lang.org/data/versions/pakcs/latest.version
 
