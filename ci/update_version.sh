@@ -10,9 +10,12 @@ function init() {
 
   VERSION="${BUILD_PAKCS_VERSION}"
 
-  VERSION_FILE="./curry-lang.org/data/version/pakcs/v${VERSION}.version"
-  NIGHTLY_FILE=./curry-lang.org/data/versions/pakcs/latest-nighly.version
-  LATEST_FILE=./curry-lang.org/data/versions/pakcs/latest.version
+  # the path to the folder where the pakcs version files will be created/updated
+  VERSION_FOLDER_PATH=./curry-lang.org/data/versions/pakcs
+
+  VERSION_FILE="${VERSION_FOLDER_PATH}/v${VERSION}.version"
+  NIGHTLY_FILE="${VERSION_FOLDER_PATH}/latest-nighly.version"
+  LATEST_FILE="${VERSION_FOLDER_PATH}/latest.version"
 
   # configure git (user)name and email
   git config user.name "${CURRY_LANG_USER}"
