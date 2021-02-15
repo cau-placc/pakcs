@@ -80,7 +80,7 @@ function release() {
 
   release_helper_init release
 
-  DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/${release}/downloads"
+  DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/releases/${release_tag}/downloads/other"
 
   # replace the latest.version file
   install -D /dev/stdin "${LATEST_FILE}" <<LATEST_VERSION
