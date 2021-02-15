@@ -54,7 +54,7 @@ export PATH
 # clean up before
 $CURRYBIN/cleancurry -r
 
-LOGFILE=xxx$$
+LOGFILE=`pwd`/xxx$$
 
 if [ $VERBOSE = yes ] ; then
   exec_all_tests
