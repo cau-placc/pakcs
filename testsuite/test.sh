@@ -62,7 +62,7 @@ if [ $VERBOSE = yes ] ; then
 else
   exec_all_tests > $LOGFILE 2>&1
   if [ $? -gt 0 ] ; then
-    echo "ERROR in curry check:"
+    echo "ERROR occurred during testing with CurryCheck:"
     cat $LOGFILE
     /bin/rm -f $LOGFILE
     exit 1
