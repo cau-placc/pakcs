@@ -14,6 +14,7 @@ CI Readme
 |   |
 |   +-- before_make.sh           -- run before most CI jobs to setup the basic environment
 |   +-- build_docker_image.sh    -- script to build the Dockerfile-swi image and tag it as pakcs-swi-ci
+|   +-- check_tag_version.sh     -- for version tags check that the tag matches the build version
 |   +-- cypm_helper.sh           -- script with helper function for interacting with cypm
 |   +-- Dockerfile-swi           -- Dockerfile for the Docker Image used by most CI jobs
 |   +-- gitlab_release.sh        -- used to create the gitlab (nightly) releases
@@ -67,7 +68,7 @@ it should not be necessary to override them.
 As this project contains submodules those are checkedout recursively by instructing Gitlab via
 `GIT_SUBMODULE_STRATEGY`, this should not be changed as long as this project uses submodules.
 
-#### `ùpdate_version.sh`
+#### `update_version.sh`
 Here the content of the `./data/versions/packs/{latest,latest-nightly,v${VERSION}}.version`
 including the download link bases.
 Also, the commit messages to curry-lang.org are defined here.
@@ -76,7 +77,7 @@ Also, the commit messages to curry-lang.org are defined here.
 Defined the names used for tags and the generic packages.
 Also, defined the mapping of paths to filenames for the files that are added to a release.
 `LOCAL_FILE_NAME` contains the name of the file on disc relative to the `CI_PROJECT_DIR`.
-`ÙPLOAD_FILE_NAMES` contains the corresponding name for the file upload.
+`UPLOAD_FILE_NAMES` contains the corresponding name for the file upload.
 
 #### `make_download.sh`
 Has a hard coded download URL
@@ -180,7 +181,7 @@ that does not potentially match a past or futur version.
 
 ## CI Job Dependencies
 Gitlab requires that job dependencies are acyclic (reasonable) and that jobs may only depend on jobs of prior stages. 
-While keeping this in mind the jobs are separated further in semantic stages.
+While keeping this in mind, the jobs are separated further in semantic stages.
 
 ```text
 
@@ -189,7 +190,7 @@ make            |                       run_make
                 |  +-------------+---------+------------+------------+       
                 |  |             |         |            |            |
 test            |  |             |         |         run_test   check_version  test_download_src  test_download_amd64_linux   
-                |  |             |         |       
+                |  |             |         |                         
                 |  |             |         +----------+-------------------+
                 |  |             v         v          v                   v
                 |  |             |         |          |                   |
@@ -219,6 +220,9 @@ curry-lang      |            link_release   link_nightly
 curry-lang-ci   |           curry-lang-ci
                 |
 ```
+
+`link_release`, `tag_release` and `upload_release` further depend on `check_version`, this is 
+used to make sure that releases are only done if the check succeeds. There is no further artifact dependency.
 
 ## Makefile Interaction
 
