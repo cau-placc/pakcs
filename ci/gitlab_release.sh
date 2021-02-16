@@ -16,7 +16,7 @@ for index in ${!LOCAL_FILE_NAMES[*]}; do
 {
   "name":     "${UPLOAD_FILE_NAMES[$index]}",
   "url":      "${PACKAGE_REGISTRY_URL}/${UPLOAD_FILE_NAMES[$index]}",
-  "filepath": "/other/${UPLOAD_FILE_NAMES[$index]}"
+  "filepath": "${UPLOAD_FILE_PATH[$index]}"
 }
 ENTRY
   )"

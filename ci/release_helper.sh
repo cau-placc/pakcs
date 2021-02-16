@@ -81,4 +81,18 @@ function release_helper_init() {
     "${full_name}-manual.pdf"
   )
 
+  # for now place all files under other
+  for index in ${!UPLOAD_FILE_NAMES[*]} ; do
+    UPLOAD_FILE_PATH[$index]="/other/${UPLOAD_FILE_NAMES[$index]}"
+  done
+
+  DOWNLOAD_URL="${CI_PROJECT_URL}/-/releases/${release_tag}/downloads"
+
+  # these variables are used by update_version.sh when doing a release
+  # for the download links on curry-lang.org
+  # these urls are meaningless for nightly releases
+  src_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[0]}"
+  arch_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[1]}"
+  manual_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[2]}"
+
 }
