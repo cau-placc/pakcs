@@ -80,8 +80,6 @@ function release() {
 
   release_helper_init release
 
-  DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/releases/${release_tag}/downloads/other"
-
   # replace the latest.version file
   install -D /dev/stdin "${LATEST_FILE}" <<LATEST_VERSION
 ---
@@ -89,9 +87,9 @@ function release() {
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT RELEASE RUN
 date: ${BUILD_DATE}
 version: Latest
-source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
-linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: ${DOWNLOAD_URL}/pakcs-${VERSION}-manual.pdf
+source: ${src_download}
+linux:  ${arch_download}
+manual: ${manual_download}
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}
