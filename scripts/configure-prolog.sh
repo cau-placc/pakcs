@@ -43,7 +43,7 @@ if [ ! -x "$SICSTUSPROLOG" -a ! -x "$SWIPROLOG" ] ; then
   SICSTUSPROLOG=`which sicstus 2> /dev/null`
 fi
 if [ -x "$SICSTUSPROLOG" ] ; then
-  SICSTUSPROLOG=`realpath $SICSTUSPROLOG`
+  SICSTUSPROLOG=`readlink -f $SICSTUSPROLOG`
   echo "halt." | $SICSTUSPROLOG > /tmp/sicstusout$$ 2>&1
   if [ $? -ne 0 ] ; then
     SICSTUSPROLOG=
@@ -62,7 +62,7 @@ if [ -z "$SICSTUSPROLOG" ] ; then
     SWIPROLOG=`which swipl 2> /dev/null`
   fi
   if [ -x "$SWIPROLOG" ] ; then
-    SWIPROLOG=`realpath $SWIPROLOG`
+    SWIPROLOG=`readlink -f $SWIPROLOG`
     echo "halt." | $SWIPROLOG > /tmp/swiprologout$$ 2>&1
     if [ $? -ne 0 ] ; then
       SWIPROLOG=
