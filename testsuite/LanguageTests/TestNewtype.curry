@@ -23,3 +23,19 @@ testShowNT xs = show (LIST xs) -=- "LIST " ++ show xs
 
 testReadShowNT :: [Int] -> Prop
 testReadShowNT xs = LIST xs -=- read ("LIST " ++ show xs)
+
+
+-- An example for the partial application of a newtype constructor
+newtype Double a = Double
+  {
+    runDouble :: a -> (a,a)
+  }
+
+xDouble :: Double a
+xDouble = Double $ \x -> (x,x)
+
+runXD :: a -> (a,a)
+runXD = runDouble xDouble
+
+testXD :: Bool -> Prop
+testXD b = runXD b -=- (b,b)
