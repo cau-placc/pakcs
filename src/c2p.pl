@@ -508,8 +508,9 @@ parseExpressionWithFrontend(MainExprDir,Input,InitMainFuncType,MainExp,
 	length(FreeVars,NumFreeVars),
 	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,RuleExp))|MoreFs],
 	!,
-	((MoreFs=[], simpleFlatExp(RuleExp))
-          -> FlatExp = RuleExp
+        desugarNewTypesInExp(RuleExp,DesRuleExp),
+	((MoreFs=[], simpleFlatExp(DesRuleExp))
+          -> FlatExp = DesRuleExp
            ; setCurryPath(NewLCP),
 	     compileMainExpression(MainExprMod),
 	     setCurryPath(LCP),
@@ -1564,7 +1565,6 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	padVersionAtom(MinorVersion, PaddedMinorVersionAtom),
 	getOutDirectory(OutDir),
 	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat',
-                     ' -Odesugar-newtypes ',
                      ' -o ', OutDir,
                      ' -D__PAKCS__=',
                      MajorVersionAtom,PaddedMinorVersionAtom],CM1),

@@ -7,7 +7,7 @@
 	  [c2p/1, c2p/2,
 	   loadMain/1, generateMainPlFile/2, deleteMainPrologFile/1,
 	   forbiddenModules/1, writeClause/1,
-	   readProg/5,
+	   readProg/5, desugarNewTypesInExp/2,
 	   checkProgramHeader/1, deletePrologTarget/1,
 	   maxTupleArity/1, tryXml2Fcy/1, varIndex2VarExp/2]).
 
@@ -26,7 +26,7 @@
 :- dynamic numberOfShares/1,
 	   maxTupleArity/1, includePrelude/0,
 	   bugInFlcFile/0,
-	   allFunctions/1, allConstructors/1,
+	   allFunctions/1, allConstructors/1, allNewTypeConstructors/1,
 	   externalFuncs/1, currentFunction/1,
 	   newFunctionCounter/2, newAuxFunctions/1,
 	   dynamicPredNames/1, forbiddenModules/1.
@@ -51,7 +51,8 @@ maxTupleArity(15).   % The maximal arity of tuples
 
 allModules([]).  % list of all modules (main + imported)
 allFunctions([]).     % list of all defined functions
-allConstructors([]).  % list of all constructors
+allConstructors([]).  % list of all constructors (name/arity)
+allNewTypeConstructors([]).  % list of the names of all newtype constructors
 externalFuncs([]).    % list of all external functions
 currentFunction(unknown). % name of currently translated function (for errors)
 newFunctionCounter([],0). % counter for generating new function names
@@ -193,6 +194,8 @@ initializeCompilerState :-
 	asserta(allFunctions([])),
 	(retract(allConstructors(_)) -> true ; true),
 	asserta(allConstructors([])),
+	(retract(allNewTypeConstructors(_)) -> true ; true),
+	asserta(allNewTypeConstructors([])),
 	(retract(externalFuncs(_)) -> true ; true),
 	asserta(externalFuncs([])),
 	(retract(newAuxFunctions(_)) -> true ; true),
@@ -526,13 +529,23 @@ checkArityConsistency(FName,FArity,EArity) :-
 	   setFlcBug).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The main compiler for individual FlatCurry modules:
 
-writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
-	append(MainTypes,ImpTypes,AllTypes),
-	append(MainOps,ImpOps,AllOps),
+writeProg(Mod,Imports,MainTypes,MainFuncsO,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	atom_codes(ModName,Mod),
+	append(MainTypes,ImpTypes,AllTypes),
+	getConstructors(AllTypes,ConsList),
+	retract(allConstructors(_)), asserta(allConstructors(ConsList)),
+	getNewTypeConstructors(AllTypes,NewConsList),
+	retract(allNewTypeConstructors(_)),
+        asserta(allNewTypeConstructors(NewConsList)),
+	(map2M(compiler:desugarNewTypes,MainFuncsO,MainFuncs)
+	 -> true
+	  ; writeErr('INTERNAL COMPILER ERROR in newtype desugarer'),
+	    writeErr(' IN MODULE '), writeLnErr(ModName), fail),
+        
+	append(MainOps,ImpOps,AllOps),
 	writeClause((:- curryModule(ModName))), nl,
 	getExternalLibraries(MainFuncs,[],ExtLibs),
 	map1M(compiler:writeLibraryInclusion,ExtLibs), nl,
@@ -540,7 +553,8 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	(retract(bugInFlcFile) -> true ; true),
 	map1M(compiler:check_flcFunction,MainFuncs),
 	\+ bugInFlcFile,
-	(plprofiling(yes) -> addCostCenterOfFuncs([''],MainFuncs,CCs) ; CCs=['']),
+	(plprofiling(yes) -> addCostCenterOfFuncs([''],MainFuncs,CCs)
+                           ; CCs=['']),
 	CCs=[_|NewCCs],
 	(NewCCs=[] -> true
 	 ; writeErr('...including code for profiling cost centers:'),
@@ -560,29 +574,27 @@ writeProg(Mod,Imports,MainTypes,MainFuncs,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	append(CodeFuncsWOnestedcase,AuxFuns,CodeFuncsOIS),
 	(completeCases(no) -> CodeFuncsOISTotal=CodeFuncsOIS
 	 ; (map2partialM(compiler:completeCaseExpressions(AllTypes),
-		        CodeFuncsOIS,CodeFuncsOISTotal)
+		         CodeFuncsOIS,CodeFuncsOISTotal)
  	    -> true
-	     ; writeLnErr('INTERNAL COMPILER ERROR in case branch completion!'),
-	       fail)),
+	     ; writeErr('INTERNAL COMPILER ERROR in case branch completion'),
+               writeErr(' IN MODULE '), writeLnErr(ModName), fail)),
 	append(CodeFuncsOISTotal,ImpFuncs,AllFuncs),
 	map2M(compiler:flcFunc2FA,AllFuncs,AllFuncsArities),
 	retract(allFunctions(_)), asserta(allFunctions(AllFuncsArities)),
 	write('%%%%%%%%%%%% function types %%%%%%%%%%%%%%%%%%%'), nl,
 	writeClause((:- multifile functiontype/6)),
 	writeClause((:- dynamic functiontype/6)),
-	map1partialM(compiler:writeFTypeClause(ExtFuncs,AllOps),CodeFuncsOISTotal), nl,
+	map1partialM(compiler:writeFTypeClause(ExtFuncs,AllOps),
+                     CodeFuncsOISTotal), nl,
 	write('%%%%%%%%%%%% constructor types %%%%%%%%%%%%%%%%%%%'), nl,
 	writeClause((:- multifile constructortype/7)),
 	writeClause((:- dynamic constructortype/7)),
 	(member("Prelude",Imports) -> true
 	 ; % generate type clause for partcall in the prelude:
 	   writeClause(constructortype(partcall,partcall,3,partcall,0,
-	    'FuncType'('TCons'('Int',[]),
-		       'FuncType'(_,'FuncType'('TCons'([],[_]),_)))))),
+                                       notype,[]))),
 	map1M(compiler:writeDTypeClause,MainTypes), nl,
 
-	getConstructors(AllTypes,ConsList),
-	retract(allConstructors(_)), asserta(allConstructors(ConsList)),
 	write('%%%%%%%%%%%% function definitions %%%%%%%%%%%%%%%%%%%'), nl,
 	map1M(compiler:writeFunc,CodeFuncsOISTotal),
 
@@ -690,10 +702,12 @@ computeAllExternalFunctions([_|Funcs],EFs) :-
 	computeAllExternalFunctions(Funcs,EFs).
 
 
-% transform Flat-Curry representation of a function into name/arity pair
+% transform FlatCurry representation of a function into name/arity pair
 % where the arity is the arity of the final (eta-expanded) function:
 flcFunc2FA('Func'(Name,Arity,_,_Type,_),F/Arity) :- flatName2Atom(Name,F).
 
+% get all constructors (in the form Con/Arity) contained in a list
+% of type declarations.
 getConstructors([],Cs) :-
 	TupleCons = ['Prelude.()'/0,'Prelude.(,)'/2,'Prelude.(,,)'/3,
 		     'Prelude.(,,,)'/4,'Prelude.(,,,,)'/5],
@@ -705,11 +719,25 @@ getConstructors(['Type'(_,_,_,DataCons)|Types],AllCons) :-
 	getDataCons(DataCons,DCs),
 	getConstructors(Types,TCs),
 	append(DCs,TCs,AllCons).
+getConstructors(['TypeNew'(_,_,_,'NewCons'(Name,_,_))|Types],AllCons) :-
+	flatName2Atom(Name,Con),
+	getConstructors(Types,TCs),
+	append([Con/1],TCs,AllCons).
 
 getDataCons([],[]).
 getDataCons(['Cons'(Name,Arity,_,_)|DataCons],[Con/Arity|DCs]) :-
 	flatName2Atom(Name,Con),
 	getDataCons(DataCons,DCs).
+
+% get the names of all newtype constructors contained in a list
+% of type declarations.
+getNewTypeConstructors([],[]).
+getNewTypeConstructors(['TypeNew'(_,_,_,'NewCons'(Name,_,_))|Types],
+                       [Con|TCs]) :-
+	flatName2Atom(Name,Con),
+	getNewTypeConstructors(Types,TCs).
+getNewTypeConstructors(['Type'(_,_,_,_)|Types],TCs) :-
+	getNewTypeConstructors(Types,TCs).
 
 % compute the arity of a constructor from the list of all stored constructors
 % (fail if arity not found):
@@ -783,6 +811,8 @@ completeCaseExpressions(Types,
 			'Func'(Name,Arity,Vis,Type,'Rule'(Args,NewRHS))) :-
 	!,
 	%atom_codes(A,Name), writeLnErr(completeCase(A)),
+        %writeLnErr(RHS),
+        %allNewTypeConstructors(NTS), writeLnErr(NTS),
 	completeCaseInExp(Name,Types,RHS,NewRHS).
 completeCaseExpressions(_,Func,Func).
 
@@ -792,12 +822,17 @@ completeCaseInExp(FName,Types,'Comb'(CT,CF,Args),'Comb'(CT,CF,NewArgs)) :-
 	map2partialM(compiler:completeCaseInExp(FName,Types),Args,NewArgs).
 completeCaseInExp(FName,Types,'Free'(Vs,E),'Free'(Vs,NE)) :-
 	completeCaseInExp(FName,Types,E,NE).
+completeCaseInExp(_,_,'Case'(CT,C,Cases),'Case'(CT,C,Cases)) :-
+        Cases = ['Branch'('Pattern'(Cons,_),_)],
+        atom_codes(ACons,Cons),
+        allNewTypeConstructors(NTCs), member(ACons,NTCs), !.
 completeCaseInExp(FName,Types,'Case'(CT,C,Cases),'Case'(CT,C,NewCases)) :- !,
 	getMissingBranchConstructors(Types,Cases,Cs),
 	(Cs=[] -> MissingCases=[]
 	        ; map2partialM(compiler:generateMissingBranch(FName),
 		              Cs,MissingCases)),
-	map2partialM(compiler:completeCaseInBranch(FName,Types,CT),Cases,NCases),
+	map2partialM(compiler:completeCaseInBranch(FName,Types,CT),
+                     Cases,NCases),
 	append(NCases,MissingCases,NewCases).
 completeCaseInExp(FName,Types,'Or'(E1,E2),'Or'(NE1,NE2)) :- !,
 	completeCaseInExp(FName,Types,E1,NE1),
@@ -866,6 +901,94 @@ getBranchConstructors(['Branch'('Pattern'(Cons,Args),_)|Bs],[Cons/A|Cs]) :-
 	getBranchConstructors(Bs,Cs).
 getBranchConstructors(['Branch'('LPattern'(_),_)|Bs],Cs) :-
 	getBranchConstructors(Bs,Cs).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% desugar newtype constructors, i.e.:
+% - replace (NEWTYPECONS e) by `e` in constructed expressions
+% - replace (NEWTYPECONS) by `Prelude.id` in constructed expressions
+% - replace `(f)case x of { NEWTYPECONS y -> e}` by `{y |-> x}(e)`
+
+desugarNewTypes('Func'(Name,Arity,Vis,Type,'Rule'(Args,RHS)),
+                'Func'(Name,Arity,Vis,Type,'Rule'(Args,NewRHS))) :-
+	!,
+	desugarNewTypesInExp(RHS,NewRHS).
+desugarNewTypes('Func'(Name,Arity,Vis,Type,'External'(EName)),
+		'Func'(Name,Arity,Vis,Type,'External'(EName))) :- !.
+desugarNewTypes(Arg,Arg) :-
+	writeErr('ERROR: Illegal argument in desugarNewTypes: '),
+	writeLnErr(Arg).
+
+% remove newtype constructors in expressions:
+desugarNewTypesInExp('Case'(_,CE,Cases),NCase) :-
+        Cases = ['Branch'('Pattern'(Cons,[V]),BE)],
+        atom_codes(ACons,Cons),
+        allNewTypeConstructors(NTCs), member(ACons,NTCs), !,
+        replaceVarInExp(V,CE,BE,NBE),
+        desugarNewTypesInExp(NBE,NCase).
+desugarNewTypesInExp('Case'(CT,CE,Cases),'Case'(CT,NCE,NewCases)) :- !,
+	desugarNewTypesInExp(CE,NCE),
+	desugarNewTypesInBranches(Cases,NewCases).
+desugarNewTypesInExp('Comb'('ConsCall',Cons,[Arg]),Arg) :-
+        atom_codes(ACons,Cons),
+        allNewTypeConstructors(NTCs), member(ACons,NTCs), !.
+desugarNewTypesInExp('Comb'('ConsPartCall'(1),Cons,[]),NE) :-
+        atom_codes(ACons,Cons),
+        allNewTypeConstructors(NTCs), member(ACons,NTCs), !,
+        atom_codes('Prelude.id',PreId),
+        NE = 'Comb'('FuncPartCall'(1),PreId,[]).
+desugarNewTypesInExp('Comb'(CT,Cons,Args),_) :-
+        atom_codes(ACons,Cons),
+        allNewTypeConstructors(NTCs), member(ACons,NTCs), !,
+        writeErr('ERROR: Illegal use of newtype cons in desugarNewTypes: '),
+        writeLnErr('Comb'(CT,Cons,Args)), fail.
+             
+desugarNewTypesInExp('Comb'(CT,CF,Args),'Comb'(CT,CF,NewArgs)) :-
+	map2M(compiler:desugarNewTypesInExp,Args,NewArgs).
+desugarNewTypesInExp('Var'(V),'Var'(V)).
+desugarNewTypesInExp('Lit'(L),'Lit'(L)).
+desugarNewTypesInExp('Or'(E1,E2),'Or'(NE1,NE2)) :- !,
+	desugarNewTypesInExp(E1,NE1),
+	desugarNewTypesInExp(E2,NE2).
+desugarNewTypesInExp('Free'(Vs,E),'Free'(Vs,NE)) :-
+	desugarNewTypesInExp(E,NE).
+desugarNewTypesInExp('Let'(Bindings,E),'Let'(NBindings,NE)) :-
+	map2M(compiler:desugarNewTypesInBinding,Bindings,NBindings),
+	desugarNewTypesInExp(E,NE).
+
+desugarNewTypesInBinding('Prelude.(,)'(V,E),'Prelude.(,)'(V,NE)) :-
+	desugarNewTypesInExp(E,NE).
+
+desugarNewTypesInBranches([],[]).
+desugarNewTypesInBranches(['Branch'(Pat,Exp)|Cs],
+	                  ['Branch'(Pat,NewExp)|NCs]) :-
+	desugarNewTypesInExp(Exp,NewExp),
+	desugarNewTypesInBranches(Cs,NCs).
+
+% replace a variable by another expression in an expression:
+replaceVarInExp(X,Y,'Case'(CT,CE,Cases),'Case'(CT,NCE,NewCases)) :- !,
+	replaceVarInExp(X,Y,CE,NCE),
+	replaceVarInBranches(X,Y,Cases,NewCases).
+replaceVarInExp(X,Y,'Comb'(CT,CF,Args),'Comb'(CT,CF,NewArgs)) :-
+	map2partialM(compiler:replaceVarInExp(X,Y),Args,NewArgs).
+replaceVarInExp(X,Y,'Var'(V),NE) :- X = V -> NE = Y ; NE = 'Var'(V).
+replaceVarInExp(_,_,'Lit'(L),'Lit'(L)).
+replaceVarInExp(X,Y,'Or'(E1,E2),'Or'(NE1,NE2)) :- !,
+	replaceVarInExp(X,Y,E1,NE1),
+	replaceVarInExp(X,Y,E2,NE2).
+replaceVarInExp(X,Y,'Free'(Vs,E),'Free'(Vs,NE)) :-
+	replaceVarInExp(X,Y,E,NE).
+replaceVarInExp(X,Y,'Let'(Bindings,E),'Let'(NBindings,NE)) :-
+	map2partialM(compiler:replaceVarInBinding(X,Y),Bindings,NBindings),
+	replaceVarInExp(X,Y,E,NE).
+
+replaceVarInBinding(X,Y,'Prelude.(,)'(V,E),'Prelude.(,)'(V,NE)) :-
+	replaceVarInExp(X,Y,E,NE).
+
+replaceVarInBranches(_,_,[],[]).
+replaceVarInBranches(X,Y,['Branch'(Pat,Exp)|Cs],['Branch'(Pat,NewExp)|NCs]) :-
+	replaceVarInExp(X,Y,Exp,NewExp),
+	replaceVarInBranches(X,Y,Cs,NCs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1480,10 +1603,8 @@ writeFunc('Func'(Name,FArity,_Vis,_Type,'Rule'(FlatArgs,FlatExp))) :-
 	decodePrologName(FName,FlatName),
 	asserta(currentFunction(FlatName)),
 	% only for debugging:
-	  %writeErr('*** Translating rule: '),
-	  %writeErr(FName), writeErr(' '),
-	  %writeErr(FlatArgs), writeErr(' = '),
-	  %writeErr(FlatExp), nlErr,
+	  %writeErr('*** Translating rule: '), writeErr(FName), writeErr(' '),
+	  %writeErr(FlatArgs), writeErr(' = '), writeErr(FlatExp), nlErr,
 	FArity2 is FArity+2,
 	FArity3 is FArity+3,
 	genBlockDecl(FName,FArity3,[FArity2],NewFName),
@@ -1585,15 +1706,12 @@ getVarInEnv(I,[_|Env],Var) :- getVarInEnv(I,Env,Var).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % write clauses with type (and evaluation) information
 
-writeFTypeClause(ExtFuncs,Ops,'Func'(Name,_FArity,Vis,FlatType,_)) :-
+writeFTypeClause(ExtFuncs,_Ops,'Func'(Name,_FArity,Vis,_,_)) :-
 	flatName2Atom(Name,FName),
-	replaceTVarByLVar([],FlatType,_,FlatTypeP),
 	getExternalNameFromVisibility(Name,Vis,EName),
 	getFuncArity(FName,Arity),
 	getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName),
-	getFixityFromOpList(FName,Ops,Fixity),
-	writeClause(functiontype(FName,EName,Arity,PrologName,
-                                 Fixity,FlatTypeP)).
+	writeClause(functiontype(FName,EName,Arity,PrologName,nofix,notype)).
 
 getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName) :-
 	member((FName/Arity,PName),ExtFuncs), !,
@@ -1609,16 +1727,6 @@ getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName) :-
 	    setFlcBug, fail).
 getPrologNameFromExtFuncs(FName,_,_,FName).
 
-getFixityFromOpList(FName,Ops,Fixity) :-
-	atom_codes(FName,FNameS),
-	member('Op'(FNameS,Type,Prec),Ops), !,
-	transFixity2pl(Type,Prec,Fixity).
-getFixityFromOpList(_,_,nofix).
-
-transFixity2pl('InfixOp',P,infix(P)).
-transFixity2pl('InfixlOp',P,infixl(P)).
-transFixity2pl('InfixrOp',P,infixr(P)).
-
 getExternalNameFromVisibility(Name,'Private',FName) :- atom_codes(FName,Name).
 getExternalNameFromVisibility(Name,'Public',FName) :-
 	append([_|_],[46|F],Name), !, atom_codes(FName,F).
@@ -1628,27 +1736,22 @@ getUnqualifiedName(Name,UQName) :-
 	append([_|_],[46|F],Name), !, atom_codes(UQName,F).
 getUnqualifiedName(Name,UQName) :- atom_codes(UQName,Name).
 
-writeDTypeClause('Type'(TypeName,_Vis,TypeArgs,ConsExprs)) :-
-	map2M(compiler:index2tvar,TypeArgs,TypeArgExps),
-	ResultType = 'TCons'(TypeName,TypeArgExps),
-	writeDTypeClauses(ResultType,0,ConsExprs,ConsExprs).
+writeDTypeClause('Type'(_TypeName,_Vis,_TypeArgs,ConsExprs)) :-
+	writeDTypeClauses(0,ConsExprs,ConsExprs).
+writeDTypeClause('TypeNew'(_,_,_,_)).
 
 index2tvar(I,'TVar'(I)). % transform tvar index into type expression
 
-writeDTypeClauses(_,_,[],_).
-writeDTypeClauses(ResultType,Index,['Cons'(ConsName,Arity,Vis,ArgTypes)|Cs],
-		  AllConstrs) :-
+writeDTypeClauses(_,[],_).
+writeDTypeClauses(Index,['Cons'(ConsName,Arity,Vis,_ArgTypes)|Cs],AllConstrs) :-
 	flatName2Atom(ConsName,Cons),
-	append(ArgTypes,[ResultType],TypeL),
-	typelist2flattype(TypeL,CType),
-	replaceTVarByLVar([],CType,_,CTypeP),
 	getExternalNameFromVisibility(ConsName,Vis,EName),
 	getUnqualifiedName(ConsName,UQName),
 	getOtherConstructors(ConsName,AllConstrs,OtherConstrs),
-	writeClause(constructortype(Cons,EName,Arity,UQName,Index,CTypeP,
+	writeClause(constructortype(Cons,EName,Arity,UQName,Index,notype,
 				    OtherConstrs)),
 	Index1 is Index+1,
-	writeDTypeClauses(ResultType,Index1,Cs,AllConstrs).
+	writeDTypeClauses(Index1,Cs,AllConstrs).
 
 getOtherConstructors(_,[],[]).
 getOtherConstructors(ConsName,['Cons'(ConsName,_,_,_)|Cs],OCs) :- !,
@@ -1661,30 +1764,6 @@ typelist2flattype([Type],Type) :- !.
 typelist2flattype([T1|T2L],'FuncType'(T1,T2)) :-
 	!,
 	typelist2flattype(T2L,T2).
-
-
-% remove all "TVar" constructors in a type expression by logic variables
-% and replace FlatCurry names by atoms for better readability of
-% the generated Prolog programs:
-replaceTVarByLVar(Env,'TVar'(I),Env,TVar) :-
-	getTVarInEnv(I,Env,TVar), !.
-replaceTVarByLVar(Env,'TVar'(I),[(I,TVar)|Env],TVar).
-replaceTVarByLVar(Env,'FuncType'(T1,T2),NewEnv,'FuncType'(TT1,TT2)) :-
-	replaceTVarByLVar(Env,T1,Env1,TT1),
-	replaceTVarByLVar(Env1,T2,NewEnv,TT2).
-replaceTVarByLVar(Env,'TCons'(Name,Types),NewEnv,'TCons'(Cons,TTypes)) :-
-	flatName2Atom(Name,Cons),
-	replaceTVarByLVarL(Env,Types,NewEnv,TTypes).
-
-replaceTVarByLVarL(Env,[],Env,[]).
-replaceTVarByLVarL(Env,[Type|Types],NewEnv,[TType|TTypes]) :-
-	replaceTVarByLVar(Env,Type,Env1,TType),
-	replaceTVarByLVarL(Env1,Types,NewEnv,TTypes).
-
-getTVarInEnv(I,[(I,TVar)|_],TVar) :- !.
-getTVarInEnv(I,[_|Env],TVar) :- getTVarInEnv(I,Env,TVar).
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % translation of clauses for evaluation to head normal form

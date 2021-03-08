@@ -24,4 +24,4 @@ done
 /bin/rm -r $TMPOUT
 
 echo "Compile Prolog targets..."
-cd lib && ../bin/$CURRY :l AllLibraries :eval "42::Int" :quit
+cd lib && ../bin/$CURRY --nocypm :l AllLibraries :eval "42::Int" :quit
