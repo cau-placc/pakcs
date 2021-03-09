@@ -1,7 +1,20 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.3.0 (January 6, 2021)
+Release notes for PAKCS Version 3.3.0 (March 9, 2021)
+-----------------------------------------------------
+
+Changes to version 3.3.0:
+
+  * Desugaring of `newtype` declarations integrated into the compiler.
+    Thus, the FlatCurry files produced by the front end contain
+    `newtype` declarations which are eliminated before the Prolog code
+    is generated.
+  * Since type information is not used in the run-time system,
+    it is no longer generated in the Prolog files.
+
+
+Release notes for PAKCS Version 3.3.0 (February 15, 2021)
 -------------------------------------------------------
 
 Changes to version 3.2.0:
