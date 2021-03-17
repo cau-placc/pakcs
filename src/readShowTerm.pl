@@ -131,7 +131,7 @@ show_termtuple(I,N,Term,Q,SA,E) :-
 	show_termtuple(I1,N,Term,Q,SAE,E).
 
 % check argument whether it can be encoded as a string:
-isShowableArg('Ports.internalPort'(_,SNr,_,_)) :-
+isShowableArg('Network.Ports.InternalPort'(_,SNr,_,_)) :-
 	SNr=<0, % is internal port or process port?
 	writeErr('ERROR: cannot serialize internal port!'),
 	nlErr,

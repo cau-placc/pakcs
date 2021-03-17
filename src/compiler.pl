@@ -2126,7 +2126,7 @@ transpropshar(Suffix) :-
 	PC2=partcall(N,F,SPArg),
 	PropShare_PC_PC =.. [PropShare,PC1,PC2],
 	writeClause((PropShare_PC_PC :- !, map2M(user:PropShareArg,PArg,SPArg))),
-	IP='Ports.internalPort'(_,_,_,_),
+	IP='Network.Ports.InternalPort'(_,_,_,_),
 	PropShare_IP_IP =.. [PropShare,IP,IP],
 	writeClause((PropShare_IP_IP :- !)),
 	Str='$stream'(_),
@@ -2155,7 +2155,8 @@ transpropshar(Suffix) :-
 	nl,
 	PropShareArg_A_A =.. [PropShareArg,A,A],
 	writeClause((PropShareArg_A_A :- var(A), !)),
-	writeClause((PropShareArg_A_A :- functor(A,'Ports.internalPort',4), !)),
+	writeClause((PropShareArg_A_A :-
+                       functor(A,'Network.Ports.InternalPort',4), !)),
 	PropShareArg_A_SA =.. [PropShareArg,A,SA],
 	appendAtom(makeShare,Suffix,MakeShare),
 	MakeShare_A_SA =.. [MakeShare,A,SA],
