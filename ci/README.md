@@ -141,6 +141,8 @@ to find the correct link navigate in another tab/window to `packs >> Package Reg
 this most likely already opens the correct version, if not go further to `Other versions >> <version>`.
 Now should see the generic package `<package>` in the version `<version>`, now you can hover over each filename corresponding to `<filename>` and copy the link into the corresponding URL Field of the release.
 
+Changing the URLs can cause the Permalinks to break, to fix this run the `ci/fix_asset_links.sh` script.
+
 ### Schedule
 #### Nightly Test
 Only the jobs `test_download_src` and `test_download_amd64_linux` are run,
@@ -178,6 +180,8 @@ Manually trigger the scheduled pipeline under `packs >> CI/CD > Schedules >> Tes
 To create a release, create the tag `v<packs-version>` with `<packs-version>` replaced by the version that the release is for.
 To test most of the release cycle, create a Manual pipline and set the Variable `TEST_RELEASE` to `yes` or create a tag 
 that does not potentially match a past or futur version.
+
+For more information on the Pipeline Job se above in the `CI Runs` Section under `Tag`
 
 ## CI Job Dependencies
 Gitlab requires that job dependencies are acyclic (reasonable) and that jobs may only depend on jobs of prior stages. 
