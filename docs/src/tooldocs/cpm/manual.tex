@@ -992,13 +992,21 @@ for the central package index (might be useful for experimental purposes).
 
 \item[\fbox{\code{install}}]
 Installs all dependencies of the current package.
-Furthermore, if the current package contains an executable application,
-the application is compiled and the executable is installed
+Furthermore, if the current package contains also executables
+for an application,
+the executables specified in the package are compiled and installed
 (unless the option \code{-n} or \code{--noexec} is set).
-With the option \code{-x} or \code{--exec}, the executable
-is installed without installing all dependencies again.
+With the option \code{-x} or \code{--exec}, the executables
+are installed without installing all dependencies again.
 This is useful to speed up the re-installation of a previously
 installed application.
+If a name is added to the option \code{-x} or \code{--exec}, e.g.,
+%
+\begin{lstlisting}
+> cypm install --exec compiler
+\end{lstlisting}
+%
+then only the executable with this name is installed.
 
 \item[\fbox{\code{install $package$ [--$pre$]}}]
 Installs the application provided by the newest version
@@ -1052,13 +1060,20 @@ current package and all its transitive dependencies to their newest compatible
 versions.
 
 \item[\fbox{\code{deps}}] Does a dependency resolution run for the current 
-package and prints out the results. The result is either a list of all package
+package and prints the results. The result is either a list of all package
 versions chosen or a description of the conflict encountered during dependency
 resolution.
-Using the option \code{--path]}, only the value of \code{CURRYPATH} required
+Using the option \code{--path}, only the value of \code{CURRYPATH} required
 to load modules of this package is shown.
 
-\item[\fbox{\code{test}}]
+If the option \code{--graph} is provided, then the dependency
+graph is translated into a graph in
+GraphViz\footnote{\url{http://www.graphviz.org/}} format.
+With the option \code{--viewgraph}, the dependency graph is visualized
+with the command defined in the \code{dotviewcommand} field of the
+rc file of the Curry system (e.g., \code{~/.pakcsrc} in case of PAKCS).
+
+\item[\fbox{\code{test [--modules $\mathit{modules}$] [--compile]}}]
 Tests the current package with CurryCheck.
 If the package specification contains a definition of a test suite
 (entry \code{testsuite}, see Section~\ref{sec:reference}),
@@ -1071,6 +1086,15 @@ otherwise all modules in the directory \code{src}
 (including hierarchical modules stored in its subdirectories) are tested.
 Using the option \code{--modules}, one can also specify a comma-separated
 list of module names to be tested.
+
+If the executable \code{curry-check} is not installed or the
+option \code{--compile} is provided, then the modules are only compiled
+and not tested.
+Hence, a package can be checked for compilation errors
+by the command
+\begin{lstlisting}
+cypm test --compile
+\end{lstlisting}
 
 \item[\fbox{\code{doc}}]
 Generates the documentation of the current package.

@@ -1083,7 +1083,7 @@ isoError2Atom(permission_error(Op,ObjType,Culprit),ErrA) :-
 	appendAtoms(['PERMISSION ERROR: ',Op,' ',ObjType,' "',Culprit,'"'],
                     ErrA).
 
-% Try to format an context error term:
+% Try to format a context error term:
 errorContext2Atom(existence_error(Goal,_,_,_,Message),ErrA) :-
 	nonvar(Message), Message = past_end_of_stream, !,
 	prologTerm2Atom(Goal,GoalA),
