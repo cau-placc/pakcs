@@ -54,7 +54,6 @@ install:
 	$(MAKE) ../INSTALL.html
 	$(MAKE) ../GITINSTALL.html
 	$(MAKE) ../RELNOTES.html
-	$(MAKE) ../CurryStyleGuide.html
 	$(MAKE) libdoc
 	$(MAKE) ../Manual.pdf
 

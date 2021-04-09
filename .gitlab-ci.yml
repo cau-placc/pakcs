@@ -329,7 +329,6 @@ upload_page_tar:
             docs/RELNOTES.html \
             docs/INSTALL.html \
             docs/GITINSTALL.html \
-            docs/CurryStyleGuide.html \
             "${PUBLIC_HTML}"
   artifacts:
     paths:
