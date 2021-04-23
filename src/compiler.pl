@@ -661,8 +661,9 @@ checkForDeprecatedFunction(Name) :-
 	writeLnErrNQ('".').
 checkForDeprecatedFunction(_).
 
-% check for ocurrences of constructors of Dynamic type and print error:
-checkForDynamicConstructor(Name) :-
+% check for ocurrences of constructors of Dynamic or Global types
+% and print error in this case:
+checkForIllegalOperationUsage(Name) :-
 	member(Name,['Dynamic.dynamic','Dynamic.persistent',
 		     'Global.global','GlobalVariable.gvar']),
 	currentFunction(QFunc),
@@ -673,7 +674,7 @@ checkForDynamicConstructor(Name) :-
 	writeErr(Name),
 	writeLnErr('" is not allowed in this context!'),
 	setFlcBug.
-checkForDynamicConstructor(_).
+checkForIllegalOperationUsage(_).
 
 % check for maximal arity of tuples and print warning:
 checkForTupleArity([40,44|Name]) :-
@@ -1381,7 +1382,7 @@ translateGlobalSpec(FName,_,_) :-
 	writeLnErr('" has illegal specification of storage mechanism!'),
 	setFlcBug.
 
-% check the type of dynamic predicates (i.e., result type Dynamic and
+% check the type of Global predicates (i.e., result type Global and
 % monomorphism restriction):
 checkGlobalType(PredName,'TCons'("Global.Global",[T])) :- !,
 	checkGlobalTypeForCorrectTypes(PredName,T).
@@ -1414,10 +1415,32 @@ checkGlobalTypeForCorrectTypes(PredName,'TVar'(_)) :-
 	setFlcBug.
 
 
+% check the type of Data.Global predicates (i.e., result type
+% Data.Global.GlobalT and monomorphism restriction):
+checkGlobalTemporaryType(PredName,'TCons'("Data.Global.GlobalT",[T])) :- !,
+	checkGlobalTmpTypeForCorrectTypes(PredName,T).
+checkGlobalTemporaryType(PredName,_) :-
+	writeErr('ERROR: Global declaration "'),
+	writeErr(PredName),
+	writeLnErr('" has not result type "Global"!'),
+	setFlcBug.
+
+checkGlobalTmpTypeForCorrectTypes(PredName,'FuncType'(T1,T2)) :-
+	checkGlobalTmpTypeForCorrectTypes(PredName,T1),
+	checkGlobalTmpTypeForCorrectTypes(PredName,T2).
+checkGlobalTmpTypeForCorrectTypes(PredName,'TCons'(_,Ts)) :-
+	map1partialM(compiler:checkGlobalTmpTypeForCorrectTypes(PredName),Ts).
+checkGlobalTmpTypeForCorrectTypes(PredName,'TVar'(_)) :-
+	writeErr('ERROR: Type of global declaration "'),
+	writeErr(PredName),
+	writeLnErr('" contains type variable!'),
+	setFlcBug.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Auxiliaries for handling global variables:
 
-% check the type of dynamic predicates (i.e., result type Dynamic and
+% check the type of GlobalVariable predicates (i.e., result type Dynamic and
 % monomorphism restriction):
 checkGVarType(PredName,'TCons'("GlobalVariable.GVar",[T])) :- !,
 	checkGlobalTypeForCorrectTypes(PredName,T).
@@ -1568,6 +1591,24 @@ writeFunc('Func'(Name,FArity,_Vis,Type,'Rule'(Args,Exp))) :-
 	nl, !.
 
 % special code for global declarations:
+% ...w.r.t. module Data.Global:
+writeFunc('Func'(Name,0,_Vis,Type,'Rule'([],RHS))) :-
+        Type = 'TCons'(GlobalT,[_]),
+        atom_codes('Data.Global.GlobalT',GlobalT), !,
+	flatName2Atom(Name,FName),
+        %writeErr('TRANSLATING TEMPORARY GLOBAL: '), writeLnErr(FName),
+	checkGlobalTemporaryType(FName,Type),
+	appendAtom('$GLOBAL_',FName,GlobName),
+        exp2Term([],RHS,RHSTerm),
+	Head =.. [FName,'Data.Global.GlobalT'(GlobName),E,E],
+	writeClause(Head),
+	writeClause((:- dynamic GlobName/1)),
+	GlobClauseHead =.. [GlobName,IVal],
+	writeClause((GlobClauseHead :-
+                       initGlobalTmpValue(GlobName,RHSTerm,IVal))),
+	nl, !.
+
+% ...w.r.t. module Global:
 writeFunc('Func'(Name,0,_Vis,Type,
 	  'Rule'([],'Comb'('FuncCall',"Global.global",[V,S])))) :- !,
 	flatName2Atom(Name,FName),
@@ -2405,7 +2446,7 @@ exp2Term(_,'Lit'('Ident'(S)),A) :- !,
 exp2Term(Vars,'Comb'(CombType,NameS,Exprs),Term) :- !,
 	flatName2Atom(NameS,Name),
 	checkForDeprecatedFunction(Name),
-	checkForDynamicConstructor(Name),
+	checkForIllegalOperationUsage(Name),
 	checkForTupleArity(NameS),
 	map2partialM(compiler:exp2Term(Vars),Exprs,Terms),
 	%length(Terms,TArity),
@@ -2518,7 +2559,7 @@ exp2FuncShareTerm(Level,Vars,'Comb'(CombType,NameS,Exprs),NewShares,NewTerm) :- 
 	exp2FuncShareTerms(Vars,Exprs,Shares,Terms),
 	flatName2Atom(NameS,Name),
 	checkForDeprecatedFunction(Name),
-	checkForDynamicConstructor(Name),
+	checkForIllegalOperationUsage(Name),
 	checkForTupleArity(NameS),
 	length(Terms,TArity),
 	(getConsArity(Name,Arity)

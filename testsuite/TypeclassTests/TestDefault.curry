@@ -1,4 +1,6 @@
--- Testing the effect of default declarations
+-- Testing the effect of default declarations to resolve overloading
+-- w.r.t. class `Num`
+-- (compare Sect. 4.3.4 of the Haskell 2010 Language Report)
 
 import Test.Prop
 
