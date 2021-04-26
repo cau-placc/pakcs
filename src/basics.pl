@@ -5,8 +5,9 @@
 		  noLoadMessage/0, withColor/1, cpmVersion/1, lastload/1,
                   plprofiling/1,
 		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
+                  verbosityCommands/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
-		  verbosemode/1, setVerboseMode/1, quietmode/1, setQuietMode/1,
+		  quietmode/1, setQuietMode/1,
                   rtArgs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
@@ -67,7 +68,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic withColor/1, cpmVersion/1, lastload/1, plprofiling/1, quietmode/1,
-	   verbosemode/1, rtArgs/1, compileWithSharing/1,
+	   rtArgs/1, compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
 	   user:dynamicPredInfo/2, orgDynamicPredInfo/2.
@@ -128,10 +129,6 @@ setExitCode(C) :-
 failWithExitCode :- setExitCode(1), !, fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-verbosemode(no). % yes if program should be executed in verbose mode
-
-setVerboseMode(V) :-
-	retract(verbosemode(_)), asserta(verbosemode(V)).
 
 setQuietMode(V) :-
 	retract(quietmode(_)), asserta(quietmode(V)).
@@ -147,11 +144,14 @@ verbosityQuiet :- verbosity(0).
 % verbosity level > 0?
 verbosityNotQuiet :- verbosity(N), N>0.
 
-% verbosity level >= 2 (show intermediate messages)?
-verbosityIntermediate :- verbosity(N), N>1.
+% verbosity level >= 2 (show commands)?
+verbosityCommands :- verbosity(N), N>1.
 
-% verbosity level = 3 (show all details and intermediate results)?
-verbosityDetailed :- verbosity(N), N>2.
+% verbosity level >= 3 (show intermediate messages)?
+verbosityIntermediate :- verbosity(N), N>2.
+
+% verbosity level = 4 (show all details and intermediate results)?
+verbosityDetailed :- verbosity(N), N>3.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % writing outputs:

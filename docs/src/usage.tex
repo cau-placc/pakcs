@@ -71,8 +71,8 @@ and \code{val} its new value.
 \item[\fbox{\code{-q}} or \fbox{\code{--quiet}}]:
 With this option, \CYS works silently, i.e., the initial banner
 and the input prompt are not shown.
-The output of other information is determined by the options
-\ccode{verbose} and \ccode{v$n$} (see Section~\ref{sec:options}).
+The output of other information is determined by the option
+\ccode{v$n$} (see Section~\ref{sec:options}).
 \end{description}
 %
 One can also invoke \CYS with some run-time arguments
@@ -430,13 +430,6 @@ the cpu time and the elapsed time
 of the computation is always printed together with the result
 of an evaluation.
 
-\item[\fbox{\code{+/-verbose}}] Verbose mode (initially, it is off).
-If the verbose mode is on,
-the initial expression of a computation is printed before it is evaluated.
-If the verbose mode is on and the verbosity level (see below)
-is non-zero, the type of the initial expression is also printed
-and the output of the evaluation is more detailed.
-
 \item[\fbox{\code{+/-warn}}]\pindex{warn} Parser warnings. If the parser
 warnings are turned on (default), the parser will print
 warnings about variables that occur only once in a program rule
@@ -477,9 +470,15 @@ for $n$:
 \item[$n=1$:] Show only messages of the front-end, like loading
 of modules.
 \item[$n=2$:]
+Show also invoked commands, e.g., to call the front end.
+Moreover,
+the initial expression of a computation together with its type
+is printed before it is evaluated,
+and the output of the evaluation is a bit more detailed.
+\item[$n=3$:]
 Show also messages of the back end, like loading intermediate files
 or generating Prolog target files.
-\item[$n=3$:]
+\item[$n=4$:]
 Show also messages related to loading Prolog files and libraries
 into the run-time systems and other intermediate messages and results.
 \end{description}

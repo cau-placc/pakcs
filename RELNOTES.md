@@ -1,11 +1,14 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.4.0 (March 9, 2021)
------------------------------------------------------
+Release notes for PAKCS Version 3.4.0 (April 26, 2021)
+------------------------------------------------------
 
 Changes to version 3.3.0:
 
+  * Verbosity options refined.
+  * Output of command `:type` for expressions with free variables corrected.
+  * Top-level expressions with `Monad` context are specialized to `IO`.
   * Desugaring of `newtype` declarations integrated into the compiler.
     Thus, the FlatCurry files produced by the front end contain
     `newtype` declarations which are eliminated before the Prolog code

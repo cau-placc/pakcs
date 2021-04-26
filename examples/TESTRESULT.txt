@@ -1,66 +1,45 @@
-Loading program "rev"...
-append [1,2] [3,4]
+Loading program: rev
 [1,2,3,4]
-rev [1,2,3,4,5,6,7,8,9,10]
 [10,9,8,7,6,5,4,3,2,1]
-Loading program "higher"...
-g1
+Loading program: higher
 [1,3,2]
-g2
 [1,3,2]
-g3
 3
-g4
 120
-g5
 120
-Loading program "quicksort"...
-qsort [2,3,1,0]
+Loading program: quicksort
 [0,1,2,3]
-Loading program "qsortlet"...
-qsort [2,3,1,0]
+Loading program: qsortlet
 [0,1,2,3]
-Loading program "inflists"...
-goal1
+Loading program: inflists
 [1,1,2,3,5,8,13,21,34,55]
-goal2
 [2,3,5,7,11]
-Loading program "family_rel"...
-goal1 child
+Loading program: family_rel
 {child=Susan} True
 {child=Peter} True
-grandfather g c
 {g=Antony, c=Susan} True
 {g=Antony, c=Peter} True
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
-Loading program "family_fun"...
-(=:=) (_inst#Prelude.Data#family_fun.Person) (father child) John
+Loading program: family_fun
 {child=Susan} True
 {child=Peter} True
-grandfather g c
 {g=Antony, c=Susan} True
 {g=Antony, c=Peter} True
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
-Loading program "horseman"...
-horseman m h (int2nat 8) (int2nat 20)
+Loading program: horseman
 {m=S (S (S (S (S (S O))))), h=S (S O)} True
-horseman m h (S (S O)) f
 {m=O, h=S (S O), f=S (S (S (S (S (S (S (S O)))))))} True
 {m=S O, h=S O, f=S (S (S (S (S (S O)))))} True
 {m=S (S O), h=O, f=S (S (S (S O)))} True
-Loading program "first"...
-goal1
+Loading program: first
 [O,S O]
-goal2 x y
 {x=S O, y=O} True
-Loading program "member"...
-goal2 x
+Loading program: member
 {x=2} True
 {x=3} True
-Loading program "colormap"...
-goal l1 l2 l3 l4
+Loading program: colormap
 {l1=Red, l2=Yellow, l3=Green, l4=Red} True
 {l1=Red, l2=Yellow, l3=Green, l4=Blue} True
 {l1=Red, l2=Yellow, l3=Blue, l4=Red} True
@@ -109,32 +88,24 @@ goal l1 l2 l3 l4
 {l1=Blue, l2=Green, l3=Red, l4=Blue} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Red} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Blue} True
-Loading program "account"...
-goal1 b
+Loading program: account
 {b=250} True
-goal2 b
 {b=150} True
-goal3 s
 {s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]} True
-Loading program "maxtree"...
-goal2
+Loading program: maxtree
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
-Loading program "assembler"...
-main
+Loading program: assembler
 [9,4,9,0]
-Loading program "ralign"...
-goal1
+Loading program: ralign
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-goal2
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-Loading program "tctest"...
+Loading program: tctest
 f :: Int -> Int
 i :: a -> a
 k :: a -> Int
-Loading program "rectype"...
+Loading program: rectype
 h :: ([Int],[Bool])
-Loading program "diamond"...
-diamond 10
+Loading program: diamond
                                        1    
                                   11       2    
                               21      12       3    
@@ -154,52 +125,30 @@ diamond 10
                               98      89      80    
                                   99      90    
                                      100    
-Loading program "arithseq"...
-l1
+Loading program: arithseq
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-l2
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-l3
 [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97]
-l4
 [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77]
-Loading program "multgen"...
-goal1
+Loading program: multgen
 [(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
-goal2
 [(1,1),(2,1),(2,2),(3,1),(3,2),(3,3)]
-goal3
 [(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(9,40,41),(10,24,26),(12,16,20),(12,35,37),(14,48,50),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40),(27,36,45),(30,40,50)]
-Loading program "psort"...
-goal 6
+Loading program: psort
 [1,2,3,4,5,6]
-Loading program "Default"...
-pabs 0
+Loading program: Default
 0
-pabs 3
 1
-swap [3]
 [3]
-swap [3,4]
 [4,3]
-swap [3,4,5]
 [3,4,5]
-Loading program "casetest"...
-swap [1]
+Loading program: casetest
 [1]
-swap [1,2]
 [2,1]
-swap [1,2,3]
 [1,2,3]
-f [1,2]
 152
-g (Just "xyz")
 True
-g (Just "ab")
 False
-h [1,2]
 True
-h [1,3]
 False
-h [2,((_impl#div#Prelude.Integral#Prelude.Int) 1) 0]
 False

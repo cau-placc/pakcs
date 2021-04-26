@@ -376,7 +376,7 @@ preprocessFcyFile(FcyFile) :-
     appendAtoms([PH,'/currytools/optimize/BindingOpt'],OptProg),
     existsFile(OptProg), !,
     verbosity(VL),
-    (VL=0 -> OptVL=48 ; OptVL is VL+47),
+    (VL<3 -> OptVL=48 ; OptVL is VL+46),
     atom_codes(VParam,[45,118,OptVL,32]), % define -vN
     (pakcsrc(bindingoptimization,fast) -> FParam='-f ' ; FParam=' '),
     appendAtoms(['"',OptProg,'" ',VParam,FParam,'"',FcyFile,'"'],OptCmd),

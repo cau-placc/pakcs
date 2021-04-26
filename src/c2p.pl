@@ -352,7 +352,7 @@ allOptions(["+allfails","-allfails",
             "+time","-time",
             "+verbose","-verbose",
             "+warn","-warn",
-            "path","printdepth","v0","v1","v2","v3","parser","safe","args",
+            "path","printdepth","v0","v1","v2","v3","v4","parser","safe","args",
             "+single","-single",
             "+spy","-spy","spy",
             "+trace","-trace"]).
@@ -398,7 +398,7 @@ processExpression(Input,ExprGoal) :-
         processExpressionWithType(Input,none,ExprGoal).
 
 processExpressionWithType(Input,InitMainExpType,ExprGoal) :-
-	parseMainExpression(Input,InitMainExpType,Term,Type,Vs,
+	parseMainExpression(yes,Input,InitMainExpType,Term,Type,Vs,
                             _,DfltTypeAtom,Overloaded),
 	processOrDefaultMainExpression(Input,Term,Type,Vs,DfltTypeAtom,
                                        Overloaded,ExprGoal).
@@ -409,28 +409,28 @@ processOrDefaultMainExpression(_Input,Term,Type,Vs,_,false,ExprGoal) :-
 	% we can directly process non-overloaded expressions:
 	!,
 	(isIoType(Type) -> ioAdmissible ; true),
-	(verbosemode(yes) ->
-	    (verbosityQuiet -> writeCurryTermWithFreeVarNames(Vs,Term), nl
-	      ; write('Evaluating expression: '),
-	        writeCurryTermWithFreeVarNames(Vs,Term),
-		write(' :: '),
-		numbersmallvars(97,_,Type), writeType(Type), nl,
-		% print free goal variables if present:
-		writeFreeVars(Vs))
+	(verbosityCommands
+	 -> write('Evaluating expression: '),
+	    writeCurryTermWithFreeVarNames(Vs,Term),
+	    write(' :: '),
+	    numbersmallvars(97,_,Type), writeType(Type), nl,
+	    % print free goal variables if present:
+	    writeFreeVars(Vs)
 	 ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
 processOrDefaultMainExpression(Input,_,_,_,DfltTypeAtom,_,ExprGoal) :-
         \+ DfltTypeAtom=none, !,
-	(verbosityDetailed -> write('Defaulted type of main expression: '),
+	(verbosityCommands -> write('Defaulted type of main expression: '),
                               write(DfltTypeAtom), nl
                             ; true),
 	processExpressionWithType(Input,DfltTypeAtom,ExprGoal).
 processOrDefaultMainExpression(_,_,Type,_,_,_,_) :-
-	(verbosityDetailed -> write('Overloaded type: '), writeq(Type), nl
-                            ; true),
+        write('Overloaded type: '),
+	(verbosityDetailed -> writeq(Type), nl ; true),
+        numbersmallvars(97,_,Type), writeType(Type), nl,
         writeErr('Cannot handle arbitrary overloaded top-level expressions'),
 	nlErr,
-        writeErr('Hint: add type annotation to overloaded entity'), nlErr,
+        writeErr('Hint: add type annotation to specialize the type'), nlErr,
         fail.
 
 % translate a flat type into an atom in Curry syntax:
@@ -466,25 +466,28 @@ classDict('TCons'(FCDict,[A]),A,ModS,DictS) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% process a given expression by writing it into a main module
-% and calling the front end:
-parseMainExpression(Input,InitMainExpType,MainExp,Type,Vs,
+% Process a given expression by writing it into a main module
+% and calling the front end.
+% If the first argument has value `yes`, free variables declared
+% in a "where...free" are transformed into arguments of the main operation.
+parseMainExpression(SplitFreeVars,Input,InitMainExpType,MainExp,Type,Vs,
                     MainExpType,DfltTypeAtom,Ovld) :-
 	getNewFileName("",MainExprDir),
 	makeDirectory(MainExprDir),
-	parseExpressionWithFrontend(MainExprDir,Input,InitMainExpType,
-                                    MainExp,Type,Vs,
+	parseExpressionWithFrontend(MainExprDir,SplitFreeVars,Input,
+                                    InitMainExpType,MainExp,Type,Vs,
                                     MainExpType,DfltTypeAtom,Ovld),
 	(verbosityDetailed
           -> write('Translated expression: '), writeq(MainExp), nl
            ; true).
 
-parseExpressionWithFrontend(MainExprDir,Input,InitMainFuncType,MainExp,
-                            Type,Vs,MainFuncType,DfltTypeAtom,Ovld) :-
+parseExpressionWithFrontend(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
+                            MainExp,Type,Vs,MainFuncType,DfltTypeAtom,Ovld) :-
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
-	splitWhereFree(Input,InputExp,FreeVars),
+        (SplitFreeVars=yes -> splitWhereFree(Input,InputExp,FreeVars)
+                            ; InputExp=Input, FreeVars=[]),
 	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars,
                           InitMainFuncType),
 	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
@@ -527,7 +530,7 @@ parseExpressionWithFrontend(MainExprDir,Input,InitMainFuncType,MainExp,
 	(FVL=RAL -> Ovld=false ; Ovld=true),
 	!,
 	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontend(MainExprDir,_,_,_,_,_,_,_,_) :-
+parseExpressionWithFrontend(MainExprDir,_,_,_,_,_,_,_,_,_) :-
 	deleteMainExpFiles(MainExprDir),
 	!, failWithExitCode.
 
@@ -583,24 +586,32 @@ compileMainExpression(MainExprMod) :-
 % The third argument contains the defaulted type as an atom
 % or 'none' if the type is still overloaded.
 defaultTypeExpr(OrgType,DfltType,DfltTypeAtom) :-
-        defaultNumType(OrgType,DefNumType),
-        removeDefaultedTypes(DefNumType,DfltType),
+        defaultTypeClass(OrgType,DefaultedType),
+        removeDefaultedTypes(DefaultedType,DfltType),
         (isOverloadedType(DfltType) -> DfltTypeAtom=none    % can't default
                                      ; flatType2Atom(DfltType,DfltTypeAtom)).
 
 % try to default overloaded numerical types:
-defaultNumType(Type,Type) :- var(Type), !.
-defaultNumType('FuncType'(AType,RType),DType) :-
+defaultTypeClass(Type,Type) :- var(Type), !.
+defaultTypeClass('FuncType'(AType,RType),DType) :-
 	classDict(AType,TVar,ModName,DictName),
-        ModName="Prelude", member(DictName,["Num","Integral","Fractional"]), !,
+        ModName="Prelude",
+        defaultPreludeClass(DictName,TVar,RType,DType).
+defaultTypeClass('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
+        defaultTypeClass(RType,DType).
+defaultTypeClass(Type,Type).
+
+defaultPreludeClass(DictName,TVar,RType,DType) :-
+        member(DictName,["Num","Integral","Fractional"]), !,
 	(DictName="Fractional"
          -> (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
-	    defaultNumType(RType,DType)
+ 	    defaultTypeClass(RType,DType)
 	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),
-	    defaultNumType(RType,DType)).
-defaultNumType('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
-        defaultNumType(RType,DType).
-defaultNumType(Type,Type).
+	    defaultTypeClass(RType,DType)).
+defaultPreludeClass(DictName,TVar,RType,DType) :-
+        member(DictName,["Monad"]), !,
+	(var(TVar) -> TVar = 'TCons'('Prelude.IO',[]) ; true),
+        defaultTypeClass(RType,DType).
 
 % remove type class context of defaulted types:
 removeDefaultedTypes(Type,Type) :- var(Type), !.
@@ -811,15 +822,15 @@ processCommand("set",[]) :- !,
 	write('+/-profile      - show profile data in debug mode'), nl,
 	write('+/-suspend      - show suspended goals at end of suspended computation'), nl,
 	write('+/-time         - show execution time'), nl,
-	write('+/-verbose      - verbose mode (printing initial expressions)'), nl,
 	write('+/-warn         - show parser warnings'), nl,
 	write('path <path>     - set additional search path for loading modules'), nl,
 	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
 	write('v<n>            - verbosity level'), nl,
 	write('                   0: quiet (errors only)'), nl,
-	write('                   1: status messages (default)'), nl,
-	write('                   2: intermediate messages and commands'), nl,
-	write('                   3: all intermediate results'), nl,
+	write('                   1: show status messages (default)'), nl,
+	write('                   2: show commands and print initial expressions'), nl,
+	write('                   3: show intermediate infos'), nl,
+	write('                   4: show all details'), nl,
 	write('safe            - safe execution mode without I/O actions'), nl,
 	write('parser <opts>   - additional options passed to Curry front end'), nl,
 	write('args   <args>   - run-time arguments passed to main program'), nl,
@@ -857,8 +868,6 @@ processCommand("set",[]) :- !,
 	write(suspend),	write('   '),
 	timemode(T), (T=yes -> write('+') ; write('-')),
 	write(time),	write('  '),
-	verbosemode(V), (V=yes -> write('+') ; write('-')),
-	write(verbose),	write('  '),
 	parser_warnings(W), (W=yes -> write('+') ; write('-')),
 	write(warn), write('  '),
 	nl,
@@ -899,9 +908,9 @@ processCommand("load",Arg) :- !,
 	isValidProgramName(Prog),
 	retract(lastload(OldLL)), asserta(lastload(Prog)),
 	retract(addImports(OldImps)), asserta(addImports([])),
-	(verbosemode(yes) -> write('Loading program "'),
-	                     atom_codes(ProgA,Prog), write(ProgA),
-	                     write('"...'), nl ; true),
+	(verbosityCommands -> write('Loading program "'),
+	                      atom_codes(ProgA,Prog), write(ProgA),
+	                      write('"...'), nl ; true),
         (processCommand("reload",[])
          -> true
           ; retract(lastload(_)), asserta(lastload(OldLL)),
@@ -938,9 +947,10 @@ processCommand("eval",ExprInput) :- !,
 	call(ExprGoal).
 
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(ExprInput,none,Term,_,Vs,Type,_,Ovld),
-	(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
-                    ; writeCurryTermWithFreeVarNames(Vs,Term)),
+	parseMainExpression(no,ExprInput,none,_Term,_,_Vs,Type,_,_Ovld),
+	%(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
+        %            ; writeCurryTermWithFreeVarNames(Vs,Term)),
+        atom_codes(EI,ExprInput), write(EI),
 	write(' :: '),
 	numbersmallvars(97,_,Type), writeType(Type), nl.
 
@@ -1081,7 +1091,7 @@ processCommand("source",Arg) :-
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	parseMainExpression(ExprInput,none,Term,_Type,_Vs,_,_,_),
+	parseMainExpression(no,ExprInput,none,Term,_Type,_Vs,_,_,_),
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
@@ -1105,10 +1115,9 @@ processCommand("save",Exp) :- !,
 	initializationsInProg(ProgInits),
 	resetDynamicPreds,
 	(retract(rtArgs(_)) -> true ; true),
-	% start saved program in non-verbose mode if initial goal provided:
-	verbosemode(QM), setVerboseMode(no),
+	% start saved program with quiet verbosity if initial goal provided:
 	processExpression(MainGoal,ExecGoal),
-        SaveGoal = (ProgInits, evaluator:evaluateGoalAndExit(ExecGoal)),
+        SaveGoal = (ProgInits, basics:setVerbosity(0), evaluator:evaluateGoalAndExit(ExecGoal)),
 	(verbosityDetailed
           -> write('Goal to execute in saved state:'), nl, writeq(SaveGoal), nl
            ; true),
@@ -1116,7 +1125,6 @@ processCommand("save",Exp) :- !,
 	 -> atom_codes(ProgA,Prog), prog2PrologFile(ProgA,ProgPl),
 	    createSavedState(ProgPl,ProgStName,SaveGoal)
 	  ; saveprog_entry(ProgStName,SaveGoal)),
-	setVerboseMode(QM),
 	installDir(PH),
 	appendAtoms(['"',PH,'/scripts/makesavedstate" '],CMD1),
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
@@ -1160,7 +1168,7 @@ checkCpmTool(CpmBin,Package,Prog) :-
 
 % call "shellCmd" and report its execution if verbosityIntermediate:
 shellCmdWithReport(Cmd) :-
-	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
+	(verbosityCommands -> write('Executing: '), write(Cmd), nl ; true),
 	flush_output(user_output),
 	shellCmd(Cmd).
 
@@ -1346,8 +1354,8 @@ processSetOption("+time") :- !,
 processSetOption("-time") :- !,
 	retract(timemode(_)),
 	asserta(timemode(no)).
-processSetOption("+verbose") :- !, setVerboseMode(yes).
-processSetOption("-verbose") :- !, setVerboseMode(no).
+processSetOption("+verbose") :- !, setVerbosity(2).
+processSetOption("-verbose") :- !, setVerbosity(1).
 processSetOption("+warn") :- !,
 	retract(parser_warnings(_)),
 	asserta(parser_warnings(yes)).
@@ -1408,6 +1416,7 @@ processSetOption("v0") :- !, setVerbosity(0).
 processSetOption("v1") :- !, setVerbosity(1).
 processSetOption("v2") :- !, setVerbosity(2).
 processSetOption("v3") :- !, setVerbosity(3).
+processSetOption("v4") :- !, setVerbosity(4).
 
 processSetOption("path") :- !,
 	setCurryPath(''),
@@ -1466,15 +1475,13 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	parseMainExpression(ExprInput,none,_Term,Type,_Vs,_,_,_),
+	parseMainExpression(yes,ExprInput,none,_Term,Type,_Vs,_,_,_),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
-	% start saved program in non-verbose mode:
-	verbosemode(QM), setVerboseMode(no),
+	% start forked program in quiet verbosity mode:
 	processExpression(ExprString,ExecGoal),
-	forkProcessForGoal(evaluator:evaluateGoalAndExit(ExecGoal)),
-	setVerboseMode(QM),
+	forkProcessForGoal((basics:setVerbosity(0), evaluator:evaluateGoalAndExit(ExecGoal))),
 	sleepSeconds(1). % wait a little bit for starting up the new process
 
 % write free variables, if there are any:
@@ -2058,7 +2065,7 @@ getModStream(ModS,InStream) :-
         checkCpmTool('curry-showsource','sourceproggui',ShowSource),
 	atom_codes(ModA,ModS),
 	appendAtoms([ShowSource,' ',ModA,' 2>/dev/null'],Cmd),
-	(verbosityIntermediate -> write('Executing: '), write(Cmd), nl ; true),
+	(verbosityCommands -> write('Executing: '), write(Cmd), nl ; true),
 	flush_output(user_output),
    	execCommand(Cmd,InStream,_,std),
 	assertz(sourceCodeGUI(ModS,InStream)).
