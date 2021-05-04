@@ -57,9 +57,11 @@ Print only a help message.
 \item[\fbox{\code{-V}} or \fbox{\code{--version}}]:
 Print the version information of \CYS and quit.
 \item[\fbox{\code{--compiler-name}}]:
-Print just the compiler name (\code{pakcs}) and quit.
+Print the compiler name (\code{pakcs}) and quit.
 \item[\fbox{\code{--numeric-version}}]:
-Print just the version number and quit.
+Print the version number and quit.
+\item[\fbox{\code{--base-version}}]:
+Print the version of the base (system) libraries and quit.
 \item[\fbox{\code{--noreadline}}]:
 Do not use input line editing (see Section~\ref{sec:readline}).
 \item[\fbox{\code{-Dname=val}}]
@@ -78,7 +80,8 @@ The output of other information is determined by the option
 One can also invoke \CYS with some run-time arguments
 that can be accessed inside a Curry program
 by the I/O operation \code{getArgs}
-(see library \code{System} (Section~\ref{Library:System.Environment}).
+(see library \code{System.Environment},
+Section~\ref{Library:System.Environment}).
 These run-time arguments must be written at the end after
 the separator \ccode{--}.
 For instance, if \CYS is invoked by
@@ -88,7 +91,7 @@ pakcs :load Mod -- first and second
 then a call to the I/O operation \code{getArgs}
 returns the list value
 \begin{curry}
-["first","and","second"]
+["first", "and", "second"]
 \end{curry}
 
 
@@ -104,10 +107,28 @@ e.g., one can type \ccode{:r} instead of \ccode{:reload}):
 Show a list of all available commands.
 
 \item[\fbox{\code{:load $prog$}}]\pindex{:load}
-Compile and load the program stored in \code{$prog$.curry}
-together with all its imported modules.
-If this file does not exist, the system looks for a FlatCurry
-file \code{$prog$.fcy} and compiles from this intermediate representation.
+Compile and load the program stored in
+\code{$prog$.curry} or \code{$prog$.lcurry}
+together with all its imported modules.\footnote{%
+If the Curry source file does not exist, the system looks for a
+FlatCurry file (see Appendix~\ref{sec-flatcurry}) \code{$prog$.fcy}
+and compiles from this intermediate representation.}
+The program name can also be a hierarchical module name.
+In this case, the actual module must be stored in the subdirectory
+of the given hierachy, e.g., when loading the module \code{A.B.Mod},
+\CYS looks for a Curry program \code{Mod.curry} or \code{Mod.lcurry}
+stored in the directory \code{A/B} in the load path.
+If the program name contains a directory prefix, e.g.,
+\begin{curry}
+:load DirA/DirB.Mod
+\end{curry}
+\CYS switches to the directory before loading the program, i.e.,
+the command above is equivalent to
+\begin{curry}
+:cd DirA/DirB
+:load Mod
+\end{curry}
+
 % If the file \code{$prog$.fcy} does not exists, too, the system looks
 % for a file \code{$prog$_flat.xml} containing a FlatCurry program in
 % XML representation (compare command \ccode{:xml}\pindex{:xml}),
@@ -202,12 +223,12 @@ of all exported functions.
 
 \item[\fbox{\code{:interface $prog$}}]\pindex{:interface}
 Similar to \ccode{:interface}
-but shows the interface of the module \ccode{$prog$.curry}.
-If this module does not exist, this command looks in the
-system library directory of \CYS for a module with this name,
-e.g., the command \ccode{:interface FlatCurry} shows the interface
-of the system module \code{FlatCurry} for meta-programming
-(see Appendix~\ref{sec-flatcurry}).
+but shows the interface of the module \ccode{$prog$.curry}
+which must be accessible via the current load path.
+For instance, the command \ccode{:interface Data.List} shows the interface
+of the system module \code{Data.List} containing some useful
+operations on lists
+(see Appendix~\ref{Library:Data.List}).
 
 \item[\fbox{\code{:usedimports}}]\pindex{:usedimports}
 Show all calls to imported functions in the currently loaded module.
@@ -456,7 +477,7 @@ so that the path is independent of later changes of the
 current working directory.
 
 \item[\fbox{\code{printdepth $n$}}]\pindex{printdepth}
-Set the depth for printing terms to the value \code{n} (initially: 0).
+Set the depth for printing terms to the value \code{n} (initially: \code{0}).
 In this case subterms with a depth greater than \code{n} are abbreviated
 by dots when they are printed as a result of a computation
 or during debugging. A value of \code{0} means infinite depth
@@ -487,9 +508,9 @@ into the run-time systems and other intermediate messages and results.
 Turn on the safe execution mode.
 In the safe execution mode, the initial goal is
 not allowed to be of type \code{IO} and the program should not
-import the module \code{Unsafe}.
-Furthermore, the allowed commands are
-\code{eval}, \code{load}, \code{quit}, and \code{reload}.
+import the module \code{System.IO.Unsafe}.
+Furthermore, only the commands
+\code{eval}, \code{load}, \code{quit}, and \code{reload} are allowed.
 This mode is useful to use \CYS in uncontrolled environments,
 like a computation service in a web page, where \CYS could
 be invoked by
@@ -516,7 +537,8 @@ For instance, setting the option
 :set args first second
 \end{curry}
 has the effect that the I/O operation \code{getArgs}
-(see library \code{System} (Section~\ref{Library:System.Environment})
+(see library \code{System.Environment}
+(Section~\ref{Library:System.Environment})
 returns the value \code{["first","second"]}.
 
 \end{description}
@@ -575,8 +597,8 @@ are defined by setting the option \code{args} (see above).
 
 Here is an example to use \CYS in this way:
 \begin{curry}
-> pakcs :set args Hello World :add System :eval "getArgs >>= putStrLn . unwords" :quit
-Hello World
+> pakcs :set args Hi World :add System.Environment :eval "getArgs >>= putStrLn . unwords" :quit
+Hi World
 >
 \end{curry}
 

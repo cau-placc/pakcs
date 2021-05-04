@@ -904,8 +904,8 @@ processCommand("compile",Arg) :- !,
         processCommand("load",Arg).
 
 processCommand("load",Arg) :- !,
-	extractProgName(Arg,Prog),
-	isValidProgramName(Prog),
+	extractProgName(Arg,PathProg),
+	checkProgramNameAndCD(PathProg,Prog),
 	retract(lastload(OldLL)), asserta(lastload(Prog)),
 	retract(addImports(OldImps)), asserta(addImports([])),
 	(verbosityCommands -> write('Loading program "'),
@@ -970,7 +970,7 @@ processCommand("interface",[]) :- !,
 processCommand("interface",IFTail) :- !,
         checkCpmTool('curry-showflat','showflatcurry',ShowFlat),
 	extractProgName(IFTail,Prog),
-	isValidProgramName(Prog),
+	isValidModuleName(Prog),
         atom_codes(ProgA,Prog),
 	appendAtoms([ShowFlat,' -int ',ProgA],GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
@@ -1439,7 +1439,7 @@ processSetOption(Option) :-
 	asserta(printDepth(D1)).
 processSetOption("safe") :- !,
 	retract(forbiddenModules(_)),
-	asserta(forbiddenModules(['Unsafe'])),
+	asserta(forbiddenModules(['System.IO.Unsafe','Unsafe'])),
 	retract(safeMode(_)), asserta(safeMode(yes)), !.
 processSetOption("parser") :- !,
 	retract(parserOptions(_)), asserta(parserOptions([])).
@@ -1562,7 +1562,6 @@ failprint(Exp,E,E) :-
 % call the front-end to parse a Curry program (argument is a string):
 
 parseProgram(ProgS,Verbosity,Warnings) :-
-	findSourceProgPath(ProgS,ProgPath), !,
   	installDir(TCP),
 	compilerMajorVersion(MajorVersion),
 	versionAtom(MajorVersion, MajorVersionAtom),
@@ -1588,12 +1587,9 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	parserOptions(POpts),
 	atom_codes(Prog,ProgS),
 	split2dirbase(Prog,_,ProgName),
-	workingDirectory(CurDir),
-	setWorkingDirectory(ProgPath),
 	appendAtoms([CM6,' ',POpts,' ',ProgName],LoadCmd),
 	(shellCmdWithReport(LoadCmd) -> Parse=ok
 	  ; writeLnErr('ERROR occurred during parsing!'), Parse=failed),
-	setWorkingDirectory(CurDir),
 	!, Parse=ok, % proceed only in case of successful parsing
 	% finally, we apply the FlatCury preprocessor:
 	findSourceProg(ProgS,ProgPathS), !,
@@ -1923,11 +1919,17 @@ extractProgName(S,ProgName) :-
 
 % check whether a program name (obtained by extractProgName) contains
 % a valid module name:
-isValidProgramName(ProgString) :-
+checkProgramNameAndCD(ProgString,ModString) :-
 	atom_codes(ProgAtom,ProgString),
-	split2dirbase(ProgAtom,_,ModName),
+	split2dirbase(ProgAtom,DirName,ModName),
 	atom_codes(ModName,ModString),
-	isValidModuleName(ModString).
+	isValidModuleName(ModString), !,
+        (DirName = '.'
+         -> true
+          ; writeNQ('Switching to directory "'),
+            writeNQ(DirName),
+            writeLnNQ('"...'),
+            setWorkingDirectory(DirName)).
 
 % check whether a module name (a code list) is valid:
 isValidModuleName(ModString) :-
