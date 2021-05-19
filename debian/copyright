@@ -341,7 +341,7 @@ Files: src/Makefile
  Makefile
  OLDRELNOTES.html
  pakcsrc.default
- README
+ README.md
  RELNOTES.txt
  RESOURCES.html
 Copyright: 2000-2016, Michael Hanus <mh@informatik.uni-kiel.de>
