@@ -600,7 +600,7 @@ intersperse(_,[],[]).
 intersperse(_,[X],[X]).
 intersperse(Sep,[X,Y|Zs],[X,Sep|Xs]) :- intersperse(Sep,[Y|Zs],Xs).
 
-% concatenate a list of atom into a single atom:
+% concatenate a list of atoms into a single atom:
 appendAtoms(As,A) :-
 	map2M(prologbasics:atomCodes,As,Xs), concat(Xs,Ys), atom_codes(A,Ys).
 

@@ -1422,7 +1422,7 @@ checkGlobalTemporaryType(PredName,'TCons'("Data.Global.GlobalT",[T])) :- !,
 checkGlobalTemporaryType(PredName,_) :-
 	writeErr('ERROR: Global declaration "'),
 	writeErr(PredName),
-	writeLnErr('" has not result type "Global"!'),
+	writeLnErr('" has not result type "Data.Global.GlobalT"!'),
 	setFlcBug.
 
 checkGlobalTmpTypeForCorrectTypes(PredName,'FuncType'(T1,T2)) :-
@@ -1590,25 +1590,7 @@ writeFunc('Func'(Name,FArity,_Vis,Type,'Rule'(Args,Exp))) :-
 	  ; addDynamicNameInfo(DynName/DArity,ENameTerm)),
 	nl, !.
 
-% special code for global declarations:
-% ...w.r.t. module Data.Global:
-writeFunc('Func'(Name,0,_Vis,Type,'Rule'([],RHS))) :-
-        Type = 'TCons'(GlobalT,[_]),
-        atom_codes('Data.Global.GlobalT',GlobalT), !,
-	flatName2Atom(Name,FName),
-        %writeErr('TRANSLATING TEMPORARY GLOBAL: '), writeLnErr(FName),
-	checkGlobalTemporaryType(FName,Type),
-	appendAtom('$GLOBAL_',FName,GlobName),
-        exp2Term([],RHS,RHSTerm),
-	Head =.. [FName,'Data.Global.GlobalT'(GlobName),E,E],
-	writeClause(Head),
-	writeClause((:- dynamic GlobName/1)),
-	GlobClauseHead =.. [GlobName,IVal],
-	writeClause((GlobClauseHead :-
-                       initGlobalTmpValue(GlobName,RHSTerm,IVal))),
-	nl, !.
-
-% ...w.r.t. module Global:
+% special code for global declarations w.r.t. (deprecated) module Global:
 writeFunc('Func'(Name,0,_Vis,Type,
 	  'Rule'([],'Comb'('FuncCall',"Global.global",[V,S])))) :- !,
 	flatName2Atom(Name,FName),
@@ -1638,8 +1620,9 @@ writeFunc('Func'(Name,0,_Vis,Type,
                        initGlobalVariable(FName,ValueTerm,GlobValue,E0,E))),
 	nl, !.
 
-writeFunc('Func'(Name,FArity,_Vis,_Type,'Rule'(FlatArgs,FlatExp))) :-
+writeFunc('Func'(Name,FArity,_Vis,Type,'Rule'(FlatArgs,FlatExp))) :-
 	flatName2Atom(Name,FName),
+        checkFuncType(FName,FArity,Type),
 	retract(currentFunction(_)),
 	decodePrologName(FName,FlatName),
 	asserta(currentFunction(FlatName)),
@@ -1654,6 +1637,16 @@ writeFunc('Func'(Name,FArity,_Vis,_Type,'Rule'(FlatArgs,FlatExp))) :-
 	flatargs2var(FlatArgs,Env,Args),
 	flatexp2var(Env,FlatExp,RHS),
 	transExp(NewFName,'',Args,Args,nocut,RHS), nl.
+
+% check function type for correct use of module Data.Global:
+checkFuncType(FName,0,Type) :-
+        Type = 'TCons'(GlobalT,[_]),
+        atom_codes('Data.Global.GlobalT',GlobalT), !,
+        atom_codes(FName,FNameS),
+        (append("Data.Global._impl",_,FNameS)
+         -> true
+	  ; checkGlobalTemporaryType(FName,Type)), !.
+checkFuncType(_,_,_).
 
 % is a function type the type of a (parameterized) IO action?
 isIOAction('FuncType'(_,T)) :- isIOAction(T).
