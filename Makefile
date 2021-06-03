@@ -389,8 +389,8 @@ $(CLEANCURRY):
 
 # Clean the system files, i.e., remove the installed PAKCS components
 # except for the front end and the reference to the Prolog back end.
-.PHONY: clean
-clean: $(CLEANCURRY)
+.PHONY: cleansystem
+cleansystem: $(CLEANCURRY)
 	rm -f $(MAKELOG)
 	$(MAKE) cleantools
 	if [ -d lib ] ; then cd lib && $(MAKE) clean ; fi
@@ -406,17 +406,22 @@ cleantools: $(CLEANCURRY)
 	$(MAKE) -C currytools uninstall
 	cd bin && rm -f pakcs
 
-# Clean everything (including the front end, reference to Prolog back end)
-.PHONY: cleanall
-cleanall:
-	cd bin && rm -f sicstusprolog swiprolog
-	rm -rf $(LIBDIR)
+# Clean front end
+.PHONY: cleanfrontend
+cleanfrontend:
 	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
 	if [ -d $(FRONTENDDIR) ]; \
 	  then rm -rf $(BINDIR) ; \
 	  else rm -f $(CYMAKE) ; \
 	fi
-	$(MAKE) clean
+
+# Clean everything (including the front end, reference to Prolog back end)
+.PHONY: clean
+clean:
+	cd bin && rm -f sicstusprolog swiprolog
+	rm -rf $(LIBDIR)
+	$(MAKE) cleanfrontend
+	$(MAKE) cleansystem
 
 
 ################################DISTRIBUTION##################################
