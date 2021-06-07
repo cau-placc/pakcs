@@ -423,6 +423,9 @@ clean:
 	$(MAKE) cleanfrontend
 	$(MAKE) cleansystem
 
+.PHONY: cleanall
+cleanall: clean
+
 
 ################################DISTRIBUTION##################################
 # Create distribution versions of the complete system as tar files
