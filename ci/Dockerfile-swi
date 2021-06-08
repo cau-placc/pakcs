@@ -1,4 +1,4 @@
-FROM haskell:8.6.5
+FROM haskell:8.8.3
 
 # asymptote to vprerex are the packages of texlive-full without the -doc packages
 # some packages have been removed because they couldn't be found:
