@@ -1,4 +1,4 @@
-image: "skgland/pakcs-swi-ci:latest"
+image: "skgland/pakcs-swi-ci:8.8.3"
 
 # set TEST_DOWNLOAD=yes to run the download test
 # set BUILD_NIGHTLY=yes to build a nightly
@@ -116,6 +116,8 @@ run_make:
 # template for test_download_src and test_download_amd64_linux
 .test_download:
   stage: test
+  # testing src wnload builds for 2.3.0 requires an older ghc
+  image: "skgland/pakcs-swi-ci:8.6.5"
   tags:
     - docker2
   rules:
