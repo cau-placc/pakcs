@@ -126,6 +126,7 @@ run_make:
   variables:
     # may differ from default version above if download and current branch don't use the same version
     CURRY_CHECK_VERSION: "3.0.0"
+    CURRY_DOC_VERSION: "3.0.0"
   timeout: 2h
   before_script:
     - source ci/make_download.sh
