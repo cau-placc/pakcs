@@ -305,7 +305,9 @@ ifneq ("$(wildcard $(CURRYLIBSDIR))", "")
 	$(MAKE) $(LIB_CURRYONLY_FILES)
 	$(MAKE) $(LIB_PAKCS_CURRY_FILES)
 	$(MAKE) $(LIB_PAKCS_PL_FILES)
-	$(MAKE) $(LIBDIR)/Makefile $(LIBDIR)/VERSION
+	$(MAKE) $(LIBDIR)/Makefile
+	@$(MAKE) require-jq
+	$(MAKE) $(LIBDIR)/VERSION
 
 CURRYLIBSSRCDIR      =$(CURRYLIBSDIR)/src
 MODULE_FOLDERS       =$(shell cd $(CURRYLIBSSRCDIR) && find * -type d)
@@ -337,14 +339,14 @@ $(LIB_PAKCS_CURRY_FILES): lib/%.curry: $(CURRYLIBSSRCDIR)/%.curry lib/%.pakcs
 $(LIB_PAKCS_PL_FILES): lib/%.pakcs.pl: $(CURRYLIBSSRCDIR)/%.pakcs.pl
 	cp $< $@
 
+$(LIBDIR)/VERSION: $(CURRYLIBSDIR)/package.json
+	$(JQ) -r '.version' $(CURRYLIBSDIR)/package.json > $@
+
 endif
 
 $(LIBDIR)/Makefile: lib_Makefile
 	mkdir -p $(LIBDIR)
 	cp $< $@
-
-$(LIBDIR)/VERSION: require-jq $(CURRYLIBSDIR)/package.json
-	$(JQ) -r '.version' $(CURRYLIBSDIR)/package.json > $@
 
 ########################################################################
 #
@@ -519,9 +521,10 @@ JQ := $(shell which jq)
 
 .PHONY: require-jq
 require-jq:
-	@if [ ! -x "$(JQ)" ] ; then \
-		echo "Tool 'jq' not found!" ; \
-		echo "Install it, e.g.,  by 'sudo apt install jq'" ; \
-		exit 1 ; fi
+ifeq ("$(JQ)","")
+	@echo "Executable 'jq' not found!"
+	@echo "Install it, e.g.,  by 'sudo apt install jq'"
+	@exit 1
+endif
 
 ##############################################################################

@@ -53,7 +53,7 @@ sicstus:
 # make everything if we have a SWI-Prolog system:
 .PHONY: swi
 swi:
-	rm -f prologbasics.pl ; cp swibasics.pl prologbasics.pl
+	rm -f prologbasics.pl && cp swibasics.pl prologbasics.pl
 	$(MAKE) swi.state
 	mv -f swi.state c2p.state
 
