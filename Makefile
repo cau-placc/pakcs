@@ -323,7 +323,6 @@ LIB_PAKCS_CURRY_FILES=$(addprefix lib/, $(PAKCS_CURRY_FILES))
 LIB_PAKCS_PL_FILES   =$(addprefix lib/, $(PAKCS_PL_FILES))
 
 $(LIB_MODULE_FOLDERS): lib/%: $(CURRYLIBSSRCDIR)/%
-	echo $< $@
 	mkdir -p $@
 
 $(LIB_CURRYONLY_FILES): lib/%.curry: $(CURRYLIBSSRCDIR)/%.curry
