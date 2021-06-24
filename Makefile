@@ -211,17 +211,6 @@ scripts:
 cleanscripts:
 	cd scripts && $(MAKE) clean
 
-# install the library sources from the trunk directory:
-.PHONY: copylibs
-copylibs:
-	@if [ -d $(CURRYLIBSDIR) ] ; then \
-	  $(MAKE) -f $(ROOT)/Makefile_install_lib ; \
-	  $(MAKE) $(LIBDIR)/Makefile ; fi
-
-$(LIBDIR)/Makefile: lib_Makefile
-	mkdir -p $(LIBDIR)
-	cp $< $@
-
 # if the directory `currytools` is not present, copy it from the sources:
 # (only necessary for the installation of a (Debian) packages, otherwise
 # `currytools` is a submodule of the repository)
@@ -303,6 +292,62 @@ $(MANUALVERSION): Makefile
 	echo '\\newcommand{\\pakcsversion}{$(VERSION)}' > $@
 	echo '\\newcommand{\\pakcsversiondate}{Version of $(COMPILERDATE)}' >> $@
 
+########################################################################
+#
+# Installing base libraries
+#
+
+# copy the library sources from the lib-trunk directory:
+.PHONY: copylibs
+copylibs:
+ifneq ("$(wildcard $(CURRYLIBSDIR))", "")
+	$(MAKE) $(LIB_MODULE_FOLDERS)
+	$(MAKE) $(LIB_CURRYONLY_FILES)
+	$(MAKE) $(LIB_PAKCS_CURRY_FILES)
+	$(MAKE) $(LIB_PAKCS_PL_FILES)
+	$(MAKE) $(LIBDIR)/Makefile $(LIBDIR)/VERSION
+
+CURRYLIBSSRCDIR      =$(CURRYLIBSDIR)/src
+MODULE_FOLDERS       =$(shell cd $(CURRYLIBSSRCDIR) && find * -type d)
+CURRY_FILES          =$(shell cd $(CURRYLIBSSRCDIR) && find * -name "*.curry")
+PAKCS_FILES          =$(shell cd $(CURRYLIBSSRCDIR) && find * -name "*.pakcs")
+PAKCS_CURRY_FILES    =$(addsuffix .curry, $(basename $(PAKCS_FILES)))
+PAKCS_PL_FILES       =$(shell cd $(CURRYLIBSSRCDIR) && find * -name "*.pakcs.pl")
+NON_PAKCS_BASENAMES  =$(basename $(filter-out $(CURRY_PAKCS_FILES), $(CURRY_FILES)))
+CURRYONLY_FILES      =$(addsuffix .curry, $(filter-out $(basename $(PAKCS_FILES)), $(NON_PAKCS_BASENAMES)))
+
+LIB_MODULE_FOLDERS   =$(addprefix lib/, $(MODULE_FOLDERS))
+LIB_CURRYONLY_FILES  =$(addprefix lib/, $(CURRYONLY_FILES))
+LIB_PAKCS_FILES      =$(addprefix lib/, $(PAKCS_FILES))
+LIB_PAKCS_CURRY_FILES=$(addprefix lib/, $(PAKCS_CURRY_FILES))
+LIB_PAKCS_PL_FILES   =$(addprefix lib/, $(PAKCS_PL_FILES))
+
+$(LIB_MODULE_FOLDERS): lib/%: $(CURRYLIBSSRCDIR)/%
+	echo $< $@
+	mkdir -p $@
+
+$(LIB_CURRYONLY_FILES): lib/%.curry: $(CURRYLIBSSRCDIR)/%.curry
+	cp $< $@
+
+$(LIB_PAKCS_FILES): lib/%.pakcs: $(CURRYLIBSSRCDIR)/%.pakcs
+	cp $< $@
+
+$(LIB_PAKCS_CURRY_FILES): lib/%.curry: $(CURRYLIBSSRCDIR)/%.curry lib/%.pakcs
+	cp $< $@
+
+$(LIB_PAKCS_PL_FILES): lib/%.pakcs.pl: $(CURRYLIBSSRCDIR)/%.pakcs.pl
+	cp $< $@
+
+endif
+
+$(LIBDIR)/Makefile: lib_Makefile
+	mkdir -p $(LIBDIR)
+	cp $< $@
+
+$(LIBDIR)/VERSION: require-jq $(CURRYLIBSDIR)/package.json
+	$(JQ) -r '.version' $(CURRYLIBSDIR)/package.json > $@
+
+########################################################################
 #
 # Create documentation for system libraries:
 #
@@ -465,3 +510,19 @@ dist:
 distdated: dist
 	mv $(FULLNAME)-src.tar.gz     $(FULLNAME)-$(DIST_DATE)-src.tar.gz
 	mv $(FULLNAME)-$(ARCH).tar.gz $(FULLNAME)-$(DIST_DATE)-$(ARCH).tar.gz
+
+
+##############################################################################
+# Required tools:
+
+# Executable of JSON command-line processor:
+JQ := $(shell which jq)
+
+.PHONY: require-jq
+require-jq:
+	@if [ ! -x "$(JQ)" ] ; then \
+		echo "Tool 'jq' not found!" ; \
+		echo "Install it, e.g.,  by 'sudo apt install jq'" ; \
+		exit 1 ; fi
+
+##############################################################################
