@@ -5,7 +5,7 @@ FROM haskell:${GHC_VERSION}
 # some packages have been removed because they couldn't be found:
 # texlive-fonts-extra-links, texlive-plain-generic
 #
-# sqlite2 is needed for better speed using cypm
+# sqlite3 is needed for better speed using cypm
 #
 # lockfile-progs is needed for one of the testsuite tests
 RUN apt-get update \
@@ -28,6 +28,7 @@ RUN apt-get update \
         feynmf \
         fragmaster \
         info \
+        jq \
         lacheck \
         latex-cjk-all \
         latexdiff \

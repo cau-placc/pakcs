@@ -46,5 +46,18 @@ $(PAKCS_CURRY_FILES): %.curry: $(CURRYLIBSSRCDIR)/%.curry %.pakcs
 $(PAKCS_PL_FILES): %.pakcs.pl: $(CURRYLIBSSRCDIR)/%.pakcs.pl
 	cp $< $@
 
-$(LIBDIR)/VERSION: $(CURRYLIBSDIR)/VERSION
-	cp $< $@
+$(LIBDIR)/VERSION: require-jq $(CURRYLIBSDIR)/package.json
+	$(JQ) -r '.version' $(CURRYLIBSDIR)/package.json > $@
+
+############################################################################
+# Executable of JSON command-line processor:
+JQ := $(shell which jq)
+
+.PHONY: require-jq
+require-jq:
+	@if [ ! -x "$(JQ)" ] ; then \
+		echo "Tool 'jq' not found!" ; \
+		echo "Install it, e.g.,  by 'sudo apt install jq'" ; \
+		exit 1 ; fi
+
+############################################################################
