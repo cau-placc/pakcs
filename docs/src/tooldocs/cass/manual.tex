@@ -110,7 +110,7 @@ application implemented in Curry. Since CASS is implemented in Curry,
 one can import the modules of the CASS implementation and
 use the CASS interface operations to start an analysis and use the
 computed results. For instance, CASS provides an operation
-(defined in the module \code{AnalysisServer})
+(defined in the module \code{CASS.Server})
 \begin{curry}
 analyzeGeneric :: Analysis a -> String -> IO (Either (ProgInfo a) String)
 \end{curry}
@@ -119,15 +119,23 @@ given in the second argument). The result is either the analysis
 information computed for this module or an error message in case of
 some execution error.
 
-The modules of the CASS implementation are stored in the directory
-\code{\cyshome/currytools/CASS} and the modules implementing
-the various program analyses are stored in
-\code{\cyshome/currytools/analysis}.
-Hence, one should add these directories to the Curry load path
-when using CASS in API mode.
+In order to use CASS via the API mode in a Curry program,
+one has to use the package \code{cass} by the Curry package manager CPM
+(the subsequent explanation assumes familiarity with the basic
+features of CPM):
+\begin{enumerate}
+\item
+Add the dependency on package \code{cass} and also on
+package \code{cass-analysis}, which contains some base definitions,
+in the package specification file \code{package.json}.
+\item
+Install these dependencies by \ccode{cypm install}.
+\end{enumerate}
+Then you can import in your application the modules
+provided by CASS.
 
-The CASS module \code{GenericProgInfo} contains operations
-to access the analysis information computed by CASS.
+The module \code{Analysis.ProgInfo} (from package \code{cass-analysis})
+contains operations to access the analysis information computed by CASS.
 For instance, the operation
 \begin{curry}
 lookupProgInfo:: QName -> ProgInfo a -> Maybe a
@@ -135,16 +143,16 @@ lookupProgInfo:: QName -> ProgInfo a -> Maybe a
 returns the information about a given qualified name in the
 analysis information, if it exists.
 As a simple example, consider the demand analysis which is implemented
-in the module \code{Demandedness} by the following operation:
+in the module \code{Analysis.Demandedness} by the following operation:
 \begin{curry}
 demandAnalysis :: Analysis DemandedArgs
 \end{curry}
 \code{DemendedArgs} is just a type synonym for \code{[Int]}.
 We can use this analysis in the following simple program:
 \begin{currynomath}
-import AnalysisServer   (analyzeGeneric)
-import GenericProgInfo  (lookupProgInfo)
-import Demandedness     (demandAnalysis)
+import CASS.Server           ( analyzeGeneric )
+import Analysis.ProgInfo     ( lookupProgInfo )
+import Analysis.Demandedness ( demandAnalysis )
 
 demandedArgumentsOf :: String -> String -> IO [Int]
 demandedArgumentsOf modname fname = do
@@ -168,7 +176,8 @@ The server mode of CASS can be used in an application implemented in
 some language that does not have a direct interface to Curry.
 In this case, one can connect to CASS via
 some socket using a simple communication protocol that is specified
-in the file \code{\cyshome/currytools/CASS/Protocol.txt} and sketched below.
+in the file \code{Protocol.txt} (in package \code{cass})
+and sketched below.
 
 To start CASS in the server mode, one has to execute the command
 \begin{curry}
@@ -277,8 +286,8 @@ Connection closed by foreign host.
 \subsection{Implementing Program Analyses}
 
 Each program analysis accessible by CASS must be registered
-in the CASS module \code{Registry}. The registered analysis
-must contain an operation of type
+in the CASS module \code{CASS.Registry}.
+An analysis to be registered must contain an operation of type
 \begin{curry}
 Analysis a
 \end{curry}
@@ -292,8 +301,8 @@ is defined by overlapping rules.
 
 In order to add a new analysis to CASS, one has to implement
 a corresponding analysis operation, registering it in the module
-\code{Registry} (in the constant \code{registeredAnalysis})
-and compile the modified CASS implementation.
+\code{CASS.Registry} (in the constant \code{registeredAnalysis})
+and compile/install the modified CASS implementation.
 
 An analysis is implemented as a mapping from Curry programs
 represented in FlatCurry into the analysis result.
@@ -304,18 +313,18 @@ import FlatCurry.Types
 $\ldots$
 isOverlappingFunction :: FuncDecl -> Bool
 isOverlappingFunction (Func _ _ _ _ (Rule _ e))   = orInExpr e
-isOverlappingFunction (Func f _ _ _ (External _)) = f==("Prelude","?")
+isOverlappingFunction (Func f _ _ _ (External _)) = f == ("Prelude","?")
 
 -- Check an expression for occurrences of Or:
 orInExpr :: Expr -> Bool
 orInExpr (Var _)       = False
 orInExpr (Lit _)       = False
-orInExpr (Comb _ f es) = f==(pre "?") || any orInExpr es
+orInExpr (Comb _ f es) = f == (pre "?") || any orInExpr es
 orInExpr (Free _ e)    = orInExpr e
 orInExpr (Let bs e)    = any orInExpr (map snd bs) || orInExpr e
 orInExpr (Or _ _)      = True
 orInExpr (Case _ e bs) = orInExpr e || any orInBranch bs
-                   where orInBranch (Branch _ be) = orInExpr be
+ where orInBranch (Branch _ be) = orInExpr be
 orInExpr (Typed e _)   = orInExpr e
 \end{curry}
 %
@@ -335,7 +344,7 @@ simpleFuncAnalysis :: String -> (FuncDecl -> a) -> Analysis a
 The arguments are the analysis name and the actual analysis function.
 Hence, the ``overlapping rules'' analysis can be specified as
 \begin{curry}
-import Analysis
+import Analysis.Types
 $\ldots$
 overlapAnalysis :: Analysis Bool
 overlapAnalysis = simpleFuncAnalysis "Overlapping" isOverlappingFunction
@@ -387,8 +396,8 @@ by the following operation:
 detFunc :: FuncDecl -> [(QName,Deterministic)] -> Deterministic
 detFunc (Func f _ _ _ (Rule _ e)) calledFuncs =
   if orInExpr e || freeVarInExpr e || any (==NDet) (map snd calledFuncs)
-   then NDet
-   else Det
+    then NDet
+    else Det
 \end{curry}
 Thus, it computes the abstract value \code{NDet}
 if the function itself is defined by overlapping rules or
