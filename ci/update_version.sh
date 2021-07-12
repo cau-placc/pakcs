@@ -102,7 +102,7 @@ LATEST_VERSION
 ---
 # THIS FILE WAS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 date: ${BUILD_DATE}
-version: v${VERSION} ${BUILD_DATE}
+version: v${VERSION} ($(date --date="${BUILD_DATE}" +%0d/%0m/%y))
 source: ${src_download}
 linux:  ${arch_download}
 manual: ${manual_download}
