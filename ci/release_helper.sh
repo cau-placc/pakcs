@@ -7,12 +7,11 @@
 # takes one parameter indicating whether this is a nightly release or a release release
 function release_helper_init() {
 
-  version_number="${BUILD_PAKCS_VERSION}"
   arch="${BUILD_PAKCS_ARCH}"
 
   # FULLNAME and ARCH copied from makefile
   package_name="pakcs"
-  name="pakcs-${version}"
+  name="pakcs-${BUILD_PAKCS_VERSION}"
 
   name_suffix=""
   release_tag=""
@@ -52,7 +51,7 @@ function release_helper_init() {
     ;;
   esac
 
-  version="${version_number}${pre_release:+-$pre_release}${build:++${build}}"
+  version="${BUILD_PAKCS_VERSION}${pre_release:+-$pre_release}${build:++${build}}"
   full_name="${name}${pre_release:+-$pre_release}${name_suffix}"
 
   PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${package_name}/${version}"
