@@ -90,9 +90,24 @@ function release_helper_init() {
 
   # these variables are used by update_version.sh when doing a release
   # for the download links on curry-lang.org
-  # these urls are meaningless for nightly releases
+  # these urls are meaningless for nightly releases as it does not create gitlab release
   src_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[0]}"
   arch_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[1]}"
   manual_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[2]}"
+
+
+  # These links will expire as the artifacts are by default only kept for a limited time
+  # but as these are nightlies this should be fine.
+  # When it is possible to lik to the generic packages, we create it would be best to change to links to point there
+  # as the job id would then also be irrelevant <https://gitlab.com/gitlab-org/gitlab/-/issues/289848>
+  BUNDLE_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
+  MANUAL_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw"
+
+  # these variables are used by update_version.sh when doing a nightly
+  # for the download links on curry-lang.org
+  # these urls are meaningless for normal releases as the gitlab release links should be used as they don't expire
+  nightly_src_download="${BUNDLE_DOWNLOAD_URL}/${LOCAL_FILE_NAMES[0]}"
+  nightly_arch_download="${BUNDLE_DOWNLOAD_URL}/${LOCAL_FILE_NAMES[1]}"
+  nightly_manual_download="${MANUAL_DOWNLOAD_URL}/${LOCAL_FILE_NAMES[2]}"
 
 }

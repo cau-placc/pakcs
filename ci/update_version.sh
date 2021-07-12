@@ -37,12 +37,7 @@ function finish() {
 # update the latest nightly version
 function nightly() {
 
-  # These links will expire as the artifacts are by default only kept for a limited time
-  # but as these are nightlies this should be fine.
-  # When it is possible to lik to the generic packages, we create it would be best to change to links to point there
-  # as the job id would then also be irrelevant
-  BUNDLE_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
-  MANUAL_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw"
+  release_helper_init nightly
 
   # replace the latest-nightly.version file
   install -D /dev/stdin "${NIGHTLY_FILE}" <<NIGHTLY_VERSION
@@ -51,9 +46,9 @@ function nightly() {
 # MANUAL CHANGES TO THIS FILE WILL GET LOST ON THE NEXT NIGHTLY RUN
 date: ${BUILD_DATE}
 version: Latest Nightly ${CI_COMMIT_SHORT_SHA} ($(date --date="${BUILD_DATE}" +%0d/%0m/%y))
-source: ${BUNDLE_DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
-linux:  ${BUNDLE_DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: ${MANUAL_DOWNLOAD_URL}/docs/Manual.pdf
+source: ${nightly_src_download}
+linux:  ${nightly_arch_download}
+manual: ${nightly_manual_download}
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}
@@ -75,8 +70,6 @@ COMMIT_MSG
 
 # update the latest release and create a release entry
 function release() {
-
-  source ci/release_helper.sh
 
   release_helper_init release
 
@@ -126,6 +119,8 @@ CI triggered later via Pipeline https://gitlab.com/gitlab-org/gitlab/-/issues/24
 COMMIT_MSG
 
 }
+
+source ci/release_helper.sh
 
 init
 
