@@ -103,9 +103,9 @@ LATEST_VERSION
 # THIS FILE WAS GENERATED AUTOMATICALLY BY THE PACKS RELEASE PIPELINE
 date: ${BUILD_DATE}
 version: v${VERSION} ${BUILD_DATE}
-source: ${DOWNLOAD_URL}/pakcs-${VERSION}-src.tar.gz
-linux:  ${DOWNLOAD_URL}/pakcs-${VERSION}-amd64-Linux.tar.gz
-manual: ${DOWNLOAD_URL}/pakcs-${VERSION}-manual.pdf
+source: ${src_download}
+linux:  ${arch_download}
+manual: ${manual_download}
 commit_sha: ${CI_COMMIT_SHA}
 commit_short_sha: ${CI_COMMIT_SHORT_SHA}
 ci_job: ${CI_JOB_ID}
