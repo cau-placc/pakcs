@@ -16,7 +16,7 @@
 
 :- dynamic compileWithCompact/1,
 	   parser_warnings/1, parserOptions/1,
-	   freeVarsUndeclared/1, addImports/1, safeMode/1.
+	   freeVarsUndeclared/1, addImports/1, safeMode/1, echoMode/1.
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
@@ -24,6 +24,7 @@ parserOptions(''). % additional options passed to front end
 freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 safeMode(no). % safe execution without IO actions at top level?
+echoMode(no). % echo the current REPL input?
 
 % Read the PAKCS rc file to define some constants
 readRcFile(ArgProps) :-
@@ -287,10 +288,20 @@ main :-
         prompt(_,''),  % clear standard Prolog prompt for further getChar
 	(Input = end_of_file -> true
             ; removeBlanks(Input,ShortInput),
+              echoInput(ShortInput),
 	      process(ShortInput)),
 	cleanupAtEnd,
 	exitCode(EC),
 	halt(EC).
+
+echoInput(_) :-
+        echoMode(no), !.
+echoInput(InputS) :-
+        pakcsPrompt(Prompt),
+        write(Prompt),
+        atom_codes(Input,InputS),
+        write(Input), nl,
+        !.
 
 % things to do when leaving PAKCS interactive environment:
 cleanupAtEnd :-
@@ -342,6 +353,7 @@ allOptions(["+allfails","-allfails",
             "+compact","-compact",
             "+consfail","-consfail",
             "+debug","-debug",
+            "+echo","-echo",
             "+free","-free",
             "+interactive","-interactive",
             "+first","-first",
@@ -815,8 +827,9 @@ processCommand("set",[]) :- !,
 	write('                  ("+consfail all": show complete fail trace)'), nl,
 	write('                  ("+consfail file:F": store complete fail trace in file F)'), nl,
 	write('+/-debug        - debug mode (compile with debugging information)'), nl,
-	write('+/-interactive  - turn on/off interactive execution of initial expression'), nl,
+	write('+/-echo         - turn on/off echoing of commands'), nl,
 	write('+/-first        - turn on/off printing only first value'), nl,
+	write('+/-interactive  - turn on/off interactive execution of initial expression'), nl,
 	write('+/-plprofile    - use Prolog profiler'), nl,
 	write('+/-printfail    - show failures in top-level evaluation'), nl,
 	write('+/-profile      - show profile data in debug mode'), nl,
@@ -849,15 +862,16 @@ processCommand("set",[]) :- !,
 	printConsFailure(PrintConsFail),
 	(PrintConsFail=no -> write('-') ; write('+')),
 	write(consfail),
-	(PrintConsFail=no -> write('    ')
+	(PrintConsFail=no -> write('   ')
 	  ; write('('), write(PrintConsFail), write(') ')),
 	(compileWithDebug -> write('+') ; write('-')),
-	write(debug),	write('    '),
+	write(debug),	write('     '),
+	(echoMode(yes) -> write('+') ; write('-')),
+	write(echo), write('  '),
 	(firstSolutionMode(yes) -> write('+') ; write('-')),
-	write(first), write('  '),
+	write(first), write('   '),
 	(interactiveMode(yes) -> write('+') ; write('-')),
-	write(interactive), write('  '),
-	nl,
+	write(interactive), write('  '), nl,
 	(compileWithFailPrint -> write('+') ; write('-')),
 	write(printfail), write('  '),
 	profiling(P), (P=yes -> write('+') ; write('-')),
@@ -867,7 +881,7 @@ processCommand("set",[]) :- !,
 	suspendmode(BM), (BM=yes -> write('+') ; write('-')),
 	write(suspend),	write('   '),
 	timemode(T), (T=yes -> write('+') ; write('-')),
-	write(time),	write('  '),
+	write(time),	write('   '),
 	parser_warnings(W), (W=yes -> write('+') ; write('-')),
 	write(warn), write('  '),
 	nl,
@@ -1300,16 +1314,16 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 	deleteFile(TmpSavePl).
 
 % process the various options of the ":set" command:
+processSetOption("+echo") :- !,	retract(echoMode(_)), asserta(echoMode(yes)).
+processSetOption("-echo") :- !,	retract(echoMode(_)), asserta(echoMode(no)).
 processSetOption("+error") :- !,
 	writeLnErr('WARNING: option "error" no longer supported!').
 processSetOption("-error") :- !,
 	writeLnErr('WARNING: option "error" no longer supported!').
 processSetOption("+interactive") :- !,
-	retract(interactiveMode(_)),
-	asserta(interactiveMode(yes)).
+	retract(interactiveMode(_)), asserta(interactiveMode(yes)).
 processSetOption("-interactive") :- !,
-	retract(interactiveMode(_)),
-	asserta(interactiveMode(no)).
+	retract(interactiveMode(_)), asserta(interactiveMode(no)).
 processSetOption("+first") :- !,
 	retract(firstSolutionMode(_)),
 	asserta(firstSolutionMode(yes)).

@@ -1,45 +1,67 @@
-Loading program: rev
+Prelude> :set v1
+Prelude> :load rev
+rev> append [1,2] [3,4] :: [Int]
 [1,2,3,4]
+rev> rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 [10,9,8,7,6,5,4,3,2,1]
-Loading program: higher
+rev> :load higher
+higher> g1
 [1,3,2]
+higher> g2
 [1,3,2]
+higher> g3
 3
+higher> g4
 120
+higher> g5
 120
-Loading program: quicksort
+higher> :load quicksort
+quicksort> qsort [2,3,1,0] :: [Int]
 [0,1,2,3]
-Loading program: qsortlet
+quicksort> :load qsortlet
+qsortlet> qsort [2,3,1,0] :: [Int]
 [0,1,2,3]
-Loading program: inflists
+qsortlet> :load inflists
+inflists> goal1
 [1,1,2,3,5,8,13,21,34,55]
+inflists> goal2
 [2,3,5,7,11]
-Loading program: family_rel
+inflists> :load family_rel
+family_rel> goal1 child  where child free
 {child=Susan} True
 {child=Peter} True
+family_rel> grandfather g c  where g,c free
 {g=Antony, c=Susan} True
 {g=Antony, c=Peter} True
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
-Loading program: family_fun
+family_rel> :load family_fun
+family_fun> father child =:= John  where child free
 {child=Susan} True
 {child=Peter} True
+family_fun> grandfather g c  where g,c free
 {g=Antony, c=Susan} True
 {g=Antony, c=Peter} True
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
-Loading program: horseman
+family_fun> :load horseman
+horseman> horseman m h (int2nat 8) (int2nat 20)  where m,h free
 {m=S (S (S (S (S (S O))))), h=S (S O)} True
+horseman> horseman m h (S (S O)) f  where m,h,f free
 {m=O, h=S (S O), f=S (S (S (S (S (S (S (S O)))))))} True
 {m=S O, h=S O, f=S (S (S (S (S (S O)))))} True
 {m=S (S O), h=O, f=S (S (S (S O)))} True
-Loading program: first
+horseman> :load first
+first> goal1
 [O,S O]
+first> goal2 x y  where x,y free
 {x=S O, y=O} True
-Loading program: member
+first> :load member
+member> goal2 x    where x free
 {x=2} True
 {x=3} True
-Loading program: colormap
+member> :load colormap
+colormap> goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 {l1=Red, l2=Yellow, l3=Green, l4=Red} True
 {l1=Red, l2=Yellow, l3=Green, l4=Blue} True
 {l1=Red, l2=Yellow, l3=Blue, l4=Red} True
@@ -88,24 +110,36 @@ Loading program: colormap
 {l1=Blue, l2=Green, l3=Red, l4=Blue} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Red} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Blue} True
-Loading program: account
+colormap> :load account
+account> goal1 b  where b free
 {b=250} True
+account> goal2 b  where b free
 {b=150} True
+account> goal3 s  where s free
 {s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]} True
-Loading program: maxtree
+account> :load maxtree
+maxtree> goal2
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
-Loading program: assembler
+maxtree> :load assembler
+assembler> main
 [9,4,9,0]
-Loading program: ralign
+assembler> :load ralign
+ralign> goal1
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
+ralign> goal2
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-Loading program: tctest
+ralign> :load tctest
+tctest> :t f
 f :: Int -> Int
+tctest> :t i
 i :: a -> a
+tctest> :t k
 k :: a -> Int
-Loading program: rectype
+tctest> :load rectype
+rectype> :t h
 h :: ([Int],[Bool])
-Loading program: diamond
+rectype> :load diamond
+diamond> diamond 10
                                        1    
                                   11       2    
                               21      12       3    
@@ -125,30 +159,55 @@ Loading program: diamond
                               98      89      80    
                                   99      90    
                                      100    
-Loading program: arithseq
+diamond> :cd listcomp
+diamond> :load arithseq
+arithseq> l1
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+arithseq> l2
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+arithseq> l3
 [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97]
+arithseq> l4
 [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77]
-Loading program: multgen
+arithseq> :load multgen
+multgen> goal1
 [(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
+multgen> goal2
 [(1,1),(2,1),(2,2),(3,1),(3,2),(3,3)]
+multgen> goal3
 [(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(9,40,41),(10,24,26),(12,16,20),(12,35,37),(14,48,50),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40),(27,36,45),(30,40,50)]
-Loading program: psort
+multgen> :load psort
+psort> goal 6
 [1,2,3,4,5,6]
-Loading program: Default
+psort> :load Default
+Default> pabs 0
 0
+Default> pabs 3
 1
+Default> swap [3]
 [3]
+Default> swap [3,4]
 [4,3]
+Default> swap [3,4,5]
 [3,4,5]
-Loading program: casetest
+Default> :cd ..
+Default> :load casetest
+casetest> swap [1]
 [1]
+casetest> swap [1,2]
 [2,1]
+casetest> swap [1,2,3]
 [1,2,3]
+casetest> f [1,2]
 152
+casetest> g (Just "xyz")
 True
+casetest> g (Just "ab")
 False
+casetest> h [1,2]
 True
+casetest> h [1,3]
 False
+casetest> h [2,div 1 0]
 False
+casetest> :q

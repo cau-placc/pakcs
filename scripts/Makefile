@@ -12,7 +12,7 @@ all:
 	$(MAKE) $(BINS)
 
 # install some script of PAKCS in the bin directory:
-$(BINDIR)/%: %.sh
+$(BINDIR)/%: %.sh ../Makefile
 	mkdir -p $(@D)
 	cat $< | \
 	 sed "s|^PAKCSBUILDDIR=.*$$|PAKCSBUILDDIR=$(ROOT)|" | \

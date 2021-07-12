@@ -359,23 +359,6 @@ The following options (which can be set by the command \ccode{:set})
 are currently supported:
 
 \begin{description}
-\item[\fbox{\code{+/-debug}}]\pindex{debug} Debug mode.
-\index{debug mode}
-In the debug mode, one can trace the evaluation of an expression,
-setting spy points (break points) etc.\ (see the commands
-for the debug mode described below).
-
-\item[\fbox{\code{+/-printfail}}]\pindex{printfail} Print failures.
-If this option is set, failures occurring during evaluation
-(i.e., non-reducible demanded subexpressions) are printed.
-This is useful to see failed reductions due to partially
-defined functions or failed unifications.
-Inside encapsulated search (e.g., inside evaluations of
-\code{findall} and \code{findfirst}), failures are not printed
-(since they are a typical programming technique there).
-Note that this option causes some overhead in execution time
-and memory so that it could not be used in larger applications.
-
 \item[\fbox{\code{+/-allfails}}]\pindex{allfails}
 If this option is set, \emph{all} failures
 (i.e., also failures on backtracking and failures
@@ -383,6 +366,11 @@ of enclosing functions that fail due to the failure of an argument
 evaluation) are printed if the option \code{printfail} is set.
 Otherwise, only the first failure (i.e., the first non-reducible
 subexpression) is printed.
+
+\item[\fbox{\code{+/-compact}}]\pindex{compact}
+Reduce the size of target programs by using the
+parser option \ccode{--compact}
+(see Section~\ref{sec-pakcspp} for details about this option).
 
 \item[\fbox{\code{+/-consfail}}]\pindex{consfail} Print constructor failures.
 If this option is set, failures due to application of
@@ -412,10 +400,22 @@ an interactive mode for exploring the fail trace is started
 When the interactive mode is finished, the program execution
 proceeds with a failure.
 
-\item[\fbox{\code{+/-compact}}]\pindex{compact}
-Reduce the size of target programs by using the
-parser option \ccode{--compact}
-(see Section~\ref{sec-pakcspp} for details about this option).
+\item[\fbox{\code{+/-debug}}]\pindex{debug} Debug mode.
+\index{debug mode}
+In the debug mode, one can trace the evaluation of an expression,
+setting spy points (break points) etc.\ (see the commands
+for the debug mode described below).
+
+\item[\fbox{\code{+/-echo}}]\pindex{echo}
+Turn on/off echoing of commands.
+If echoing is on, each command is printed again on the standard output.
+This is useful to show or evaluate the output of scripts which call
+\CYS and run it with a given list of commands.
+
+\item[\fbox{\code{+/-first}}]\pindex{first}
+Turn on/off the first-only mode.
+In the first-only mode, only the first value
+of the main expression is printed (instead of all values).
 
 \item[\fbox{\code{+/-interactive}}]\pindex{interactive}
 Turn on/off the interactive mode.
@@ -427,10 +427,16 @@ The default value for this option can be set in the
 configuration file \ccode{\curryrc} (initially, the interactive
 mode is turned off).
 
-\item[\fbox{\code{+/-first}}]\pindex{first}
-Turn on/off the first-only mode.
-In the first-only mode, only the first value
-of the main expression is printed (instead of all values).
+\item[\fbox{\code{+/-printfail}}]\pindex{printfail} Print failures.
+If this option is set, failures occurring during evaluation
+(i.e., non-reducible demanded subexpressions) are printed.
+This is useful to see failed reductions due to partially
+defined functions or failed unifications.
+Inside encapsulated search (e.g., inside evaluations of
+\code{findall} and \code{findfirst}), failures are not printed
+(since they are a typical programming technique there).
+Note that this option causes some overhead in execution time
+and memory so that it could not be used in larger applications.
 
 \item[\fbox{\code{+/-profile}}]\pindex{profile} Profile mode.
 If the profile mode is on, then information about

@@ -7,101 +7,79 @@ CURRYBIN=$CURRYHOME/bin
 LOGFILE=xxx$$
 /bin/rm -rf .curry
 
-cat << EOM | $CURRYBIN/curry -q :set parser -W none :set -interactive :set -time :set v0 :set printdepth 0 | tee $LOGFILE
-:!echo Loading program: rev
-:l rev
+cat << EOM | $CURRYBIN/curry :set v0 :set parser -v0 -W none :set -interactive :set -time :set printdepth 0 :set +echo | tee $LOGFILE
+:set v1
+:load rev
 append [1,2] [3,4] :: [Int]
 rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
-:!echo Loading program: higher
-:l higher
+:load higher
 g1
 g2
 g3
 g4
 g5
-:!echo Loading program: quicksort
-:l quicksort
+:load quicksort
 qsort [2,3,1,0] :: [Int]
-:!echo Loading program: qsortlet
-:l qsortlet
+:load qsortlet
 qsort [2,3,1,0] :: [Int]
-:!echo Loading program: inflists
-:l inflists
+:load inflists
 goal1
 goal2
-:!echo Loading program: family_rel
-:l family_rel
+:load family_rel
 goal1 child  where child free
 grandfather g c  where g,c free
-:!echo Loading program: family_fun
-:l family_fun
+:load family_fun
 father child =:= John  where child free
 grandfather g c  where g,c free
-:!echo Loading program: horseman
-:l horseman
+:load horseman
 horseman m h (int2nat 8) (int2nat 20)  where m,h free
 horseman m h (S (S O)) f  where m,h,f free
-:!echo Loading program: first
-:l first
+:load first
 goal1
 goal2 x y  where x,y free
-:!echo Loading program: member
-:l member
+:load member
 goal2 x    where x free
-:!echo Loading program: colormap
-:l colormap
+:load colormap
 goal l1 l2 l3 l4   where l1,l2,l3,l4 free
-:!echo Loading program: account
-:l account
+:load account
 goal1 b  where b free
 goal2 b  where b free
 goal3 s  where s free
-:!echo Loading program: maxtree
-:l maxtree
+:load maxtree
 goal2
-:!echo Loading program: assembler
-:l assembler
+:load assembler
 main
-:!echo Loading program: ralign
-:l ralign
+:load ralign
 goal1
 goal2
-:!echo Loading program: tctest
-:l tctest
+:load tctest
 :t f
 :t i
 :t k
-:!echo Loading program: rectype
-:l rectype
+:load rectype
 :t h
-:!echo Loading program: diamond
-:l diamond
+:load diamond
 diamond 10
 :cd listcomp
-:!echo Loading program: arithseq
-:l arithseq
+:load arithseq
 l1
 l2
 l3
 l4
-:!echo Loading program: multgen
-:l multgen
+:load multgen
 goal1
 goal2
 goal3
-:!echo Loading program: psort
-:l psort
+:load psort
 goal 6
-:!echo Loading program: Default
-:l Default
+:load Default
 pabs 0
 pabs 3
 swap [3]
 swap [3,4]
 swap [3,4,5]
 :cd ..
-:!echo Loading program: casetest
-:l casetest
+:load casetest
 swap [1]
 swap [1,2]
 swap [1,2,3]
@@ -114,11 +92,6 @@ h [2,div 1 0]
 :q
 EOM
 ################ end of tests ####################
-# The SICStus Prolog interpreter:
-SICSTUS=`pwd`/../bin/sicstusprolog
-
-# The SWI-Prolog interpreter:
-SWI=`pwd`/../bin/swiprolog
 
 # Check differences:
 DIFF=diff$$
