@@ -7,28 +7,30 @@
 # takes one parameter indicating whether this is a nightly release or a release release
 function release_helper_init() {
 
-  version="${BUILD_PAKCS_VERSION}"
   arch="${BUILD_PAKCS_ARCH}"
 
   # FULLNAME and ARCH copied from makefile
   package_name="pakcs"
-  name="pakcs-${version}"
+  name="pakcs-${BUILD_PAKCS_VERSION}"
+
+  name_suffix=""
+  release_tag=""
+  pre_release=""
+  build=""
 
   case $1 in
   release)
     if [[ ${TEST_RELEASE} == "yes" ]]; then
-      package_suffix="-test-${CI_COMMIT_SHORT_SHA}"
-      name_suffix="-test"
       release_tag="test-${CI_COMMIT_SHORT_SHA}"
+      pre_release="test"
+      build="${CI_COMMIT_SHORT_SHA}"
     elif [[ ${CI_COMMIT_TAG} =~ ^(v|V)[0-9]*\.[0-9]*\.[0-9]*$ ]]; then
-      package_suffix="-release"
-      name_suffix=""
       release_tag="${CI_COMMIT_TAG}"
     elif [[ -n ${CI_COMMIT_TAG} ]]; then
-      # not a version number tag, don't occupy the version for the release package
-      package_suffix="-release-${CI_COMMIT_TAG}"
       name_suffix="-${CI_COMMIT_TAG}"
       release_tag="${CI_COMMIT_TAG}"
+      pre_release="tag"
+      build="${CI_COMMIT_TAG}"
     else
       echo "Release should be triggered by either TEST_RELEASE variable being 'yes'"
       echo "or by git tag, nighter is the case."
@@ -38,23 +40,10 @@ function release_helper_init() {
     fi
     ;;
   nightly)
-    # would like to have the commit hash be part of the version
-    # but gitlab restricts the version to the regex /\A\d+.\d+.\d+.\z/
-    # so we add it as a suffix to the package name and the file name
-    # this sadly means we create a package per nightly
-    # TODO when [Issue 273034](https://gitlab.com/gitlab-org/gitlab/-/issues/273034) is fixed
-    # use a SemVer lable instead of creating a package per nightly
-    # could also drop the package_suffix entirely than releases and nightly would be under the same package
-    #
-    # package_suffix="-nightly"
-    # version="${version}-nightly-${CI_COMMIT_SHORT_SHA}"
-    #
-    # release_tag and name_suffix stay as is
-
-    package_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
-    name_suffix="-nightly-${CI_COMMIT_SHORT_SHA}"
-
+    name_suffix="-${BUILD_DATE}-${CI_COMMIT_SHORT_SHA}"
     release_tag="nightly-${BUILD_DATE}"
+    pre_release="nightly"
+    build="${BUILD_DATE}.${CI_COMMIT_SHORT_SHA}"
     ;;
   *)
     echo "Expected first parameter have either value 'release' or 'nightly' got '$1'"
@@ -62,12 +51,12 @@ function release_helper_init() {
     ;;
   esac
 
-  full_name="${name}${name_suffix}"
-  full_package_name="${package_name}${package_suffix}"
+  version="${BUILD_PAKCS_VERSION}${pre_release:+-$pre_release}${build:++${build}}"
+  full_name="${name}${pre_release:+-$pre_release}${name_suffix}"
 
-  PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${full_package_name}/${version}"
+  PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${package_name}/${version}"
 
-  # where to finde the file on the runners disk
+  # where to find the file on the runners disk
   LOCAL_FILE_NAMES=(
     "${name}-src.tar.gz"
     "${name}-${arch}.tar.gz"
@@ -90,9 +79,24 @@ function release_helper_init() {
 
   # these variables are used by update_version.sh when doing a release
   # for the download links on curry-lang.org
-  # these urls are meaningless for nightly releases
+  # these urls are meaningless for nightly releases as it does not create gitlab release
   src_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[0]}"
   arch_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[1]}"
   manual_download="${DOWNLOAD_URL}${UPLOAD_FILE_PATH[2]}"
+
+
+  # These links will expire as the artifacts are by default only kept for a limited time
+  # but as these are nightlies this should be fine.
+  # When it is possible to lik to the generic packages, we create it would be best to change to links to point there
+  # as the job id would then also be irrelevant <https://gitlab.com/gitlab-org/gitlab/-/issues/289848>
+  BUNDLE_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${BUNDLE_JOB_ID}/artifacts/raw"
+  MANUAL_DOWNLOAD_URL="https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/jobs/${MANUAL_JOB_ID}/artifacts/raw"
+
+  # these variables are used by update_version.sh when doing a nightly
+  # for the download links on curry-lang.org
+  # these urls are meaningless for normal releases as the gitlab release links should be used as they don't expire
+  nightly_src_download="${BUNDLE_DOWNLOAD_URL}/${LOCAL_FILE_NAMES[0]}"
+  nightly_arch_download="${BUNDLE_DOWNLOAD_URL}/${LOCAL_FILE_NAMES[1]}"
+  nightly_manual_download="${MANUAL_DOWNLOAD_URL}/${LOCAL_FILE_NAMES[2]}"
 
 }
