@@ -21,29 +21,24 @@ can look at these examples:
 <li><a href="#funprogs">Purely functional programs</a></li>
 <li><a href="#logprogs">Purely logic programs</a></li>
 <li><a href="#flprogs">Functional logic programs</a></li>
-<li><a href="#nondetfunc">Non-deterministic functions</a></li>
+<li><a href="#nondetfunc">Non-deterministic Operations</a></li>
 <li><a href="#passcon">Passive constraints (logic programming with coroutining)</a></li>
 <li><a href="#residuation">Residuation and concurrent programming</a></li>
 <li><a href="#monadicio">Input/Output (monadic I/O)</a></li>
 <li><a href="#listcomp">Arithmetic sequences and list comprehensions:</a></li>
-<li><a href="#search">Encapsulated search</a></li>
 <li><a href="#modules">Modules</a></li>
 <li><a href="#escher">Comparison with Escher</a></li>
-<li><a href="#meta">Meta-programming</a></li>
-<li><a href="#guicurry">Examples for GUI programming with library "GUI"</a></li>
-<li><a href="#parsing">Examples for functional logic parsers</a></li>
-<li><a href="#various">Various examples programs</a></li>
 </ul>
 <hr />
 
 
 <h3><a name="funprogs">Purely functional programs:</a></h3>
 <ul>
-<li> <a href="rev.curry">rev.curry</a>:
+<li> <a href="Rev.curry">rev.curry</a>:
 list concatenation and naive reverse
 </li>
 
-<li> <a href="higher.curry">higher.curry</a>:
+<li> <a href="HigherOrder.curry">higher.curry</a>:
 some standard higher-order functions: map and foldr
 </li>
 
@@ -60,7 +55,7 @@ with smaller and larger elements
 functions defined on infinite lists, like fib and primes
 </li>
 
-<li> <a href="escher_higher.curry">escher_higher.curry</a>:
+<li> <a href="EscherHigher.curry">EscherHigher.curry</a>:
 implementation of module "Higher" from the Escher report
 </li>
 
@@ -85,7 +80,7 @@ a database for family relationships (constraint style)
 
 <h3><a name="flprogs">Functional logic programs:</a></h3>
 <ul>
-<li> <a href="nats.curry">nats.curry</a>:
+<li> <a href="Nats.curry">Nats.curry</a>:
 a basic example: natural numbers are represented as S-terms
 and the substraction between numbers is defined by reversing
 the addition
@@ -96,23 +91,23 @@ a database for family relationships (functional logic style)</li>
 
 <li> <a href="family_nd.curry">family_nd.curry</a>:
 a database for family relationships (functional logic style
-with non-deterministic functions)</li>
+with non-deterministic operations)</li>
 
 <li> <a href="horseman.curry">horseman.curry</a>:
 a puzzle from equational logic programming (solving questions like
 "How many men and horses have 8 heads and 20 feet?")
 </li>
 
-<li> <a href="first.curry">first.curry</a>:
+<li> <a href="First.curry">First.curry</a>:
 lazy functional logic programming with infinite lists
 </li>
 
-<li> <a href="last.curry">last.curry</a>:
+<li> <a href="Last.curry">Last.curry</a>:
 compute the last element of a list using a flexible append function
 (i.e., inverting list concatenation)
 </li>
 
-<li> <a href="member.curry">member.curry</a>:
+<li> <a href="Member.curry">Member.curry</a>:
 list membership defined by a single conditional rule based on
 a flexible append function (i.e., inverting list concatenation)
 </li>
@@ -132,21 +127,21 @@ where logical variables are used to resolve forward jump addresses
 <hr />
 
 
-<h3><a name="nondetfunc">Non-deterministic functions:</a></h3>
+<h3><a name="nondetfunc">Non-deterministic operations:</a></h3>
 <ul>
 <li> <a href="nondetfunc.curry">nondetfunc.curry</a>:
-some "classical" examples for non-deterministic functions
+some "classical" examples for non-deterministic operations
 like non-deterministic list insertion, permutation,
 and permutation sort
 </li>
 
 <li> <a href="family_nd.curry">family_nd.curry</a>:
 a database for family relationships (functional logic style
-with non-deterministic functions)
+with non-deterministic operations)
 </li>
 
 <li> <a href="colormap_nd.curry">colormap_nd.curry</a>:
-graph coloring with non-deterministic functions
+graph coloring with non-deterministic operations
 exploiting the demand-driven search due to lazy evaluation in Curry
 </li>
 
@@ -187,7 +182,7 @@ with residuation, the program has an infinite search space
 but with narrowing, the search space is finite
 </li>
 
-<li> <a href="account.curry">account.curry</a>:
+<li> <a href="Account.curry">Account.curry</a>:
 concurrent object-oriented programming: a bank account implemented
 as an active object ("account server")
 </li>
@@ -202,7 +197,7 @@ as an active object ("account server")
 some demos of the monadic I/O concept
 </li>
 
-<li> <a href="diamond.curry">diamond.curry</a>:
+<li> <a href="Diamond.curry">Diamond.curry</a>:
 printing a regular diamond of numbers on the standard output
 (an adaptation from the Prolog programming contest at JICSLP'98 in Manchester)
 </li>
@@ -233,38 +228,6 @@ an implementation of Haskell-like default rules with list comprehensions
 <hr />
 
 
-<h3><a name="search">Encapsulated search:</a></h3>
-<ul>
-<li> <a href="allsols.curry">allsols.curry</a>:
-a few examples for the use of the library "AllSolutions"
-</li>
-
-<li> <a href="search.curry">search.curry</a>:
-a simple example for encapsulated search
-</li>
-
-<li> <a href="prolog.curry">prolog.curry</a>:
-a simulation of the Prolog top-level shell with different search strategies
-</li>
-
-<li> <a href="best.curry">best.curry</a>:
-a simple example for the best solution search strategy
-</li>
-
-<li> <a href="england.curry">england.curry</a>:
-a relational database with encapsulated search examples
-</li>
-
-<li> <a href="sportsdb.curry">sportsdb.curry</a>:
-module SportsDB from the Escher report
-showing the implementation of Escher's "forall" construct
-by encapsulated search
-</li>
-
-</ul>
-<hr />
-
-
 <h3><a name="modules">Modules:</a></h3>
 <ul>
 <li> <a href="modules/ModConc.curry">ModConc.curry</a>:
@@ -289,17 +252,17 @@ in order to avoid name conflicts
 Here are a few examples that are implementations of
 programs from John Lloyd's papers on Escher.
 <ul>
-<li> <a href="escher_perm.curry">escher_perm.curry</a>:
+<li> <a href="EscherPerm.curry">EscherPerm.curry</a>:
 module "Permute" from new Escher report
 (computation of permutations with a concatentation and a split
 function)
 </li>
 
-<li> <a href="escher_higher.curry">escher_higher.curry</a>:
+<li> <a href="EscherHigher.curry">EscherHigher.curry</a>:
 implementation of module "Higher" from the Escher report
 </li>
 
-<li> <a href="escher_cond.curry">escher_cond.curry</a>:
+<li> <a href="EscherCond.curry">EscherCond.curry</a>:
 module "Conditional" from the Escher report
 (check membership in a list)
 </li>
@@ -309,172 +272,10 @@ module "Relational" from the Escher report
 (computing with relations)
 </li>
 
-<li> <a href="sportsdb.curry">sportsdb.curry</a>:
-module SportsDB from the Escher report
-showing the implementation of Escher's "forall" construct
-by encapsulated search
-</li>
-
-<li> <a href="england.curry">england.curry</a>:
-a geographical database and some queries from the Escher report
-</li>
-
 </ul>
 <hr />
 
-<h3><a name="meta">Examples for meta-programming</a></h3>
-<B>Important note:</B> <EM>The programs in this section
-work only with the libraries of the PAKCS environment for meta-programming
-(see library directory <code>pakcs/lib/meta</code> of the current
-PAKCS distribution).</EM>
-<ul>
-<li> <a href="meta/Imports.curry">Imports.curry</a>:
-Example for using the library <code>CurryStringClassifier</code>:
-extracts the names of all imported modules from a Curry source file.
-</li>
-
-<li> <a href="meta/putModuleHead.curry">putModuleHead.curry</a>:
-Example for using the library <code>CurryStringClassifier</code>:
-adds a standard module header to a Curry source file if it is not already there.
-</li>
-
-</ul>
-
-<hr />
-<h3><a name="guicurry">Examples for the GUI library "GUI"</a></h3>
-<B>Important note:</B> <EM>The programs in this section
-work only with the library <TT>GUI</TT> which is available for
-the PAKCS environment. A description
-of the ideas behind this library can be found in the
-<a href="http://www.informatik.uni-kiel.de/~mh/papers/PADL00.html">PADL'00 paper</a>.</EM>
-Most of the programs have a function "main" to start the GUI.
-<ul>
-<li> <a href="GUI/hello.curry">hello.curry</a>:
-a simple "Hello world" GUI
-</li>
-
-<li> <a href="GUI/counter.curry">counter.curry</a>:
-a simple counter GUI
-</li>
-
-<li> <a href="GUI/temperature.curry">temperature.curry</a>:
-a converter from Celsius to Fahrenheit and Kelvin where the Celsius
-value of the temperature in Celsius is fixed by a slider
-</li>
-
-<li> <a href="GUI/calc.curry">calc.curry</a>:
-a desk calculator showing the combination of GUIs with
-local state where the state is stored in an object
-</li>
-
-<li> <a href="GUI/checkbutton.curry">checkbutton.curry</a>:
-a simple demo for the use of checkbuttons
-</li>
-
-<li> <a href="GUI/config.curry">config.curry</a>:
-a simple demo to show the dynamic reconfiguration of
-widget parameters
-</li>
-
-<li> <a href="GUI/events.curry">events.curry</a>:
-a simple demo to show the handling of different events
-(e.g., left and right mouse buttons) inside one widget.
-</li>
-
-<li> <a href="GUI/inputmask.curry">inputmask.curry</a>:
-a demo (simple address database) to show widgets in a tabular
-orientation by exploiting the <code>Matrix</code>
-construct for widget composition
-</li>
-
-<li> <a href="GUI/hilbert.curry">hilbert.curry</a>:
-drawing a Hilbert curve in a canvas widget
-</li>
-
-<li> <a href="GUI/sierpinski.curry">sierpinski.curry</a>:
-drawing a Sierpinski curve in a canvas widget
-</li>
-
-<li> <a href="GUI/fractal.curry">fractal.curry</a>:
-drawing a fractal curve in a canvas widget
-</li>
-
-<li> <a href="GUI/mail.curry">mail.curry</a>:
-a simple mail widget to write and send an email
-</li>
-
-<li> <a href="GUI/menu.curry">menu.curry</a>:
-a simple counter GUI to demonstrate the use of menu buttons
-</li>
-
-<li> <a href="GUI/radiotraffic.curry">radiotraffic.curry</a>:
-a simple demo for the use of radiobuttons: traffic light controller
-ensures exclusion in traffic lights.
-</li>
-
-<li> <a href="GUI/scrollbar.curry">scrollbar.curry</a>:
-a simple demo for the use of scrollbars
-</li>
-
-<li> <a href="GUI/textappend.curry">textappend.curry</a>:
-a simple GUI demonstrating the use of <code>appendValue</code>
-in <code>TextEdit</code> widgets
-</li>
-
-<li> <a href="GUI/textstyledappend.curry">textstyledappend.curry</a>:
-a simple GUI demonstrating the use of <code>appendStyledValue</code>
-in <code>TextEdit</code> widgets (where text can be shown with
-colors and font styles)
-</li>
-
-<li> <a href="GUI/counter_controlled.curry">counter_controlled.curry</a>:
-a simple counter GUI which can be controlled not only by the user
-but also by external processes that send messages to the GUI
-</li>
-
-</ul>
-<hr />
-
-<h3><a name="parsing">Examples for functional logic parsers</a></h3>
-Here are simple examples for the use of the functional logic parser
-combinators which are defined in the parser library
-<TT>Parser</TT> and are adapted from the paper
-"A Functional Logic Perspective of Parsing"
-by R. Caballero and F.J. Lopez-Fraguas
-(Proc. FLOPS'99, Springer LNCS 1722, pp. 85-99, 1999).
-<ul>
-<li> <a href="parsing/expr_parser.curry">expr_parser.curry</a>:
-a parser for arithmetic expressions over natural numbers
-</li>
-
-<li> <a href="parsing/palindrome.curry">palindrome.curry</a>:
-a parser for palindromes over the alphabet 'a' and 'b'
-showing also the possibility to generate correct sentences
-with functional logic parsers
-</li>
-
-</ul>
-<hr />
-
-<h3><a name="various">Various example programs</a></h3>
-<ul>
-<li> <a href="chords.curry">chords.curry</a>:
-this program is able to generate appropriate chords for the accompaniment
-of a given melody. There is also a
-<a href="http://www.informatik.uni-kiel.de/~mh/reports/LIFO-98-08.html"> 
-paper</a> which sketches the implementation and describes
-the advantages of Curry to implement this application.
-</li>
-
-<li> <a href="daVinciTest.curry">daVinciTest.curry</a>:
-some examples to show the use of the library <TT>DaVinci</TT>
-for the visualization of graphs
-</li>
-
-</ul>
-<hr />
-
-Back to <a href="http://www.informatik.uni-kiel.de/~curry/">Homepage of Curry</a>
+Back to <a href="http://curry-lang.org">Homepage of Curry</a>
 
 <hr>
 <address><a href="http://www.informatik.uni-kiel.de/~mh/">Michael Hanus</a></address>

@@ -1,21 +1,21 @@
 Prelude> :set v1
-Prelude> :load rev
-rev> append [1,2] [3,4] :: [Int]
+Prelude> :load Rev
+Rev> append [1,2] [3,4] :: [Int]
 [1,2,3,4]
-rev> rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
+Rev> rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 [10,9,8,7,6,5,4,3,2,1]
-rev> :load higher
-higher> g1
+Rev> :load HigherOrder
+HigherOrder> g1
 [1,3,2]
-higher> g2
+HigherOrder> g2
 [1,3,2]
-higher> g3
+HigherOrder> g3
 3
-higher> g4
+HigherOrder> g4
 120
-higher> g5
+HigherOrder> g5
 120
-higher> :load quicksort
+HigherOrder> :load quicksort
 quicksort> qsort [2,3,1,0] :: [Int]
 [0,1,2,3]
 quicksort> :load qsortlet
@@ -51,16 +51,16 @@ horseman> horseman m h (S (S O)) f  where m,h,f free
 {m=O, h=S (S O), f=S (S (S (S (S (S (S (S O)))))))} True
 {m=S O, h=S O, f=S (S (S (S (S (S O)))))} True
 {m=S (S O), h=O, f=S (S (S (S O)))} True
-horseman> :load first
-first> goal1
+horseman> :load First
+First> goal1
 [O,S O]
-first> goal2 x y  where x,y free
+First> goal2 x y  where x,y free
 {x=S O, y=O} True
-first> :load member
-member> goal2 x    where x free
+First> :load Member
+Member> goal2 x    where x free
 {x=2} True
 {x=3} True
-member> :load colormap
+Member> :load colormap
 colormap> goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 {l1=Red, l2=Yellow, l3=Green, l4=Red} True
 {l1=Red, l2=Yellow, l3=Green, l4=Blue} True
@@ -110,25 +110,25 @@ colormap> goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 {l1=Blue, l2=Green, l3=Red, l4=Blue} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Red} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Blue} True
-colormap> :load account
-account> goal1 b  where b free
+colormap> :load Account
+Account> goal1 b  where b free
 {b=250} True
-account> goal2 b  where b free
+Account> goal2 b  where b free
 {b=150} True
-account> goal3 s  where s free
+Account> goal3 s  where s free
 {s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]} True
-account> :load maxtree
+Account> :load maxtree
 maxtree> goal2
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
 maxtree> :load assembler
 assembler> main
 [9,4,9,0]
-assembler> :load ralign
-ralign> goal1
+assembler> :load RightAlign
+RightAlign> main1
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-ralign> goal2
+RightAlign> main2
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
-ralign> :load tctest
+RightAlign> :load tctest
 tctest> :t f
 f :: Int -> Int
 tctest> :t i
@@ -138,8 +138,8 @@ k :: a -> Int
 tctest> :load rectype
 rectype> :t h
 h :: ([Int],[Bool])
-rectype> :load diamond
-diamond> diamond 10
+rectype> :load Diamond
+Diamond> diamond 10
                                        1    
                                   11       2    
                               21      12       3    
@@ -159,8 +159,8 @@ diamond> diamond 10
                               98      89      80    
                                   99      90    
                                      100    
-diamond> :cd listcomp
-diamond> :load arithseq
+Diamond> :cd listcomp
+Diamond> :load arithseq
 arithseq> l1
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 arithseq> l2

@@ -8,9 +8,11 @@ add Z     n = n
 add (S m) n = S(add m n)
 
 -- subtraction defined by reversing the addition:
+sub :: Nat -> Nat -> Nat
 sub x y | add y z == x  = z where z free
 
 -- less-or-equal predicated on natural numbers:
+leq :: Nat -> Nat -> Bool
 leq Z     _     = True
 leq (S _) Z     = False
 leq (S x) (S y) = leq x y
