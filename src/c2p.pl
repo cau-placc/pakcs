@@ -147,6 +147,8 @@ processArgs(Halt,['--cpm-version'|CArgs]) :-
 	processArgs(Halt,Args).
 processArgs(Halt,['--nocypm'|Args]) :-
 	processArgs(Halt,Args).            % ignore since already processed
+processArgs(Halt,['-n'|Args]) :-
+	processArgs(Halt,Args).            % ignore since already processed
 processArgs(Halt,['--noreadline'|Args]) :-
 	processArgs(Halt,Args).            % ignore since already processed
 processArgs(Halt,['--nocolor'|Args]) :-
@@ -243,7 +245,7 @@ writeMainHelp :-
 	writeLnErr('--numeric-version : show the compiler version number and quit'),
 	writeLnErr('--base-version    : show the version of the base libraries and quit'),
 	writeLnErr('-q|--quiet        : work silently'),
-	writeLnErr('--nocypm          : do not invoke "cypm" to compute package load path'),
+	writeLnErr('-n|--nocypm       : do not invoke "cypm" to compute package load path'),
 	writeLnErr('--noreadline      : do not use input line editing via command "rlwrap"'),
 	writeLnErr('--nocolor         : do not use colored output'),
 	writeLnErr('-Dprop=val        : define pakcsrc property "prop" as "val"'),
@@ -614,8 +616,8 @@ defaultTypeClass('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
 defaultTypeClass(Type,Type).
 
 defaultPreludeClass(DictName,TVar,RType,DType) :-
-        member(DictName,["Num","Integral","Fractional"]), !,
-	(DictName="Fractional"
+        member(DictName,["Num","Integral","Fractional","Floating"]), !,
+	((DictName="Fractional" ; DictName="Floating")
          -> (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
  	    defaultTypeClass(RType,DType)
 	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),

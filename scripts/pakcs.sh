@@ -77,8 +77,8 @@ for i in $* ; do
     --help | -h | -\? ) USECPM=no ;;
     --version | -V    ) USECPM=no ;;
     --numeric-version | --compiler-name | --base-version ) USECPM=no ;;
-    --nocypm ) USECPM=no ;;
-    --noreadline ) USERLWRAP=no
+    --nocypm | -n     ) USECPM=no ;;
+    --noreadline      ) USERLWRAP=no
   esac
 done
 
