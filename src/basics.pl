@@ -26,7 +26,7 @@
 		  isCharCons/1, isString/1, char_int/2, cp_string/2,
 		  string2Atom/2, atom2String/2, atomic2Atom/2, atomic2Codes/2,
 		  removeShares/2, term2partcall/3, isCompleteList/2,
-		  getNewFileName/2, mainPrologFileName/1,
+		  getNewFileName/2, createNewTmpDir/1, mainPrologFileName/1,
 		  extendPath/3, path2Atom/2, pathString2loadPath/2,
 		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
 		  getSysLibPath/1, shellCmdWithCurryPath/1,
@@ -52,7 +52,8 @@
 		  isWritableFile/1, tryWriteFile/1,
                   tryDeleteFile/1, deleteFileIfExists/1,
 		  ensureDirOfFile/1, getOutDirectory/1, prog2DirProg/2, prog2PrologFile/2,
-		  prog2InterfaceFile/2, prog2FlatCurryFile/2,
+		  prog2InterfaceFile/2,
+                  prog2FlatCurryFile/2, prog2AbstractCurryFile/2,
 		  prog2ICurryFile/2, hierarchical2dirs/2,
 		  skipEOL/0, readStreamLine/2, removeBlanks/2, skipblanks/2,
 		  numberconst/3, readFileContents/2, readStreamContents/2,
@@ -301,6 +302,11 @@ getNewFileName(Suffix,NewFile) :-
 	atom_codes(RmCmd,RmCmdS),
 	shellCmd(RmCmd).
 
+% Creates a new temporary directory (for the current PAKCS process)
+% (and delete an already existing file or directory):
+createNewTmpDir(NewTmpDir) :-
+	getNewFileName("",NewTmpDir),
+	makeDirectory(NewTmpDir).
 
 % determine (for the current PAKCS process) a file name
 % where the clauses for the main predicates (hnf, constrEq,...)
@@ -754,6 +760,13 @@ prog2FlatCurryFile(Prog,FlatFile) :-
 	hierarchical2dirs(ProgBase,DProgBase),
 	getOutDirectory(OutDir),
 	appendAtoms([ProgDir,'/',OutDir,'/',DProgBase,'.fcy'],FlatFile).
+
+% generate the name of the FlatCurry file for a given Curry program name:
+prog2AbstractCurryFile(Prog,AcyFile) :-
+	split2dirbase(Prog,ProgDir,ProgBase),
+	hierarchical2dirs(ProgBase,DProgBase),
+	getOutDirectory(OutDir),
+	appendAtoms([ProgDir,'/',OutDir,'/',DProgBase,'.acy'],AcyFile).
 
 % generate the name of the InterfaceCurry file for a given Curry program name:
 prog2ICurryFile(Prog,ICurryFile) :-

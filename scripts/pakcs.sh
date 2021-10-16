@@ -83,7 +83,7 @@ for i in $* ; do
 done
 
 # Title/version of CPM passed to PAKCS:
-CPMTITLE=
+CPMVERSION=
 
 if [ $USECPM = yes ] ; then
   CPMVERSION=`"$CYPMBIN" -V`

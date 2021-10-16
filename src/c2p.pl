@@ -8,6 +8,7 @@
 :- use_module(version).
 :- use_module(loader).
 :- use_module(evaluator).
+:- use_module(readACY).
 :- use_module(compiler). % compiler from FlatCurry into Prolog
 
 :- (swi7orHigher -> set_prolog_flag(double_quotes, codes) ; true).
@@ -405,78 +406,48 @@ ioAdmissible :- safeMode(yes), !,
 	fail.
 ioAdmissible.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % process a given main expression:
 
 processExpression(Input,ExprGoal) :-
-        processExpressionWithType(Input,none,ExprGoal).
-
-processExpressionWithType(Input,InitMainExpType,ExprGoal) :-
-	parseMainExpression(yes,Input,InitMainExpType,Term,Type,Vs,
-                            _,DfltTypeAtom,Overloaded),
-	processOrDefaultMainExpression(Input,Term,Type,Vs,DfltTypeAtom,
-                                       Overloaded,ExprGoal).
-
-% If the main expression is overloaded, try to default it to some
-% numeric type:
-processOrDefaultMainExpression(_Input,Term,Type,Vs,_,false,ExprGoal) :-
-	% we can directly process non-overloaded expressions:
+        createNewTmpDir(MainExprDir),
+	(processExpressionIn(MainExprDir,Input,ExprGoal)
+        -> deleteMainExpFiles(MainExprDir)
+         ; deleteMainExpFiles(MainExprDir), !, failWithExitCode).
+        
+processExpressionIn(MainExprDir,Input,ExprGoal) :-
+        % read both acy and flat file of main expression:
+        writeAndParseExpression(MainExprDir,yes,Input,none,'--acy --flat',
+                                MainExprMod,LCP,NewLCP,(AcyProg,FlatProg),
+                                FreeVars),
+        AcyProg = 'CurryProg'(_,_,_,_,_,_,['CFunc'(_,_,_,AcyQualType,_)],[]),
+        !,
+        (verbosityCommands
+         -> write('Type of expression: '), writeAcyQualType(AcyQualType), nl
+          ; true),
+        (defaultQualType(AcyQualType,AcyType)
+         -> true
+         ; write('Overloaded type: '), writeAcyQualType(AcyQualType), nl,
+           writeErr('Cannot handle arbitrary overloaded top-level expressions'),
+           nlErr,
+           writeLnErr('Hint: add type annotation to specialize the type'),
+           fail), !,
+        showAcyQualType(AcyType,InitExpType),!,
+        (verbosityCommands
+         -> write('Defaulted type    : '), write(InitExpType), nl
+          ; true),
+	(AcyQualType = AcyType % no defaulting required
+         -> postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
+                                       Term,Type,Vs)
+          ; parseExpressionIn(MainExprDir,yes,Input,InitExpType,Term,Type,Vs)),
 	!,
 	(isIoType(Type) -> ioAdmissible ; true),
 	(verbosityCommands
 	 -> write('Evaluating expression: '),
-	    writeCurryTermWithFreeVarNames(Vs,Term),
-	    write(' :: '),
-	    numbersmallvars(97,_,Type), writeType(Type), nl,
-	    % print free goal variables if present:
-	    writeFreeVars(Vs)
+	    writeCurryTermWithFreeVarNames(Vs,Term), nl,
+	    writeFreeVars(Vs) % print free goal variables if present
 	 ; true),
 	ExprGoal = evaluateMainExpression(Term,Type,Vs).
-processOrDefaultMainExpression(Input,_,_,_,DfltTypeAtom,_,ExprGoal) :-
-        \+ DfltTypeAtom=none, !,
-	(verbosityCommands -> write('Defaulted type of main expression: '),
-                              write(DfltTypeAtom), nl
-                            ; true),
-	processExpressionWithType(Input,DfltTypeAtom,ExprGoal).
-processOrDefaultMainExpression(_,_,Type,_,_,_,_) :-
-        write('Overloaded type: '),
-	(verbosityDetailed -> writeq(Type), nl ; true),
-        numbersmallvars(97,_,Type), writeType(Type), nl,
-        writeErr('Cannot handle arbitrary overloaded top-level expressions'),
-	nlErr,
-        writeErr('Hint: add type annotation to specialize the type'), nlErr,
-        fail.
-
-% translate a flat type into an atom in Curry syntax:
-flatType2Atom(Type,CurryType) :-
-        % small hack to avoid redefinition of writeType/2 to writeType/3...
-        getNewFileName("maintype",NewFile),
-        tell(NewFile),
-	  numbersmallvars(97,_,Type), writeType(Type), nl, 
-	told,
-	open(NewFile,read,Stream),
-	  readStreamLine(Stream,TypeString),
-	close(Stream),
-	appendAtoms(['rm -rf ',NewFile],RmCmd), shellCmd(RmCmd),
-	atom_codes(CurryType,TypeString).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Check whether the first argument is the (FlatCurry) representation
-% of some class contexts and return the context type in the second
-% argument and the qualified class name (string) in the third (module)
-% and fourth (class name) argument:
-classDict(T,_,_,_) :- var(T), !, fail.
-% if type classes are translated as functions to implement run-time choice,
-% see https://git.ps.informatik.uni-kiel.de/curry/curry-frontend/-/issues/109
-classDict('FuncType'('TCons'('Prelude.()',[]),
-                     'TCons'(FCDict,[A])),A,ModS,DictS) :- !,
-        classDict('TCons'(FCDict,[A]),A,ModS,DictS).
-classDict('TCons'(FCDict,[A]),A,ModS,DictS) :-
-        atomic2Codes(FCDict,FCDictS), % hack for SWI 7.x if FCDict == []
-        % dictionary argument types are prefixed by "_Dict#":
-        atom_codes('._Dict\'23',FCDictPrefixS),
-        append(ModFCDictPrefixS,DictS,FCDictS),
-        append(ModS,FCDictPrefixS,ModFCDictPrefixS), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -484,19 +455,28 @@ classDict('TCons'(FCDict,[A]),A,ModS,DictS) :-
 % and calling the front end.
 % If the first argument has value `yes`, free variables declared
 % in a "where...free" are transformed into arguments of the main operation.
-parseMainExpression(SplitFreeVars,Input,InitMainExpType,MainExp,Type,Vs,
-                    MainExpType,DfltTypeAtom,Ovld) :-
-	getNewFileName("",MainExprDir),
-	makeDirectory(MainExprDir),
-	parseExpressionWithFrontend(MainExprDir,SplitFreeVars,Input,
-                                    InitMainExpType,MainExp,Type,Vs,
-                                    MainExpType,DfltTypeAtom,Ovld),
+parseExpression(SplitFreeVars,Input,InitExpType,MainExp,Type,Vs) :-
+        createNewTmpDir(MainExprDir),
+	(parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitExpType,
+                           MainExp,Type,Vs)
+        -> deleteMainExpFiles(MainExprDir)
+         ; deleteMainExpFiles(MainExprDir), !, failWithExitCode).
+
+parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
+                  MainExp,Type,Vs) :-
+        writeAndParseExpression(MainExprDir,SplitFreeVars,Input,
+                                InitMainFuncType,'--flat',MainExprMod,
+                                LCP,NewLCP,FlatProg,FreeVars),
+        postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
+                                   MainExp,Type,Vs),
 	(verbosityDetailed
           -> write('Translated expression: '), writeq(MainExp), nl
            ; true).
 
-parseExpressionWithFrontend(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
-                            MainExp,Type,Vs,MainFuncType,DfltTypeAtom,Ovld) :-
+% write a program containing the main expression and parse and load
+% it (according to the Target format: '--flat', '--acy', '--acy --flat'):
+writeAndParseExpression(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
+                        Target,MainExprMod,LCP,NewLCP,Prog,FreeVars) :-
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
@@ -511,42 +491,64 @@ parseExpressionWithFrontend(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
         extendPath(AbsMainPath,LCP,NewLCP),
 	setCurryPath(NewLCP),
 	setWorkingDirectory(MainExprDir),
-	(parseProgram("PAKCS_Main_Exp",PVerb,no) -> Parse=ok ; Parse=failed),
+	(parseProgram("PAKCS_Main_Exp",PVerb,no,Target) -> Parse=ok
+                                                         ; Parse=failed),
 	setCurryPath(LCP), % restore old settings
 	setWorkingDirectory(CurDir),
 	Parse=ok, % proceed only in case of successful parsing
 	loadPath(AbsMainPath,LoadPath),
 	setCurryPath(NewLCP),
 	setWorkingDirectory(MainExprDir),
-	readProg(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_,_),
+        (Target = '--flat'
+	 -> readProg(['.'|LoadPath],'PAKCS_Main_Exp',Prog,_,_)
+          ; (Target = '--acy'
+             -> readAcy(['.'|LoadPath],'PAKCS_Main_Exp',Prog)
+              ; readProg(['.'|LoadPath],'PAKCS_Main_Exp',FlatProg,_,_),
+                readAcy(['.'|LoadPath],'PAKCS_Main_Exp',AcyProg),
+                Prog = (AcyProg,FlatProg) )),
 	setCurryPath(LCP), % restore old settings
-	setWorkingDirectory(CurDir),
+	setWorkingDirectory(CurDir).
+
+postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
+                           MainExp,Type,Vs) :-
 	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
-	length(FreeVars,NumFreeVars),
 	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,RuleExp))|MoreFs],
 	!,
         desugarNewTypesInExp(RuleExp,DesRuleExp),
 	((MoreFs=[], simpleFlatExp(DesRuleExp))
           -> FlatExp = DesRuleExp
            ; setCurryPath(NewLCP),
-	     compileMainExpression(MainExprMod),
+	     compileMainExprProg(MainExprMod),
 	     setCurryPath(LCP),
 	     map2M(compiler:varIndex2VarExp,RuleArgs,RuleVars),
 	     FlatExp = 'Comb'('FuncCall',
 	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
         flatType2MainType([],FuncType,_,MFuncType),
-        copy_term(MFuncType,MainFuncType),
-        defaultTypeExpr(MFuncType,DfltType,DfltTypeAtom),
-        stripFuncTypes(NumFreeVars,DfltType,Type),
+	length(FreeVars,NumFreeVars),
+        stripFuncTypes(NumFreeVars,MFuncType,Type),
 	flatExp2MainExp([],FlatExp,EVs,MainExp),
 	replaceFreeVarInEnv(FreeVars,RuleArgs,EVs,Vs),
 	length(FreeVars,FVL), length(RuleArgs,RAL),
-	(FVL=RAL -> Ovld=false ; Ovld=true),
-	!,
-	deleteMainExpFiles(MainExprDir).
-parseExpressionWithFrontend(MainExprDir,_,_,_,_,_,_,_,_,_) :-
-	deleteMainExpFiles(MainExprDir),
-	!, failWithExitCode.
+	(FVL=RAL
+         -> true
+          ; writeLnErr('WARNING: Expression with overloaded type!')).
+
+% Get the type of an epxression (via the front end) in AbstractCurry format.
+% If the second argument has value `yes`, free variables declared
+% in a "where...free" are transformed into arguments of the main operation.
+acyTypeOfExpr(Expr,AcyQualType) :-
+        createNewTmpDir(MainExprDir),
+        (acyTypeOfExprIn(MainExprDir,Expr,no,'--acy',_,_,_,_,AcyQualType)
+        -> deleteMainExpFiles(MainExprDir)
+         ; deleteMainExpFiles(MainExprDir), !, failWithExitCode).
+
+acyTypeOfExprIn(MainExprDir,Expr,SplitFreeVars,Target,
+                MainExprMod,LCP,NewLCP,FreeVars,QualType) :-
+        writeAndParseExpression(MainExprDir,SplitFreeVars,Expr,none,Target,
+                                MainExprMod,LCP,NewLCP,AcyProg,FreeVars),
+        AcyProg = 'CurryProg'(_,_,_,_,_,_,['CFunc'(_,_,_,QualType,_)],[]),
+        !.
+
 
 % get the name and path to the source code of the currently loaded main module
 % (or fail with an error message if there is no source code):
@@ -584,7 +586,7 @@ deleteMainExpFiles(MainExprDir) :-
 
 % compile and load the "main expression program" since it contains some
 % functions generated from the main expression, e.g., let bindings:
-compileMainExpression(MainExprMod) :-
+compileMainExprProg(MainExprMod) :-
 	prog2PrologFile(MainExprMod,PrologFile),
 	c2p(MainExprMod,PrologFile),
 	currentModuleFile(CurrMod,_),
@@ -594,60 +596,7 @@ compileMainExpression(MainExprMod) :-
 	             printError(ErrorMsg) ),
 	curryModule(CurrMod).
 
-% Try to default a type by instantiating type context variables
-% to default types (e.g., numeric types) and removing such type contexts.
-% The defaulted type is returned in the second argument.
-% The third argument contains the defaulted type as an atom
-% or 'none' if the type is still overloaded.
-defaultTypeExpr(OrgType,DfltType,DfltTypeAtom) :-
-        defaultTypeClass(OrgType,DefaultedType),
-        removeDefaultedTypes(DefaultedType,DfltType),
-        (isOverloadedType(DfltType) -> DfltTypeAtom=none    % can't default
-                                     ; flatType2Atom(DfltType,DfltTypeAtom)).
-
-% try to default overloaded numerical types:
-defaultTypeClass(Type,Type) :- var(Type), !.
-defaultTypeClass('FuncType'(AType,RType),DType) :-
-	classDict(AType,TVar,ModName,DictName),
-        ModName="Prelude",
-        defaultPreludeClass(DictName,TVar,RType,DType).
-defaultTypeClass('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
-        defaultTypeClass(RType,DType).
-defaultTypeClass(Type,Type).
-
-defaultPreludeClass(DictName,TVar,RType,DType) :-
-        member(DictName,["Num","Integral","Fractional","Floating"]), !,
-	((DictName="Fractional" ; DictName="Floating")
-         -> (var(TVar) -> TVar = 'TCons'('Prelude.Float',[]) ; true),
- 	    defaultTypeClass(RType,DType)
-	  ; (var(TVar) -> TVar = 'TCons'('Prelude.Int',[]) ; true),
-	    defaultTypeClass(RType,DType)).
-defaultPreludeClass(DictName,TVar,RType,DType) :-
-        member(DictName,["Monad"]), !,
-	(var(TVar) -> TVar = 'TCons'('Prelude.IO',[]) ; true),
-        defaultTypeClass(RType,DType).
-
-% remove type class context of defaulted types:
-removeDefaultedTypes(Type,Type) :- var(Type), !.
-removeDefaultedTypes('FuncType'(AType,RType),DType) :-
-	classDict(AType,TVar,ModName,DictName),
-        ModName="Prelude", nonvar(TVar),
-	( member(DictName,["Data","Eq","Ord","Read","Show"])
-        ; DictName="Enum",
-          member(TVar,['TCons'('Prelude.Int',[]),'TCons'('Prelude.Float',[])])
-        ), !,
-        removeDefaultedTypes(RType,DType).
-removeDefaultedTypes('FuncType'(AType,RType),'FuncType'(AType,DType)) :- !,
-        removeDefaultedTypes(RType,DType).
-removeDefaultedTypes(Type,Type).
-
-% Is the type overloaded, i.e., does it contain class dictioniary parameters?
-isOverloadedType(Type) :- var(Type), !, fail.
-isOverloadedType('FuncType'(AType,_)) :- classDict(AType,_,_,_), !.
-isOverloadedType('FuncType'(_,RType)) :- !, isOverloadedType(RType).
-isOverloadedType(_) :- fail.
-
-% strip the first n function types (except for class dictionaries)
+% strip the first n function types
 % from a type expression:
 stripFuncTypes(0,Type,Type) :- !.
 stripFuncTypes(N,'FuncType'(_,RType),Type) :-
@@ -764,7 +713,11 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainFuncType) :-
 	writeFreeVarArgs(S,FreeVars),
 	write(S,' = '),
 	putChars(S,Input), nl(S),
-	close(S).
+	close(S),
+        (verbosityIntermediate
+         -> write('Contents of '), write(ExprFile), write(':'), nl,
+            appendAtoms(['cat ',ExprFile],Cmd), shellCmd(Cmd,_), nl
+          ; true).
 
 writeFreeVarArgs(_,[]).
 writeFreeVarArgs(S,[V|Vs]) :-
@@ -963,12 +916,9 @@ processCommand("eval",ExprInput) :- !,
 	call(ExprGoal).
 
 processCommand("type",ExprInput) :- !,
-	parseMainExpression(no,ExprInput,none,_Term,_,_Vs,Type,_,_Ovld),
-	%(Ovld=true -> atom_codes(EI,ExprInput), write(EI)
-        %            ; writeCurryTermWithFreeVarNames(Vs,Term)),
-        atom_codes(EI,ExprInput), write(EI),
-	write(' :: '),
-	numbersmallvars(97,_,Type), writeType(Type), nl.
+        acyTypeOfExpr(ExprInput,QualType),
+        atom_codes(EI,ExprInput), write(EI), write(' :: '),
+        writeAcyQualType(QualType), nl.
 
 processCommand("usedimports",[]) :- !,
 	checkCpmTool('curry-usedimports','importusage',UsedImports),
@@ -1107,7 +1057,7 @@ processCommand("source",Arg) :-
 	showSourceCodeOfFunction(ModS,FunS).
 
 processCommand("source",ExprInput) :- !, % show source code of a function
-	parseMainExpression(no,ExprInput,none,Term,_Type,_Vs,_,_,_),
+	parseExpression(no,ExprInput,none,Term,_Type,_Vs),
 	showSourceCode(Term).
 
 processCommand("cd",DirString) :- !,
@@ -1264,7 +1214,7 @@ processCompile(ProgS,PrologFile) :-
 	verbosity(Verbosity),
 	parser_warnings(PWarnings),
         (Verbosity=0 -> Warnings=no ; Warnings=PWarnings),
-	parseProgram(ProgS,Verbosity,Warnings),
+	parseProgram(ProgS,Verbosity,Warnings,'--flat'),
 	atom_codes(Prog,ProgS),
 	prog2PrologFile(Prog,LocalPrologFile),
 	tryXml2Fcy(Prog),
@@ -1491,7 +1441,7 @@ printCurrentLoadPath :-
 processFork(ExprString) :-
 	% check the type of the forked expression (must be "IO ()"):
 	removeBlanks(ExprString,ExprInput),
-	parseMainExpression(yes,ExprInput,none,_Term,Type,_Vs,_,_,_),
+	parseExpression(yes,ExprInput,none,_Term,Type,_Vs),
 	(Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]) -> true
 	  ; write('*** Type error: Forked expression must be of type "IO ()"!'), nl,
 	    !, failWithExitCode),
@@ -1575,9 +1525,13 @@ failprint(Exp,E,E) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% call the front-end to parse a Curry program (argument is a string):
+% call the front-end to parse a Curry program:
+% ProgS: program to be parsed (string)
+% Verbosity: verbosity (number, 0 = quiet)
+% Warnings: yes/no
+% Target: --flat or --acy
 
-parseProgram(ProgS,Verbosity,Warnings) :-
+parseProgram(ProgS,Verbosity,Warnings,Target) :-
   	installDir(TCP),
 	compilerMajorVersion(MajorVersion),
 	versionAtom(MajorVersion, MajorVersionAtom),
@@ -1586,7 +1540,7 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	  ; writeLnErr('ERROR minor version too large!'), fail),
 	padVersionAtom(MinorVersion, PaddedMinorVersionAtom),
 	getOutDirectory(OutDir),
-	appendAtoms(['"',TCP,'/bin/pakcs-frontend" --flat',
+	appendAtoms(['"',TCP,'/bin/pakcs-frontend" ',Target,
                      ' -o ', OutDir,
                      ' -D__PAKCS__=',
                      MajorVersionAtom,PaddedMinorVersionAtom],CM1),
@@ -1608,7 +1562,13 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	  ; writeLnErr('ERROR occurred during parsing!'), Parse=failed),
 	!, Parse=ok, % proceed only in case of successful parsing
 	% finally, we apply the FlatCury preprocessor:
+        (Target = '--flat' -> runFCYPP(ProgS) ; true).
+parseProgram(_,_,_,_). % do not parse if source program does not exist
+
+% apply the FlatCury preprocessor:
+runFCYPP(ProgS) :-
 	findSourceProg(ProgS,ProgPathS), !,
+  	installDir(TCP),
 	appendAtoms(['"',TCP,'/bin/pakcs-fcypp"'],PP1),
 	(verbosity(0) -> appendAtom(PP1,' --quiet',PP2) ; PP2 = PP1 ),
 	compileWithCompact(CWC), atom_codes(CWCA,CWC),
@@ -1620,144 +1580,161 @@ parseProgram(ProgS,Verbosity,Warnings) :-
 	(shellCmdWithReport(PPCmd) -> true
 	  ; writeLnErr('ERROR occurred during FlatCurry preprocessing!'),
 	    fail).
-parseProgram(_,_,_). % do not parse if source program does not exist
 
 addImports([],CY,CY).
 addImports([I|Is],CY1,CY3) :-
 	appendAtoms([CY1,' -i"',I,'"'],CY2),
 	addImports(Is,CY2,CY3).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% small pretty printer for type expressions:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Try to default a qualified type (in AbstractCurry format) by instantiating
+% type variables in type contexts.
+% Type variables with a numeric constraint like `Num`/`Integral` or
+% `Fractional`/`Floating` are defaulted to `Int` or `Float`, respectively.
+% Moreover, existing `Data`, `Eq`, `Ord`, `Read`, and `Show` constraints
+% for the same type variable are removed.
+% Finally, remaining type variables with `Data` and `Monad` constraints are
+% defaulted to `Prelude.Bool` and `Prelude.IO`, respectively.
 
-writeType(T) :- writeTypeWithClassContext(T).
+defaultQualType('CQualType'('CContext'(Ctxt),Type),
+                'CQualType'('CContext'([]),DType)) :-
+        defaultMap(Ctxt,[],RemCtxt,[],TSub),
+        removeConstraints(RemCtxt,TSub,TSubR),
+        applyTSub(TSubR,Type,DType).
 
-% write standard type contexts in their source form, if possible:
-writeTypeWithClassContext('FuncType'(C1,'FuncType'(C2,T))) :-
-	classDict(C1,A1,Mod1Name,Cls1Name),
-	classDict(C2,A2,Mod2Name,Cls2Name), !,
-        write('('),
-        writeClassContext(Mod1Name,Cls1Name,A1), write(', '),
-        writeClassContext(Mod2Name,Cls2Name,A2),
-        writeTypeWithRemainingClassContexts(T).
-writeTypeWithClassContext('FuncType'(C,T)) :-
-	classDict(C,A,ModName,ClsName), !,
-        writeClassContext(ModName,ClsName,A), write(' => '),
-        writeType(T,top).
-writeTypeWithClassContext(T) :- writeType(T,top).
+defaultMap([],RemCtxt,RemCtxt,TSub,TSub).
+defaultMap(['Prelude.(,)'(QN,T)|TCs],RemCtxtO,RemCtxtN,TSub1,TSub2) :-
+        T = 'CTVar'(TV),
+        acyQName2Atom(QN,QNA),
+        defaultClass(QNA,DefTC), !,
+        defaultMap(TCs,RemCtxtO,RemCtxtN,[map(TV,DefTC)|TSub1],TSub2).
+defaultMap([TC|TCs],RemCtxtO,RemCtxtN,TSub1,TSub2) :-
+        defaultMap(TCs,[TC|RemCtxtO],RemCtxtN,TSub1,TSub2).
 
-writeTypeWithRemainingClassContexts('FuncType'(C,T)) :-
-	classDict(C,A,ModName,ClsName), !, write(', '),
-        writeClassContext(ModName,ClsName,A),
-        writeTypeWithRemainingClassContexts(T).
-writeTypeWithRemainingClassContexts(T) :-
-        write(') => '),
-        writeType(T,top).
+defaultClass('Prelude.Num','Int').
+defaultClass('Prelude.Integral','Int').
+defaultClass('Prelude.Fractional','Float').
+defaultClass('Prelude.Floating','Float').
+defaultClass('Prelude.Monad','IO').
+defaultClass('Prelude.MonadFail','IO').
 
-writeClassContext(ModName,ClsName,A) :-
-        atom_codes(ModN,ModName),
-        currentModuleFile(CurrMod,_),
-        ((ModN='Prelude' ; ModN=CurrMod)
-          -> true % don't print module prefix if prelude or current module
-           ; write(ModN), write('.')),
-	atom_codes(ClsN,ClsName), write(ClsN), write(' '), writeType(A,nested).
+removeConstraints([],TSub,TSub).
+removeConstraints(['Prelude.(,)'(QN,'CTVar'(TV))|TCs],TSub1,TSub2) :-
+        member(map(TV,ST),TSub1), !,
+        acyQName2Atom(QN,QNA),
+        removeClass(ST,QNA),
+        removeConstraints(TCs,TSub1,TSub2).
+removeConstraints(['Prelude.(,)'(QN,'CTVar'(TV))|TCs],TSub1,TSub2) :-
+        acyQName2Atom(QN,'Prelude.Data'), !, % default Data to Bool
+        writeLnNQ('Defaulting "Data" context to "Bool"...'),
+        removeConstraints(TCs,[map(TV,'Bool')|TSub1],TSub2).
 
-% the second argument is 'top' or 'nested':
-% in case of 'nested', brackets are written around complex type expressions
-writeType(A,_) :- var(A), !, write(A).
-writeType(A,_) :- atom(A), !, write(A).
-writeType('FuncType'(S,T),top) :-
-	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
-	writeType(S,S_Tag), write(' -> '), writeType(T,top).
-writeType('FuncType'(S,T),nested) :-
-	(S='FuncType'(_,_) -> S_Tag=nested ; S_Tag=top),
-	write('('), writeType(S,S_Tag), write(' -> '), writeType(T,top),
-	write(')').
-writeType('TCons'('Prelude.Apply',[S,T]),top) :-
-        !, % print type constructor "Prelude.Apply" as type application
-	writeType(S,nested), write(' '), writeType(T,nested).
-writeType('TCons'('Prelude.Apply',[S,T]),nested) :-
-        !, % print type constructor "Prelude.Apply" as type application
-	write('('), writeType(S,nested), write(' '), writeType(T,nested),
-	write(')').
-writeType('TCons'([],['TCons'('Prelude.Char',[])]),_) :-
-        !, % print "[Char]" as "String"
-	write('String').
-writeType('TCons'([],[T]),_) :- !,  % list type
-	write('['), writeType(T,top), write(']').
-writeType('TCons'(TC,[Type|Types]),_) :-
-	isTupleCons(TC), % tuple type constructor
-	!,
-	write('('), writeType(Type,top), writeTupleType(Types), write(')').
-writeType('TCons'(TC,[]),_) :- writeTypeCons(TC), !.
-writeType('TCons'(TC,[T1,T2]),top) :- isTypeApplyCons(TC), !,
-	writeType(T1,nested), write(' '), writeType(T2,nested), !.
-writeType('TCons'(TC,[T1,T2]),nested) :- isTypeApplyCons(TC), !,
-	write('('),
-        writeType(T1,nested), write(' '), writeType(T2,nested),
-        write(')'), !.
-writeType('TCons'(TC,Ts),top) :-
-	writeTypeCons(TC), writeTypes(Ts), !.
-writeType('TCons'(TC,Ts),nested) :-
-	write('('), writeTypeCons(TC),
-	writeTypes(Ts), write(')'), !.
+removeClass(DClass,Class) :-
+        member(DClass,['Int','Float']),
+        member(Class,['Prelude.Data','Prelude.Eq','Prelude.Ord',
+                      'Prelude.Read','Prelude.Show']), !.
+removeClass(DClass,'Prelude.Enum') :-
+        member(DClass,['Char','Int','Bool','Ordering']), !.
+removeClass('IO','Monad').
 
-isTypeApplyCons(TC) :-
-        atom_codes(TC,TCS),
-        append(_,[46,64],TCS), !. % 64 = @
+applyTSub(TSub,'CTVar'(TV),DefType) :-
+        member(map(TV,DTC),TSub), !,
+        atom2String('Prelude',MNS), atom2String(DTC,TNS),
+        DefType = 'CTCons'('Prelude.(,)'(MNS,TNS)).
+applyTSub(_,'CTVar'(TV),'CTVar'(TV)).
+applyTSub(TSub,'CFuncType'(T1,T2),'CFuncType'(ST1,ST2)) :-
+        applyTSub(TSub,T1,ST1),
+        applyTSub(TSub,T2,ST2).
+applyTSub(_,'CTCons'(QN),'CTCons'(QN)).
+applyTSub(TSub,'CTApply'(T1,T2),'CTApply'(ST1,ST2)) :-
+        applyTSub(TSub,T1,ST1),
+        applyTSub(TSub,T2,ST2).
 
-writeTypeCons(TC) :-
-        atomic2Codes(TC,TCS), % hack for SWI 7.x if TC == []
-	append("Prelude.",NameS,TCS), !,
-	atom_codes(Name,NameS), write(Name).
-writeTypeCons(TC) :-
-	currentModuleFile(Mod,_), atom_codes(Mod,ModS),
-	atomic2Codes(TC,TCS), % hack for SWI 7.x if TC == []
-	(append(ModS,[46|NameS],TCS)
-	 -> atom_codes(Name,NameS), write(Name)
-	  ; write(TC)), !.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Pretty print a qualified type given as an AbstractCurry term:
 
-writeTupleType([]).
-writeTupleType([T|Ts]) :-
-	write(','),
-	writeType(T,top),
-	writeTupleType(Ts).
+writeAcyQualType(QualType) :-
+        showAcyQualType(QualType,T),
+        write(T).
 
-writeTypes([]).
-writeTypes([T|Ts]) :- write(' '), writeType(T,nested), writeTypes(Ts).
+showAcyQualType('CQualType'('CContext'(Ctxt),Type),T) :-
+        showAcyCtxt(Ctxt,TCtxt),
+        showAcyType(Type,TType),
+        appendAtoms([TCtxt,TType],T).
 
+showAcyCtxt([],'').
+showAcyCtxt([C],T) :- !, showAcyTConstr(C,CA), appendAtoms([CA,' => '],T).
+showAcyCtxt(Cs,T) :-
+        showAcyTConstrs(Cs,TCs),
+        appendAtoms(['(',TCs,') => '],T).
 
-% provide a name for each variable
-numbersmallvars(N1,N2,A) :-
-	var(A), !,
-	N2 is N1+1,
-	atom_codes(A,[N1]).
-numbersmallvars(N1,N2,T) :-
-	T =.. [_|Ts],
-	numbersmallvarsl(N1,N2,Ts).
+showAcyTConstrs([],'').
+showAcyTConstrs([C],T) :- !, showAcyTConstr(C,T).
+showAcyTConstrs([C|Cs],T) :-
+        showAcyTConstr(C,TC), showAcyTConstrs(Cs,TCs),
+        appendAtoms([TC,', ',TCs],T).
 
-numbersmallvarsl(N,N,[]).
-numbersmallvarsl(N1,N3,[T|Ts]) :-
-	numbersmallvars(N1,N2,T), numbersmallvarsl(N2,N3,Ts).
+showAcyTConstr('Prelude.(,)'(QN,CT),T) :-
+        showAcyQName(QN,TQN),
+        showAcyType(nested,CT,TCT),
+        appendAtoms([TQN,' ',TCT],T).
 
-% replace each variable in a term by a unique integer
-% (starting from the first arg):
-% (this is similar to numbervars except that no special structure
-% is put around the integer):
-vars2integers(A,N1,N2) :-
-	var(A), !,
-	N2 is N1+1,
-	A=N1.
-vars2integers(T,N1,N2) :-
-	T =.. [_|Ts],
-	vars2integersl(Ts,N1,N2).
+showAcyType(Ty,T) :- showAcyType(top,Ty,T).
 
-vars2integersl([],N,N).
-vars2integersl([T|Ts],N1,N3) :-
-	vars2integers(T,N1,N2), vars2integersl(Ts,N2,N3).
+showAcyType(_,'CTVar'('Prelude.(,)'(_,Vs)),V) :-
+        string2Atom(Vs,V).
+showAcyType(P,'CFuncType'(Ty1,Ty2),T) :-
+        (Ty1 = 'CFuncType'(_,_) -> T1P = nested ; T1P = top),
+        showAcyType(T1P,Ty1,T1), showAcyType(top,Ty2,T2),
+        appendAtoms([T1,' -> ',T2],TF),
+        bracketAtom(P,TF,T).
+showAcyType(_,'CTCons'(QN),T) :- showAcyQName(QN,T).
+showAcyType(_,'CTApply'('CTCons'(QN),Ty2),T) :- % list type
+        acyQName2Atom(QN,QNA), QNA='Prelude.[]', !,
+        showAcyType(top,Ty2,T2),
+        appendAtoms(['[',T2,']'],T).
+showAcyType(P,Ty,T) :-
+        acyApplyCons(Ty,QN), acyApplyArgs(Ty,TArgs), !,
+        acyQName2Atom(QN,QNA),
+        (atom_codes(QNA,[80,114,101,108,117,100,101,46,40,44|_]) % tuple type
+         -> showAcyTypes(',',top,TArgs,Ts), bracketAtom(nested,Ts,T)
+          ; showAcyQName(QN,TQ),
+            showAcyTypes(' ',nested,TArgs,Ts),
+            appendAtoms([TQ,' ',Ts],TA), bracketAtom(P,TA,T)).
+showAcyType(P,'CTApply'(Ty1,Ty2),T) :-
+        showAcyType(P,Ty1,T1), showAcyType(nested,Ty2,T2),
+        appendAtoms([T1,' ',T2],TA),
+        bracketAtom(P,TA,T).
 
+showAcyTypes(_,_,[],'').
+showAcyTypes(_,P,[Ty],T) :- !, showAcyType(P,Ty,T).
+showAcyTypes(S,P,[Ty|Tys],T) :-
+        showAcyType(P,Ty,TTy), showAcyTypes(S,P,Tys,TTys),
+        appendAtoms([TTy,S,TTys],T).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+acyApplyCons('CTApply'('CTCons'(QN),_),QN) :- !.
+acyApplyCons('CTApply'(T1,_),QN) :- acyApplyCons(T1,QN).
+
+acyApplyArgs('CTApply'('CTCons'(_),T),[T]) :- !.
+acyApplyArgs('CTApply'(T1,T2),Args) :-
+        acyApplyArgs(T1,Args1),
+        append(Args1,[T2],Args).
+
+showAcyQName('Prelude.(,)'(Mod,Name),T) :-
+        string2Atom(Mod,FMod),
+	string2Atom(Name,FName),
+        (FMod = 'Prelude' -> T=FName
+                           ; appendAtoms([FMod,'.',FName],T)).
+
+bracketAtom(top,A,A).
+bracketAtom(nested,A,T) :- appendAtoms(['(',A,')'],T).
+
+acyQName2Atom('Prelude.(,)'(Mod,Name),QN) :-
+        string2Atom(Mod,FMod),
+	string2Atom(Name,FName),
+        appendAtoms([FMod,'.',FName],QN).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % predicates for debugging:
 
 % assert new spy points:
