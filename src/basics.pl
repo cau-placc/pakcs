@@ -25,7 +25,7 @@
 		  resetDynamicPreds/0, clearDynamicPreds/0,
 		  isCharCons/1, isString/1, char_int/2, cp_string/2,
 		  string2Atom/2, atom2String/2, atomic2Atom/2, atomic2Codes/2,
-		  removeShares/2, term2partcall/3, isCompleteList/2,
+		  removeShares/2, term2partcall/3, isCompleteList/2, isList/1,
 		  getNewFileName/2, createNewTmpDir/1, mainPrologFileName/1,
 		  extendPath/3, path2Atom/2, pathString2loadPath/2,
 		  getLocalCurryPath/1, getCurryPath/1, setCurryPath/1,
@@ -1067,6 +1067,10 @@ isCompleteList(share(M),L) :- !, get_mutable(V,M),
 isCompleteList([],[]).
 isCompleteList([X|Xs],[X|L]) :- isCompleteList(Xs,L).
 
+% is the argument a Prolog list structure
+isList(Xs) :- var(Xs), !, fail.
+isList([]) :- !.
+isList([_|Xs]) :- isList(Xs).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print an error message:

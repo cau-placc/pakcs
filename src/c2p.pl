@@ -413,8 +413,13 @@ processExpression(Input,ExprGoal) :-
         createNewTmpDir(MainExprDir),
 	(processExpressionIn(MainExprDir,Input,ExprGoal)
         -> deleteMainExpFiles(MainExprDir)
-         ; deleteMainExpFiles(MainExprDir), !, failWithExitCode).
-        
+         ; failProcessExpression(MainExprDir)).
+
+failProcessExpression(MainExprDir) :-
+        deleteMainExpFiles(MainExprDir),
+        !,
+        failWithExitCode.
+
 processExpressionIn(MainExprDir,Input,ExprGoal) :-
         % read both acy and flat file of main expression:
         writeAndParseExpression(MainExprDir,yes,Input,none,'--acy --flat',
@@ -460,7 +465,7 @@ parseExpression(SplitFreeVars,Input,InitExpType,MainExp,Type,Vs) :-
 	(parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitExpType,
                            MainExp,Type,Vs)
         -> deleteMainExpFiles(MainExprDir)
-         ; deleteMainExpFiles(MainExprDir), !, failWithExitCode).
+         ; failProcessExpression(MainExprDir)).
 
 parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
                   MainExp,Type,Vs) :-
@@ -511,7 +516,7 @@ writeAndParseExpression(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
 
 postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
                            MainExp,Type,Vs) :-
-	FlatProg = 'Prog'(_,_Imps,_TDecls,FDecls,_),
+	FlatProg = 'Prog'(_,_,_,FDecls,_),
 	FDecls = ['Func'(_,_,_,FuncType,'Rule'(RuleArgs,RuleExp))|MoreFs],
 	!,
         desugarNewTypesInExp(RuleExp,DesRuleExp),
@@ -540,7 +545,7 @@ acyTypeOfExpr(Expr,AcyQualType) :-
         createNewTmpDir(MainExprDir),
         (acyTypeOfExprIn(MainExprDir,Expr,no,'--acy',_,_,_,_,AcyQualType)
         -> deleteMainExpFiles(MainExprDir)
-         ; deleteMainExpFiles(MainExprDir), !, failWithExitCode).
+         ; failProcessExpression(MainExprDir)).
 
 acyTypeOfExprIn(MainExprDir,Expr,SplitFreeVars,Target,
                 MainExprMod,LCP,NewLCP,FreeVars,QualType) :-
@@ -1603,13 +1608,20 @@ defaultQualType('CQualType'('CContext'(Ctxt),Type),
         applyTSub(TSubR,Type,DType).
 
 defaultMap([],RemCtxt,RemCtxt,TSub,TSub).
-defaultMap(['Prelude.(,)'(QN,T)|TCs],RemCtxtO,RemCtxtN,TSub1,TSub2) :-
-        T = 'CTVar'(TV),
+defaultMap([TC|TCs],RemCtxtO,RemCtxtN,TSub1,TSub2) :-
+        typeConstraintWithTVar(TC,QN,TV),
         acyQName2Atom(QN,QNA),
         defaultClass(QNA,DefTC), !,
         defaultMap(TCs,RemCtxtO,RemCtxtN,[map(TV,DefTC)|TSub1],TSub2).
 defaultMap([TC|TCs],RemCtxtO,RemCtxtN,TSub1,TSub2) :-
         defaultMap(TCs,[TC|RemCtxtO],RemCtxtN,TSub1,TSub2).
+
+% Is the first argument an ACY type constraint with class name and a single
+% type variable?
+% The first and second clause is for single and multi-parameter parameter
+% type classes, respectively.
+typeConstraintWithTVar('Prelude.(,)'(QN,'CTVar'(TV)),QN,TV).
+typeConstraintWithTVar('Prelude.(,)'(QN,['CTVar'(TV)]),QN,TV).
 
 defaultClass('Prelude.Num','Int').
 defaultClass('Prelude.Integral','Int').
@@ -1619,12 +1631,14 @@ defaultClass('Prelude.Monad','IO').
 defaultClass('Prelude.MonadFail','IO').
 
 removeConstraints([],TSub,TSub).
-removeConstraints(['Prelude.(,)'(QN,'CTVar'(TV))|TCs],TSub1,TSub2) :-
+removeConstraints([TC|TCs],TSub1,TSub2) :-
+        typeConstraintWithTVar(TC,QN,TV),
         member(map(TV,ST),TSub1), !,
         acyQName2Atom(QN,QNA),
         removeClass(ST,QNA),
         removeConstraints(TCs,TSub1,TSub2).
-removeConstraints(['Prelude.(,)'(QN,'CTVar'(TV))|TCs],TSub1,TSub2) :-
+removeConstraints([TC|TCs],TSub1,TSub2) :-
+        typeConstraintWithTVar(TC,QN,TV),
         acyQName2Atom(QN,'Prelude.Data'), !, % default Data to Bool
         writeLnNQ('Defaulting "Data" context to "Bool"...'),
         removeConstraints(TCs,[map(TV,'Bool')|TSub1],TSub2).
@@ -1674,6 +1688,11 @@ showAcyTConstrs([C|Cs],T) :-
         showAcyTConstr(C,TC), showAcyTConstrs(Cs,TCs),
         appendAtoms([TC,', ',TCs],T).
 
+showAcyTConstr('Prelude.(,)'(QN,CTs),T) :-
+        isList(CTs), !, % for multi-parameter type classes
+        showAcyQName(QN,TQN),
+        showAcyTypes(' ',nested,CTs,TCTs),
+        appendAtoms([TQN,' ',TCTs],T).
 showAcyTConstr('Prelude.(,)'(QN,CT),T) :-
         showAcyQName(QN,TQN),
         showAcyType(nested,CT,TCT),
@@ -1720,15 +1739,19 @@ acyApplyArgs('CTApply'(T1,T2),Args) :-
         acyApplyArgs(T1,Args1),
         append(Args1,[T2],Args).
 
+% translate ACY qualified name into atom which is qualified if the module
+% qualified is not the prelude or the current module.
 showAcyQName('Prelude.(,)'(Mod,Name),T) :-
         string2Atom(Mod,FMod),
 	string2Atom(Name,FName),
-        (FMod = 'Prelude' -> T=FName
-                           ; appendAtoms([FMod,'.',FName],T)).
+        ((FMod = 'Prelude' ; currentModuleFile(FMod,_))
+         -> T=FName
+          ; appendAtoms([FMod,'.',FName],T)).
 
 bracketAtom(top,A,A).
 bracketAtom(nested,A,T) :- appendAtoms(['(',A,')'],T).
 
+% translate ACY qualified name into qualified atom
 acyQName2Atom('Prelude.(,)'(Mod,Name),QN) :-
         string2Atom(Mod,FMod),
 	string2Atom(Name,FName),
