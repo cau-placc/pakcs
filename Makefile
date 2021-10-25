@@ -187,7 +187,7 @@ kernel: scripts copylibs copytools
 # build the PAKCS compiler and REPL as an executable:
 .PHONY: repl
 repl:
-	cd src && $(MAKE)
+	$(MAKE) -C src
 
 # Clean old files that might be in conflict with newer versions of PAKCS:
 .PHONY: cleanoldinfos
@@ -204,12 +204,12 @@ config: scripts
 # install the scripts of PAKCS in the bin directory:
 .PHONY: scripts
 scripts:
-	cd scripts && $(MAKE) all
+	$(MAKE) -C scripts all
 
 # remove the scripts of PAKCS in the bin directory:
 .PHONY: cleanscripts
 cleanscripts:
-	cd scripts && $(MAKE) clean
+	$(MAKE) -C scripts clean
 
 # if the directory `currytools` is not present, copy it from the sources:
 # (only necessary for the installation of a (Debian) packages, otherwise
@@ -300,7 +300,7 @@ $(MANUALVERSION): Makefile
 # copy the library sources from the lib-trunk directory:
 .PHONY: copylibs
 copylibs:
-ifneq ("$(wildcard $(CURRYLIBSDIR))", "")
+ifneq ("$(wildcard $(CURRYLIBSSRCDIR))", "")
 	$(MAKE) $(LIB_MODULE_FOLDERS)
 	$(MAKE) $(LIB_CURRYONLY_FILES)
 	$(MAKE) $(LIB_PAKCS_CURRY_FILES)
