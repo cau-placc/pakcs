@@ -297,6 +297,9 @@ $(MANUALVERSION): Makefile
 # Installing base libraries
 #
 
+# directory containing the sources of the Curry system libraries:
+CURRYLIBSSRCDIR = $(CURRYLIBSDIR)/src
+
 # copy the library sources from the lib-trunk directory:
 .PHONY: copylibs
 copylibs:
@@ -309,7 +312,6 @@ ifneq ("$(wildcard $(CURRYLIBSSRCDIR))", "")
 	@$(MAKE) require-jq
 	$(MAKE) $(LIBDIR)/VERSION
 
-CURRYLIBSSRCDIR      =$(CURRYLIBSDIR)/src
 MODULE_FOLDERS       =$(shell cd $(CURRYLIBSSRCDIR) && find * -type d)
 CURRY_FILES          =$(shell cd $(CURRYLIBSSRCDIR) && find * -name "*.curry")
 PAKCS_FILES          =$(shell cd $(CURRYLIBSSRCDIR) && find * -name "*.pakcs")
