@@ -584,7 +584,7 @@ writeProg(Mod,Imports,MainTypes,MainFuncsO,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	write('%%%%%%%%%%%% function types %%%%%%%%%%%%%%%%%%%'), nl,
 	writeClause((:- multifile functiontype/6)),
 	writeClause((:- dynamic functiontype/6)),
-	map1partialM(compiler:writeFTypeClause(ExtFuncs,AllOps),
+	map1partialM(compiler:writeFTypeClause(Mod,ExtFuncs,AllOps),
                      CodeFuncsOISTotal), nl,
 	write('%%%%%%%%%%%% constructor types %%%%%%%%%%%%%%%%%%%'), nl,
 	writeClause((:- multifile constructortype/7)),
@@ -593,7 +593,7 @@ writeProg(Mod,Imports,MainTypes,MainFuncsO,MainOps,ImpTypes,ImpFuncs,ImpOps) :-
 	 ; % generate type clause for partcall in the prelude:
 	   writeClause(constructortype(partcall,partcall,3,partcall,0,
                                        notype,[]))),
-	map1M(compiler:writeDTypeClause,MainTypes), nl,
+	map1partialM(compiler:writeDTypeClause(Mod),MainTypes), nl,
 
 	write('%%%%%%%%%%%% function definitions %%%%%%%%%%%%%%%%%%%'), nl,
 	map1M(compiler:writeFunc,CodeFuncsOISTotal),
@@ -1740,9 +1740,9 @@ getVarInEnv(I,[_|Env],Var) :- getVarInEnv(I,Env,Var).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % write clauses with type (and evaluation) information
 
-writeFTypeClause(ExtFuncs,_Ops,'Func'(Name,_FArity,Vis,_,_)) :-
+writeFTypeClause(ModS,ExtFuncs,_Ops,'Func'(Name,_FArity,Vis,_,_)) :-
 	flatName2Atom(Name,FName),
-	getExternalNameFromVisibility(Name,Vis,EName),
+	getExternalNameFromVisibility(ModS,Name,Vis,EName),
 	getFuncArity(FName,Arity),
 	getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName),
 	writeClause(functiontype(FName,EName,Arity,PrologName,nofix,notype)).
@@ -1761,31 +1761,32 @@ getPrologNameFromExtFuncs(FName,Arity,ExtFuncs,PrologName) :-
 	    setFlcBug, fail).
 getPrologNameFromExtFuncs(FName,_,_,FName).
 
-getExternalNameFromVisibility(Name,'Private',FName) :- atom_codes(FName,Name).
-getExternalNameFromVisibility(Name,'Public',FName) :-
-	append([_|_],[46|F],Name), !, atom_codes(FName,F).
-getExternalNameFromVisibility(Name,'Public',FName) :- atom_codes(FName,Name).
+getExternalNameFromVisibility(_,Name,'Private',FName) :- atom_codes(FName,Name).
+getExternalNameFromVisibility(ModS,Name,'Public',FName) :-
+	append(ModS,[46|F],Name), !, atom_codes(FName,F).
+getExternalNameFromVisibility(_,Name,'Public',FName) :- atom_codes(FName,Name).
 
 getUnqualifiedName(Name,UQName) :-
 	append([_|_],[46|F],Name), !, atom_codes(UQName,F).
 getUnqualifiedName(Name,UQName) :- atom_codes(UQName,Name).
 
-writeDTypeClause('Type'(_TypeName,_Vis,_TypeArgs,ConsExprs)) :-
-	writeDTypeClauses(0,ConsExprs,ConsExprs).
-writeDTypeClause('TypeNew'(_,_,_,_)).
+writeDTypeClause(ModS,'Type'(_TypeName,_Vis,_TypeArgs,ConsExprs)) :-
+	writeDTypeClauses(ModS,0,ConsExprs,ConsExprs).
+writeDTypeClause(_,'TypeNew'(_,_,_,_)).
 
 index2tvar(I,'TVar'(I)). % transform tvar index into type expression
 
-writeDTypeClauses(_,[],_).
-writeDTypeClauses(Index,['Cons'(ConsName,Arity,Vis,_ArgTypes)|Cs],AllConstrs) :-
+writeDTypeClauses(_,_,[],_).
+writeDTypeClauses(ModS,Index,
+                  ['Cons'(ConsName,Arity,Vis,_ArgTypes)|Cs],AllConstrs) :-
 	flatName2Atom(ConsName,Cons),
-	getExternalNameFromVisibility(ConsName,Vis,EName),
+	getExternalNameFromVisibility(ModS,ConsName,Vis,EName),
 	getUnqualifiedName(ConsName,UQName),
 	getOtherConstructors(ConsName,AllConstrs,OtherConstrs),
 	writeClause(constructortype(Cons,EName,Arity,UQName,Index,notype,
 				    OtherConstrs)),
 	Index1 is Index+1,
-	writeDTypeClauses(Index1,Cs,AllConstrs).
+	writeDTypeClauses(ModS,Index1,Cs,AllConstrs).
 
 getOtherConstructors(_,[],[]).
 getOtherConstructors(ConsName,['Cons'(ConsName,_,_,_)|Cs],OCs) :- !,
