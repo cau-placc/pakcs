@@ -14,7 +14,7 @@ image: "caups/pakcs-swi-ci:8.10.7"
 variables:
   # packs version to download from http://www.informatik.uni-kiel.de/~pakcs/download/
   # in the run_download_make job
-  DOWNLOAD_VERSION: "3.3.0"
+  DOWNLOAD_VERSION: "3.4.2"
   # make sure LANG and LC_ALL are well defined
   LANG: "C.UTF-8"
   LC_ALL: "C.UTF-8"
