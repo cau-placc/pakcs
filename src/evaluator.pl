@@ -3,7 +3,7 @@
 
 :- module(evaluator,
 	  [currentprogram/1, numberOfCalls/1, numberOfExits/1,
-	   singlestep/0, tracemode/0, spymode/0, spypoints/1,
+	   singlestep/0, tracemode/0, spymode/0, spypoints/1, spyFail/1,
 	   addSuspensionReason/1,
 	   printDepth/1, printAllFailures/0,
 	   profiling/1, suspendmode/1, interactiveMode/1,
@@ -22,7 +22,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dynamic numberOfCalls/1, numberOfExits/1, singlestep/0, tracemode/0,
-	   spypoints/1, spymode/0, spyFail/0, printDepth/1,
+	   spypoints/1, spymode/0, spyFail/1, printDepth/1,
 	   profiling/1, profile_data/3, currentprogram/1,
 	   suspendmode/1, allsolutionmode/1, interactiveMode/1,
 	   firstSolutionMode/1, timemode/1, nextIOproof/0,
@@ -37,7 +37,7 @@ singlestep. % single step mode initially on in debug mode
 tracemode.  % trace mode initially on in debug mode
 spypoints([]). % list of spy points
 %spymode. % initially no spy points
-%spyFail. % show fail ports in spy mode
+spyFail(no). % show fail ports in spy mode
 printDepth(0). % maximal print depth of terms +1 (or 0 for infinity)
 profiling(no). % show profiling statistics in debug mode
 suspendmode(no). % yes if suspended goals should be shown

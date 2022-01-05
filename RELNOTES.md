@@ -1,8 +1,16 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.4.0 (April 26, 2021)
-------------------------------------------------------
+Release notes for PAKCS Version 3.4.3 (January 5, 2021)
+-------------------------------------------------------
+
+Changes to version 3.4.2:
+
+  * Small fix for debug mode when tracing is off.
+
+
+Release notes for PAKCS Version 3.4.2 (December 20, 2021)
+---------------------------------------------------------
 
 Changes to version 3.3.0:
 

@@ -1804,7 +1804,7 @@ traceCall(P,Skip) :-
 	  ; Skip=Answer).
 traceCall(P,_) :-
 	(profiling(yes) -> profileFail(P) ; true),
-	((spythis(P) ; spyFail)
+	((spythis(P) ; spyFail(yes))
 	   ->  write('Fail: '), writeCurry(P), nl,
 	       (singlestep -> call_singlestepmenu(_) ; true)
             ; true),
