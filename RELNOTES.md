@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.4.3 (January 5, 2021)
+Release notes for PAKCS Version 3.5.0 (January 5, 2021)
 -------------------------------------------------------
 
 Changes to version 3.4.2:
