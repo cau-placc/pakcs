@@ -43,19 +43,6 @@ case $1 in
   cypm | frontend ) check_and_exec_tool ${1+"$@"} ;;
 esac
 
-# check whether we should call CPM to compute the correct load path:
-if [ ! -d "$HOME" ] ; then
-  USECPM=no   # do not use CPM without a home directory
-elif [ -x $PAKCSBIN/cypm ] ; then
-  CYPMBIN=$PAKCSBIN/cypm
-  USECPM=yes
-elif [ -x $CPMBIN/cypm ] ; then
-  CYPMBIN=$CPMBIN/cypm
-  USECPM=yes
-else
-  USECPM=no
-fi
-
 NOCOLOR=
 
 # use readline wrapper rlwrap for SICStus-Prolog back end
@@ -71,24 +58,55 @@ else
   NOCOLOR="--nocolor"
 fi
 
-# check arguments for appropriate settings:
+QUIET=no    # quiet, i.e., no messages from this script?
+USECPM=yes  # should we call CPM to compute the correct load path?
+
+# check and remove arguments that should not be passed to the REPL:
+for arg do
+  shift
+  case $arg in
+    --nocypm | -n ) USECPM=no    ;;
+    --noreadline  ) USERLWRAP=no ;;
+    *             ) set -- "$@" "$arg" ;;
+  esac
+done
+#echo "ARGUMENTS PASSED TO REPL:"
+#printf '%s\n' "$@"
+
+# check REPL arguments that are relevant for this shell script:
 for i in $* ; do
   case $i in
     --help | -h | -\? ) USECPM=no ;;
     --version | -V    ) USECPM=no ;;
     --numeric-version | --compiler-name | --base-version ) USECPM=no ;;
-    --nocypm | -n     ) USECPM=no ;;
-    --noreadline      ) USERLWRAP=no
+    --quiet  | -q     ) QUIET=yes ;;
   esac
 done
+
+CYPMBIN=
+# if USECPM=yes, set variable CYPMBIN to the binary of CPM
+if [ $USECPM = yes ] ; then
+  if [ ! -d "$HOME" ] ; then   # do not use CPM without a home directory
+    CYPMBIN=
+  elif [ -x "$PAKCSBIN/cypm" ] ; then
+    CYPMBIN=$PAKCSBIN/cypm  # use local binary of CPM
+  elif [ -x "$CPMBIN/cypm" ] ; then
+    CYPMBIN=$CPMBIN/cypm    # use ~/.cpm/bin/cypm
+  else
+    WHICHCPM=`which cypm`  
+    if [ -x "$WHICHCPM" ] ; then
+      CYPMBIN=$WHICHCPM     # use another binary of CPM in the load path
+    fi
+  fi
+fi
 
 # Title/version of CPM passed to PAKCS:
 CPMVERSION=
 
-if [ $USECPM = yes ] ; then
-  CPMVERSION=`"$CYPMBIN" -V`
-  if [ $? -gt 0 ] ; then
-    CPMVERSION=
+if [ -n "$CYPMBIN" ] ; then
+  # set CURRYPATH with 'deps' command of CPM
+  if [ $QUIET = no ] ; then
+    echo "Compute CURRYPATH with '$CYPMBIN'..."
   fi
   # set CURRYPATH with 'deps' command of CPM
   CPMPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSBIN/pakcs" deps -p`
@@ -102,6 +120,11 @@ if [ $USECPM = yes ] ; then
     CURRYPATH=$CPMPATH
   fi
   export CURRYPATH
+  # set version string of CPM
+  CPMVERSION=`"$CYPMBIN" -V`
+  if [ $? -gt 0 ] ; then
+    CPMVERSION=
+  fi
 fi
 
 REPL="$PAKCSHOME/src/pakcs"

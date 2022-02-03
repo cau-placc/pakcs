@@ -146,12 +146,6 @@ processArgs(Halt,['--cpm-version'|CArgs]) :-
                             ; Args = CArgs), % this case should not occur...
         !,
 	processArgs(Halt,Args).
-processArgs(Halt,['--nocypm'|Args]) :-
-	processArgs(Halt,Args).            % ignore since already processed
-processArgs(Halt,['-n'|Args]) :-
-	processArgs(Halt,Args).            % ignore since already processed
-processArgs(Halt,['--noreadline'|Args]) :-
-	processArgs(Halt,Args).            % ignore since already processed
 processArgs(Halt,['--nocolor'|Args]) :-
         retract(withColor(_)), asserta(withColor(no)), !,
 	processArgs(Halt,Args).
@@ -264,7 +258,7 @@ writeMainHelp :-
         nlErr,
         writeLnErr('To get more help about the usage of a tool, type'),
 	nlErr,
-	writeLnErr('    pakcs <tool> -h').
+	writeLnErr('    pakcs <tool> --help').
 
 
 % Compute the prompt of the interactive loop:
