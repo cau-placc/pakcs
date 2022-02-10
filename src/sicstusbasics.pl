@@ -482,9 +482,8 @@ shellCmd(Cmd) :- shellCmd(Cmd,0).
 shellCmd(Cmd,Status) :-
 	%write(user_error,Cmd), nl(user_error),
 	(sicstus4
-         -> absolute_file_name(path(sh),SH,[access([exist,executable])]),
-	    catch(findall(Var=Value,environ(Var,Value),Env),_,Env=[]),
-	    process_create(SH,['-c',Cmd],[environment(Env),process(Pid)]),
+         -> catch(findall(Var=Value,environ(Var,Value),Env),_,Env=[]),
+	    process_create(path(sh),['-c',Cmd],[environment(Env),process(Pid)]),
             process_wait(Pid,exit(Status))
           ; system(Cmd,Status)).
 
@@ -494,8 +493,7 @@ shellCmd(Cmd,Status) :-
 execCommand(Cmd,InWrite,OutRead,ErrRead) :-
 	(var(ErrRead) -> ErrReadArg=pipe(ErrRead) ; ErrReadArg=ErrRead),
 	(sicstus4
-	 -> absolute_file_name(path(sh),SH,[access([exist,executable])]),
-	    process_create(SH,['-c',Cmd],
+	 -> process_create(path(sh),['-c',Cmd],
 			   [stdin(pipe(InWrite)),stdout(pipe(OutRead)),
 			    stderr(ErrReadArg)])
  	  ; exec(Cmd,[pipe(InWrite),pipe(OutRead),ErrReadArg],_)).
