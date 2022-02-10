@@ -2,8 +2,8 @@ PAKCS: The Portland Aachen Kiel Curry system
 ============================================
 
 PAKCS is an implementation of the multi-paradigm declarative language
-[Curry](http://www.curry-lang.org) developed by RWTH Aachen,
-University of Kiel and Portland State University
+[Curry](http://www.curry-lang.org) developed by Kiel University,
+RWTH Aachen, and Portland State University
 (email contact: pakcs@curry-lang.org)
 
 This directory contains:
@@ -27,14 +27,15 @@ This directory contains:
   A directory containing various executables
   to execute the components of PAKCS.
 
-`src`:
-  This directory contains the compiler from Curry into Prolog which
-  is the basis of the main component of PAKCS: the interactive
-  development environment.
+`ci`:
+  This directory contains some files supporting the CI build of gitlab.
 
 `currytools`:
   This directory contains some base tools for Curry
   (see the README there for a more detailed description).
+
+`docker`:
+  This directory contains the files to generate the docker images of PAKCS.
 
 `docs`:
   This directory contains some documentation (Curry Report, PAKCS User Manual,
@@ -48,14 +49,22 @@ This directory contains:
 `frontend`:
   This directory contains the Curry frontend, i.e., a parser for
   Curry programs. It is adapted from the parser originally developed for the
-  [Muenster Curry Compiler](http://danae.uni-muenster.de/~lux/curry/).
+  [Muenster Curry Compiler](http://danae.uni-muenster.de/curry/).
 
 `lib`:
   This directory contains the standard libraries of PAKCS
   (including the standard prelude).
 
+`man`:
+  This directory contains the pages for the `man` command in the
+  Debian distribution of PAKCS.
+
 `scripts`:
   This directory contains some templates for scripts used in PAKCS.
+
+`src`:
+  This directory contains the compiler from Curry into Prolog and
+  the main component of PAKCS, the interactive development environment.
 
 `testsuite`:
   This directory contains a collection of Curry programs
