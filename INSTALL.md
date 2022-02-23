@@ -19,7 +19,8 @@ on your computer, you need the following software:
 If you install PAKCS from the source code distribution,
 you need also the Haskell build tool
 [Stack](https://docs.haskellstack.org/)
-to compile the front end of PAKCS.
+(version 2.x or higher) to compile the front end of PAKCS,
+i.e., the executable `stack` must be in your path.
 
 
 A note on encoding source files

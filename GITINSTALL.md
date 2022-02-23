@@ -18,8 +18,7 @@ Go into this directory by
 
 and execute
 
-    git submodule init
-    git submodule update
+    git submodule update --init
 
 in order to obtain further files managed by git, i.e.,
 the Curry system libraries shared by PAKCS and KiCS2.
