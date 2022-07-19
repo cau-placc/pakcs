@@ -1,13 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.5.0 (January 5, 2021)
--------------------------------------------------------
+Release notes for PAKCS Version 3.5.0 (July 19, 2022)
+-----------------------------------------------------
 
 Changes to version 3.4.2:
 
+  * New base modules `Data.Functor.Compose` and `Data.Functor.Const` added.
   * Small fix for debug mode when tracing is off.
-
+  * Front end supports new language options
+    `NoImplicitPrelude` and `NoDataDeriving`.
 
 Release notes for PAKCS Version 3.4.2 (December 20, 2021)
 ---------------------------------------------------------

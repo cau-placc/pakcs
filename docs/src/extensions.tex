@@ -242,6 +242,7 @@ so that one can look there to find a detailed description.
 
 
 \subsection{Free Variables, Equality, and the Type Class \texttt{Data}}
+\label{sec:free-data}
 
 Curry extends purely functional programming languages, like Haskell,
 with built-in non-determinism and free variables.
@@ -584,6 +585,78 @@ a new \code{\#if}.
 This directive terminates the preceding
 \code{\#if}, \code{\#else}, or \code{\#elif} directive.
 
+
+\subsection{Language Pragmas}
+
+\CYS supports a couple of language pragmas\index{language pragma}
+to influence the kind of the source language to be processed.
+One such pragma, conditional compilation, has been described
+in the previous section.
+In this section we describe two pragmas which might be useful
+for experimental purposes.
+
+The Curry prelude (library \code{Prelude}) contains
+many definition of standard data types, operations,
+and type classes and instances.
+Thus, it is a fairly large module.
+When developing new tools for analyzing or manipulating programs,
+the complexity of the prelude, which is imported by any simple program,
+hinders sometimes the initial development of such tools.
+For this purpose, it could be useful to compile a program without
+the prelude.
+This can be achieved by putting the following language pragma
+into the  header of the module:\pindex{LANGUAGE}\pindex{NoImplicitPrelude}
+%
+\begin{curry}
+{-# LANGUAGE NoImplicitPrelude #-}
+\end{curry}
+%
+Note that such a module has to define all data types
+on which operations are defined, since nothing from the prelude
+is available in such a module.
+
+As described in Section~\ref{sec:free-data},
+instances of class \code{Data} are automatically derived by \CYS.
+Since the implementation of these instances refer to the prelude
+and are sometimes complex, one can suppress the derivation
+of \code{Data} instances by the language pragma\pindex{NoDataDeriving}
+%
+\begin{curry}
+{-# LANGUAGE NoDataDeriving #-}
+\end{curry}
+%
+Since the implementation of \code{Data} instances refer
+to operations defined in the prelude, it is not possible
+to derive such instances without the prelude.
+Therefore, the language pragma \code{NoImplicitPrelude}
+automatically implies the pragma \code{NoDataDeriving}.
+
+For example, the compilation target of the following program
+contains two type declarations and two operations
+without any implicitly generated auxiliary operations:
+%
+\begin{curry}
+{-# LANGUAGE NoImplicitPrelude #-}
+
+data Nat = Z | S Nat
+
+data MyBool = False | True
+
+-- Addition on natural numbers.
+add         :: Nat -> Nat -> Nat
+add Z     n = n
+add (S m) n = S (add m n)
+
+-- Less-or-equal predicate on natural numbers.
+leq :: Nat -> Nat -> MyBool
+leq Z     _     = True
+leq (S _) Z     = False
+leq (S x) (S y) = leq x y
+\end{curry}
+%
+Note that it is not possible to use free variables in this program,
+since free variables require the type class constraint \code{Data}
+(see Section~\ref{sec:free-data}).
 
 %%% Local Variables:
 %%% mode: latex
