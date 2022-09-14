@@ -263,12 +263,21 @@ To use a Curry package in your project, create a
 \code{package.json}\pindex{package.json}
 file in the root, fill it with the minimum amount of 
 information discussed in the previous session, and move your Curry code to a
-\code{src} directory inside your project's directory. Alternatively, if you are
-starting a new project, use the \code{cypm new <project-name>} command, which 
-creates a new project directory with a 
-\code{package.json} file for you.\footnote{The \code{new} command
-also creates some other useful template files. Look into the
-output of this command.}
+\code{src} directory inside your project's directory.
+One can also use the command\pindex{init}
+\begin{lstlisting}
+cypm init
+\end{lstlisting}
+to initialize the current directory
+with a minimal version of \code{package.json}
+and a few other files (like \code{README} or license information).
+When starting a new project, one can also use the command\pindex{new}
+\begin{lstlisting}
+cypm new <project-name>
+\end{lstlisting}
+to create a new project directory with a 
+\code{package.json} file and some other useful template files
+(look into the output of this command).
 Then declare the dependencies inside the new \code{package.json} file, e.g.:
 \pindex{package.json}
 \begin{lstlisting}
@@ -282,10 +291,16 @@ Then declare the dependencies inside the new \code{package.json} file, e.g.:
 }
 \end{lstlisting}
 %
-Then run \code{cypm install}\pindex{install}
+Now you can run\pindex{install}
+\begin{lstlisting}
+cypm install
+\end{lstlisting}
 to install all dependencies of the current package
-and start your interactive Curry environment with \code{cypm curry}. You will be
-able to load the JSON package's modules in your Curry session.
+and start your interactive Curry environment with the command\pindex{curry}
+\begin{lstlisting}
+cypm curry
+\end{lstlisting}
+You will be able to load the JSON package's modules in your Curry session.
 
 
 \subsection{Installing and Updating Dependencies}
@@ -1268,6 +1283,24 @@ the new dependencies. Thus, this abbreviates the two commands
 cypm add $package$ && cypm install
 \end{lstlisting}
 
+\item[\fbox{\code{clean}}]\pindex{clean}
+Cleans the current package from the
+generated auxiliary files, e.g., intermediate Curry files,
+installed dependent packages, etc.
+Note that a binary installed in the CPM \code{bin} directory
+(by the \code{install} command) will not be removed.
+Hence, this command can be used to clean an application package
+after installing the application.
+
+\item[\fbox{\code{new $project$}}]\pindex{new}
+Creates a new project package with the given name and some template files
+in the directory $project$.
+
+\item[\fbox{\code{init}}]\pindex{init}
+Initializes a new project package in the current directory
+and puts some template files in this directory.
+The name of the new package is the same as the directory name.
+
 \item[\fbox{\code{upload [--notagging] [--force]}}]\pindex{upload}
 Uploads the current package to the central package index
 so that it can be used by other developers via CPM
@@ -1303,17 +1336,6 @@ of the central package index).
 The option \ccode{--force} allows to overwrite
 an existing version in the central package index.
 
-\item[\fbox{\code{clean}}]\pindex{clean}
-Cleans the current package from the
-generated auxiliary files, e.g., intermediate Curry files,
-installed dependent packages, etc.
-Note that a binary installed in the CPM \code{bin} directory
-(by the \code{install} command) will not be removed.
-Hence, this command can be used to clean an application package
-after installing the application.
-
-\item[\fbox{\code{new $project$}}]\pindex{new}
-Creates a new project package with the given name and some template files.
 \end{description}
 
 
