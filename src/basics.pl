@@ -221,10 +221,13 @@ onlySWIMessage(Feature) :-
 
 assertPakcsrc(prop(Name,Value)) :- assertz(pakcsrc(Name,Value)).
 
+% write all pakcsrc settings:
 writeRCvalues :-
 	pakcsrc(Name,Value),
-	writeNQ(Name), writeNQ(' = '), writeNQ(Value), nl, fail.
-writeRCvalues :- nlNQ.
+	write(Name),
+        atom_codes(Name,NameS), length(NameS,L), B is 19-L, writeBlanks(B),
+        write(' = '), write(Value), nl, fail.
+writeRCvalues.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -295,7 +298,8 @@ clearDynamicPred(Name/Arity,_) :- prim_dynamic:retractDeadDynamicFacts(Name/Arit
 getNewFileName(Suffix,NewFile) :-
 	currentPID(PID),
 	number_codes(PID,PIDS),
-	append("/tmp/pakcs_file_",PIDS,P1),
+        tmpDir(TmpDir), atom_codes(TmpDir,TmpDirS),
+	concat([TmpDirS,"/pakcs_file_",PIDS],P1),
 	(Suffix=[] -> ProgS=P1 ; append(P1,[46|Suffix],ProgS)),
 	atom_codes(NewFile,ProgS),
 	append("rm -rf ",ProgS,RmCmdS),
@@ -673,7 +677,7 @@ padList(List,Pad,Length,PaddedList) :-
 % check whether a file is writable:
 isWritableFile(File) :-
 	on_exception(_,
-	             (open(File,write,Stream), close(Stream)),
+	             (open(File,write,Stream), close(Stream), deleteFile(File)),
 		     fail).
 
 % try to write a file (and immediately close it) and catch and show file errors:

@@ -7,7 +7,7 @@ CURRYBIN=$CURRYHOME/bin
 LOGFILE=xxx$$
 /bin/rm -rf .curry
 
-cat << EOM | $CURRYBIN/curry :set v0 :set parser -v0 -W none :set -interactive :set -time :set printdepth 0 :set +echo | tee $LOGFILE
+cat << EOM | $CURRYBIN/curry --nocypm :set v0 :set parser -v0 -W none :set -interactive :set -time :set printdepth 0 :set +echo | tee $LOGFILE
 :set v1
 :load Rev
 append [1,2] [3,4] :: [Int]

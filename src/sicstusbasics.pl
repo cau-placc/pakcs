@@ -2,7 +2,7 @@
 % basic predicates related to the SICStus-Prolog system
 
 :- module(prologbasics,
-	  [installDir/1,
+	  [installDir/1, tmpDir/1,
            prolog/1, prologMajorVersion/1, prologMinorVersion/1,
            swi7orHigher/0,
            pakcsrc/2,
@@ -60,6 +60,11 @@
 installDir(PH) :- pkgInstallDir(''), !, buildDir(PH).
 installDir(PH) :- pkgInstallDir(IDir), existsDirectory(IDir), !, PH=IDir.
 installDir(PH) :- buildDir(PH).
+
+% Temporary directory where PAKCS writes main files.
+% It is defined here since it is used in sicstusbasics.pl to implement fork.
+:- dynamic tmpDir/1.
+tmpDir('/tmp').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The verbosity level is defined here since it is already used here...
@@ -133,10 +138,6 @@ appendAtom(A1,A2,A3) :-
 	atom_codes(A1,L1), atom_codes(A2,L2),
 	app(L1,L2,L3),
 	atom_codes(A3,L3).
-
-% concatenate a list of lists:
-concat([],[]).
-concat([L|Xs],LXs) :- concat(Xs,Ys), app(L,Ys,LXs).
 
 %SICS37	atom_codes(A,L) :- atom_chars(A,L).
 %SICS37	number_codes(A,L) :- number_chars(A,L).
@@ -504,7 +505,9 @@ execCommand(Cmd,InWrite,OutRead,ErrRead) :-
 forkProcessForGoal(Goal) :-
 	currentPID(PID),
 	number_codes(PID,PIDS),
-	app("/tmp/pakcs_fork_",PIDS,StateP),
+        tmpDir(TmpDir), atom_codes(TmpDir,TmpDirS),
+        app(TmpDirS,"/pakcs_fork_",TmpDirForkS),
+	app(TmpDirForkS,PIDS,StateP),
 	app(StateP,".state",StateS),
 	atom_codes(StateName,StateS),
         saveprog_entry(StateName,Goal),

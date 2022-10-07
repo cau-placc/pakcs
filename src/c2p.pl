@@ -27,6 +27,9 @@ addImports([]). % additional imports defined by the ":add" command
 safeMode(no). % safe execution without IO actions at top level?
 echoMode(no). % echo the current REPL input?
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% RC handling:
+
 % Read the PAKCS rc file to define some constants
 readRcFile(ArgProps) :-
 	installDir(PH),
@@ -39,33 +42,36 @@ readRcFile(ArgProps) :-
 	  ; HomeProps=[] ),
 	(existsFile(ConfigFile)
 	 -> readConfigFile(ConfigFile,GlobalProps),
-	    updateConfigFile(ConfigFile,HomeProps,HomeConfigFile)
+	    updateConfigFile(ConfigFile,HomeProps,HomeConfigFile),
+            checkArgProps(ArgProps,GlobalProps)
 	  ; GlobalProps=[]),
 	concat([ArgProps,HomeProps,GlobalProps],AllProps),
 	deletePropDups(AllProps,UniqueProps),
-	map1M(basics:assertPakcsrc,UniqueProps), !,
-	(pakcsrc(verboserc,yes)
-         -> writeNQ('>>> Reading RC files:'),
-            (existsFile(HomeConfigFile)
-             -> writeNQ(' '), writeNQ(HomeConfigFile) ; true),
-            (existsFile(ConfigFile)
-             -> writeNQ(' '), writeNQ(ConfigFile) ; true),
-            nlNQ,
-            writeNQ('Current configurations: '), nlNQ,
-            writeRCvalues
-          ; true).
+	map1M(basics:assertPakcsrc,UniqueProps), !.
 readRcFile(ArgProps) :-
 	% maybe the environment variable HOME is not set since the system
 	% is not started by a regular user:
 	installDir(PH),
         appendAtom(PH,'/pakcsrc.default',ConfigFile),
 	(existsFile(ConfigFile)
-	 -> readConfigFile(ConfigFile,GlobalProps)
+	 -> readConfigFile(ConfigFile,GlobalProps),
+            checkArgProps(ArgProps,GlobalProps)
 	  ; GlobalProps=[]),
 	concat([ArgProps,GlobalProps],AllProps),
 	deletePropDups(AllProps,UniqueProps),
 	map1M(basics:assertPakcsrc,UniqueProps).
 
+% Check existence of all properties provided as an argument against the
+% globally defined properties. Terminate with error message if some
+% undefined property is found.
+checkArgProps([],_GlobalProps).
+checkArgProps([prop(N,_)|ArgProps],GlobalProps) :-
+        (member(prop(N,_),GlobalProps) -> true
+          ; writeErr('"'), writeErr(N),
+            writeLnErr('" is an unknown property (see "~/.pakcsrc")!'),
+            halt(1)),
+        checkArgProps(ArgProps,GlobalProps).
+        
 
 % Try to install the PAKCS rc file in home dir if not already there:
 installRcFileIfNotPresent :-
@@ -101,6 +107,7 @@ pakcsMain :-
 	getProgramArgs(DArgs),
 	processDArgs(DArgs,Props,Args),
 	readRcFile(Props),
+        checkAndSetTmpDir,
 	pakcsrc(defaultparams,DefParamA),
 	atom_codes(DefParamA,DefParamS),
 	split2words(DefParamS,DefParamsS),
@@ -123,6 +130,18 @@ pakcsMain :-
 	main.
 pakcsMain :- halt(1).  % halt if failure (in parameters) occurred
 
+% Checks the "tmpdir" value of the RC file and set the predicate tmpDir/1.
+checkAndSetTmpDir :-
+        pakcsrc(tmpdir,TmpDir),
+        absolute_file_name(TmpDir,AbsTmpDir),
+        %write('TMPDIR='), write(AbsTmpDir), nl,
+        retract(tmpDir(_)), asserta(tmpDir(AbsTmpDir)), !,
+        mainPrologFileName(MainPrologFile),
+        (isWritableFile(MainPrologFile) -> true
+         ; writeErr('Directory "'), writeErr(AbsTmpDir),
+           writeLnErr('" is not writable!'),
+           writeLnErr('Redefine property "tmpdir" in "~/.pakcsrc" and start again.'),
+           halt(1)).
 
 % extract the initial arguments of the form "-Dprop=value" as a property list:
 processDArgs([],[],[]).
@@ -772,89 +791,7 @@ processCommand("help",[]) :- !,
 	write('... or type any <expression> to evaluate'), nl,
 	nl, fail.
 
-processCommand("set",[]) :- !,
-	write('Options for ":set" command:'), nl,
-	write('+/-allfails     - show all failures if printfail is turned on'), nl,
-	write('+/-compact      - reduce size of target program during compilation'), nl,
-	write('+/-consfail     - show pattern matching/unification failures'), nl,
-	write('                  ("+consfail int": interactive mode to show fail trace)'), nl,
-	write('                  ("+consfail all": show complete fail trace)'), nl,
-	write('                  ("+consfail file:F": store complete fail trace in file F)'), nl,
-	write('+/-debug        - debug mode (compile with debugging information)'), nl,
-	write('+/-echo         - turn on/off echoing of commands'), nl,
-	write('+/-first        - turn on/off printing only first value'), nl,
-	write('+/-interactive  - turn on/off interactive execution of initial expression'), nl,
-	write('+/-plprofile    - use Prolog profiler'), nl,
-	write('+/-printfail    - show failures in top-level evaluation'), nl,
-	write('+/-profile      - show profile data in debug mode'), nl,
-	write('+/-suspend      - show suspended goals at end of suspended computation'), nl,
-	write('+/-time         - show execution time'), nl,
-	write('+/-warn         - show parser warnings'), nl,
-	write('path <path>     - set additional search path for loading modules'), nl,
-	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
-	write('v<n>            - verbosity level'), nl,
-	write('                   0: quiet (errors only)'), nl,
-	write('                   1: show status messages (default)'), nl,
-	write('                   2: show commands and print initial expressions'), nl,
-	write('                   3: show intermediate infos'), nl,
-	write('                   4: show all details'), nl,
-	write('safe            - safe execution mode without I/O actions'), nl,
-	write('parser <opts>   - additional options passed to Curry front end'), nl,
-	write('args   <args>   - run-time arguments passed to main program'), nl,
-	nl,
-	write('Options in debug mode:'), nl,
-	write('+/-single         - single step mode'), nl,
-	write('+/-spy            - spy mode'), nl,
-	write('+/-trace          - trace mode'), nl,
-	write('spy <function>    - set spy point on <function>'), nl,
-	nl,
-	write('Current settings: '), nl,
-	(printAllFailures -> write('+') ; write('-')),
-	write(allfails), write('   '),
-	(compileWithCompact([]) -> write('-') ; write('+')),
-	write(compact),	write('  '),
-	printConsFailure(PrintConsFail),
-	(PrintConsFail=no -> write('-') ; write('+')),
-	write(consfail),
-	(PrintConsFail=no -> write('   ')
-	  ; write('('), write(PrintConsFail), write(') ')),
-	(compileWithDebug -> write('+') ; write('-')),
-	write(debug),	write('     '),
-	(echoMode(yes) -> write('+') ; write('-')),
-	write(echo), write('  '),
-	(firstSolutionMode(yes) -> write('+') ; write('-')),
-	write(first), write('   '),
-	(interactiveMode(yes) -> write('+') ; write('-')),
-	write(interactive), write('  '), nl,
-	(compileWithFailPrint -> write('+') ; write('-')),
-	write(printfail), write('  '),
-	profiling(P), (P=yes -> write('+') ; write('-')),
-	write(profile),	write('  '),
-	plprofiling(PLP), (PLP=yes -> write('+') ; write('-')),
-	write(plprofile), write('  '),
-	suspendmode(BM), (BM=yes -> write('+') ; write('-')),
-	write(suspend),	write('   '),
-	timemode(T), (T=yes -> write('+') ; write('-')),
-	write(time),	write('   '),
-	parser_warnings(W), (W=yes -> write('+') ; write('-')),
-	write(warn), write('  '),
-	nl,
-	loadPath('.',LP),
-        path2Atom(LP,AP),      write('loadpath          : '), write(AP), nl,
-	printDepth(PD),        write('printdepth        : '),
-	(PD=0 -> write(PD) ; PD1 is PD-1, write(PD1)), nl,
-	verbosity(VL),         write('verbosity         : '), write(VL), nl,
-	parserOptions(POpts),  write('parser options    : '), write(POpts), nl,
-	rtArgs(RTArgs),        write('run-time arguments: '),
-	intersperse(' ',RTArgs,RTBArgs),
-	appendAtoms(RTBArgs,AllArgs), write(AllArgs), nl,
-	(compileWithDebug ->
-	  (singlestep -> write('+') ; write('-')), write(single), write('  '),
-	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
-	  (tracemode  -> write('+') ; write('-')), write(trace), write('  '),
-	  write('/ spy points: '), spypoints(SPs), write(SPs), nl
-	 ; true).
-
+processCommand("set",[]) :- !, printSetHelp, nl, printCurrentSettings.
 processCommand("set",Option) :- !,
 	expandOption(Option,CompletedOption),
 	processSetOption(CompletedOption).
@@ -897,7 +834,8 @@ processCommand("reload",[]) :- !,
 	on_exception(ErrorMsg,
                      (loadAndCompile(PrologFile,AddImps,create),
 		      atom_codes(PrologFile,PrologFileL),
-		      (append("/tmp/",_,PrologFileL)
+                      tmpDir(TmpDir), atom_codes(TmpDir,TmpDirS),
+		      (append(TmpDirS,[47|_],PrologFileL)
 		       -> % remove temporary Prolog file:
 			  deleteFile(PrologFile)
 		        ; true),
@@ -1264,6 +1202,9 @@ createSavedState(ProgPl,ProgState,InitialGoal) :-
 	deleteMainPrologFile(MainPrologFile),
 	deleteFile(TmpSavePl).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ":set" handling:
+
 % process the various options of the ":set" command:
 processSetOption("+echo") :- !,	retract(echoMode(_)), asserta(echoMode(yes)).
 processSetOption("-echo") :- !,	retract(echoMode(_)), asserta(echoMode(no)).
@@ -1435,6 +1376,94 @@ printCurrentLoadPath :-
 	loadPath('.',LP),
 	write('Current search path for loading modules: '), nl,
 	path2Atom(LP,ALP), write(ALP), nl.
+
+printSetHelp :-
+	write('Options for ":set" command:'), nl,
+	write('+/-allfails     - show all failures if printfail is turned on'), nl,
+	write('+/-compact      - reduce size of target program during compilation'), nl,
+	write('+/-consfail     - show pattern matching/unification failures'), nl,
+	write('                  ("+consfail int": interactive mode to show fail trace)'), nl,
+	write('                  ("+consfail all": show complete fail trace)'), nl,
+	write('                  ("+consfail file:F": store complete fail trace in file F)'), nl,
+	write('+/-debug        - debug mode (compile with debugging information)'), nl,
+	write('+/-echo         - turn on/off echoing of commands'), nl,
+	write('+/-first        - turn on/off printing only first value'), nl,
+	write('+/-interactive  - turn on/off interactive execution of initial expression'), nl,
+	write('+/-plprofile    - use Prolog profiler'), nl,
+	write('+/-printfail    - show failures in top-level evaluation'), nl,
+	write('+/-profile      - show profile data in debug mode'), nl,
+	write('+/-suspend      - show suspended goals at end of suspended computation'), nl,
+	write('+/-time         - show execution time'), nl,
+	write('+/-warn         - show parser warnings'), nl,
+	write('path <path>     - set additional search path for loading modules'), nl,
+	write('printdepth <n>  - set print depth to <n> (0 = unlimited)'), nl,
+	write('v<n>            - verbosity level'), nl,
+	write('                   0: quiet (errors only)'), nl,
+	write('                   1: show status messages (default)'), nl,
+	write('                   2: show commands and print initial expressions'), nl,
+	write('                   3: show intermediate infos'), nl,
+	write('                   4: show all details'), nl,
+	write('safe            - safe execution mode without I/O actions'), nl,
+	write('parser <opts>   - additional options passed to Curry front end'), nl,
+	write('args   <args>   - run-time arguments passed to main program'), nl,
+	nl,
+	write('Options in debug mode:'), nl,
+	write('+/-single         - single step mode'), nl,
+	write('+/-spy            - spy mode'), nl,
+	write('+/-trace          - trace mode'), nl,
+	write('spy <function>    - set spy point on <function>'), nl.
+
+printCurrentSettings :-
+	write('Current settings: '), nl,
+	(printAllFailures -> write('+') ; write('-')),
+	write(allfails), write('   '),
+	(compileWithCompact([]) -> write('-') ; write('+')),
+	write(compact),	write('  '),
+	printConsFailure(PrintConsFail),
+	(PrintConsFail=no -> write('-') ; write('+')),
+	write(consfail),
+	(PrintConsFail=no -> write('   ')
+	  ; write('('), write(PrintConsFail), write(') ')),
+	(compileWithDebug -> write('+') ; write('-')),
+	write(debug),	write('     '),
+	(echoMode(yes) -> write('+') ; write('-')),
+	write(echo), write('  '),
+	(firstSolutionMode(yes) -> write('+') ; write('-')),
+	write(first), write('   '),
+	(interactiveMode(yes) -> write('+') ; write('-')),
+	write(interactive), write('  '), nl,
+	(compileWithFailPrint -> write('+') ; write('-')),
+	write(printfail), write('  '),
+	profiling(P), (P=yes -> write('+') ; write('-')),
+	write(profile),	write('  '),
+	plprofiling(PLP), (PLP=yes -> write('+') ; write('-')),
+	write(plprofile), write('  '),
+	suspendmode(BM), (BM=yes -> write('+') ; write('-')),
+	write(suspend),	write('   '),
+	timemode(T), (T=yes -> write('+') ; write('-')),
+	write(time),	write('   '),
+	parser_warnings(W), (W=yes -> write('+') ; write('-')),
+	write(warn), write('  '),
+	nl,
+	loadPath('.',LP),
+        path2Atom(LP,AP),      write('loadpath          : '), write(AP), nl,
+	printDepth(PD),        write('printdepth        : '),
+	(PD=0 -> write(PD) ; PD1 is PD-1, write(PD1)), nl,
+	verbosity(VL),         write('verbosity         : '), write(VL), nl,
+	parserOptions(POpts),  write('parser options    : '), write(POpts), nl,
+	rtArgs(RTArgs),        write('run-time arguments: '),
+	intersperse(' ',RTArgs,RTBArgs),
+	appendAtoms(RTBArgs,AllArgs), write(AllArgs), nl,
+	(compileWithDebug ->
+	  (singlestep -> write('+') ; write('-')), write(single), write('  '),
+	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
+	  (tracemode  -> write('+') ; write('-')), write(trace), write('  '),
+	  write('/ spy points: '), spypoints(SPs), write(SPs), nl
+	 ; true),
+        (VL>1 -> nl, write('Current "pakcsrc" properties:'), nl, writeRCvalues
+               ; true).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % fork an expression where arg1 is the expression (string):
 processFork(ExprString) :-

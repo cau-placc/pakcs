@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.5.0 (July 19, 2022)
------------------------------------------------------
+Release notes for PAKCS Version 3.5.0 (October 7, 2022)
+-------------------------------------------------------
 
 Changes to version 3.4.2:
 
@@ -10,6 +10,14 @@ Changes to version 3.4.2:
   * Small fix for debug mode when tracing is off.
   * Front end supports new language options
     `NoImplicitPrelude` and `NoDataDeriving`.
+  * New property `tmpdir` added to RC file (`~/.pakcsrc`) in order to
+    redefine the location of a temporary directory (e.g., if the
+    default location `/tmp` is not writable for the PAKCS process).
+  * Properties `verboserc` and `dynamicmessages` removed from RC file
+    since they are no longer used.
+  * Current RC properties are printed with command `:set` when verbosity level
+    is greater than 1.
+
 
 Release notes for PAKCS Version 3.4.2 (December 20, 2021)
 ---------------------------------------------------------

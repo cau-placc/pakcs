@@ -47,13 +47,6 @@ dotviewcommand=dot -Tpdf > /tmp/dotxxx.pdf && xdg-open /tmp/dotxxx.pdf
 #   full (perform full program analysis to optimize more occurrences)
 bindingoptimization=fast
 
-# Show the results of loading pakcsrc and $HOME/.pakcsrc (values: yes | no):
-verboserc=no
-
-# Show messages related to dynamic predicates (such as loading,
-# waiting for lock files, etc), compare lib/Dynamic. Values: yes | no
-dynamicmessages=yes
-
 # Show parse errors when parsing terms with ReadShowTerm.read(sQ)Term
 # (values: yes | no)
 readtermerrors=no
@@ -67,6 +60,10 @@ smallstate=no
 # (works only with Sicstus 3.10 or higher).
 # Values: yes | no
 standalone=no
+
+# The temporary directory where generated auxiliary files are stored.
+# Should be writable for the PAKCS process.
+tmpdir=/tmp
 
 # Should the generated main Prolog file (containing hnf and other generic
 # clauses) be kept (in /tmp/pakcsprogXXXX.pl.main)?

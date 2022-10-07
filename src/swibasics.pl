@@ -2,7 +2,7 @@
 % basic predicates related to the SWI-Prolog system
 
 :- module(prologbasics,
-	  [installDir/1,
+	  [installDir/1, tmpDir/1,
            prolog/1, prologMajorVersion/1, prologMinorVersion/1,
            swi7orHigher/0,
            pakcsrc/2,
@@ -57,6 +57,11 @@
 installDir(PH) :- pkgInstallDir(''), !, buildDir(PH).
 installDir(PH) :- pkgInstallDir(IDir), existsDirectory(IDir), !, PH=IDir.
 installDir(PH) :- buildDir(PH).
+
+% Temporary directory where PAKCS writes main files.
+% It is defined here since it is used in sicstusbasics.pl to implement fork.
+:- dynamic tmpDir/1.
+tmpDir('/tmp').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The verbosity level is defined here since it is already used here...
