@@ -466,7 +466,7 @@ cleanfrontend:
 # Clean everything (including the front end, reference to Prolog back end)
 .PHONY: clean
 clean:
-	cd bin && rm -f sicstusprolog swiprolog
+	rm -f $(BINDIR)/sicstusprolog $(BINDIR)/swiprolog
 	rm -rf $(LIBDIR)
 	$(MAKE) cleanfrontend
 	$(MAKE) cleansystem
