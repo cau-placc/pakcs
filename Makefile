@@ -52,9 +52,9 @@ export MAJORVERSION=3
 # The minor version number:
 export MINORVERSION=5
 # The revision version number:
-export REVISIONVERSION=0
+export REVISIONVERSION=1
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=0
+BUILDVERSION=1
 # Complete version:
 export VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -186,7 +186,7 @@ kernel: scripts copylibs copytools
 
 # build the PAKCS compiler and REPL as an executable:
 .PHONY: repl
-repl:
+repl: $(PAKCSVERSION)
 	$(MAKE) -C src
 
 # Clean old files that might be in conflict with newer versions of PAKCS:

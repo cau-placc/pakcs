@@ -138,9 +138,9 @@ checkAndSetTmpDir :-
         retract(tmpDir(_)), asserta(tmpDir(AbsTmpDir)), !,
         mainPrologFileName(MainPrologFile),
         (isWritableFile(MainPrologFile) -> true
-         ; writeErr('Directory "'), writeErr(AbsTmpDir),
-           writeLnErr('" is not writable!'),
-           writeLnErr('Redefine property "tmpdir" in "~/.pakcsrc" and start again.'),
+         ; writeErr('Directory \''), writeErr(AbsTmpDir),
+           writeLnErr('\' is not writable!'),
+           writeLnErr('Redefine property "tmpdir" in \'~/.pakcsrc\' and start again.'),
            halt(1)).
 
 % extract the initial arguments of the form "-Dprop=value" as a property list:
@@ -1001,12 +1001,9 @@ processCommand("cd",DirString) :- !,
 	(DirString="" -> writeLnErr('ERROR: missing argument'), fail
 	               ; true),
 	atom_codes(Dir,DirString),
-	(existsDirectory(Dir)
-	 -> (setWorkingDirectory(Dir) -> true
-              ; writeLnErr('ERROR: cd command failed!'))
-	  ; writeErr('ERROR: directory \''),
-	    writeErr(Dir),
-	    writeLnErr('\' does not exist!')).
+        ensureDirectoryExists(Dir), !,
+	(setWorkingDirectory(Dir) -> true
+                                   ; writeLnErr('ERROR: cd command failed!')).
 
 processCommand("save",Exp) :- !,
 	(Exp=[] -> MainGoal="main" ; MainGoal=Exp),
@@ -1965,10 +1962,18 @@ checkProgramNameAndCD(ProgString,ModString) :-
 	isValidModuleName(ModString), !,
         (DirName = '.'
          -> true
-          ; writeNQ('Switching to directory "'),
+          ; ensureDirectoryExists(DirName),
+            writeNQ('Switching to directory "'),
             writeNQ(DirName),
             writeLnNQ('"...'),
             setWorkingDirectory(DirName)).
+
+ensureDirectoryExists(Dir) :- existsDirectory(Dir), !.
+ensureDirectoryExists(Dir) :-
+        writeErr('ERROR: directory \''),
+        writeErr(Dir),
+        writeLnErr('\' does not exist!'),
+        !, fail.
 
 % check whether a module name (a code list) is valid:
 isValidModuleName(ModString) :-
