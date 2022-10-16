@@ -92,11 +92,11 @@ export DOCDIR        = $(ROOT)/docs
 BASEVERSIONFILE = $(LIBDIR)/VERSION
 
 # Executable of CurryCheck:
-CURRYCHECK := $(shell which curry-check)
+CURRYCHECK := $(shell sh -c 'command -v curry-check')
 # Executable of CurryDoc:
-CURRYDOC := $(shell which curry-doc)
+CURRYDOC := $(shell sh -c 'command -v curry-doc')
 # Executable of the markdown translator (required for documentation generation):
-MD2PDF := $(shell which md2pdf)
+MD2PDF := $(shell sh -c 'command -v md2pdf')
 
 # The version information file for PAKCS:
 PAKCSVERSION=$(ROOT)/src/pakcsversion.pl
@@ -519,7 +519,7 @@ distdated: dist
 # Required tools:
 
 # Executable of JSON command-line processor:
-JQ := $(shell which jq)
+JQ := $(shell sh -c 'command -v jq')
 
 .PHONY: require-jq
 require-jq:

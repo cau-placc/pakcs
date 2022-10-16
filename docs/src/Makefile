@@ -3,7 +3,7 @@
 PAKCS=../../bin/pakcs
 
 # Executable of the markdown translator:
-MD2PDF := $(shell which md2pdf)
+MD2PDF := $(shell sh -c 'command -v md2pdf')
 
 .PHONY: pdf
 pdf : manual.pdf
