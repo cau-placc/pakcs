@@ -7,11 +7,11 @@
 
 # Check LC_ALL, LC_CTYPE, or LANG for UTF-8 encoding:
 if [ -n "$LC_ALL" ] ; then
-  LCALL=$LC_ALL
+  LCALL="$LC_ALL"
 elif [ -n "$LC_CTYPE" ] ; then
-  LCALL=$LC_CTYPE
+  LCALL="$LC_CTYPE"
 else
-  LCALL=$LANG
+  LCALL="$LANG"
 fi
 case "$LCALL" in
   *UTF-8 | *UTF8 | *utf-8 | *utf8 ) ;;
@@ -26,7 +26,7 @@ esac
 PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`/..
 
 # Expand path if it is not the standard one to find Prolog executables:
-PATH=$PATH:/bin:/usr/bin:/usr/local/bin
+PATH="$PATH:/bin:/usr/bin:/usr/local/bin"
 
 # If the environment variables are undefined, set them to a bin/...prolog
 # in order to keep a previous installation with a Prolog back end:
@@ -44,8 +44,8 @@ if [ ! -x "$SICSTUSPROLOG" -a ! -x "$SWIPROLOG" ] ; then
 fi
 if [ -x "$SICSTUSPROLOG" ] ; then
   # try to get absolute path name:
-  SICSTUSPROLOG=`readlink -f $SICSTUSPROLOG 2> /dev/null || echo $SICSTUSPROLOG`
-  echo "halt." | $SICSTUSPROLOG > /tmp/sicstusout$$ 2>&1
+  SICSTUSPROLOG=`readlink -f "$SICSTUSPROLOG" 2> /dev/null || echo "$SICSTUSPROLOG"`
+  echo "halt." | "$SICSTUSPROLOG" > /tmp/sicstusout$$ 2>&1
   if [ $? -ne 0 ] ; then
     SICSTUSPROLOG=
   else
@@ -64,8 +64,8 @@ if [ -z "$SICSTUSPROLOG" ] ; then
   fi
   if [ -x "$SWIPROLOG" ] ; then
     # try to get absolute path name:
-    SWIPROLOG=`readlink -f $SWIPROLOG 2> /dev/null || echo $SWIPROLOG`
-    echo "halt." | $SWIPROLOG > /tmp/swiprologout$$ 2>&1
+    SWIPROLOG=`readlink -f "$SWIPROLOG" 2> /dev/null || echo "$SWIPROLOG"`
+    echo "halt." | "$SWIPROLOG" > /tmp/swiprologout$$ 2>&1
     if [ $? -ne 0 ] ; then
       SWIPROLOG=
     fi
@@ -85,23 +85,23 @@ fi
 ORGMAKESTATE=scripts/pakcs-makesavedstate.sh
 MAKESTATE=scripts/makesavedstate
 # Create symbolic links in PAKCSHOME/bin and create scripts/makesavedstate:
-rm -f bin/sicstusprolog bin/swiprolog $MAKESTATE # delete old definitions
+rm -f bin/sicstusprolog bin/swiprolog "$MAKESTATE" # delete old definitions
 if [ -n "$SICSTUSPROLOG" ] ; then
   ln -s "$SICSTUSPROLOG" bin/sicstusprolog
-  SICSTUSBINDIR=`expr $SICSTUSPROLOG : '\(.*\)/sicstus'`
+  SICSTUSBINDIR=`expr "$SICSTUSPROLOG" : '\(.*\)/sicstus'`
   # store the value of SICSTUSBINDIR in script scripts/makesavedstate :
-  cat $ORGMAKESTATE |
+  cat "$ORGMAKESTATE" |
     sed "s|^LCALL=.*$|LCALL=$LCALL|" |
-    sed "s|^SICSTUSBINDIR=.*$|SICSTUSBINDIR=$SICSTUSBINDIR|" > $MAKESTATE
-  chmod 755 $MAKESTATE
+    sed "s|^SICSTUSBINDIR=.*$|SICSTUSBINDIR=\"$SICSTUSBINDIR\"|" > "$MAKESTATE"
+  chmod 755 "$MAKESTATE"
 fi
 if [ -n "$SWIPROLOG" ] ; then
   ln -s "$SWIPROLOG" bin/swiprolog
   # store the value of SWIPROLOG in script scripts/makesavedstate :
-  cat $ORGMAKESTATE |
+  cat "$ORGMAKESTATE" |
     sed "s|^LCALL=.*$|LCALL=$LCALL|" |
-    sed "s|^SWIPROLOG=.*$|SWIPROLOG=$SWIPROLOG|" > $MAKESTATE
-  chmod 755 $MAKESTATE
+    sed "s|^SWIPROLOG=.*$|SWIPROLOG=\"$SWIPROLOG\"|" > "$MAKESTATE"
+  chmod 755 "$MAKESTATE"
 fi
 
 # Report current values:

@@ -3,7 +3,7 @@
 
 COMPILERVERSION=`echo COMPILERVERSION must be defined here!`
 
-RM=/bin/rm
+RM="/bin/rm"
 
 RECURSIVE=no
 if [ "xx$1" = "xx-r" ] ; then
@@ -14,8 +14,8 @@ fi
 PROG=
 if [ $# = 1 ] ; then
   # remove possible suffix:
-  PROG=`expr $1 : '\(.*\)\.lcurry' \| $1`
-  PROG=`expr $PROG : '\(.*\)\.curry' \| $PROG`
+  PROG=`expr "$1" : '\(.*\)\.lcurry' \| "$1"`
+  PROG=`expr "$PROG" : '\(.*\)\.curry' \| "$PROG"`
   shift
 fi
 
@@ -46,31 +46,31 @@ do
     F=`expr $F : '\(.*\)\.curry' \| $F`
     FDIR=`dirname $F`
     FBASE=`basename $F`
-    CURRYDIR=$FDIR/.curry
-    COMPILERDIR=$CURRYDIR/$COMPILERVERSION
-    if [ -d $COMPILERDIR ] ; then
-      $RM -f $COMPILERDIR/$FBASE.pl $COMPILERDIR/$FBASE.po
-      CURRYF=$COMPILERDIR/$F
-      $RM -f $CURRYF.cy $CURRYF.acy $CURRYF.uacy $CURRYF.fcy $CURRYF.fint $CURRYF.icurry $CURRYF.tokens $CURRYF.ast $CURRYF.sast
-      FDIRFILES=`ls -A $COMPILERDIR`
+    CURRYDIR="$FDIR/.curry"
+    COMPILERDIR="$CURRYDIR/$COMPILERVERSION"
+    if [ -d "$COMPILERDIR" ] ; then
+      "$RM" -f "$COMPILERDIR/$FBASE.pl" "$COMPILERDIR/$FBASE.po"
+      CURRYF="$COMPILERDIR/$F"
+      "$RM" -f "$CURRYF.cy" "$CURRYF.acy" "$CURRYF.uacy" "$CURRYF.fcy" "$CURRYF.fint" "$CURRYF.icurry" "$CURRYF.tokens" "$CURRYF.ast" "$CURRYF.sast"
+      FDIRFILES=`ls -A "$COMPILERDIR"`
       if [ -z "$FDIRFILES" ] ; then # .curry/... directory is empty
-        rmdir $COMPILERDIR
+        rmdir "$COMPILERDIR"
       fi
     fi
-    if [ -d $CURRYDIR ] ; then
-      CDIRFILES=`ls -A $CURRYDIR`
+    if [ -d "$CURRYDIR" ] ; then
+      CDIRFILES=`ls -A "$CURRYDIR"`
       if [ -z "$CDIRFILES" ] ; then # .curry directory is empty
-        rmdir $CURRYDIR
+        rmdir "$CURRYDIR"
       fi
     fi
-    $RM -f -r COOSYLOGS
+    "$RM" -f -r COOSYLOGS
   fi
 done
 
 if [ $RECURSIVE = yes ]
 then
   # delete .curry directory:
-  $RM -rf .curry/$COMPILERVERSION
+  "$RM" -rf ".curry/$COMPILERVERSION"
   PATHNAME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`
   for i in *
   do

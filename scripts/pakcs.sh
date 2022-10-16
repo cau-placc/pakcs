@@ -6,14 +6,14 @@ PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
 PAKCSINSTALLDIR=
 # Define the main directory where PAKCS is installed:
 if [ -d "$PAKCSINSTALLDIR" ] ; then
-  PAKCSHOME=$PAKCSINSTALLDIR
+  PAKCSHOME="$PAKCSINSTALLDIR"
 else
-  PAKCSHOME=$PAKCSBUILDDIR
+  PAKCSHOME="$PAKCSBUILDDIR"
 fi
 export PAKCSHOME
 
 # The bin directory of PAKCS:
-PAKCSBIN=$PAKCSHOME/bin
+PAKCSBIN="$PAKCSHOME/bin"
 # The directory where CPM installs the binaries:
 CPMBIN="$HOME/.cpm/bin"
 
@@ -25,7 +25,7 @@ check_and_exec_tool() {
   if [ -x "$TOOLBIN" ] ; then
     shift
     if [ "$TOOLNAME" = cypm ] ; then
-      TOOLOPTS="-d curry_bin=$PAKCSBIN/pakcs"
+      TOOLOPTS="-d curry_bin=\"$PAKCSBIN/pakcs\""
     else
       TOOLOPTS=
     fi
@@ -33,7 +33,7 @@ check_and_exec_tool() {
     exec "$TOOLBIN" $TOOLOPTS ${1+"$@"}
   else
     echo "Incomplete installation: '$TOOLBIN' not installed!"
-    echo "Please run: cd $PAKCSHOME && make" >&2
+    echo "Please run: cd \"$PAKCSHOME\" && make" >&2
     exit 1
   fi
 }
@@ -89,13 +89,13 @@ if [ $USECPM = yes ] ; then
   if [ ! -d "$HOME" ] ; then   # do not use CPM without a home directory
     CYPMBIN=
   elif [ -x "$PAKCSBIN/cypm" ] ; then
-    CYPMBIN=$PAKCSBIN/cypm  # use local binary of CPM
+    CYPMBIN="$PAKCSBIN/cypm"  # use local binary of CPM
   elif [ -x "$CPMBIN/cypm" ] ; then
-    CYPMBIN=$CPMBIN/cypm    # use ~/.cpm/bin/cypm
+    CYPMBIN="$CPMBIN/cypm"    # use ~/.cpm/bin/cypm
   else
     WHICHCPM=`which cypm`  
     if [ -x "$WHICHCPM" ] ; then
-      CYPMBIN=$WHICHCPM     # use another binary of CPM in the load path
+      CYPMBIN="$WHICHCPM"     # use another binary of CPM in the load path
     fi
   fi
 fi
@@ -111,13 +111,13 @@ if [ -n "$CYPMBIN" ] ; then
   # set CURRYPATH with 'deps' command of CPM
   CPMPATH=`"$CYPMBIN" -v quiet -d CURRYBIN="$PAKCSBIN/pakcs" deps -p`
   if [ $? -gt 0 ] ; then
-    echo $CPMPATH
+    echo "$CPMPATH"
     exit 1
   fi
   if [ -n "$CURRYPATH" ] ; then
-    CURRYPATH=$CURRYPATH:$CPMPATH # keep existing CURRYPATH setting
+    CURRYPATH="$CURRYPATH:$CPMPATH" # keep existing CURRYPATH setting
   else
-    CURRYPATH=$CPMPATH
+    CURRYPATH="$CPMPATH"
   fi
   export CURRYPATH
   # set version string of CPM
@@ -130,7 +130,7 @@ fi
 REPL="$PAKCSHOME/src/pakcs"
 if [ ! -x "$REPL" ] ; then
   echo "ERROR: executable '$REPL' not found!" >&2
-  echo "Run: cd $PAKCSHOME && make" >&2
+  echo "Run: cd \"$PAKCSHOME\" && make" >&2
   exit 1
 fi
 
