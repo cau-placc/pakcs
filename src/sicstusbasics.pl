@@ -7,7 +7,7 @@
            swi7orHigher/0,
            pakcsrc/2,
 	   verbosity/1, fileOpenOptions/1, currentModuleFile/2,
-	   sicstus310orHigher/0, generatePrologBasics/0,
+	   sicstus310orHigher/0, getSicstusVersion/1,
 %SICS3X	   append/3, member/2,
 %SICS37	   atom_codes/2, number_codes/2,
 %SICS37	   put_code/1, put_code/2, put_byte/2,
@@ -223,14 +223,6 @@ sicstus4 :-
 	atom_codes(SV,[52|_]). % 52 = '4'
 
 swi7orHigher :- fail.
-
-generatePrologBasics :- sicstus37orLower, !,
-	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl | sed "s/%SICS37/ /g" > prologbasics.pl').
-generatePrologBasics :-	sicstus4, !,
-	shellCmd('cp sicstusbasics.pl prologbasics.pl').
-generatePrologBasics :-	sicstus38orHigher, !,
-	system('sed "s/%SICS3X/ /g" < sicstusbasics.pl > prologbasics.pl').
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % import the right libraries:
