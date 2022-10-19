@@ -546,7 +546,7 @@ constructorOrFunctionType(QName,Name,Arity,Type) :-
 
 % get home directory (fail if it does not exist):
 getHomeDirectory(Home) :-
-        getEnv('HOME',Home),
+        (getEnv('HOME',Home); getEnv('USERPROFILE',Home)),
         atom_codes(Home,[_|_]),
         existsDirectory(Home).
 
