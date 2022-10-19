@@ -61,8 +61,8 @@ TOOLBIN=
 # If yes, set variable TOOLBIN to its binary,
 # otherwise inform the user to install it
 check_tool() {
-  TOOLPACKAGE=$1
-  TOOLNAME=$2
+  TOOLPACKAGE="$1"
+  TOOLNAME="$2"
   TOOLBIN="$CPMBIN"/$TOOLNAME
   if [ ! -x "$TOOLBIN" ] ; then
     echo "Curry tool '$TOOLNAME' is not installed!"
@@ -73,7 +73,7 @@ check_tool() {
 }
 
 
-if [ $QUIET = no -a -n "$FCYPP" ] ; then
+if [ "$QUIET" = no -a -n "$FCYPP" ] ; then
   echo "Executing FlatCurry preprocessing options: $FCYPP"
 fi
 for T in $FCYPP ; do

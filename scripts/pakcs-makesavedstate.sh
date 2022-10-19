@@ -58,11 +58,11 @@ if [ "$1" = "-standalone" ] ; then # for backward compatibility
 fi
 
 if [ $# = 1 ] ; then
-  STATE=$1
-  TARGET=$1
+  STATE="$1"
+  TARGET="$1"
 elif [ $# = 2 ] ; then
-  STATE=$1
-  TARGET=$2
+  STATE="$1"
+  TARGET="$2"
 else
   echo "Usage: $0 [-standalone] <saved_state_file> [<target_file>]"
   echo "--standalone      : transform saved state into stand-alone executable"
@@ -73,7 +73,7 @@ fi
 
 # add $SICSTUSBINDIR to path so that command "sicstus..." becomes executable:
 if [ -n "$SICSTUSBINDIR" ] ; then
-  PATH=$SICSTUSBINDIR:$PATH
+  PATH="$SICSTUSBINDIR:$PATH"
   export PATH
 fi
 
@@ -84,7 +84,7 @@ fi
 
 if [ $STANDALONE = yes ] ; then
   if [ -n "$SICSTUSBINDIR" ] ; then
-    SPLD=$SICSTUSBINDIR/spld
+    SPLD="$SICSTUSBINDIR/spld"
     if [ ! -x "$SPLD" ] ; then
       echo "ERROR: SICStus Prolog application builder '$SPLD' not found!" >&2
       exit 1
@@ -104,38 +104,38 @@ fi
 # Patch the Sicstus saved state to suppress startup infos like version# 
 # and add current local and PATH information:
 if [ "$STATE" = "$TARGET" ] ; then
-  TMPSTATE=$STATE$$
-  mv $STATE $TMPSTATE
+  TMPSTATE="$STATE$$"
+  mv "$STATE" "$TMPSTATE"
 else
-  TMPSTATE=$STATE
+  TMPSTATE="$STATE"
 fi
 
 if [ -z "$SICSTUSBINDIR" ] ; then
   # patch SWI-Prolog saved state with optimization and stack limit options:
   SWIOPTIONS="$SWILIMITS -O"
-  sed "3s/-x/$SWIOPTIONS -x/" < $TMPSTATE > $TMPSTATE$$
-  mv $TMPSTATE$$ $TMPSTATE
+  sed "3s/-x/$SWIOPTIONS -x/" < "$TMPSTATE" > "$TMPSTATE$$"
+  mv "$TMPSTATE$$" "$TMPSTATE"
 fi
 
-TMPFILE=TMPSAVEDSTATE$$
-echo "#!/bin/sh" > $TMPFILE
+TMPFILE="TMPSAVEDSTATE$$"
+echo "#!/bin/sh" > "$TMPFILE"
 # Set LC_ALL in saved states to the installation value of LC_ALL.
 # When PAKCS is installed, LC_ALL should be UTF-8 encoding to ensure
 # the correct reading of source programs with UTF-8 encoding.
-echo "LC_ALL=$LCALL" >> $TMPFILE
-echo "export LC_ALL" >> $TMPFILE
+echo "LC_ALL=$LCALL" >> "$TMPFILE"
+echo "export LC_ALL" >> "$TMPFILE"
 
 if [ -n "$SICSTUSBINDIR" ] ; then
   # add SICSTUSBINDIR to path so that SICStus can find its binary:
-  echo "PATH=\"\$PATH:$SICSTUSBINDIR\"" >> $TMPFILE
-  echo "export PATH" >> $TMPFILE
+  echo "PATH=\"\$PATH:$SICSTUSBINDIR\"" >> "$TMPFILE"
+  echo "export PATH" >> "$TMPFILE"
   # check whether --noinfo parameter is accepted (e.g., not for SICStus 3.7):
-  $SICSTUSBINDIR/sicstus --noinfo --help > /dev/null 2>&1
+  "$SICSTUSBINDIR/sicstus" --noinfo --help > /dev/null 2>&1
   if [ $? -eq 0 ] ; then
     # suppress "restoring" message of SICStus-Prolog:
-    echo "exec $SICSTUSBINDIR/sicstus --noinfo -r \"\$0\" -a \"\$@\"" >> $TMPFILE
+    echo "exec \"$SICSTUSBINDIR/sicstus\" --noinfo -r \"\$0\" -a \"\$@\"" >> "$TMPFILE"
   fi
 fi
-cat $TMPFILE $TMPSTATE > $TARGET
-rm $TMPFILE $TMPSTATE
-chmod 755 $TARGET
+cat "$TMPFILE" "$TMPSTATE" > "$TARGET"
+rm "$TMPFILE" "$TMPSTATE"
+chmod 755 "$TARGET"
