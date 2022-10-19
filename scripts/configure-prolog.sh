@@ -40,7 +40,7 @@ fi
 # if both SICSTUSPROLOG and SWIPROLOG are not executables, try to find one:
 if [ ! -x "$SICSTUSPROLOG" -a ! -x "$SWIPROLOG" ] ; then
   echo "Try to find SICStus-Prolog..."
-  SICSTUSPROLOG=`which sicstus 2> /dev/null`
+  SICSTUSPROLOG=`command -v sicstus 2> /dev/null`
 fi
 if [ -x "$SICSTUSPROLOG" ] ; then
   # try to get absolute path name:
@@ -60,7 +60,7 @@ fi
 if [ -z "$SICSTUSPROLOG" ] ; then
   if [ ! -x "$SWIPROLOG" ] ; then
     echo "No SICStus-Prolog found, looking for SWI-Prolog..."
-    SWIPROLOG=`which swipl 2> /dev/null`
+    SWIPROLOG=`command -v swipl 2> /dev/null`
   fi
   if [ -x "$SWIPROLOG" ] ; then
     # try to get absolute path name:

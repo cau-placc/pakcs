@@ -50,7 +50,7 @@ NOCOLOR=
 # store rlwrap's history:
 USERLWRAP=no
 if tty -s ; then
-  RLWRAP=`which rlwrap`
+  RLWRAP=`command -v rlwrap`
   if [ -f "$PAKCSBIN/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
     USERLWRAP=yes
   fi
@@ -93,7 +93,7 @@ if [ $USECPM = yes ] ; then
   elif [ -x "$CPMBIN/cypm" ] ; then
     CYPMBIN=$CPMBIN/cypm    # use ~/.cpm/bin/cypm
   else
-    WHICHCPM=`which cypm`  
+    WHICHCPM=`command -v cypm`  
     if [ -x "$WHICHCPM" ] ; then
       CYPMBIN=$WHICHCPM     # use another binary of CPM in the load path
     fi

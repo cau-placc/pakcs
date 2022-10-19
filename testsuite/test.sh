@@ -3,7 +3,7 @@
 
 CURRYHOME=`pwd`/..
 CURRYBIN=$CURRYHOME/bin
-CURRYCHECK=`which curry-check`
+CURRYCHECK=`command -v curry-check`
 
 if [ ! -x "$CURRYCHECK" ] ; then
   echo "Executable 'curry-check' is not installed! Skipping tests..."

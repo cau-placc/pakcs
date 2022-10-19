@@ -37,7 +37,7 @@ EXCLUDES     = $(ALLLIBS).curry
 DOCEXCLUDES  = CHRcompiled CPNS
 
 # Executable of CurryDoc:
-CURRYDOC := $(shell which curry-doc)
+CURRYDOC := $(shell sh -c 'command -v curry-doc')
 
 .PHONY: all
 all: $(ALLLIBS).curry fcy acy
