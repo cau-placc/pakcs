@@ -47,7 +47,11 @@ uninstall:
 # make everything if we have a SICStus-Prolog system:
 .PHONY: sicstus
 sicstus:
-	echo "[sicstusbasics], generatePrologBasics." | "$(SICSTUS)"
+	@case `$(SICSTUS) --noinfo --nologo -l sicstusbasics.pl --goal 'getSicstusVersion(SV), print(SV), halt.'` in \
+	  4.x)                cp sicstusbasics.pl prologbasics.pl ;; \
+	  3.[8-9] | 3.1[0-9]) sed "s/%SICS3X/ /g" < sicstusbasics.pl > prologbasics.pl ;; \
+	  *)                  sed "s/%SICS3X/ /g" < sicstusbasics.pl | sed "s/%SICS37/ /g" > prologbasics.pl ;; \
+	esac
 	$(MAKE) c2p.state
 
 # make everything if we have a SWI-Prolog system:
