@@ -1,6 +1,14 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 3.5.1 (December 16, 2022)
+---------------------------------------------------------
+
+Changes to version 3.5.0:
+
+  * Update front-end to use GHC 9.2
+
+
 Release notes for PAKCS Version 3.5.0 (October 8, 2022)
 -------------------------------------------------------
 

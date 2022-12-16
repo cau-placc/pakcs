@@ -34,12 +34,12 @@ Things that one may want to override is where possible configured via variables 
 
 #### .gitlab-ci.yml Docker
 The default docker image used is defined by the top-level `image` entry,
-as of writing this is `caups/pakcs-swi-ci:8.10.7` which was build from
+as of writing this is `caups/pakcs-swi-ci:9.2.5` which was build from
 the Dockerfile `Dockerfile-swi` and uploaded as follows:
 
-    > docker build --build-arg GHC_VERSION=8.10.7 -t caups/pakcs-swi-ci:8.10.7 -f Dockerfile-swi .
+    > docker build --build-arg GHC_VERSION=9.2.5 -t caups/pakcs-swi-ci:9.2.5 -f Dockerfile-swi .
     > docker login --username ....
-    > docker push caups/pakcs-swi-ci:8.10.7
+    > docker push caups/pakcs-swi-ci:9.2.5
 
 The `tag_release` job uses a different image as it needs access to the gitlab release-cli and the template
 job `.test_download` uses a different images as at least one of the derived jobs requires an older ghc.
