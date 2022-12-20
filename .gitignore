@@ -64,3 +64,7 @@ pakcs-*.tar.gz
 
 # editor/ide
 /.idea/
+/.vscode/
+
+# os
+.DS_Store
