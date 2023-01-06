@@ -38,7 +38,7 @@ if [ -x "$SWIPROLOG" ] ; then
     # SWI-Prolog 7.*: use 4GB for the local stack
     7 ) SWILIMITS="-L4G -G0 -T0" ;;
     # SWI-Prolog 8.*: use 8GB for all stacks
-    8 ) SWILIMITS="--stack_limit=8g" ;;
+    8 | 9 ) SWILIMITS="--stack_limit=8g" ;;
     # no default for other versions:
     * ) SWILIMITS="" ;;
   esac
