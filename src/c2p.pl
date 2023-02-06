@@ -1573,8 +1573,9 @@ parseProgram(ProgS,Verbosity,Warnings,Target) :-
 	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	((Warnings=yes, pakcsrc(warnoverlapping,no))
            -> appendAtom(CM3,' --no-overlap-warn',CM4)    ; CM4 = CM3 ),
-	(pakcsrc(curryextensions,yes)
-           -> appendAtom(CM4,' --extended',CM5)           ; CM5 = CM4 ),
+	(pakcsrc(curryextensions,no)
+           -> appendAtom(CM4,' -XNoFunctionalPatterns -XNoAnonFreeVars',CM5)
+            ; CM5 = CM4 ),
 	getCurryPath(CP),
 	getSysLibPath(SysLibPath),
 	append(CP,SysLibPath,ImportPath),

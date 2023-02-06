@@ -20,7 +20,7 @@ libraries=
 # Default value when asking for more solutions (values: yes | no | all)
 moresolutions=yes
 
-# Allow Curry extensions (currently: function patterns and records)
+# Allow Curry extensions, i.e., functional patterns and anonymous free variables
 # (values: yes | no):
 curryextensions=yes
 
