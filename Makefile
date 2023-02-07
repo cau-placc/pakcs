@@ -111,7 +111,7 @@ export REPL         = $(BINDIR)/$(CURRYSYSTEM)
 # The default options for the REPL
 export REPL_OPTS    = --noreadline :set -time
 # The front end binary
-export CYMAKE       = $(BINDIR)/$(CURRYSYSTEM)-frontend
+export FRONTEND     = $(BINDIR)/$(CURRYSYSTEM)-frontend
 # The cleancurry binary
 export CLEANCURRY   = $(BINDIR)/cleancurry
 
@@ -230,17 +230,17 @@ forcecopytools:
 .PHONY: frontend
 frontend:
 ifeq ($(shell test -x "$(CURRYFRONTEND)" ; echo $$?),0)
-	rm -f $(CYMAKE)
-	ln -s $(CURRYFRONTEND) $(CYMAKE)
+	rm -f $(FRONTEND)
+	ln -s $(CURRYFRONTEND) $(FRONTEND)
 else
 	@if [ -d $(FRONTENDDIR) ] ; then $(MAKE) compilefrontend ; fi
 endif
 
 .PHONY: compilefrontend
 compilefrontend:
-	rm -f $(CYMAKE)
-	cd $(FRONTENDDIR) && $(MAKE)
-	cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(notdir $(CYMAKE))
+	rm -f $(FRONTEND)
+	$(MAKE) -C $(FRONTENDDIR)
+	cd $(BINDIR) && ln -s ../frontend/bin/curry-frontend $(notdir $(FRONTEND))
 
 # compile the tools:
 .PHONY: tools
@@ -435,17 +435,23 @@ runtestverbose:
 $(CLEANCURRY):
 	$(MAKE) -C scripts $@
 
+# clean components only used for installation, i.e.,
+# `stack` related stuff in the front end
+.PHONY: cleaninstall
+cleaninstall:
+	if [ -d $(FRONTENDDIR) ] ; then $(MAKE) -C $(FRONTENDDIR) cleaninstall ; fi
+
 # Clean the system files, i.e., remove the installed PAKCS components
 # except for the front end and the reference to the Prolog back end.
 .PHONY: cleansystem
 cleansystem: $(CLEANCURRY)
 	rm -f $(MAKELOG)
 	$(MAKE) cleantools
-	if [ -d lib ] ; then cd lib && $(MAKE) clean ; fi
+	if [ -d lib ] ; then $(MAKE) -C lib clean ; fi
 	cd examples && $(CLEANCURRY) -r
-	if [ -d $(DOCDIR)/src ] ; then cd $(DOCDIR)/src && $(MAKE) clean ; fi
+	if [ -d $(DOCDIR)/src ] ; then $(MAKE) -C $(DOCDIR)/src clean ; fi
 	cd scripts && $(MAKE) clean
-	if [ -d $(FRONTENDDIR) ] ; then cd $(FRONTENDDIR) && $(MAKE) clean ; fi
+	if [ -d $(FRONTENDDIR) ] ; then $(MAKE) -C $(FRONTENDDIR) clean ; fi
 
 # Clean the generated PAKCS tools
 .PHONY: cleantools
@@ -457,10 +463,10 @@ cleantools: $(CLEANCURRY)
 # Clean front end
 .PHONY: cleanfrontend
 cleanfrontend:
-	if [ -d $(FRONTENDDIR) ]; then cd $(FRONTENDDIR) && $(MAKE) cleanall; fi
+	if [ -d $(FRONTENDDIR) ]; then $(MAKE) -C $(FRONTENDDIR) cleanall; fi
 	if [ -d $(FRONTENDDIR) ]; \
 	  then rm -rf $(BINDIR) ; \
-	  else rm -f $(CYMAKE) ; \
+	  else rm -f $(FRONTEND) ; \
 	fi
 
 # Clean everything (including the front end, reference to Prolog back end)
@@ -496,9 +502,9 @@ DIST_DATE   = $(shell date +%Y%m%d)
 dist:
 	rm -rf pakcs*.tar.gz $(PAKCSDIST) # remove any old distribution
 	git clone . $(PAKCSDIST)          # create copy of git version
-	cd $(PAKCSDIST) && git submodule init && git submodule update
+	cd $(PAKCSDIST) && git submodule update --init
 	cd $(PAKCSDIST) && $(MAKE) copylibs
-	mkdir -p $(PAKCSDIST)/bin && cp -p $(CYMAKE) $(PAKCSDIST)/bin
+	mkdir -p $(PAKCSDIST)/bin && cp -p $(FRONTEND) $(PAKCSDIST)/bin
 	@if [ -f docs/Manual.pdf ] ; then cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs ; fi
 	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \

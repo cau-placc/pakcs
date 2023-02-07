@@ -5,7 +5,7 @@
 # This Makefile will be copied into ROOT/lib when PAKCS is built.
 ############################################################################
 
-CYMAKEPARAMS = --extended -Wnone -i.
+FRONTENDPARAMS = -Wnone -i.
 
 PAKCS=$(ROOT)/bin/pakcs
 
@@ -86,15 +86,15 @@ pl: .curry/pakcs-$(VERSION)/$(ALLLIBS).pl $(LIB_PL)
 
 # generate FlatCurry file in subdirectory of .curry:
 .curry/pakcs-$(VERSION)/%.fcy: %.curry
-	"$(CYMAKE)" --flat $(CYMAKEPARAMS) $(subst /,.,$*) -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+	"$(FRONTEND)" --flat $(FRONTENDPARAMS) $(subst /,.,$*) -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
 
 # generate type-annotated FlatCurry file in subdirectory of .curry:
 .curry/pakcs-$(VERSION)/%.tafcy: %.curry
-	"$(CYMAKE)" -type-annotated-flat --flat --flat $(CYMAKEPARAMS) $(subst /,.,$*) -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+	"$(FRONTEND)" -type-annotated-flat --flat --flat $(FRONTENDPARAMS) $(subst /,.,$*) -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
 
 # generate all AbstractCurry files in subdirectory of .curry:
 .curry/pakcs-$(VERSION)/%.acy: %.curry
-	"$(CYMAKE)" --acy $(CYMAKEPARAMS) $(subst /,.,$*) -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
+	"$(FRONTEND)" --acy $(FRONTENDPARAMS) $(subst /,.,$*) -o .curry/pakcs-$(VERSION) -D__PAKCS__=$(shell printf '%d%02d' $(MAJORVERSION) $(MINORVERSION))
 
 # generate all Prolog translation (without binding optimization):
 .curry/pakcs-$(VERSION)/%.pl: .curry/pakcs-$(VERSION)/%.fcy
