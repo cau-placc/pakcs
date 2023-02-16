@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.5.1 (February 6, 2023)
---------------------------------------------------------
+Release notes for PAKCS Version 3.5.1 (February 16, 2023)
+---------------------------------------------------------
 
 Changes to version 3.5.0:
 
@@ -11,6 +11,7 @@ Changes to version 3.5.0:
     and anonymous free variables, one can use the options
     `NoFunctionalPatterns` and `NoAnonFreeVars`, respectively.
   * Update front-end to use GHC 9.2
+  * Update CPM (with new resource URLs)
 
 
 Release notes for PAKCS Version 3.5.0 (October 8, 2022)
