@@ -18,3 +18,5 @@
 :set
 :help
 :quit
+
+Control.Applicative Control.Monad Curry.Compiler.Distribution Data.Char Data.Either Data.Function Data.Functor.Compose Data.Functor.Const Data.Functor.Identity Data.IORef Data.List Data.Maybe Debug.Trace Numeric Prelude System.CPUTime System.Console.GetOpt System.Environment System.IO.Unsafe System.IO Test.Prop.Types Test.Prop Text.Show
