@@ -1,22 +1,27 @@
 -- Standard Prolog benchmark: naive reverse:
 
+append :: [a] -> [a] -> [a]
 append []     ys = ys
 append (x:xs) ys = x : append xs ys
 
+rev :: [a] -> [a]
 rev []     = []
 rev (x:xs) = append (rev xs) [x]
 
+rev30 :: [Int]
 rev30 = rev [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10]
  
 -- LIPS = 496/exec.time
 
 
+rev60 :: [Int]
 rev60 = rev [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10]
  
 -- LIPS = 1891/exec.time
 
 
+rev120 :: [Int]
 rev120 = rev [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
@@ -24,6 +29,7 @@ rev120 = rev [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
  
 -- LIPS = 7381/exec.time
 
+rev180 :: [Int]
 rev180 = rev [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
@@ -34,6 +40,7 @@ rev180 = rev [1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
 -- LIPS = 16471/exec.time
 
 
+rev360 :: [Int]
 rev360 = rev[1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
@@ -50,6 +57,7 @@ rev360 = rev[1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
 -- LIPS = 65341/exec.time
 
 
+rev720 :: [Int]
 rev720 = rev[1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
              1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
@@ -79,27 +87,35 @@ rev720 = rev[1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10,
 
 
 -- constraint style:
+cappend :: [Int] -> [Int] -> [Int] -> Bool
 cappend []     ys zs = ys=:=zs
 cappend (x:xs) ys zs = let rs free in zs=:=x:rs & cappend xs ys rs
 
+crev :: [Int] -> [Int] -> Bool
 crev []     ys = ys=:=[]
 crev (x:xs) ys = let rs free in crev xs rs & cappend rs [x] ys
 
 
+dotimesrev :: Int -> [Int] -> Int -> Bool
 dotimesrev n l len =
    if n>0 then length (rev l) =:= len & dotimesrev (n-1) l len
           else True
 
+dotimesid :: Int -> [Int] -> Int -> Bool
 dotimesid n l len =
    if n>0 then length l =:= len & dotimesid (n-1) l len
           else True
 
+dotimescrev :: Int -> [Int] -> Int -> Bool
 dotimescrev n l len =
    if n>0 then let rs free in crev l rs & dotimescrev (n-1) l len
           else True
 
+goal1 :: Int -> Bool
 goal1 n = dotimesrev n (enumFromTo 1 500) 500
 
+goal2 :: Int -> Bool
 goal2 n = dotimesid n (enumFromTo 1 500) 500
 
+goal3 :: Int -> Bool
 goal3 n = dotimescrev n (enumFromTo 1 500) 500
