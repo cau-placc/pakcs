@@ -1,6 +1,17 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 3.5.2 (March 13, 2023)
+------------------------------------------------------
+
+Changes to version 3.5.1:
+
+  * Verbosity mode slightly changed: parser messages shown only for verbosity
+    greater than 1.
+  * Fix command `:add ...` by compiling new imports.
+  * Add let bindings to the interactive REPL.
+
+
 Release notes for PAKCS Version 3.5.1 (March 13, 2023)
 ------------------------------------------------------
 

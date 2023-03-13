@@ -408,6 +408,9 @@ process([58|Cs]) :- !, % 58=':'
 	Cmd="quit".
 process(Input) :- % ignore inputs starting with a comment:
         removeBlanks(Input,[45,45|_]), !, fail.
+process(Input) :- 
+        Input = [108,101,116,32|_], !, % input starts with "let ":
+        processLetExpression(Input), !, fail.
 process(Input) :-
 	processExpression(Input,ExprGoal),
 	call(ExprGoal).
@@ -418,6 +421,37 @@ ioAdmissible :- safeMode(yes), !,
 	setExitCode(3),
 	fail.
 ioAdmissible.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% process let expression as input:
+
+:- dynamic letExpInput/1.
+
+letExpInput([]). % let expressions defined as REPL input
+
+clearLetExpInput :-
+        retract(letExpInput(LetInput)),
+        (LetInput = [] -> true
+          ; writeLnIntermediate('All previous let expressions deleted.')),
+        asserta(letExpInput([])).
+
+% add the current let bindings to an input string:
+addCurrentLetBindings(Input,LetInput) :-
+        InSep = [32,105,110,10,32,32], % ' in\n  '
+        letExpInput(LetBindings),
+        append(LetBindings,[Input],LetWithInput),
+        intersperse(InSep,LetWithInput,LetInsWithInput),
+        concat(LetInsWithInput,LetInput).
+
+processLetExpression(Input) :-
+        atom_codes('  in ()',InputSuffix),
+        append(Input,[10|InputSuffix],ExprInput),
+        parseExpression(no,ExprInput,none,_Term,_Type,_Vs),
+        !, % let expression is valid
+        retract(letExpInput(OldLets)),
+        append(OldLets,[Input],NewLets),
+        asserta(letExpInput(NewLets)).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % process a given main expression:
@@ -498,11 +532,12 @@ writeAndParseExpression(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
-        (SplitFreeVars=yes -> splitWhereFree(Input,InputExp,FreeVars)
-                            ; InputExp=Input, FreeVars=[]),
+        addCurrentLetBindings(Input,LetInput),
+        (SplitFreeVars=yes -> splitWhereFree(LetInput,InputExp,FreeVars)
+                            ; InputExp=LetInput, FreeVars=[]),
 	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars,
                           InitMainFuncType),
-	(verbosityIntermediate -> PVerb=1 ; PVerb=0),
+	(verbosityIntermediate -> PVerb=2 ; PVerb=0),
 	workingDirectory(CurDir),
 	toAbsPath(MainPath,AbsMainPath),
 	getCurryPath(CP), path2Atom(CP,LCP),
@@ -826,6 +861,7 @@ processCommand("reload",[]) :- !,
 	(Prog="" -> writeLnErr('ERROR: no load command to repeat'),
 	            !, fail
                   ; true),
+        clearLetExpInput,
 	processCompile(Prog,PrologFile),
 	!,
 	existsFile(PrologFile),
@@ -1075,13 +1111,13 @@ shellCmdWithReport(Cmd) :-
 
 % add a module to be imported in addition to the main module:
 addImportModule(Arg) :-
-	extractProgName(Arg,Prog),
-	isValidModuleName(Prog),
-	findSourceProg(Prog,_), !,
-	atomCodes(NewImp,Prog),
+	extractProgName(Arg,ProgS),
+	isValidModuleName(ProgS),
+	findSourceProg(ProgS,_), !,
+	atomCodes(NewImp,ProgS),
 	retract(addImports(OldAddImps)),
 	(member(NewImp,OldAddImps) -> NewAddImps = OldAddImps
-	  ; NewAddImps = [NewImp|OldAddImps]),
+	  ; processCompile(ProgS,_), NewAddImps = [NewImp|OldAddImps]),
 	asserta(addImports(NewAddImps)).
 addImportModule(Arg) :-
 	writeErr('ERROR: Source file of module "'),
@@ -1145,11 +1181,12 @@ writeModuleFile((M,F)) :-
 
 % compile a source program into Prolog code:
 processCompile(ProgS,PrologFile) :-
+	atom_codes(Prog,ProgS),
+        writeNQ('Compiling Curry program "'), writeNQ(Prog), writeLnNQ('"...'),
 	verbosity(Verbosity),
 	parser_warnings(PWarnings),
         (Verbosity=0 -> Warnings=no ; Warnings=PWarnings),
 	parseProgram(ProgS,Verbosity,Warnings,'--flat'),
-	atom_codes(Prog,ProgS),
 	prog2PrologFile(Prog,LocalPrologFile),
 	tryXml2Fcy(Prog),
 	(findFlatProgFileInLoadPath(Prog,PathProgName)
@@ -1397,7 +1434,7 @@ printSetHelp :-
 	write('v<n>            - verbosity level'), nl,
 	write('                   0: quiet (errors only)'), nl,
 	write('                   1: show status messages (default)'), nl,
-	write('                   2: show commands and print initial expressions'), nl,
+	write('                   2: show commands and parser output'), nl,
 	write('                   3: show intermediate infos'), nl,
 	write('                   4: show all details'), nl,
 	write('safe            - safe execution mode without I/O actions'), nl,
@@ -1451,6 +1488,10 @@ printCurrentSettings :-
 	rtArgs(RTArgs),        write('run-time arguments: '),
 	intersperse(' ',RTArgs,RTBArgs),
 	appendAtoms(RTBArgs,AllArgs), write(AllArgs), nl,
+	letExpInput(LetBinds), write('let bindings      : '),
+        intersperse([10|"                    "],LetBinds,LetBindsLines),
+        concat(LetBindsLines,LetBindsString),
+        atom_codes(Lets,LetBindsString), write(Lets), nl,
 	(compileWithDebug ->
 	  (singlestep -> write('+') ; write('-')), write(single), write('  '),
 	  (spymode    -> write('+') ; write('-')), write(spy), write('  '),
@@ -1460,7 +1501,7 @@ printCurrentSettings :-
         (VL>1 -> nl, write('Current "pakcsrc" properties:'), nl, writeRCvalues
                ; true).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % fork an expression where arg1 is the expression (string):
 processFork(ExprString) :-
@@ -1570,7 +1611,7 @@ parseProgram(ProgS,Verbosity,Warnings,Target) :-
                      ' -D__PAKCS__=',
                      MajorVersionAtom,PaddedMinorVersionAtom],CM1),
 	(Warnings=no -> appendAtom(CM1,' -W none',CM2)    ; CM2 = CM1 ),
-	(Verbosity=0 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
+	(Verbosity<2 -> appendAtom(CM2,' --no-verb',CM3)  ; CM3 = CM2 ),
 	((Warnings=yes, pakcsrc(warnoverlapping,no))
            -> appendAtom(CM3,' --no-overlap-warn',CM4)    ; CM4 = CM3 ),
 	(pakcsrc(curryextensions,no)

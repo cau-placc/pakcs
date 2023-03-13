@@ -177,10 +177,15 @@ by typos.
 Same as $expr$. This command might be useful when putting
 commands as arguments when invoking \code{pakcs}.
 
-% \item[\fbox{:define $x$=$expr$}]
-% Define the identifier $x$ as an abbreviation for the expression $expr$
-% which can be used in subsequent expressions. The identifier $x$
-% is visible until the next \code{load} or \code{reload} command.
+\item[\fbox{let $x$ = $e$}]
+Add a \code{let}\pindex{let} binding for the main expression
+where $x$ is a variable or a pattern and $e$ is some expression.
+When a main expression $expr$ is evaluated, this \code{let} binding
+is put in front of the expression,
+i.e., the expression \ccode{let $x$ = $e$ in $expr$}
+is evaluated. Several \code{let} expressions are sequentially combined.
+This \code{let} expression is visible
+until the next \code{load} or \code{reload} command.
 
 \item[\fbox{\code{:quit}}]\pindex{:quit} Exit the system.
 \end{description}
@@ -494,13 +499,14 @@ Set the verbosity level to $n$. The following values are allowed
 for $n$:
 \begin{description}
 \item[$n=0$:] Do not show any messages (except for errors).
-\item[$n=1$:] Show only messages of the front-end, like loading
+\item[$n=1$:] Show only statusmessages of the front-end, like loading
 of modules.
 \item[$n=2$:]
-Show also invoked commands, e.g., to call the front end.
-Moreover,
-the initial expression of a computation together with its type
-is printed before it is evaluated,
+Show also invoked commands, e.g., to call the front end,
+and the standard messages of the front-end, like parsing and
+compiling Curry modules.
+Moreover, the initial expression of a computation together
+with its type is printed before it is evaluated,
 and the output of the evaluation is a bit more detailed.
 \item[$n=3$:]
 Show also messages of the back end, like loading intermediate files

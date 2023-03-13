@@ -14,6 +14,7 @@
 		  hasPrintedFailure/0, printConsFailure/1,
 		  evalToken/1, worldToken/1,
 		  writeNQ/1, nlNQ/0, writeLnNQ/1,
+		  writeIntermediate/1, nlIntermediate/0, writeLnIntermediate/1,
 		  writeErr/1, nlErr/0, writeLnErr/1,
 		  writeErrNQ/1, nlErrNQ/0, writeLnErrNQ/1,
 		  writeBlanks/1,
@@ -161,6 +162,11 @@ verbosityDetailed :- verbosity(N), N>3.
 writeNQ(T) :- quietmode(no) -> write(T); true.
 nlNQ :- quietmode(no) -> nl; true.
 writeLnNQ(T) :- writeNQ(T), nlNQ.
+
+% write on standard out if not in quiet mode:
+writeIntermediate(T) :- verbosityIntermediate -> write(T) ; true.
+nlIntermediate :- verbosityIntermediate -> nl ; true.
+writeLnIntermediate(T) :- writeIntermediate(T), nlIntermediate.
 
 % write on user error:
 writeErr(T) :- write(user_error,T).
