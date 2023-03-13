@@ -140,7 +140,7 @@ if [ "$TERM" = dumb ] ; then
 fi
 
 if [ $USERLWRAP = yes ] ; then
-  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap" "$REPL" --cpm-version "$CPMVERSION" $NOCOLOR ${1+"$@"}
+  exec rlwrap -c -f "$PAKCSHOME/tools/rlwrap-completions" "$REPL" --cpm-version "$CPMVERSION" $NOCOLOR ${1+"$@"}
 else
   exec "$REPL" --cpm-version "$CPMVERSION" $NOCOLOR ${1+"$@"}
 fi
