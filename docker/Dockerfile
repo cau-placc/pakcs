@@ -1,1 +1,1 @@
-Dockerfile-pakcs-3.5.1-ubuntu-22.04
+Dockerfile-pakcs-3.5.2-ubuntu-22.04
