@@ -190,8 +190,7 @@ processArgs(_,[Arg|Args]) :-
 	writeMainHelp,
 	processArgs(yes,Args).
 processArgs(Halt,[Arg|Args]) :-
-	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'),
-	setQuietMode(yes), !,
+	(Arg='--quiet' ; Arg='-quiet' ; Arg='-q'), !,
 	setVerbosity(0),
 	processArgs(Halt,Args).
 processArgs(Halt,[Arg|Args]) :- % command option
@@ -281,7 +280,7 @@ writeMainHelp :-
 
 
 % Compute the prompt of the interactive loop:
-pakcsPrompt('') :- quietmode(yes), !.
+pakcsPrompt('') :- verbosityQuiet, !.
 pakcsPrompt(Prompt) :-
 	currentModuleFile(MN,_),
 	currentprogram(CPS),

@@ -7,7 +7,6 @@
 		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
                   verbosityCommands/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
-		  quietmode/1, setQuietMode/1,
                   rtArgs/1,
 		  compileWithSharing/1,
 		  compileWithDebug/0, compileWithFailPrint/0,
@@ -69,7 +68,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic withColor/1, cpmVersion/1, lastload/1, plprofiling/1, quietmode/1,
+:- dynamic withColor/1, cpmVersion/1, lastload/1, plprofiling/1,
 	   rtArgs/1, compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
@@ -107,7 +106,6 @@ user:portray_message(informational,created(_,_)) :- !.
 withColor(yes).      % use colors for output
 cpmVersion('').      % the version string of CPM
 lastload("Prelude"). % program in last load command
-quietmode(no).	% yes if environment should work in quiet mode (option -q)
 plprofiling(no). % perform profiling with Prolog profiler
 rtArgs([]).	% run-time arguments from script call or ":set args" option
 compileWithSharing(variable). % if it should be compiled with variable sharing scheme
@@ -131,9 +129,6 @@ setExitCode(C) :-
 failWithExitCode :- setExitCode(1), !, fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-setQuietMode(V) :-
-	retract(quietmode(_)), asserta(quietmode(V)).
 
 % verbosity/1 is defined in prologbasics.pl
 
@@ -159,8 +154,8 @@ verbosityDetailed :- verbosity(N), N>3.
 % writing outputs:
 
 % write on standard out if not in quiet mode:
-writeNQ(T) :- quietmode(no) -> write(T); true.
-nlNQ :- quietmode(no) -> nl; true.
+writeNQ(T) :- verbosityNotQuiet -> write(T) ; true.
+nlNQ :- verbosityNotQuiet -> nl ; true.
 writeLnNQ(T) :- writeNQ(T), nlNQ.
 
 % write on standard out if not in quiet mode:
@@ -174,8 +169,8 @@ nlErr :- nl(user_error), flush_output(user_error).
 writeLnErr(T) :- writeErr(T), nlErr.
 
 % write on user error if not in quiet mode:
-writeErrNQ(T) :- quietmode(no) -> write(user_error,T); true.
-nlErrNQ :- quietmode(no) -> nl(user_error); true.
+writeErrNQ(T) :- verbosityNotQuiet -> write(user_error,T) ; true.
+nlErrNQ :- verbosityNotQuiet -> nl(user_error) ; true.
 writeLnErrNQ(T) :- writeErrNQ(T), nlErrNQ.
 
 

@@ -40,7 +40,7 @@ Log into the Docker Hub from command line, tag and push the local image:
     > docker tag pakcs caups/pakcs:<version>
     > docker push caups/pakcs:<version>
 
-where <version> should be something like "3.5.1"
+where <version> should be something like "3.5.2"
 or "latest" to update the latest version.
 
 

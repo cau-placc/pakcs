@@ -476,7 +476,8 @@ addPrimitiveSpecs2Funcs([],[],[]) :- !.
 addPrimitiveSpecs2Funcs(PrimSpecs,[],[]) :-
 	writeErrNQ('WARNING: specifications of primitive functions '),
 	writeLnErrNQ('without source code found:'),
-	(quietmode(no) -> map1M(compiler:writePrimSpec,PrimSpecs) ; true), !.
+	(verbosityNotQuiet -> map1M(compiler:writePrimSpec,PrimSpecs) ; true),
+        !.
 addPrimitiveSpecs2Funcs(PrimSpecs,['Func'(Name,Arity,_,_,_)|Funcs],MFuncs) :-
 	flatName2Atom(Name,F),
 	deleteCostCenterInPrologName(F,FWOCC),
