@@ -2,7 +2,7 @@ Docker image of PAKCS
 =====================
 
 This directory contains some files to create and run the
-[Docker image of PAKCS](https://hub.docker.com/r/caups/pakcs).
+[Docker image of PAKCS](https://hub.docker.com/r/currylang/pakcs).
 
 
 Building a new docker image
@@ -27,18 +27,17 @@ Uploading image to Docker Hub
 
 When the repository does not yet exist on Docker Hub:
 
-1. Log in on https://hub.docker.com
-2. Change to organization "caups"
-3. Click on "Create Repository"
-4. Choose a name ("pakcs") and click create
+1. Log in on https://hub.docker.com as "currylang"
+2. Click on "Create Repository"
+3. Choose a name ("pakcs") and click create
 
 When the repository exists on Docker Hub:
 
 Log into the Docker Hub from command line, tag and push the local image:
 
     > docker login --username mhanus42
-    > docker tag pakcs caups/pakcs:<version>
-    > docker push caups/pakcs:<version>
+    > docker tag pakcs currylang/pakcs:<version>
+    > docker push currylang/pakcs:<version>
 
 where <version> should be something like "3.5.2"
 or "latest" to update the latest version.

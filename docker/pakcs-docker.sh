@@ -1,5 +1,5 @@
 #!/bin/sh
-# This is a shell script to run the Docker image caups/pakcs
+# This is a shell script to run the Docker image currylang/pakcs
 # with appropriate options in order to use PAKCS
 # with local files and invoke tools contained in the image.
 # Adapt this file according to further requirements, e.g.,
@@ -14,7 +14,7 @@ DOCKEROPTS="$DOCKEROPTS -v `pwd`:`pwd` -w `pwd` -v $HOME:$HOME -e HOME=$HOME"
 # NOTE: if you use docker in rootless mode, remove the following line.
 DOCKEROPTS="$DOCKEROPTS -u $(id -u):$(id -g)"
 
-DOCKERTAG="caups/pakcs"
+DOCKERTAG="currylang/pakcs"
 ENTRYPOINT=""
 HELP=no
 
