@@ -35,7 +35,7 @@ When the repository exists on Docker Hub:
 
 Log into the Docker Hub from command line, tag and push the local image:
 
-    > docker login --username mhanus42
+    > docker login --username currylang
     > docker tag pakcs currylang/pakcs:<version>
     > docker push currylang/pakcs:<version>
 

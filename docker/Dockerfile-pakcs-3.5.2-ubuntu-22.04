@@ -11,7 +11,7 @@ RUN apt-get --assume-yes install curl make libnuma1
 RUN apt-get --assume-yes install git zip unzip sqlite3
 
 # require for PAKCS:
-RUN apt-get --assume-yes install swi-prolog
+RUN apt-get --assume-yes install swi-prolog rlwrap
     
 RUN rm -rf /var/lib/apt/lists/*
 
