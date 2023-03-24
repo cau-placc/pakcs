@@ -45,13 +45,13 @@ esac
 
 NOCOLOR=
 
-# use readline wrapper rlwrap for SICStus-Prolog back end
-# if rlwrap exists, we have tty as stdin, and we have a home directory to
+# use readline wrapper rlwrap if rlwrap exists,
+# we have tty as stdin, and we have a home directory to
 # store rlwrap's history:
 USERLWRAP=no
 if tty -s ; then
   RLWRAP=`command -v rlwrap`
-  if [ -f "$PAKCSBIN/sicstusprolog" -a -x "$RLWRAP" -a -d "$HOME" ] ; then
+  if [ -x "$RLWRAP" -a -d "$HOME" ] ; then
     USERLWRAP=yes
   fi
 else
