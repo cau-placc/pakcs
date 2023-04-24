@@ -1,10 +1,10 @@
 -- Module "conditional" from the Escher report:
 
 data Alpha = A | B | C | D
+ deriving Eq
 
 membercheck :: (Alpha , [Alpha]) -> Bool
-
-membercheck(_,[])   = False
+membercheck(_,[])  = False
 membercheck(x,y:z) = if x==y then True else membercheck(x,z)
 
 
