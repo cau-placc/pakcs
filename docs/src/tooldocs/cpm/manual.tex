@@ -869,7 +869,7 @@ which is used by the \code{update} command to download the
 index of all repositories.
 Default value:
 \begin{lstlisting}
-https://www-ps.informatik.uni-kiel.de/~cpm/PACKAGES/INDEX.tar.gz
+https://cpm.curry-lang.org/PACKAGES/INDEX.tar.gz
 \end{lstlisting}
 One can also provide more than one URL which are tried in sequential order
 until one index could be downloaded.
@@ -883,12 +883,12 @@ the source of the package is downloaded from this location
 as file \code{$p$-$v$.tar.gz}.
 Default value:
 \begin{lstlisting}
-https://www-ps.informatik.uni-kiel.de/~cpm/PACKAGES/
+https://cpm.curry-lang.org/PACKAGES/
 \end{lstlisting}
-For instance, the package \code{cpm} with version \code{2.2.0}
+For instance, the package \code{cpm} with version \code{3.1.0}
 is downloaded from
 \begin{lstlisting}
-https://www-ps.informatik.uni-kiel.de/~cpm/PACKAGES/cpm-2.2.0.tar.gz
+https://cpm.curry-lang.org/PACKAGES/cpm-3.1.0.tar.gz
 \end{lstlisting}
 One can also provide more than one URL prefix
 which are tried in sequential order until the package could be downloaded
@@ -994,6 +994,12 @@ If there is some package in the dependency specification
 which is not used, a warning is reported.
 The option \code{--info} shows some more information,
 e.g., the complete list of all Curry source modules.
+
+In addition to the interface checks, the static source code
+of all package modules are examined by CurryCheck in order to
+report unintended uses of some Curry functions,
+e.g., set functions or non-strict unification (\code{=:<=}).
+The latter checks can be suppressed by the option \code{--source}.
 
 \item[\fbox{\code{config}}]\pindex{config}
 Shows the current configuration of CPM
@@ -1142,8 +1148,23 @@ Does a dependency resolution run for the current
 package and prints the results. The result is either a list of all package
 versions chosen or a description of the conflict encountered during dependency
 resolution.
-Using the option \code{--path}, only the value of \code{CURRYPATH} required
-to load modules of this package is shown.
+In order to reduce the amount of information shown,
+only the first occurrence of a package is shown.
+If the option \code{--full} is given, then also repeated package
+dependencies are shown.
+
+If the option \code{--path} is set, only the value of \code{CURRYPATH}
+required to load modules of this package is shown.
+
+If the option \code{--code} is set, the full path containing
+all source directories is stored as property
+\code{curry.languageServer.importPaths}
+in the file \ccode{.vscode/settings.json}
+(which is updated if it already exists)
+so that all imported modules of the current package can be found
+by the Curry Language Server%
+\footnote{\url{https://github.com/fwcd/curry-language-server}}
+when it is used in the VS Code source-code editor.
 
 If the option \code{--graph} is provided, then the dependency
 graph is translated into a graph in
@@ -1203,7 +1224,7 @@ list of module names to be documented.
 In the default case, modules contained in packages used by the current package
 are not documented. Instead, it is assumed that these packages are
 already documented\footnote{See
-\url{http://www.informatik.uni-kiel.de/~curry/cpm/}
+\url{https://cpm.curry-lang.org/DOC/}
 for the documentation of all packages. This default location
 can be changed with the option \code{--url}.}
 so that links to these package documentations are generated.
@@ -1310,7 +1331,19 @@ by \ccode{cypm update}).
 For security reasons (this will be weakened in the future),
 the package must have a source specification
 (see Section~\ref{sec:publishing-a-package})
-of the following form:
+of one of the following forms:
+%
+\begin{lstlisting}
+{
+  ...,
+  "source": {
+    "git": "https://github.com/curry-packages/$\ldots$.git",
+    "tag": "$\$$version"
+  }
+}
+\end{lstlisting}
+%
+or
 %
 \begin{lstlisting}
 {
@@ -1323,7 +1356,7 @@ of the following form:
 \end{lstlisting}
 %
 Thus, the source is managed as a Git repository which is stored
-at the server \code{git.ps.informatik.uni-kiel.de}
+at the server \code{github.com} or \code{git.ps.informatik.uni-kiel.de}
 in group \code{curry-packages} and has an automatic version tag.
 Unless the option \code{--nottagging} is given,
 the version tag wil be automatically set in the local repository
