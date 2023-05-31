@@ -1,16 +1,10 @@
 #!/bin/sh
 #
 # Start interactive read-eval-print loop of PAKCS
+# This script must be installed in a subdirectory of the PAKCS installation
+# directory.
 
-PAKCSBUILDDIR=`echo PAKCSBUILDDIR must be defined here!`
-PAKCSINSTALLDIR=
-# Define the main directory where PAKCS is installed:
-if [ -d "$PAKCSINSTALLDIR" ] ; then
-  PAKCSHOME="$PAKCSINSTALLDIR"
-else
-  PAKCSHOME="$PAKCSBUILDDIR"
-fi
-export PAKCSHOME
+PAKCSHOME=$(dirname $(dirname $(readlink -f "$0")))
 
 # The bin directory of PAKCS:
 PAKCSBIN="$PAKCSHOME/bin"

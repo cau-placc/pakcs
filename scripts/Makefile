@@ -14,10 +14,7 @@ all:
 # install some script of PAKCS in the bin directory:
 $(BINDIR)/%: %.sh ../Makefile
 	mkdir -p $(@D)
-	cat $< | \
-	 sed "s|^PAKCSBUILDDIR=.*$$|PAKCSBUILDDIR=$(ROOT)|" | \
-	 sed "s|^PAKCSINSTALLDIR=.*$$|PAKCSINSTALLDIR=$(PAKCSINSTALLDIR)|" | \
-	 sed "s|^COMPILERVERSION=.*$$|COMPILERVERSION=$(CURRYSYSTEM)-$(VERSION)|" > $@
+	cp $< $@
 	chmod 755 $@
 
 .PHONY: clean
