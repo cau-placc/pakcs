@@ -15,16 +15,20 @@
 --
 
 data Color = Red | Green | Yellow | Blue
+ deriving Eq
 
+aColor :: Color
 aColor = Red
 aColor = Yellow
 aColor = Green
 aColor = Blue
 
 -- correct coloring:
+correct :: Color -> Color -> Color -> Color -> [Color]
 correct l1 l2 l3 l4
    | l1/=l2 && l1/=l3 && l2/=l3 && l2/=l4 && l3/=l4
    = [l1,l2,l3,l4]
 
 -- solution:
+main :: [Color]
 main = correct aColor aColor aColor aColor

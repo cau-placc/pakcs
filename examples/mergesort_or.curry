@@ -4,8 +4,7 @@ goal2 xs = sort intMerge [3,1,2,5,4,8] xs
 goal3 xs = sort intMerge [3,1,2,5,4,8,6,7,2,9,1,4,3] xs
 
 
-sort :: ([a] -> [a] -> [a] -> Bool) -> [a] -> [a] -> Bool
-
+sort :: Data a => ([a] -> [a] -> [a] -> Bool) -> [a] -> [a] -> Bool
 sort merge xs ys =
    if length xs < 2 then ys =:= xs
    else sort merge (firsthalf xs) us
