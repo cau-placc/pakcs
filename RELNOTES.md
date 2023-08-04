@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.5.2 (May 31, 2023)
-----------------------------------------------------
+Release notes for PAKCS Version 3.5.2 (August 4, 2023)
+------------------------------------------------------
 
 Changes to version 3.5.1:
 
@@ -10,6 +10,7 @@ Changes to version 3.5.1:
     greater than 1.
   * Fix command `:add ...` by compiling new imports.
   * Add let bindings to the interactive REPL.
+  * Update CPM (with automatic upload to Masala/CPM)
 
 
 Release notes for PAKCS Version 3.5.1 (March 13, 2023)
