@@ -52,7 +52,7 @@ PATH=$CURRYBIN:$PATH
 export PATH
 
 # clean up before
-$CURRYBIN/cleancurry -r
+/bin/rm -rf */.curry
 
 LOGFILE=`pwd`/xxx$$
 
