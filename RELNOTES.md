@@ -1,6 +1,22 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 3.6.0 (October 31, 2023)
+--------------------------------------------------------
+
+Changes to version 3.5.2:
+
+  * Base libraries extended by including libraries for encapsulated search
+    so that set functions can be used without installing packages.
+    The new libraries are: `Control.Search.SetFunctions`(implementing
+    set functions), `Control.Search.AllValues` (implementing a strong
+    encapsulation as I/O operations), `Control.Search.Unsafe`
+    (implementing strong encapsulation as non I/O operations, but this
+    method has a non-declarative behavior), and `Control.Search.SearchTree`
+    (implementing search trees which are mainly used in KiCS2 to implement
+    encapsulation).
+
+
 Release notes for PAKCS Version 3.5.2 (August 18, 2023)
 -------------------------------------------------------
 

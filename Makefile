@@ -50,11 +50,11 @@ export CURRYSYSTEM=pakcs
 # The major version number:
 export MAJORVERSION=3
 # The minor version number:
-export MINORVERSION=5
+export MINORVERSION=6
 # The revision version number:
-export REVISIONVERSION=2
+export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=8
+BUILDVERSION=1
 # Complete version:
 export VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -359,7 +359,7 @@ libdoc:
 ifeq ($(CI_BUILD),yes)
 	@if [ ! -x "$(CURRYDOC)" ] ; then \
 		echo "Executable 'curry-doc' is not installed!" ; \
-		echo "Install it by > cpm install currydoc" ; \
+		echo "Install it by > cypm install currydoc" ; \
 		exit 1 ; \
 	else \
 		$(MAKE) genlibdoc ; \
@@ -367,7 +367,7 @@ ifeq ($(CI_BUILD),yes)
 else
 	@if [ ! -x "$(CURRYDOC)" ] ; then \
 		echo "Executable 'curry-doc' is not installed!" ; \
-		echo "Install it by > cpm install currydoc" ; \
+		echo "Install it by > cypm install currydoc" ; \
 	else \
 		$(MAKE) genlibdoc ; \
 	fi
