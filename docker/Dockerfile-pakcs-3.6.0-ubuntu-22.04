@@ -1,0 +1,57 @@
+FROM ubuntu:22.04
+
+# avoid interactive input for 'configuring tzdata'
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+
+RUN apt-get --assume-yes install curl make libnuma1
+
+# required for CPM:
+RUN apt-get --assume-yes install git zip unzip sqlite3
+
+# require for PAKCS:
+RUN apt-get --assume-yes install swi-prolog rlwrap
+    
+RUN rm -rf /var/lib/apt/lists/*
+
+# ensure UTF-8 encoding
+ENV LC_ALL C.UTF-8
+
+# copy, unpack and install pakcs
+WORKDIR /pakcs
+RUN curl -sSL -o pakcs.tar.gz https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-3.6.0-amd64-Linux.tar.gz
+RUN tar xvzf pakcs.tar.gz
+RUN mv pakcs-3.6.0 pakcs
+WORKDIR /pakcs/pakcs
+ENV PATH /pakcs/pakcs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+RUN make
+
+ENV HOME /userhome
+RUN mkdir -p  $HOME
+RUN chmod 777 $HOME
+
+RUN mkdir /pakcs/cpm
+
+# options for CPM so that tools will be installed in /pakcs/cpm
+ENV CPMOPTS="-d REPOSITORY_PATH=/pakcs/cpm/index -d PACKAGE_INSTALL_PATH=/pakcs/cpm/packages -d APP_PACKAGE_PATH=/pakcs/cpm/app_packages -d BIN_INSTALL_PATH=/pakcs/cpm/bin"
+
+RUN bin/cypm $CPMOPTS update
+RUN bin/cypm $CPMOPTS install importusage
+RUN bin/cypm $CPMOPTS install showflatcurry
+RUN bin/cypm $CPMOPTS install currypp
+RUN bin/cypm $CPMOPTS install currycheck
+RUN bin/cypm $CPMOPTS install currydoc
+
+# set path with cpm bin directory included
+ENV PATH /pakcs/cpm/bin:/pakcs/pakcs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# pre-compile libraries used by curry-check
+COPY CheckExample.curry .
+RUN /pakcs/cpm/bin/curry-check CheckExample
+
+# make tool files readable
+RUN chmod -R go+rX /pakcs/cpm/app_packages
+
+ENTRYPOINT ["/pakcs/pakcs/bin/pakcs"]
