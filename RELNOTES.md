@@ -15,7 +15,7 @@ Changes to version 3.5.2:
     method has a non-declarative behavior), and `Control.Search.SearchTree`
     (implementing search trees which are mainly used in KiCS2 to implement
     encapsulation).
-* Update CPM (modified options for command `upload`)
+  * Update CPM (modified options for command `upload`)
 
 
 Release notes for PAKCS Version 3.5.2 (August 18, 2023)
