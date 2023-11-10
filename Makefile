@@ -52,9 +52,9 @@ export MAJORVERSION=3
 # The minor version number:
 export MINORVERSION=6
 # The revision version number:
-export REVISIONVERSION=0
+export REVISIONVERSION=1
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=0
+BUILDVERSION=1
 # Complete version:
 export VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
@@ -95,8 +95,6 @@ BASEVERSIONFILE = $(LIBDIR)/VERSION
 CURRYCHECK := $(shell sh -c 'command -v curry-check')
 # Executable of CurryDoc:
 CURRYDOC := $(shell sh -c 'command -v curry-doc')
-# Executable of the markdown translator (required for documentation generation):
-MD2PDF := $(shell sh -c 'command -v md2pdf')
 
 # The version information file for PAKCS:
 PAKCSVERSION=$(ROOT)/src/pakcsversion.pl
@@ -253,10 +251,10 @@ tools:
 manual:
 ifeq ($(CI_BUILD),yes)	
 	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
-		if [ -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
-			$(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; \
+		if [ -x "$(CURRYDOC)" ] ; then \
+			$(MAKE) $(MANUALVERSION) && $(MAKE) -C $(DOCDIR)/src install ; \
 		else \
-			echo "Executable 'curry-doc' or 'md2pdf' not found!" ; \
+			echo "Executable 'curry-doc' not found!" ; \
 	        echo "To generate the manual, install them by:" ; \
 			echo "> cypm install currydoc && cypm install markdown" ; \
 			exit 1 ; \
@@ -264,10 +262,10 @@ ifeq ($(CI_BUILD),yes)
 	fi
 else	
 	@if [ -d $(DOCDIR)/src -a $(DISTPKGINSTALL) = "no" ] ; then \
-	   if [ -x "$(CURRYDOC)" -a -x "$(MD2PDF)" ] ; then \
-	     $(MAKE) $(MANUALVERSION) && cd $(DOCDIR)/src && $(MAKE) install ; \
+	   if [ -x "$(CURRYDOC)" ] ; then \
+	     $(MAKE) $(MANUALVERSION) && $(MAKE) -C $(DOCDIR)/src install ; \
 	   else \
-			echo "Executable 'curry-doc' or 'md2pdf' not found!" ; \
+			echo "Executable 'curry-doc' not found!" ; \
 			echo "To generate the manual, install them by:" ; \
 			echo "> cypm install currydoc && cypm install markdown" ; \
 		fi \

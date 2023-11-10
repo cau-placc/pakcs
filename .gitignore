@@ -25,7 +25,6 @@ pakcsinitrc
 # intermediate files
 src/pakcsversion.pl
 docs/src/version.tex
-docs/src/tooldocs/casc/curry-style-guide.html
 lib/
 pkg/
 scripts/makesavedstate
@@ -40,23 +39,10 @@ src/prologbasics.pl
 src/libsicstus
 src/libswi
 src/pakcs
-tools/Peval/peval
-tools/coosy/CoosyGUI
-tools/curry2xml
-tools/optimize/CompactFlat
-tools/optimize/NonStrictOpt
-www/Registry
-www/submitform
 
 # documentation
 docs/src/manual.bbl
 docs/src/lib
-docs/src/markdown_syntax.tex
-docs/markdown_syntax.html
-docs/CurryStyleGuide.html
-docs/INSTALL.html
-docs/GITINSTALL.html
-docs/RELNOTES.html
 
 # distribution
 pakcs-*.tar.gz

@@ -2,9 +2,6 @@
 
 PAKCS=../../bin/pakcs
 
-# Executable of the markdown translator:
-MD2PDF := $(shell sh -c 'command -v md2pdf')
-
 .PHONY: pdf
 pdf : manual.pdf
 
@@ -19,30 +16,6 @@ manual.pdf: $(wildcard *.tex lib/*.tex tooldocs/*/*.tex)
 	rm -f $@
 	cp $< $@
 
-../markdown_syntax.html: markdown_syntax.md
-	$(MD2PDF) -t "Markdown Syntax" --html -o "$@" "$<"
-
-# format installation description as HTML page
-../INSTALL.html: ../../INSTALL.md
-	$(MD2PDF) -t "PAKCS Installation Instructions" --html -o "$@" "$<"
-
-# format repository installation description as HTML page
-../GITINSTALL.html: ../../GITINSTALL.md
-	$(MD2PDF) -t "PAKCS Repository" --html -o "$@" "$<"
-
-# format release notes as HTML page
-../RELNOTES.html: ../../RELNOTES.md
-	$(MD2PDF) -t "PAKCS Release Notes" --html -o "$@" "$<"
-
-# format Curry style guide as HTML page
-../CurryStyleGuide.html: tooldocs/casc/curry-style-guide.md
-	cd tooldocs/casc && $(MAKE)
-ifeq ($(CI_BUILD),yes)
-	cp tooldocs/casc/curry-style-guide.html $@
-else
-	@if [ -f "tooldocs/casc/curry-style-guide.html" ] ; then cp tooldocs/casc/curry-style-guide.html $@ ; fi
-endif
-
 # generate documentation for all libraries
 .PHONY: libdoc
 libdoc:
@@ -50,10 +23,6 @@ libdoc:
 
 .PHONY: install
 install:
-	$(MAKE) ../markdown_syntax.html
-	$(MAKE) ../INSTALL.html
-	$(MAKE) ../GITINSTALL.html
-	$(MAKE) ../RELNOTES.html
 	$(MAKE) libdoc
 	$(MAKE) ../Manual.pdf
 

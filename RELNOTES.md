@@ -1,6 +1,16 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 3.6.1 (November 10, 2023)
+---------------------------------------------------------
+
+Changes to version 3.6.0:
+
+  * Front end does not include `Prelude` in imports of FlatCurry files
+    when it is not necessary (e.g., if the language option `NoImplicitPrelude`
+    is set).
+
+
 Release notes for PAKCS Version 3.6.0 (November 10, 2023)
 ---------------------------------------------------------
 
