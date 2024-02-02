@@ -1,14 +1,15 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.6.1 (November 16, 2023)
----------------------------------------------------------
+Release notes for PAKCS Version 3.6.1 (February 2, 2024)
+--------------------------------------------------------
 
 Changes to version 3.6.0:
 
   * Front end does not include `Prelude` in imports of FlatCurry files
     when it is not necessary (e.g., if the language option `NoImplicitPrelude`
-    is set).
+    is set)
+  * Small bug fixes
 
 
 Release notes for PAKCS Version 3.6.0 (November 10, 2023)
@@ -18,13 +19,15 @@ Changes to version 3.5.2:
 
   * Base libraries extended by including libraries for encapsulated search
     so that set functions can be used without installing packages.
-    The new libraries are: `Control.Search.SetFunctions`(implementing
-    set functions), `Control.Search.AllValues` (implementing a strong
-    encapsulation as I/O operations), `Control.Search.Unsafe`
-    (implementing strong encapsulation as non I/O operations, but this
-    method has a non-declarative behavior), and `Control.Search.SearchTree`
-    (implementing search trees which are mainly used in KiCS2 to implement
-    encapsulation).
+    The new libraries are:
+    - `Control.Search.SetFunctions`(implementing set functions)
+    - `Control.Search.AllValues` (implementing a strong  encapsulation
+      as I/O operations)
+    - `Control.Search.Unsafe`
+      (implementing strong encapsulation as non I/O operations, but this
+      method has a non-declarative behavior)
+    - `Control.Search.SearchTree` (implementing search trees which
+      are mainly used in KiCS2 to implement  encapsulation).
   * Update CPM (modified options for command `upload`)
 
 
