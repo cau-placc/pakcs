@@ -17,12 +17,11 @@
 
 :- dynamic compileWithCompact/1,
 	   parser_warnings/1, parserOptions/1,
-	   freeVarsUndeclared/1, addImports/1, safeMode/1, echoMode/1.
+	   addImports/1, safeMode/1, echoMode/1.
 
 compileWithCompact([]).  % parsecurry options for compactification
 parser_warnings(yes). % no if the warnings of the parser should be suppressed
 parserOptions(''). % additional options passed to front end
-freeVarsUndeclared(no). % yes if free variables need not be declared in initial goals
 addImports([]). % additional imports defined by the ":add" command
 safeMode(no). % safe execution without IO actions at top level?
 echoMode(no). % echo the current REPL input?
@@ -1382,7 +1381,7 @@ processSetOption("safe") :- !,
 	asserta(forbiddenModules(['System.IO.Unsafe','Unsafe'])),
 	retract(safeMode(_)), asserta(safeMode(yes)), !.
 processSetOption("parser") :- !,
-	retract(parserOptions(_)), asserta(parserOptions([])).
+	retract(parserOptions(_)), asserta(parserOptions('')).
 processSetOption(Option) :-
 	append("parser ",OptTail,Option), !,
 	removeBlanks(OptTail,StrippedOpt),
