@@ -1156,15 +1156,23 @@ dependencies are shown.
 If the option \code{--path} is set, only the value of \code{CURRYPATH}
 required to load modules of this package is shown.
 
-If the option \code{--code} is set, the full path containing
-all source directories is stored as property
+If the option \code{--language-server} is set, the full path containing
+all source directories is written into the file
+in the file \ccode{.curry/language-server/paths.json}.
+This file is used by the Curry Language Server%
+\footnote{\url{https://github.com/fwcd/curry-language-server}}
+to find all imported modules of the current package
+when it is used in the VS Code source-code editor.
+When starting the Curry Language Server with VS Code,
+the language server invokes CPM with this option in order to
+set its import path.
+
+For older version of the Curry Language Server,
+one can also use the option \code{--code} to set the full path
+of all source directories as property
 \code{curry.languageServer.importPaths}
 in the file \ccode{.vscode/settings.json}
-(which is updated if it already exists)
-so that all imported modules of the current package can be found
-by the Curry Language Server%
-\footnote{\url{https://github.com/fwcd/curry-language-server}}
-when it is used in the VS Code source-code editor.
+(which is updated if it already exists).
 
 If the option \code{--graph} is provided, then the dependency
 graph is translated into a graph in
@@ -1304,14 +1312,19 @@ the new dependencies. Thus, this abbreviates the two commands
 cypm add $package$ && cypm install
 \end{lstlisting}
 
-\item[\fbox{\code{clean}}]\pindex{clean}
+\item[\fbox{\code{clean [--dependencies]}}]\pindex{clean}
 Cleans the current package from the
 generated auxiliary files, e.g., intermediate Curry files,
 installed dependent packages, etc.
 Note that a binary installed in the CPM \code{bin} directory
 (by the \code{install} command) will not be removed.
-Hence, this command can be used to clean an application package
+For instance, this command can be used to clean an application package
 after installing the application.
+
+If the option \code{-d} or \code{--dependencies} is provided,
+then \emph{all} dependencies in the package specification are removed.
+This might be reasonable in the ``homepackage'' to remove
+locally installed packages.
 
 \item[\fbox{\code{new $project$}}]\pindex{new}
 Creates a new project package with the given name and some template files
@@ -1322,16 +1335,17 @@ Initializes a new project package in the current directory
 and puts some template files in this directory.
 The name of the new package is the same as the directory name.
 
-\item[\fbox{\code{upload [--notagging] [--force]}}]\pindex{upload}
-Uploads the current package to the central package index
-so that it can be used by other developers via CPM
-(if they update their local copy of the central package index
+\item[\fbox{\code{upload [--tag] [--nopublish] [--force] [--login $name$] [--password $passwd$]}}]\pindex{upload}
+Uploads the current package to the central package index managed by
+Masala.\index{Masala}%
+\footnote{See \url{https://cpm.curry-lang.org/masala/}}
+Thus, one has to be registered to Masala (see Masala's homepage
+for further information).
+Registration is free but only trusted users or the Masala administrator
+can publish the package so that it can be used by other developers via CPM
+(after updating their local copy of the central package index
 by \ccode{cypm update}).
-
-For security reasons (this will be weakened in the future),
-the package must have a source specification
-(see Section~\ref{sec:publishing-a-package})
-of one of the following forms:
+Uploading requires that the package has a public source location, e.g.,
 %
 \begin{lstlisting}
 {
@@ -1343,30 +1357,32 @@ of one of the following forms:
 }
 \end{lstlisting}
 %
-or
-%
-\begin{lstlisting}
-{
-  ...,
-  "source": {
-    "git": "$\ldots$git.ps.informatik.uni-kiel.de/curry-packages/$\ldots$.git",
-    "tag": "$\$$version"
-  }
-}
-\end{lstlisting}
-%
-Thus, the source is managed as a Git repository which is stored
-at the server \code{github.com} or \code{git.ps.informatik.uni-kiel.de}
-in group \code{curry-packages} and has an automatic version tag.
-Unless the option \code{--nottagging} is given,
+Thus, the uploaded package will be taken from this public source
+and \textbf{not from the local files}.
+
+If the source location is a git repository with tag
+\ccode{$\$$version} (as shown above) and the upload option \code{--tag} is set,
 the version tag wil be automatically set in the local repository
 (and pushed to the remote repository, i.e., one should have write access
 to the remote repository).
-Then the remote repository will be cloned and tested (by \ccode{cypm test}).
+If the option \code{--tag} is not provided, the user will be asked
+whether the repository should be tagged (if it is a git repository).
+
+Before uploading the package to Masala,
+the remote repository will be cloned and tested (by \ccode{cypm test}).
 If this is successful, the package specification of the repository
 will be added to the central package index (by a web service
-of the central package index).
-The option \ccode{--force} allows to overwrite
+of the central package index) and then published
+(unless the option \ccode{--nopublish} is set or the user is not
+a trusted Masala user).
+
+One can also use the options \code{--login} and \code{--password}
+to provide the login name and password of Masala at the command line.
+Otherwise, one will be asked for this information after the
+package has been successfully tested.
+
+Users registered with administrator rights at Masala can also
+use the option \ccode{--force} to overwrite
 an existing version in the central package index.
 
 \end{description}
@@ -1641,7 +1657,7 @@ For instance, a possible specification could be as follows:
   "documentation": {
     "src-dir": "docs",
     "main"   : "manual.tex",
-    "command": "pfdlatex -output-directory=OUTDIR manual.tex"
+    "command": "pdflatex -output-directory=OUTDIR manual.tex"
   }
   ...
 }
@@ -1727,7 +1743,7 @@ are used:
     "documentation": {
         "src-dir": "docs",
         "main"   : "manual.tex",
-        "command": "pfdlatex -output-directory=OUTDIR manual.tex"
+        "command": "pdflatex -output-directory=OUTDIR manual.tex"
     },
     "source": {
         "git": "URL OF THE GIT REPOSITORY",
