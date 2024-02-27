@@ -41,7 +41,7 @@ includePrelude.      % Uncomment this if prelude should not be included
 hnfTailCallOptim(no).% Should top-level hnf-calls to local functions in right-hand sides
                      % replaced by direct calls to predicates?
 completeCases(yes).  % Should case expressions be completed with missing
-                     % constructor branches and calls to Prelude.failure?
+                     % constructor branches and calls to reportFailure4PAKCS?
 failForwarding(yes). % Include forward clause for failures in each case branch?
 failCheckFunc(yes).  % Should code for forward failures in each function be
                      % included in hnf clauses?
@@ -853,7 +853,7 @@ completeCaseInBranch(FName,_,'Rigid',
 	atom_codes('Prelude.failed',FailedName), !,
 	% change Prelude.failed branch which is inserted by the front-end
 	% in rigid case expressions:
-	atom_codes('Prelude.failure',FailFuncName),
+	atom_codes('reportFailure4PAKCS',FailFuncName),
 	atom_codes('Prelude.[]',EmptyList),
 	atom_codes('Prelude.:',ConsList),
 	FNameExp = 'Comb'('FuncCall',FName,[]),
@@ -867,7 +867,7 @@ completeCaseInBranch(FName,Types,_,'Branch'(Pat,Exp),'Branch'(Pat,NewExp)) :-
 
 generateMissingBranch(FName,Cons/Arity,'Branch'('Pattern'(Cons,Args),Failed)) :-
 	length(Args,Arity), numberVarList(100,Args),
-	atom_codes('Prelude.failure',FailFuncName),
+	atom_codes('reportFailure4PAKCS',FailFuncName),
 	atom_codes('Prelude.[]',EmptyList),
 	atom_codes('Prelude.:',ConsList),
 	FNameExp = 'Comb'('FuncCall',FName,[]),
@@ -1059,7 +1059,7 @@ elimCasesInExp('Case'(CT,CE,Branches),
                          ElimF),
         addAuxFunction(ElimF).
 % preliminary solution (hack?): transform (Let [(x1,e1),...,(xn,en)] e) into
-% (Constr2 [x1,...,xn] (letrec x1 e1 &>...&> letrec xn en &> e)
+% (let x1,...,xn free in (letrec x1 e1 &>...&> letrec xn en &> e))
 elimCasesInExp('Let'(Bindings,E),'Free'(Vs,BindingList)) :-
 	map2M(compiler:bindingVar,Bindings,Vs),
 	map2M(compiler:elimCasesInBinding,Bindings,NBindings),
@@ -1071,7 +1071,7 @@ bindingVar('Prelude.(,)'(V,_),V).
 letbindings2constr([],Exp,Exp).
 letbindings2constr(['Prelude.(,)'(X,E)|Bs],Exp,
 		   'Comb'('FuncCall',Cond,['Comb'('FuncCall',LetRec,['Var'(X),E]),BsL])) :-
-	atom_codes('Prelude.letrec',LetRec),
+	atom_codes('letrec4PAKCS',LetRec),
         atom_codes('Prelude.cond',Cond),
         letbindings2constr(Bs,Exp,BsL).
 	
@@ -1246,6 +1246,13 @@ unifyBranchTypes(Branches,T1,T2,_) :-
 	  ascii2atom(T2,T2A), writeLnErr(T2A) ; true),
 	!, fail.
 
+getTypeOfFunction(_,Name,Type) :-
+        atom_codes('letrec4PAKCS',Name), !,
+        atom_codes('Prelude.Bool',BoolS),
+        Type = 'FuncType'(A,'FuncType'(A,'TCons'(BoolS,[]))).
+getTypeOfFunction(_,Name,Type) :-
+        atom_codes('reportFailure4PAKCS',Name), !,
+        Type = 'FuncType'(_,'FuncType'(_,_)).
 getTypeOfFunction([],Name,_) :- % usually, this case should not occur!
 	writeErr('WARNING: Type of function '),
 	atom_codes(AName,Name), writeErr(AName),
@@ -1821,7 +1828,10 @@ transHnf(Funcs,CCs) :-
 	  ; (compileWithSharing(function)
 	     -> map1partialM(compiler:genFunctionShareHnfClause(HNF),CCs)
 	      ; true)),
-	map1partialM(compiler:genHnfClause(HNF),Funcs),
+        SpecialFuncs = [('reportFailure4PAKCS'/2,prim_failure),
+                        ('letrec4PAKCS'/2,prim_letrec)],
+        append(SpecialFuncs,Funcs,AllHnfFuncs),
+	map1partialM(compiler:genHnfClause(HNF),AllHnfFuncs),
 	HnfFact =.. [HNF,T,T,E,E],
 	writeClause(HnfFact), nl.
 
@@ -1863,7 +1873,9 @@ genHnfClause(HNF,(FName/FArity,PredName)) :-
 	(compileWithDebug ->
 	      Goal = (traceCall(LHS,Skip), PredCall, traceExit(LHS,R,E,Skip))
             ; (((\+ printConsFailure(no)), failCheckFunc(yes),
-		(\+ FName='Prelude.failure'), (\+ FName='Prelude.apply'))
+		(\+ FName='Prelude.failure'),
+		(\+ FName='reportFailure4PAKCS'),
+                (\+ FName='Prelude.apply'))
 	       -> append(Args,[IR,E0,E1],IRArgs),
 		  PredCall1 =.. [PredName|IRArgs],
 		  Goal = (PredCall1, checkFailValue(LHS,IR,R,E1,E))
@@ -2372,7 +2384,7 @@ transCases(F_I,VarsX,[],CType,FName) :- % generate clause for Fail forwarding:
 	writeClause((LHS :- RHS)).
 transCases(F_I,VarsX,['Branch'('Pattern'(Name,ConsVars),Exp)|Cases],
 	   CType,FName) :-
-	atom_codes('Prelude.failure',FailFuncName),
+	atom_codes('reportFailure4PAKCS',FailFuncName),
 	((Exp='Comb'('FuncCall',FailFuncName,_), CType='Flex')
 	 -> NCType='Rigid'
 	  ; NCType=CType),
@@ -2394,7 +2406,7 @@ transCases(F_I,VarsX,['Branch'('LPattern'(Lit),Exp)|Cases],CType,FName) :-
 % are the further case branches only failure branches?
 noFurtherNonFailingCase(_,[]).
 noFurtherNonFailingCase(CType,['Branch'('Pattern'(_,_),Exp)|_]) :-
-	atom_codes('Prelude.failure',FailFuncName),
+	atom_codes('reportFailure4PAKCS',FailFuncName),
 	Exp='Comb'('FuncCall',FailFuncName,_), CType='Flex'.
 
 % extract constructor of literal:
