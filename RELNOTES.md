@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.6.1 (February 2, 2024)
---------------------------------------------------------
+Release notes for PAKCS Version 3.6.1 (March 15, 2024)
+------------------------------------------------------
 
 Changes to version 3.6.0:
 
@@ -10,6 +10,9 @@ Changes to version 3.6.0:
     when it is not necessary (e.g., if the language option `NoImplicitPrelude`
     is set)
   * Small bug fixes
+  * CPM: add `--dependencies` option to clean command in order to
+    clean all dependencies in the current package (useful to clean
+    the standard homepackage)
 
 
 Release notes for PAKCS Version 3.6.0 (November 10, 2023)
