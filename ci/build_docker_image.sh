@@ -1,4 +1,4 @@
-GHC_VERSION=8.8.3
+GHC_VERSION=9.2.5
 
 docker build \
     --build-arg GHC_VERSION=${GHC_VERSION} \

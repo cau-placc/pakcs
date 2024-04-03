@@ -14,7 +14,7 @@ image: "caups/pakcs-swi-ci:9.2.5"
 variables:
   # packs version to download from http://www.informatik.uni-kiel.de/~pakcs/download/
   # in the run_download_make job
-  DOWNLOAD_VERSION: "3.4.2"
+  DOWNLOAD_VERSION: "3.6.0
   # make sure LANG and LC_ALL are well defined
   LANG: "C.UTF-8"
   LC_ALL: "C.UTF-8"
@@ -22,7 +22,7 @@ variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
   CABAL_DIR: "${CI_PROJECT_DIR}/.cabal/"
   # cypm configs
-  CPM_VERSION: "3.3.0" # used in ci/before_make.sh
+  CPM_VERSION: "3.6.0" # used in ci/before_make.sh
   # move .cpm dir to where we can cache it
   BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
   # make the ci checkout submodules recursively
@@ -33,7 +33,7 @@ variables:
   CURRY_LANG_PROJECT: curry/curry-lang.org
   CURRY_LANG_BRANCH: hakyll
   # versions to install using cypm for run_test and make_manual
-  CURRY_CHECK_VERSION: "3.0.0"
+  CURRY_CHECK_VERSION: "3.2.0"
   CURRY_DOC_VERSION: "3.1.0"
   MARKDOWN_VERSION: "3.3.0"
 
@@ -125,8 +125,8 @@ run_make:
     - if: '$TEST_DOWNLOAD == "yes"'
   variables:
     # may differ from default version above if download and current branch don't use the same version
-    CURRY_CHECK_VERSION: "3.0.0"
-    CURRY_DOC_VERSION: "3.0.0"
+    CURRY_CHECK_VERSION: "3.2.0"
+    CURRY_DOC_VERSION: "3.1.0"
   timeout: 3h
   before_script:
     - source ci/make_download.sh
