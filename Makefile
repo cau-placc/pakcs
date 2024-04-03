@@ -503,7 +503,7 @@ dist:
 	cd $(PAKCSDIST) && git submodule update --init
 	cd $(PAKCSDIST) && $(MAKE) copylibs
 	mkdir -p $(PAKCSDIST)/bin && cp -p $(FRONTEND) $(PAKCSDIST)/bin
-	@if [ -f docs/Manual.pdf ] ; then cp -p docs/Manual.pdf docs/markdown_syntax.html $(PAKCSDIST)/docs ; fi
+	@if [ -f docs/Manual.pdf ] ; then cp -p docs/Manual.pdf $(PAKCSDIST)/docs ; fi
 	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d" \
 	             | sed 's|^COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
