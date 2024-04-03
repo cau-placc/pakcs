@@ -323,7 +323,6 @@ upload_page_tar:
     # copy manual
     - cp -p docs/Manual.pdf "${PUBLIC_HTML}"
     - cp -p docs/Manual.pdf "${PUBLIC_DOWNLOAD}/pakcs-${BUILD_PAKCS_VERSION}-manual.pdf"
-    - cp -p docs/markdown_syntax.html "${PUBLIC_HTML}"
     # copy release notes etc
     - |
       cp -p OLDRELNOTES.html \

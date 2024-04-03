@@ -256,7 +256,7 @@ ifeq ($(CI_BUILD),yes)
 		else \
 			echo "Executable 'curry-doc' not found!" ; \
 	        echo "To generate the manual, install them by:" ; \
-			echo "> cypm install currydoc && cypm install markdown" ; \
+			echo "> cypm install currydoc" ; \
 			exit 1 ; \
 		fi \
 	fi
@@ -267,7 +267,7 @@ else
 	   else \
 			echo "Executable 'curry-doc' not found!" ; \
 			echo "To generate the manual, install them by:" ; \
-			echo "> cypm install currydoc && cypm install markdown" ; \
+			echo "> cypm install currydoc" ; \
 		fi \
 	fi
 endif
