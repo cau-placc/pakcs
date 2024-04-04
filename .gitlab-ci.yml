@@ -323,14 +323,11 @@ upload_page_tar:
     # copy manual
     - cp -p docs/Manual.pdf "${PUBLIC_HTML}"
     - cp -p docs/Manual.pdf "${PUBLIC_DOWNLOAD}/pakcs-${BUILD_PAKCS_VERSION}-manual.pdf"
-    # copy release notes etc
+    # copy resource notes etc
     - |
       cp -p OLDRELNOTES.html \
             CHANGELOG.html \
             RESOURCES.html \
-            docs/RELNOTES.html \
-            docs/INSTALL.html \
-            docs/GITINSTALL.html \
             "${PUBLIC_HTML}"
   artifacts:
     paths:
