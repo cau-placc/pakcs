@@ -117,7 +117,7 @@ run_make:
 .test_download:
   stage: test
   # testing src download builds might require an older ghc
-  image: "caups/pakcs-swi-ci:8.10.7"
+  image: "caups/pakcs-swi-ci:9.2.5"
   tags:
     - docker2
   rules:
