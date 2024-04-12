@@ -16,7 +16,7 @@
 :- use_module(basics).
 %:- use_module(compiler). % for generateMainPlFile in interactive mode
 
-currentPrologLoadFile(''). % name of Prolog file loaded by loadAndCompile/1
+currentPrologLoadFile(''). % name of Prolog file loaded by loadAndCompile/3
 initializationsInProg(true). % intializations to be done after loading Curry program
 currentCostCenters(['']). % list of current cost centers
 
@@ -61,7 +61,10 @@ loadAndCompile(PrologFile,AddImports,CreateMain) :-
 	compilePrologFileAndSave(PrologFile),
 	currentModuleFile(MainMod,_),
 	assertz(loadedModule(MainMod,PrologFile)),
-	map1M(loader:importModule,AddImports),
+        % add Prelude for interactive REPL if it is not already loaded:
+        (loadedModule('Prelude',_) -> AllImports = AddImports
+                                    ; AllImports = ['Prelude'|AddImports]),
+	map1M(loader:importModule,AllImports),
 	loadAndCompileImports,
 	curryModule(MainMod),
 	(CreateMain=create -> compiler:loadMain(PrologFile) ;
