@@ -39,6 +39,8 @@ build_download_pakcs() {
   # download distribution
   wget http://www.informatik.uni-kiel.de/~pakcs/download/${PAKCSVERSION}-${DLVERSION}.tar.gz
   tar xvzf ${PAKCSVERSION}-${DLVERSION}.tar.gz
+  # change owner of distribution to avoid problems with Haskell's stack:
+  chown -R --reference=${PAKCSVERSION}-${DLVERSION}.tar.gz "${PAKCSVERSION}"
   rm ${PAKCSVERSION}-${DLVERSION}.tar.gz
 
   end_section "download_${PAKCSVERSION}_${DLVERSION}"
