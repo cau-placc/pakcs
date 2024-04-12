@@ -1,6 +1,6 @@
-GHC_VERSION=9.2.5
+UBUNTU_VERSION=22.04
 
 docker build \
-    --build-arg GHC_VERSION=${GHC_VERSION} \
-    -t pakcs-swi-ci:${GHC_VERSION} \
+    --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+    -t pakcs-swi-ci:${UBUNTU_VERSION} \
     -f ./Dockerfile-swi .

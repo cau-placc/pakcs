@@ -34,12 +34,12 @@ Things that one may want to override is where possible configured via variables 
 
 #### .gitlab-ci.yml Docker
 The default docker image used is defined by the top-level `image` entry,
-as of writing this is `caups/pakcs-swi-ci:9.2.5` which was build from
+as of writing this is `caups/pakcs-swi-ci:22.04` which was build from
 the Dockerfile `Dockerfile-swi` and uploaded as follows:
 
-    > docker build --build-arg GHC_VERSION=9.2.5 -t caups/pakcs-swi-ci:9.2.5 -f Dockerfile-swi .
+    > docker build --build-arg UBUNTU_VERSION=22.04 -t caups/pakcs-swi-ci:22.04 -f Dockerfile-swi .
     > docker login --username ....
-    > docker push caups/pakcs-swi-ci:9.2.5
+    > docker push caups/pakcs-swi-ci:22.04
 
 The `tag_release` job uses a different image as it needs access to the gitlab release-cli and the template
 job `.test_download` uses a different images as at least one of the derived jobs requires an older ghc.
@@ -77,7 +77,8 @@ As this project contains submodules those are checkedout recursively by instruct
 `GIT_SUBMODULE_STRATEGY`, this should not be changed as long as this project uses submodules.
 
 #### `update_version.sh`
-Here the content of the `./data/versions/packs/{latest,latest-nightly,v${VERSION}}.version`
+Here the content of the
+`./data/versions/packs/{latest,latest-nightly,v${VERSION}}.version`
 including the download link bases.
 Also, the commit messages to curry-lang.org are defined here.
 
@@ -169,7 +170,7 @@ For nightly release build pipeline the jobs:
 are executed.
 The pipeline is run with Variable `BUILD_NIGHTLY` set to `yes`
 
-### Manual
+### Manual Builds
 Manual pipelines are started from the Gitlab Web Interface under `packs >> CI/CD > Pipelines >> Run Pipeline`,
 than the branch/tag that should be run can be selected and override Variables can be set.
 
