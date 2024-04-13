@@ -1,4 +1,4 @@
-image: "caups/pakcs-swi-ci:9.2.5"
+image: "caups/pakcs-swi-ci:22.04"
 
 # set TEST_DOWNLOAD=yes to run the download test
 # set BUILD_NIGHTLY=yes to build a nightly
