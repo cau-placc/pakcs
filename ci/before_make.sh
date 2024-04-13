@@ -7,10 +7,10 @@ locale
 swipl --version
 
 gcc --version
-cabal --version
+# cabal --version
 stack --version
-stack config set system-ghc --global true
-stack config set install-ghc --global false # if we need a different ghc the docker image should be updated
+#stack config set system-ghc --global true
+#stack config set install-ghc --global false # if we need a different ghc the docker image should be updated
 
 # write .cpmrc with expanded variables
 # some are also defined as environment variables in .gitlab_ci.yml
