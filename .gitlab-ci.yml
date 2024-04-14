@@ -116,8 +116,8 @@ run_make:
 # template for test_download_src and test_download_amd64_linux
 .test_download:
   stage: test
-  # testing src download builds might require an older ghc
-  image: "caups/pakcs-swi-ci:22.04"
+  # set different image if required for download builds:
+  # image: "caups/pakcs-swi-ci:22.04"
   tags:
     - docker2
   rules:
