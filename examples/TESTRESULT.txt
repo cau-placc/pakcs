@@ -1,10 +1,12 @@
-Prelude> :set v1
+:set v1
 Prelude> :load Rev
+Compiling Curry program "Rev"...
 Rev> append [1,2] [3,4] :: [Int]
 [1,2,3,4]
 Rev> rev [1,2,3,4,5,6,7,8,9,10] :: [Int]
 [10,9,8,7,6,5,4,3,2,1]
 Rev> :load HigherOrder
+Compiling Curry program "HigherOrder"...
 HigherOrder> g1
 [1,3,2]
 HigherOrder> g2
@@ -16,17 +18,21 @@ HigherOrder> g4
 HigherOrder> g5
 120
 HigherOrder> :load quicksort
+Compiling Curry program "quicksort"...
 quicksort> qsort [2,3,1,0] :: [Int]
 [0,1,2,3]
 quicksort> :load qsortlet
+Compiling Curry program "qsortlet"...
 qsortlet> qsort [2,3,1,0] :: [Int]
 [0,1,2,3]
 qsortlet> :load inflists
+Compiling Curry program "inflists"...
 inflists> goal1
 [1,1,2,3,5,8,13,21,34,55]
 inflists> goal2
 [2,3,5,7,11]
 inflists> :load family_rel
+Compiling Curry program "family_rel"...
 family_rel> goal1 child  where child free
 {child=Susan} True
 {child=Peter} True
@@ -36,6 +42,7 @@ family_rel> grandfather g c  where g,c free
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
 family_rel> :load family_fun
+Compiling Curry program "family_fun"...
 family_fun> father child =:= John  where child free
 {child=Susan} True
 {child=Peter} True
@@ -45,6 +52,7 @@ family_fun> grandfather g c  where g,c free
 {g=Bill, c=Andrew} True
 {g=Antony, c=Andrew} True
 family_fun> :load horseman
+Compiling Curry program "horseman"...
 horseman> horseman m h (int2nat 8) (int2nat 20)  where m,h free
 {m=S (S (S (S (S (S O))))), h=S (S O)} True
 horseman> horseman m h (S (S O)) f  where m,h,f free
@@ -52,15 +60,18 @@ horseman> horseman m h (S (S O)) f  where m,h,f free
 {m=S O, h=S O, f=S (S (S (S (S (S O)))))} True
 {m=S (S O), h=O, f=S (S (S (S O)))} True
 horseman> :load First
+Compiling Curry program "First"...
 First> goal1
 [O,S O]
 First> goal2 x y  where x,y free
 {x=S O, y=O} True
 First> :load Member
+Compiling Curry program "Member"...
 Member> goal2 x    where x free
 {x=2} True
 {x=3} True
 Member> :load colormap
+Compiling Curry program "colormap"...
 colormap> goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 {l1=Red, l2=Yellow, l3=Green, l4=Red} True
 {l1=Red, l2=Yellow, l3=Green, l4=Blue} True
@@ -111,6 +122,7 @@ colormap> goal l1 l2 l3 l4   where l1,l2,l3,l4 free
 {l1=Blue, l2=Green, l3=Yellow, l4=Red} True
 {l1=Blue, l2=Green, l3=Yellow, l4=Blue} True
 colormap> :load Account
+Compiling Curry program "Account"...
 Account> goal1 b  where b free
 {b=250} True
 Account> goal2 b  where b free
@@ -118,17 +130,21 @@ Account> goal2 b  where b free
 Account> goal3 s  where s free
 {s=[Deposit 100,Balance 100,Withdraw 30,Balance 70,Withdraw 30,Balance 40,Deposit 70,Balance 110,Withdraw 30,Balance 80,Withdraw 30,Balance 50]} True
 Account> :load maxtree
+Compiling Curry program "maxtree"...
 maxtree> goal2
 Node (Node (Leaf 3) (Leaf 3)) (Node (Leaf 3) (Leaf 3))
 maxtree> :load assembler
+Compiling Curry program "assembler"...
 assembler> main
 [9,4,9,0]
 assembler> :load RightAlign
+Compiling Curry program "RightAlign"...
 RightAlign> main1
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
 RightAlign> main2
 [[O,O,O,A,B],[O,A,B,C,D],[O,O,A,B,C],[A,B,C,D,E]]
 RightAlign> :load tctest
+Compiling Curry program "tctest"...
 tctest> :t f
 f :: Int -> Int
 tctest> :t i
@@ -136,9 +152,11 @@ i :: a -> a
 tctest> :t k
 k :: a -> Int
 tctest> :load rectype
+Compiling Curry program "rectype"...
 rectype> :t h
 h :: ([Int],[Bool])
 rectype> :load Diamond
+Compiling Curry program "Diamond"...
 Diamond> diamond 10
                                        1    
                                   11       2    
@@ -161,6 +179,7 @@ Diamond> diamond 10
                                      100    
 Diamond> :cd listcomp
 Diamond> :load arithseq
+Compiling Curry program "arithseq"...
 arithseq> l1
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 arithseq> l2
@@ -170,6 +189,7 @@ arithseq> l3
 arithseq> l4
 [1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77]
 arithseq> :load multgen
+Compiling Curry program "multgen"...
 multgen> goal1
 [(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
 multgen> goal2
@@ -177,9 +197,11 @@ multgen> goal2
 multgen> goal3
 [(3,4,5),(5,12,13),(6,8,10),(7,24,25),(8,15,17),(9,12,15),(9,40,41),(10,24,26),(12,16,20),(12,35,37),(14,48,50),(15,20,25),(15,36,39),(16,30,34),(18,24,30),(20,21,29),(21,28,35),(24,32,40),(27,36,45),(30,40,50)]
 multgen> :load psort
+Compiling Curry program "psort"...
 psort> goal 6
 [1,2,3,4,5,6]
 psort> :load Default
+Compiling Curry program "Default"...
 Default> pabs 0
 0
 Default> pabs 3
@@ -192,6 +214,7 @@ Default> swap [3,4,5]
 [3,4,5]
 Default> :cd ..
 Default> :load casetest
+Compiling Curry program "casetest"...
 casetest> swap [1]
 [1]
 casetest> swap [1,2]
