@@ -348,6 +348,11 @@ $(LIBDIR)/Makefile: lib_Makefile
 	mkdir -p $(LIBDIR)
 	cp $< $@
 
+# compile all libraries:
+.PHONY: compile-all-libs
+compile-all-libs:
+	scripts/compile-all-libs.sh
+
 ########################################################################
 #
 # Create documentation for system libraries:
