@@ -407,7 +407,8 @@ process([58|Cs]) :- !, % 58=':'
 process(Input) :- % ignore inputs starting with a comment:
         removeBlanks(Input,[45,45|_]), !, fail.
 process(Input) :- 
-        Input = [108,101,116,32|_], !, % input starts with "let ":
+        Input = [108,101,116,32|I1], % input starts with "let "
+        \+ append(_,[32,105,110,32|_],I1), !, % input does not contain " in "
         processLetExpression(Input), !, fail.
 process(Input) :-
 	processExpression(Input,ExprGoal),
@@ -573,7 +574,7 @@ postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
 	     setCurryPath(LCP),
 	     map2M(compiler:varIndex2VarExp,RuleArgs,RuleVars),
 	     FlatExp = 'Comb'('FuncCall',
-	                      "PAKCS_Main_Exp.pakcsMainGoal",RuleVars)),
+	                      "PAKCS_Main_Exp.pakcsMainExp",RuleVars)),
         flatType2MainType([],FuncType,_,MFuncType),
 	length(FreeVars,NumFreeVars),
         stripFuncTypes(NumFreeVars,MFuncType,Type),
@@ -759,8 +760,8 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainFuncType) :-
           ; write(S,'import '), write(S,MainProg), nl(S)),
 	addImports(Imps), writeMainImports(S,Imps),
         (InitMainFuncType = none -> true
-         ; write(S,'pakcsMainGoal :: '), write(S,InitMainFuncType), nl(S)),
-	write(S,'pakcsMainGoal'),
+         ; write(S,'pakcsMainExp :: '), write(S,InitMainFuncType), nl(S)),
+	write(S,'pakcsMainExp'),
 	writeFreeVarArgs(S,FreeVars),
 	write(S,' = '),
 	putChars(S,Input), nl(S),
