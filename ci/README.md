@@ -104,10 +104,10 @@ be overridden with Project CI Variables, Schedule Variables or Variables in Manu
 #### Access Token
 The access token to commit to the curry-lang.org repo **MUST NOT** be configured as part of the repo source, 
 but  in one of the positions mentioned above for override Variables.
-Usually this should be set in `packs >> Setting >> CI/CD Settings >> Variables` and
+Usually this should be set in `pakcs >> Setting >> CI/CD Settings >> Variables` and
 there `CURRY_LANG_ORG_ACCESS_TOKEN` should contain the access token `Masked` should be set,
 as we don't use protected branches `Protected` should **NOT** be set.
-To get an access token for the curry-lang.org repo go to `curry-lang.org >> Project Access Tokens`
+To get an access token for the curry-lang.org repo go to `curry-lang.org >> Settings >> Access Tokens`
 and create an access token with at least `write_repository` permission, though more permissions may be required.
 When changing Access Tokens change the variables `CURRY_LANG_USER`, `CURRY_LANG_EMAIL` accordingly.
 

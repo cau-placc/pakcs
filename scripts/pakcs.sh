@@ -80,7 +80,8 @@ done
 CYPMBIN=
 # if USECPM=yes, set variable CYPMBIN to the binary of CPM
 if [ $USECPM = yes ] ; then
-  if [ ! -d "$HOME" ] ; then   # do not use CPM without a home directory
+  if [ ! -d "$HOME/.cpm/index/base" ] ; then
+    # do not use CPM if no "base" package is in the local index of CPM
     CYPMBIN=
   elif [ -x "$PAKCSBIN/cypm" ] ; then
     CYPMBIN="$PAKCSBIN/cypm"  # use local binary of CPM
