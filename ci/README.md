@@ -84,9 +84,10 @@ Also, the commit messages to curry-lang.org are defined here.
 
 #### `release_helper.sh`
 Defined the names used for tags and the generic packages.
-Also, defined the mapping of paths to filenames for the files that are added to a release.
-`LOCAL_FILE_NAME` contains the name of the file on disc relative to the `CI_PROJECT_DIR`.
-`UPLOAD_FILE_NAMES` contains the corresponding name for the file upload.
+Also, defined the mapping of paths to filenames for the files that are
+added to a release.  `LOCAL_FILE_NAME` contains the name of the file
+on disc relative to the `CI_PROJECT_DIR`.  `UPLOAD_FILE_NAMES`
+contains the corresponding name for the file upload.
 
 #### `make_download.sh`
 Has a hard coded download URL
@@ -95,21 +96,26 @@ Has a hard coded download URL
 Contains the release name, description and tag
 
 #### `before_make.sh`
-Configures some Paths for cypm to have them under the `CI_PROJECT_DIR` so that we can cache them
+Configures some Paths for cypm to have them under the `CI_PROJECT_DIR`
+so that we can cache them.
 
 ### Gitlab
-All variables defined in the .gitlab-ci script can 
-be overridden with Project CI Variables, Schedule Variables or Variables in Manual runs
+All variables defined in the .gitlab-ci script can be overridden
+with Project CI Variables, Schedule Variables or Variables in Manual runs.
 
 #### Access Token
-The access token to commit to the curry-lang.org repo **MUST NOT** be configured as part of the repo source, 
-but  in one of the positions mentioned above for override Variables.
-Usually this should be set in `pakcs >> Setting >> CI/CD Settings >> Variables` and
-there `CURRY_LANG_ORG_ACCESS_TOKEN` should contain the access token `Masked` should be set,
-as we don't use protected branches `Protected` should **NOT** be set.
-To get an access token for the curry-lang.org repo go to `curry-lang.org >> Settings >> Access Tokens`
-and create an access token with at least `write_repository` permission, though more permissions may be required.
-When changing Access Tokens change the variables `CURRY_LANG_USER`, `CURRY_LANG_EMAIL` accordingly.
+The access token to commit to the curry-lang.org repo **MUST NOT** be configured
+as part of the repo source,  but in one of the positions mentioned above
+for override variables.
+Usually this should be set in `pakcs >> Setting >> CI/CD Settings >> Variables`
+and there `CURRY_LANG_ORG_ACCESS_TOKEN` should contain the access token `Masked`
+should be set, as we don't use protected branches `Protected` should **NOT**
+be set. To get an access token for the curry-lang.org repo go to
+`curry-lang.org >> Settings >> Access Tokens` and create an access token
+with `Developer` role and at least `write_repository` permission,
+though more permissions may be required.
+When changing Access Tokens change the variables `CURRY_LANG_USER` and
+`CURRY_LANG_EMAIL` accordingly.
 
 #### Schedules
 ##### Nightly Release Build
