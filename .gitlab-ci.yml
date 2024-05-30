@@ -112,6 +112,7 @@ run_make:
       - src/pakcs
       - src/pakcsversion.pl
       - src/prologbasics.pl
+    expire_in: 1 week
 
 # template for test_download_src and test_download_amd64_linux
 .test_download:
@@ -233,6 +234,7 @@ make_manual:
     reports:
       dotenv:
         - manual.env
+    expire_in: 1 week
 
 # run for the nightly and release runs
 # builds the distribution
@@ -262,6 +264,7 @@ bundle_tar:
         - bundle.env
     paths:
       - pakcs-*.tar.gz
+    expire_in: 1 week
 
 upload_release:
   stage: upload_release
@@ -332,6 +335,7 @@ upload_page_tar:
   artifacts:
     paths:
       - "${PUBLIC_HTML}"
+    expire_in: 1 week
 
 
 # TODO release asset links accessible without being logged in see [Issue 289848](https://gitlab.com/gitlab-org/gitlab/-/issues/289848)
