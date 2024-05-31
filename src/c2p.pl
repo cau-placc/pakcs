@@ -907,11 +907,18 @@ processCommand("interface",[]) :- !,
 	(Prog="" -> processCommand("interface","Prelude")
                   ; processCommand("interface",Prog)).
 processCommand("interface",IFTail) :- !,
-        checkCpmTool('curry-showflat','showflatcurry',ShowFlat),
+        shellCmd('which curry-showflat > /dev/null',SFCode),
+        % if curry-showflat is not installed, try to use curry-showinterface:
+        (SFCode>0
+         -> checkCpmTool('curry-showinterface','curry-interfacce',ShowIntCmd)
+          ; shellCmd('which curry-showinterface > /dev/null',SICode),
+            (SICode=0
+             -> ShowIntCmd = 'curry-showinterface'
+              ; appendAtoms(['curry-showflat',' -int'],ShowIntCmd))),
 	extractProgName(IFTail,Prog),
 	isValidModuleName(Prog),
         atom_codes(ProgA,Prog),
-	appendAtoms([ShowFlat,' -int ',ProgA],GenIntCmd),
+	appendAtoms([ShowIntCmd,' ',ProgA],GenIntCmd),
         shellCmdWithCurryPathWithReport(GenIntCmd).
 
 processCommand("browse",[]) :- !,

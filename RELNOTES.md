@@ -1,8 +1,20 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.7.0 (May 22, 2024)
+Release notes for PAKCS Version 3.7.1 (May 30, 2024)
 ----------------------------------------------------
+
+Changes to version 3.7.1:
+
+  * Command `:interface` use the new interface pretty printer
+    based on the Curry package `curry-interface` so that also
+    information about type classes are shown
+  * Update front end with new option `--origin-pragmas`
+    (only for use in the Curry Language Server)
+
+
+Release notes for PAKCS Version 3.7.0 (April 14, 2024)
+------------------------------------------------------
 
 Changes to version 3.6.0:
 
