@@ -388,8 +388,7 @@ link_nightly:
     # - job: upload_nightly # wait for upload, TODO link to package files rather than artifacts
   script:
     - ci/update_version.sh nightly
-  artifacts:
-    expire_in: 1 week
+
 
 # run for release runs
 link_release:
@@ -411,8 +410,6 @@ link_release:
     - job: tag_release # wait for release as we are hyperlinking to release assets
   script:
     - ci/update_version.sh release
-  artifacts:
-    expire_in: 1 week
 
 # run for nightly and release runs
 # the commit done by the link_nightly job should be enough once https://gitlab.com/gitlab-org/gitlab/-/issues/246784 is fixed
