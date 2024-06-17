@@ -843,13 +843,13 @@ completeCaseInExp(FName,Types,'Let'(Bs,E),'Let'(NBs,NE)) :- !,
 completeCaseInBinding(FName,Types,'Prelude.(,)'(V,E),'Prelude.(,)'(V,NE)) :-
 	completeCaseInExp(FName,Types,E,NE).
 
-completeCaseInBranch(FName,_,'Rigid',
+completeCaseInBranch(FName,_,_,
 		     'Branch'('Pattern'(Cons,Args),
 			      'Comb'('FuncCall',FailedName,[])),
 		     'Branch'('Pattern'(Cons,Args),FailureExp)) :-
 	atom_codes('Prelude.failed',FailedName), !,
-	% change Prelude.failed branch which is inserted by the front-end
-	% in rigid case expressions:
+	% change Prelude.failed branch which might be inserted by the front-end
+	% in case expressions:
 	atom_codes('reportFailure4PAKCS',FailFuncName),
 	atom_codes('Prelude.[]',EmptyList),
 	atom_codes('Prelude.:',ConsList),
@@ -2193,9 +2193,13 @@ transCases(F_I,VarsX,['Branch'('LPattern'(Lit),Exp)|Cases],CType,FName) :-
 
 % are the further case branches only failure branches?
 noFurtherNonFailingCase(_,[]).
-noFurtherNonFailingCase(CType,['Branch'('Pattern'(_,_),Exp)|_]) :-
-	atom_codes('reportFailure4PAKCS',FailFuncName),
-	Exp='Comb'('FuncCall',FailFuncName,_), CType='Flex'.
+noFurtherNonFailingCase(CType,['Branch'('Pattern'(_,_),
+                                        'Comb'('FuncCall',FuncName,_))|Bs]) :-
+        CType='Flex',
+	atom_codes('reportFailure4PAKCS',ReportFailFuncName),
+	atom_codes('Prelude.failed',FailedFuncName),
+        (FuncName = ReportFailFuncName ; FuncName = FailedFuncName), !,
+        noFurtherNonFailingCase(CType,Bs).
 
 % extract constructor of literal:
 transCaseLit2Cons('Intc'(I),I) :- !.
