@@ -34,6 +34,8 @@ ordMerge :: [Int] -> [Int] -> [Int]
 ordMerge (x:xs) (y:ys) | x==y = x:ordMerge xs ys
                        | x<y  = x:ordMerge xs (y:ys)
                        | x>y  = y:ordMerge (x:xs) ys
+ordMerge []       ys = ys
+ordMerge xs@(_:_) [] = xs
 
 hamming :: [Int]
 hamming = 1 : ordMerge (map (*2) hamming)

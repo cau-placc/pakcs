@@ -822,6 +822,7 @@ completeCaseInExp(FName,Types,'Comb'(CT,CF,Args),'Comb'(CT,CF,NewArgs)) :-
 completeCaseInExp(FName,Types,'Free'(Vs,E),'Free'(Vs,NE)) :-
 	completeCaseInExp(FName,Types,E,NE).
 completeCaseInExp(_,_,'Case'(CT,C,Cases),'Case'(CT,C,Cases)) :-
+        % keep unchanged if it is a newtype constructor:
         Cases = ['Branch'('Pattern'(Cons,_),_)],
         atom_codes(ACons,Cons),
         allNewTypeConstructors(NTCs), member(ACons,NTCs), !.
@@ -829,7 +830,7 @@ completeCaseInExp(FName,Types,'Case'(CT,C,Cases),'Case'(CT,C,NewCases)) :- !,
 	getMissingBranchConstructors(Types,Cases,Cs),
 	(Cs=[] -> MissingCases=[]
 	        ; map2partialM(compiler:generateMissingBranch(FName),
-		              Cs,MissingCases)),
+		               Cs,MissingCases)),
 	map2partialM(compiler:completeCaseInBranch(FName,Types,CT),
                      Cases,NCases),
 	append(NCases,MissingCases,NewCases).
@@ -856,8 +857,8 @@ completeCaseInBranch(FName,_,_,
 	FNameExp = 'Comb'('FuncCall',FName,[]),
 	map2M(compiler:varIndex2VarExp,Args,ArgExps),
 	ConsExp = 'Comb'('ConsCall',Cons,ArgExps),
-	ArgExp = 'Comb'('ConsCall',ConsList,[ConsExp,
-					     'Comb'('ConsCall',EmptyList,[])]),
+	ArgExp = 'Comb'('ConsCall',ConsList,
+                        [ConsExp,'Comb'('ConsCall',EmptyList,[])]),
 	FailureExp = 'Comb'('FuncCall',FailFuncName,[FNameExp,ArgExp]).
 completeCaseInBranch(FName,Types,_,'Branch'(Pat,Exp),'Branch'(Pat,NewExp)) :-
 	completeCaseInExp(FName,Types,Exp,NewExp).
