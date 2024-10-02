@@ -18,6 +18,9 @@ Changes to version 3.7.2:
     instead of a single one. This can be seen in the new versions
     of the Curry packages `abstract-curry` (version 4.x) and
     `curry-interface` (version 4.x).
+    Moreover, the names of internal operations generated for
+    operations defined in type classes (e.g., instance operations)
+    have been slightly changed (this is only visible in FlatCurry files).
 
 
 Release notes for PAKCS Version 3.7.2 (September 20, 2024)
