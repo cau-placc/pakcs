@@ -1,4 +1,4 @@
-image: "caups/pakcs-swi-ci:22.04"
+image: "caups/pakcs-swi-ci:24.04"
 
 # set TEST_DOWNLOAD=yes to run the download test
 # set BUILD_NIGHTLY=yes to build a nightly
@@ -14,7 +14,7 @@ image: "caups/pakcs-swi-ci:22.04"
 variables:
   # packs version to download from http://www.informatik.uni-kiel.de/~pakcs/download/
   # in the run_download_make job
-  DOWNLOAD_VERSION: "3.7.0"
+  DOWNLOAD_VERSION: "3.8.0"
   # make sure LANG and LC_ALL are well defined
   LANG: "C.UTF-8"
   LC_ALL: "C.UTF-8"
@@ -22,7 +22,7 @@ variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
   CABAL_DIR: "${CI_PROJECT_DIR}/.cabal/"
   # cypm configs
-  CPM_VERSION: "3.7.0" # used in ci/before_make.sh
+  CPM_VERSION: "3.8.0" # used in ci/before_make.sh
   # move .cpm dir to where we can cache it
   BIN_INSTALL_PATH: "${CI_PROJECT_DIR}/.cpm/bin" # also in ci/before_make.sh
   # make the ci checkout submodules recursively
@@ -33,8 +33,8 @@ variables:
   CURRY_LANG_PROJECT: curry/curry-lang.org
   CURRY_LANG_BRANCH: hakyll
   # versions to install using cypm for run_test and make_manual
-  CURRY_CHECK_VERSION: "3.2.0"
-  CURRY_DOC_VERSION: "3.1.0"
+  CURRY_CHECK_VERSION: "4.0.0"
+  CURRY_DOC_VERSION: "4.0.0"
   MARKDOWN_VERSION: "3.3.0"
 
 # due to the limitations that jobs of the same stage may not depend on each other
@@ -118,7 +118,7 @@ run_make:
 .test_download:
   stage: test
   # set different image if required for download builds:
-  # image: "caups/pakcs-swi-ci:22.04"
+  # image: "caups/pakcs-swi-ci:24.04"
   tags:
     - docker2
   rules:

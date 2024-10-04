@@ -1,4 +1,4 @@
-ARG UBUNTU_VERSION=22.04
+ARG UBUNTU_VERSION=24.04
 FROM ubuntu:${UBUNTU_VERSION}
 
 # asymptote to vprerex are the packages of texlive-full without the -doc packages
