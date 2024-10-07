@@ -451,7 +451,7 @@ cleansystem: $(CLEANCURRY)
 	rm -f $(MAKELOG)
 	$(MAKE) cleantools
 	if [ -d lib ] ; then $(MAKE) -C lib clean ; fi
-	cd examples && $(CLEANCURRY)
+	rm -rf examples/.curry
 	if [ -d $(DOCDIR)/src ] ; then $(MAKE) -C $(DOCDIR)/src clean ; fi
 	cd scripts && $(MAKE) clean
 	if [ -d $(FRONTENDDIR) ] ; then $(MAKE) -C $(FRONTENDDIR) clean ; fi
