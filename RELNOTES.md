@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.8.0 (October 4, 2024)
+Release notes for PAKCS Version 3.8.0 (October 10, 2024)
 -------------------------------------------------------
 
 Changes to version 3.7.2:
@@ -21,6 +21,7 @@ Changes to version 3.7.2:
     Moreover, the names of internal operations generated for
     operations defined in type classes (e.g., instance operations)
     have been slightly changed (this is only visible in FlatCurry files).
+  * `Prelude`: value generator for floats added
 
 
 Release notes for PAKCS Version 3.7.2 (September 20, 2024)
