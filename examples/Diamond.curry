@@ -3,22 +3,24 @@
 --- https://people.cs.kuleuven.be/bart.demoen/PrologProgrammingContests/jicslp98competition.ps
 
 diamond :: Int -> IO ()
-diamond n = lineloop1 1 1 >> lineloop2 1 (n*n-n+2)  where
+diamond n = lineloop1 1 1 >> lineloop2 1 (n*n-n+2)
+ where
+  lineloop1 i j = if i<=n then line j i >> lineloop1 (i+1) (j+n)
+                          else return ()
 
- lineloop1 i j = if i<=n then line j i >> lineloop1 (i+1) (j+n)
+  lineloop2 i j = if i<n then line j (n-i) >> lineloop2 (i+1) (j+1)
                          else return ()
 
- lineloop2 i j = if i<n then line j (n-i) >> lineloop2 (i+1) (j+1)
-                        else return ()
+  line s e = tab((n-e)*(size(n*n)+1)) >> lineloop 1 s
+   where
+    lineloop i t =
+      if i<=e
+        then do putValue t
+                tab (size (n*n) + 1)
+                lineloop (i+1) (t-n+1)
+        else putChar '\n'
 
- line s e = tab((n-e)*(size(n*n)+1)) >> lineloop 1 s
-  where
-   lineloop i t =
-     if i<=e
-       then putValue t >> tab (size(n*n)+1) >> lineloop (i+1) (t-n+1)
-       else putChar '\n'
-
-   putValue v = tab((size(n*n)+1)-size(v)) >> putStr (show v)
+    putValue v = tab((size (n*n) + 1) - size v) >> putStr (show v)
 
 
 tab :: Int -> IO ()
