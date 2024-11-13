@@ -16,7 +16,8 @@ testCoerce1 :: Prop
 testCoerce1 = coerce True -=- 1
 
 instance Coerce Int Bool where
-  coerce n = if n == 0 then False else True
+  coerce n | n == 0    = False
+           | otherwise = True
 
 testCoerce2 :: Prop
 testCoerce2 = coerce (1::Int) -=- True
