@@ -1,18 +1,14 @@
-PAKCS Tools
-===========
+Auxiliary Tools for PAKCS
+=========================
 
-This directory contains various tools which are only available for PAKCS.
+This directory contains auxiliary definitions to adapt programming tools
+for PAKCS.
 
 Currently it contains:
 
-`emacs`:
-   Emacs mode for editing Curry programs
-
-`gedit`:
-   Curry mode for gedit
-
-`rlwrap-completions`:
-   File with word completions for rlwrap/readline.
+* `emacs`: Emacs mode for editing Curry programs
+* `gedit`: Curry mode for gedit
+* `rlwrap.words`: list of word completions for `rlwrap`
 
 
 Note for rlwrap:
