@@ -90,13 +90,17 @@ if [ $STANDALONE = yes ] ; then
       exit 1
     fi
     mv "$STATE" main.sav
-    "$SPLD" --static --main=restore --resources-from-sav --resources=main.sav=`pwd`/main.sav --output=$STATE
+    "$SPLD" --static --main=restore --resources-from-sav --resources=main.sav=`pwd`/main.sav --output=$TARGET
     rm -f main.sav
-    chmod 755 "$STATE"
-    echo "Stand-alone executable '$STATE' generated."
+    chmod 755 "$TARGET"
+    echo "Stand-alone executable '$TARGET' generated."
     exit 0
   else
-    # we have SWI-Prolog and nothing must be done (everything was done in saveprog)
+    # we have SWI-Prolog and nothing must be done
+    # (everything was done in saveprog)
+    if [ "$STATE" != "$TARGET" ] ; then
+      mv "$STATE" "$TARGET"
+    fi
     exit 0
   fi
 fi
