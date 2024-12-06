@@ -54,14 +54,14 @@ export MINORVERSION=8
 # The revision version number:
 export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
-BUILDVERSION=4
+export BUILDVERSION=5
 # Complete version:
 export VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
 ifeq ($(DISTPKGINSTALL),yes)
-COMPILERDATE := $(shell date "+%Y-%m-%d")
+export COMPILERDATE := $(shell date "+%Y-%m-%d")
 else
-COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
+export COMPILERDATE := $(shell git log -1 --format="%ci" | cut -c-10)
 endif
 
 # Paths used in this installation
@@ -90,14 +90,18 @@ export DOCDIR        = $(ROOT)/docs
 
 # The file containing the version number of the base libraries:
 BASEVERSIONFILE = $(LIBDIR)/VERSION
+# The version of the base libraries:
+export BASEVERSION := $(shell cat $(BASEVERSIONFILE))
 
 # Executable of CurryCheck:
 CURRYCHECK := $(shell sh -c 'command -v curry-check')
 # Executable of CurryDoc:
 CURRYDOC := $(shell sh -c 'command -v curry-doc')
 
-# The version information file for PAKCS:
+# The (generated) version information file for PAKCS:
 PAKCSVERSION=$(ROOT)/src/pakcsversion.pl
+# The template version information file for PAKCS:
+PAKCSVERSIONIN=$(PAKCSVERSION).in
 # The version information file for the manual:
 MANUALVERSION=$(DOCDIR)/src/version.tex
 
@@ -273,17 +277,9 @@ else
 endif
 
 # Create file with version information for PAKCS:
-$(PAKCSVERSION): Makefile $(BASEVERSIONFILE)
-	echo ':- module(pakcsversion,[compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1, compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1, pkgInstallDir/1, baseVersion/1]).' > $@
-	echo "compilerVersion('PAKCS$(MAJORVERSION).$(MINORVERSION)')." >> $@
-	echo 'compilerMajorVersion($(MAJORVERSION)).' >> $@
-	echo 'compilerMinorVersion($(MINORVERSION)).' >> $@
-	echo 'compilerRevisionVersion($(REVISIONVERSION)).' >> $@
-	echo 'buildVersion($(BUILDVERSION)).' >> $@
-	echo "buildDate('$(COMPILERDATE)')." >> $@
-	echo "buildDir('$(ROOT)')." >> $@
-	echo "pkgInstallDir('$(PAKCSINSTALLDIR)')." >> $@
-	echo "baseVersion('$(shell cat $(BASEVERSIONFILE))')." >> $@
+$(PAKCSVERSION): $(PAKCSVERSIONIN) Makefile $(BASEVERSIONFILE)
+	@echo "Generating PAKCS version information in $@"
+	@envsubst < $< > $@
 
 # Create file with version information for the manual:
 $(MANUALVERSION): Makefile

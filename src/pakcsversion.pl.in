@@ -1,0 +1,25 @@
+% Make sure to edit pakcsversion.pl.in, not pakcsversion.pl,
+% since the latter is auto-generated!
+
+:- module(pakcsversion,
+          [compilerVersion/1, compilerMajorVersion/1, compilerMinorVersion/1,
+           compilerRevisionVersion/1, buildVersion/1, buildDate/1, buildDir/1,
+           pkgInstallDir/1, baseVersion/1]).
+
+compilerVersion('PAKCS$MAJORVERSION.$MINORVERSION').
+
+compilerMajorVersion($MAJORVERSION).
+
+compilerMinorVersion($MINORVERSION).
+
+compilerRevisionVersion($REVISIONVERSION).
+
+buildVersion($BUILDVERSION).
+
+buildDate('$COMPILERDATE').
+
+buildDir('$ROOT').
+
+pkgInstallDir('$PAKCSINSTALLDIR').
+
+baseVersion('$BASEVERSION').
