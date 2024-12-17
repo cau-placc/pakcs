@@ -864,6 +864,9 @@ completeCaseInBranch(FName,Types,_,'Branch'(Pat,Exp),'Branch'(Pat,NewExp)) :-
 	completeCaseInExp(FName,Types,Exp,NewExp).
 
 generateMissingBranch(FName,Cons/Arity,'Branch'('Pattern'(Cons,Args),Failed)) :-
+        writeErr('INFO: function "'), atom_codes(FN,FName), writeErr(FN),
+        writeErr('" add failed branch for constructor "'),
+        atom_codes(ConsA,Cons), writeErr(ConsA), writeLnErr('"'),
 	length(Args,Arity), numberVarList(100,Args),
 	atom_codes('reportFailure4PAKCS',FailFuncName),
 	atom_codes('Prelude.[]',EmptyList),
