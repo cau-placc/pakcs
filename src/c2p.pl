@@ -341,7 +341,7 @@ prefixOf(Prefix,[_|FullS],Full) :- prefixOf(Prefix,FullS,Full).
 
 % all possible commands:
 allCommands(["add","browse","cd","compile","coosy",
-             "edit","eval","fork","help",
+             "edit","eval","fork","help", "info",
 	     "interface","load","modules","peval","programs","quit","reload",
 	     "save","set","show","source","type","usedimports"]).
 
@@ -792,38 +792,43 @@ processCommand("quit",[]) :- !.
 processCommand("help",[]) :- !,
 	write('Basic commands (commands can be abbreviated to a prefix if unique):'),
         nl, nl,
-        write('<expr>            - evaluate expression <expr>'), nl,
-        write('let <p> = <expr>  - add let binding for main expression'), nl,
-	write(':load <prog>      - compile and load program "<prog>.curry" and all imports'),nl,
-	write(':reload           - recompile currently loaded modules'), nl,
-	write(':add <m1> .. <mn> - add modules <m1>,...,<mn> to currently loaded modules'),nl,
-	write(':eval <expr>      - evaluate expression <expr>'), nl,
-	write(':save             - save executable with main expression "main"'), nl,
-	write(':save <expr>      - save executable with main expression <expr>'), nl,
-	write(':type <expr>      - show the type of <expression>'), nl,
-	write(':quit             - leave the PAKCS environment'), nl, nl,
+        write('<expr>              - evaluate expression <expr>'), nl,
+        write('let <p> = <expr>    - add let binding for main expression'), nl,
+	write(':load <prog>        - compile and load program "<prog>.curry" and all imports'),nl,
+	write(':reload             - recompile currently loaded modules'), nl,
+	write(':add <m1> .. <mn>   - add modules <m1>,...,<mn> to currently loaded modules'),nl,
+	write(':eval <expr>        - evaluate expression <expr>'), nl,
+	write(':save               - save executable with main expression "main"'), nl,
+	write(':save <expr>        - save executable with main expression <expr>'), nl,
+	write(':type <expr>        - show the type of <expression>'), nl,
+	write(':quit               - leave the PAKCS environment'), nl, nl,
 	write('Further commands:'), nl, nl,
-	write(':!<command>       - execute <command> in shell'), nl,
-	write(':browse           - browse program and its imported modules'),nl,
-	write(':cd <dir>         - change current directory to <dir>'), nl,
-	write(':compile <prog>   - alias for ":load <prog>"'),nl,
-	write(':coosy            - start Curry Object Observation System'), nl,
-	write(':edit             - load source of currently loaded module into editor'), nl,
-	write(':edit <m>         - load source of module <m> into editor'), nl,
-	write(':fork <expr>      - fork new process evaluating <expr> (of type "IO ()")'), nl,
-	write(':help             - show this message'), nl,
-	write(':interface        - show interface of current program'),nl,
-	write(':interface <m>    - show interface of module <m>'),nl,
-	write(':modules          - show list of currently loaded modules'), nl,
-	write(':peval            - partially evaluate current program'), nl,
-	write(':programs         - show names of all Curry programs available in load path'), nl,
-	write(':set <option>     - set a command line option'), nl,
-	write(':set              - help on :set command'), nl,
-	write(':show             - show source of currently loaded Curry program'), nl,
-	write(':show <m>         - show source code of module <m>'), nl,
-	write(':source <f>       - show source code of (visible!) function <f>'), nl,
-	write(':source <m>.<f>   - show source code of function <f> in module <m>'), nl,
-	write(':usedimports      - show all used imported functions/constructors'),nl,
+	write(':!<command>         - execute <command> in shell'), nl,
+	write(':browse             - browse program and its imported modules'),nl,
+	write(':cd <dir>           - change current directory to <dir>'), nl,
+	write(':compile <prog>     - alias for ":load <prog>"'),nl,
+	write(':coosy              - start Curry Object Observation System'), nl,
+	write(':edit               - load source of currently loaded module into editor'), nl,
+	write(':edit <m>           - load source of module <m> into editor'), nl,
+	write(':fork <expr>        - fork new process evaluating <expr> (of type "IO ()")'), nl,
+	write(':help               - show this message'), nl,
+	write(':info <f>           - show information of (visible!) function <f>'), nl,
+	write(':info <m>.<f>       - show information of function <f> in module <m>'), nl,
+	write(':info type  <m>.<t> - show information of type <t> in module <m>'), nl,
+	write(':info class <m>.<c> - show information of type class <c> in module <m>'), nl,
+	write(':info <opts> ...    - ...and pass options <opts> to command "cpm-query"'), nl,
+	write(':interface          - show interface of current program'),nl,
+	write(':interface <m>      - show interface of module <m>'),nl,
+	write(':modules            - show list of currently loaded modules'), nl,
+	write(':peval              - partially evaluate current program'), nl,
+	write(':programs           - show names of all Curry programs available in load path'), nl,
+	write(':set <option>       - set a command line option'), nl,
+	write(':set                - help on :set command'), nl,
+	write(':show               - show source of currently loaded Curry program'), nl,
+	write(':show <m>           - show source code of module <m>'), nl,
+	write(':source <f>         - show source code of (visible!) function <f>'), nl,
+	write(':source <m>.<f>     - show source code of function <f> in module <m>'), nl,
+	write(':usedimports        - show all used imported functions/constructors'),nl,
 	nl, fail.
 
 processCommand("set",[]) :- !, printSetHelp, nl, printCurrentSettings.
@@ -910,7 +915,7 @@ processCommand("interface",IFTail) :- !,
         shellCmd('which curry-showflat > /dev/null',SFCode),
         % if curry-showflat is not installed, try to use curry-showinterface:
         (SFCode>0
-         -> checkCpmTool('curry-showinterface','curry-interfacce',ShowIntCmd)
+         -> checkCpmTool('curry-showinterface','curry-interface',ShowIntCmd)
           ; shellCmd('which curry-showinterface > /dev/null',SICode),
             (SICode=0
              -> ShowIntCmd = 'curry-showinterface'
@@ -1040,6 +1045,18 @@ processCommand("source",ExprInput) :- !, % show source code of a function
 	parseExpression(no,ExprInput,none,Term,_Type,_Vs),
 	showSourceCode(Term).
 
+processCommand("info",Arg) :- !,
+        checkCpmTool('cpm-query','cpm-query',_ShowInfo),
+        split2words(Arg,Args),
+        splitOptions(Args,OptWords,MArgs),
+        map2M(user:atom_codes,OptAtoms,OptWords), !,
+        (MArgs = [Entity]         -> EntityKind='operation' ;
+         MArgs = ["type",Entity]  -> EntityKind='type' ;
+         MArgs = ["class",Entity] -> EntityKind='class'
+         ; writeLnErr('Illegal arguments! Type :h for help'), fail),
+        pakcsrc(infocommand,InfoCmd),
+        infoCommand(EntityKind,[InfoCmd|OptAtoms],Entity).
+
 processCommand("cd",DirString) :- !,
 	(DirString="" -> writeLnErr('ERROR: missing argument'), fail
 	               ; true),
@@ -1071,7 +1088,7 @@ processCommand("save",Exp) :- !,
 	installDir(PH),
 	appendAtoms(['"',PH,'/scripts/makesavedstate" '],CMD1),
 	((pakcsrc(standalone,yes), (prolog(swi) ; sicstus310orHigher))
-	 -> appendAtom(CMD1,'-standalone ',CMD2)
+	 -> appendAtom(CMD1,'--standalone ',CMD2)
 	  ; CMD2=CMD1),
 	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
 	shellCmdWithReport(Cmd),
@@ -1084,6 +1101,14 @@ processCommand("fork",STail) :- !, processFork(STail).
 
 processCommand(_,_) :- !,
 	write('ERROR: unknown command. Type :h for help'), nl, fail.
+
+% Split a list of words into options (i.e., starting with "-") and non-options.
+splitOptions([],[],[]).
+splitOptions([W|Ws],[W|Opts],Words) :-
+        W=[45|_], !, % 45 = '-'
+        splitOptions(Ws,Opts,Words).
+splitOptions([W|Ws],Opts,[W|Words]) :-
+        splitOptions(Ws,Opts,Words).
 
 % Check for existence of a binary in the path, e.g., 'wish'.
 % If the binary does not exist, print the error message (2nd argument) and fail.
@@ -2055,8 +2080,8 @@ extractProperties([[35|_]|Ls],Ps) :- % ignore comment lines starting with #
 extractProperties([L|Ls],[prop(N,V)|Ps]) :-
 	append(Ns,[61|Vs],L), % 61 = '='
 	!,
-	atom_codes(N,Ns),
-	atom_codes(V,Vs),
+	removeBlanks(Ns,NsS), atom_codes(N,NsS),
+	removeBlanks(Vs,VsS), atom_codes(V,VsS),
 	extractProperties(Ls,Ps).
 extractProperties([_|Ls],Ps) :-
 	extractProperties(Ls,Ps).
@@ -2101,7 +2126,7 @@ updatePropertyLine([35|Cs],_,[35|Cs]) :- % ignore comment lines starting with #
 updatePropertyLine(L,Props,NL) :-
 	append(Ns,[61|Vs],L), % 61 = '='
 	!,
-	atom_codes(N,Ns),
+	removeBlanks(Ns,NsS), atom_codes(N,NsS),
 	updateProperty(N,Ns,Vs,Props,NL).
 updatePropertyLine(L,_,L).
 
@@ -2181,5 +2206,53 @@ terminateSourceCodeGUI(Stream) :-
 :- dynamic lastShownSourceCode/2.
 lastShownSourceCode([],'').
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implementation of the 'info' command:
+infoCommand(EntityKind,InfoCmd,Arg) :- % show information of qualified entity
+	append(PModS,[46|NameS],Arg),
+	append(_,[LM],PModS), isLetterDigitCode(LM),
+	(\+ member(46,NameS) ; isOperatorName(NameS)),
+	!,
+	% show information of entity in module
+	extractProgName(PModS,ModS),
+	showInfoOfModEntity(EntityKind,InfoCmd,ModS,NameS).
+infoCommand(operation,InfoCmd,ExprInput) :- % show information of a function
+        !,
+	parseExpression(no,ExprInput,none,Term,_Type,_Vs),
+	showInfoOfFunction(InfoCmd,Term).
+infoCommand(_,_,_) :-
+        writeLnErr('Entity name is not unqualified! Type :h for help').
+
+% show information of a function:
+showInfoOfFunction(_,F) :- var(F),
+	writeLnErr('Cannot show information of a variable!').
+showInfoOfFunction(InfoCmd,partcall(_,QF,_)) :-
+        (FCall = partcall(_,QF,_) ; FCall =.. [QF|_]), !,
+	atom_codes(QF,QFS),
+	append(ModS,[46|FS],QFS),
+        (\+ member(46,FS) ; isOperatorName(FS)),
+        !,
+        atom_codes(FSA,FS), decodePrologName(FSA,FSCA), atom_codes(FSCA,FSCS),
+	showInfoOfModEntity(operation,InfoCmd,ModS,FSCS).
+
+% show information of an entity via the 'curry-showinfo' tool:
+showInfoOfModEntity(EntityKind,InfoCmd,ModS,NameS) :-
+	writeNQ('Showing information of '), writeNQ(EntityKind), writeNQ(' "'),
+	concat([ModS,[46],NameS],QFS), atom_codes(QF,QFS),
+        writeNQ(QF), writeLnNQ('"...'),
+	atom_codes(ModA,ModS),
+        escapeBackslash(NameS,NameSE),
+	atom_codes(NameA,NameSE),
+	appendAtoms(['"',NameA,'"'],NameAQuoted),
+        appendAtom('--',EntityKind,EKOption),
+        append(InfoCmd,[EKOption,ModA,NameAQuoted],CmdWords),
+        intersperse(' ',CmdWords,CmdWordsSep),
+	appendAtoms(CmdWordsSep,ShowInfoCmd),
+	shellCmdWithCurryPathWithReport(ShowInfoCmd).
+
+escapeBackslash([],[]).
+escapeBackslash([92|Cs],[92,92|ECs]) :- !, escapeBackslash(Cs,ECs).
+escapeBackslash([N|Cs],[N|ECs]) :- escapeBackslash(Cs,ECs).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
