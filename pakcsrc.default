@@ -52,7 +52,7 @@ bindingoptimization=fast
 # the module and entity name are appended to this command.
 # After using cpm-query for the first time, one can adjust its behavior
 # by modifying the file "~/.cpmqueryrc".
-infocommand=cpm-query --cgi --color
+infocommand=cpm-query --color
 
 # Show parse errors when parsing terms with ReadShowTerm.read(sQ)Term
 # (values: yes | no)
