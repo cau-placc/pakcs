@@ -47,12 +47,11 @@ dotviewcommand=dot -Tpdf > /tmp/dotxxx.pdf && xdg-open /tmp/dotxxx.pdf
 #   full (perform full program analysis to optimize more occurrences)
 bindingoptimization=fast
 
-# The shell command used by the REPL command ':info ...' to show information
-# about some entity. The kind of entity (--operation|--type|--class) and
-# the module and entity name are appended to this command.
-# After using cpm-query for the first time, one can adjust its behavior
-# by modifying the file "~/.cpmqueryrc".
-infocommand=cpm-query --color
+# Additional parameters passed to the command "cpm-query" which is used
+# by the REPL command ":info ..." to show information about some entity.
+# After using "cpm-query" for the first time, an RC file "~/.cpmqueryrc"
+# is installed which allows to adjust the default behavior of "cpm-query".
+infoparams=--color
 
 # Show parse errors when parsing terms with ReadShowTerm.read(sQ)Term
 # (values: yes | no)

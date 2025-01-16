@@ -1,11 +1,14 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.8.0 (January 7, 2025)
+Release notes for PAKCS Version 3.8.0 (January 16, 2025)
 --------------------------------------------------------
 
 Changes to version 3.7.2:
 
+  * REPL command `:info` added to get more detailed information
+    about operations, types, or classes. This command requires
+    the installation of the Curry package `cpm-query`.
   * Front-end updated to support multi-parameter type classes.
     For this purpose, the front-end supports the language extensions
     `MultiParamTypeClasses`, `FunctionalDependencies` and

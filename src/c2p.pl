@@ -1046,7 +1046,7 @@ processCommand("source",ExprInput) :- !, % show source code of a function
 	showSourceCode(Term).
 
 processCommand("info",Arg) :- !,
-        checkCpmTool('cpm-query','cpm-query',_ShowInfo),
+        checkCpmTool('cpm-query','cpm-query',CpmQuery),
         split2words(Arg,Args),
         splitOptions(Args,OptWords,MArgs),
         map2M(user:atom_codes,OptAtoms,OptWords), !,
@@ -1054,7 +1054,8 @@ processCommand("info",Arg) :- !,
          MArgs = ["type",Entity]  -> EntityKind='type' ;
          MArgs = ["class",Entity] -> EntityKind='class'
          ; writeLnErr('Illegal arguments! Type :h for help'), fail),
-        pakcsrc(infocommand,InfoCmd),
+        (pakcsrc(infoparams,InfoParams) ; InfoParams=''), !,
+        appendAtoms([CpmQuery,' ',InfoParams],InfoCmd),
         infoCommand(EntityKind,[InfoCmd|OptAtoms],Entity).
 
 processCommand("cd",DirString) :- !,
