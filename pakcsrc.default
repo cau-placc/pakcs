@@ -51,7 +51,7 @@ bindingoptimization=fast
 # by the REPL command ":info ..." to show information about some entity.
 # After using "cpm-query" for the first time, an RC file "~/.cpmqueryrc"
 # is installed which allows to adjust the default behavior of "cpm-query".
-infoparams=--color
+infoparams=
 
 # Show parse errors when parsing terms with ReadShowTerm.read(sQ)Term
 # (values: yes | no)
