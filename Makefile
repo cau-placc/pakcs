@@ -182,7 +182,7 @@ kernel: scripts copylibs copytools
 	@$(MAKE) -C currytools/optimize
 	# compile all libraries:
 	$(MAKE) -C lib AllLibraries.curry
-	scripts/compile-all-libs.sh
+	$(MAKE) compile-all-libs
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then $(MAKE) -C lib pl ; fi
 
