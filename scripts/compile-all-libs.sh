@@ -10,6 +10,8 @@ compile_all() {
   "$FRONTEND" --type-annotated-flat --flat $FRONTENDPARAMS
   "$FRONTEND" --acy                        $FRONTENDPARAMS
   "$FRONTEND" --uacy                       $FRONTENDPARAMS
+  "$FRONTEND" --comments                   $FRONTENDPARAMS
+  "$FRONTEND" --ast                        $FRONTENDPARAMS
 }
 
 TMPOUT=TMPLIBOUT
