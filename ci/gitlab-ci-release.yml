@@ -105,9 +105,7 @@ run_make:
       - currytools/cpm/src/CPM.Main
       - currytools/optimize/BindingOpt
       - frontend/bin
-      - frontend/pkg
       - lib
-      - pakcsinitrc
       - scripts/makesavedstate
       - src/pakcs
       - src/pakcsversion.pl
