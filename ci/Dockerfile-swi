@@ -11,6 +11,7 @@ FROM ubuntu:${UBUNTU_VERSION}
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential \
+        gettext-base \
         swi-prolog \
         unzip \
         sqlite3 \
