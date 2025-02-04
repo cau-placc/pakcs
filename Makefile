@@ -506,7 +506,7 @@ dist:
 	mkdir -p $(PAKCSDIST)/bin && cp -p $(FRONTEND) $(PAKCSDIST)/bin
 	@if [ -f docs/Manual.pdf ] ; then cp -p docs/Manual.pdf $(PAKCSDIST)/docs ; fi
 	cat Makefile | sed -e "/#DISTRIBUTION#/,\$$d" \
-	             | sed 's|^export COMPILERDATE *:=.*$$|COMPILERDATE =$(COMPILERDATE)|' \
+	             | sed 's|^export COMPILERDATE *:=.*$$|export COMPILERDATE =$(COMPILERDATE)|' \
 	             > $(PAKCSDIST)/Makefile
 	tar cfvz $(FULLNAME)-src.tar.gz     --exclude-vcs --exclude-from=./.tarignore $(SRC_EXCLUDE) $(PAKCSDIST)
 	tar cfvz $(FULLNAME)-$(ARCH).tar.gz --exclude-vcs --exclude-from=./.tarignore $(BIN_EXCLUDE) $(PAKCSDIST)
