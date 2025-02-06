@@ -33,7 +33,7 @@ Now you can install the complete system by the command
     make
 
 similar to the standard
-[PAKCS installation instructions](http://www.informatik.uni-kiel.de/~pakcs/INSTALL.html).
+[PAKCS installation instructions](https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/blob/main/INSTALL.md).
 
 -------------------------------------------------------------
 

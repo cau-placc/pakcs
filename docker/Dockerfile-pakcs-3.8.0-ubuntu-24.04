@@ -20,7 +20,7 @@ ENV LC_ALL C.UTF-8
 
 # copy, unpack and install pakcs
 WORKDIR /pakcs
-RUN curl -sSL -o pakcs.tar.gz https://www.informatik.uni-kiel.de/~pakcs/download/pakcs-3.8.0-amd64-Linux.tar.gz
+RUN curl -sSL -o pakcs.tar.gz https://www.curry-lang.org/pakcs/download/pakcs-3.8.0-amd64-Linux.tar.gz
 RUN tar xvzf pakcs.tar.gz
 RUN mv pakcs-3.8.0 pakcs
 WORKDIR /pakcs/pakcs
