@@ -1,8 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.8.0 (February 3, 2025)
---------------------------------------------------------
+Release notes for PAKCS Version 3.8.0 (February 11, 2025)
+---------------------------------------------------------
 
 Changes to version 3.7.2:
 
@@ -25,6 +25,7 @@ Changes to version 3.7.2:
     operations defined in type classes (e.g., instance operations)
     have been slightly changed (this is only visible in FlatCurry files).
   * `Prelude`: value generator for floats added
+  * Base libraries: add `Prelude.=<<`, `Control.Monad.forM`
 
 
 Release notes for PAKCS Version 3.7.2 (September 20, 2024)
