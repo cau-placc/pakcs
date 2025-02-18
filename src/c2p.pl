@@ -2228,7 +2228,7 @@ infoCommand(_,_,_) :-
 % show information of a function:
 showInfoOfFunction(_,F) :- var(F),
 	writeLnErr('Cannot show information of a variable!').
-showInfoOfFunction(InfoCmd,partcall(_,QF,_)) :-
+showInfoOfFunction(InfoCmd,FCall) :-
         (FCall = partcall(_,QF,_) ; FCall =.. [QF|_]), !,
 	atom_codes(QF,QFS),
 	append(ModS,[46|FS],QFS),
