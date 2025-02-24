@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# IMPORTANT NOTE: after changing anything in `scripts/pakcs-makesavedstate.sh`
-# (like the definition of SWILIMITS), run `make scripts` in the home directory
-# of PAKCS to generate a new version into `scripts/makesavedstate`!
+# IMPORTANT NOTE: make sure to edit only file `makesavedstate.in`
+# (like re-defining SWILIMITS) and not `makesaved`, since the latter
+# is auto-generated.
+# If `makesavedstate.in` is modified, run `make` or `make scripts`
+# in the root directory of PAKCS!
 
 # This script transform an existing saved state of a Curry program into a saved
 # state that is executable independent of the generation environment, i.e.,

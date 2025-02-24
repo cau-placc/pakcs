@@ -1,12 +1,9 @@
 #!/bin/sh
 #
 # Configure the generation script for Prolog saved states:
-# the shell script `pakcs-makesavedstate.sh` is copied into
+# the shell script `makesavedstate.in` is copied into
 # `makesavedstate` where the definition of `LCALL` is set to
 # a UTF-8 value.
-
-ORGMAKESTATE=pakcs-makesavedstate.sh
-GENMAKESTATE=makesavedstate
 
 # Check LC_ALL, LC_CTYPE, or LANG for UTF-8 encoding:
 if [ -n "$LC_ALL" ] ; then
@@ -25,5 +22,5 @@ case "$LCALL" in
       LCALL=C.UTF-8 ;;
 esac
 
-cat "$ORGMAKESTATE" | sed "s|^LCALL=.*$|LCALL=$LCALL|" > "$GENMAKESTATE"
-chmod 755 "$GENMAKESTATE"
+cat makesavedstate.in | sed "s|^LCALL=.*$|LCALL=$LCALL|" > makesavedstate
+chmod 755 makesavedstate

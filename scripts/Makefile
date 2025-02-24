@@ -19,7 +19,7 @@ $(BINDIR)/%: %.sh ../Makefile
 	chmod 755 $@
 
 # configure generation script for Prolog saved states:
-makesavedstate: pakcs-makesavedstate.sh
+makesavedstate: makesavedstate.in
 	./configure-makesavedstate.sh
 
 .PHONY: clean

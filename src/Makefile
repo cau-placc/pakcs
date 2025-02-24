@@ -20,16 +20,13 @@ SWIOPTIONS=-q -O
 # by redefining this definition according to version of SWI-Prolog:
 # SWI-Prolog 7.*: use 2GB for the local stack:
 #SWIOPTIONS=-q -L2G -G0 -T0 -O
-# SWI-Prolog 8.*: use 4GB for all stacks:
-#SWIOPTIONS=-q --stack_limit=4g -O
+# SWI-Prolog [89].*: use 8GB for all stacks:
+#SWIOPTIONS=-q --stack_limit=8g -O
 
 # library directory of PAKCS:
 ifndef LIBDIR
 LIBDIR = $(dir $(CURDIR))/lib
 endif
-
-# names of run-time libraries:
-PRIMLIBSRC = `cd lib_src && echo *.pl`
 
 .PHONY: install
 install:
