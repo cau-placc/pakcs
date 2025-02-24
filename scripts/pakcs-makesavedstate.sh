@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # IMPORTANT NOTE: after changing anything in `scripts/pakcs-makesavedstate.sh`
-# (like the definition of SWILIMITS), run `make config` in the home directory
+# (like the definition of SWILIMITS), run `make scripts` in the home directory
 # of PAKCS to generate a new version into `scripts/makesavedstate`!
 
 # This script transform an existing saved state of a Curry program into a saved
@@ -48,7 +48,7 @@ if [ -x "$SWIPROLOG" ] ; then
   case "$SWI_MAJOR_VERSION" in
     # SWI-Prolog 7.*: use 4GB for the local stack
     7 ) SWILIMITS="-L4G -G0 -T0" ;;
-    # SWI-Prolog 8.*: use 8GB for all stacks
+    # SWI-Prolog 8.*: use 32GB for all stacks
     8 | 9 ) SWILIMITS="--stack_limit=32g" ;;
     # no default for other versions:
     * ) SWILIMITS="" ;;

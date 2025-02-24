@@ -5,23 +5,6 @@
 # PAKCSHOME/bin/sicstusprolog  (if SICStus-Prolog is available)
 # PAKCSHOME/bin/swiprolog      (if SWI-Prolog is available)
 
-# Check LC_ALL, LC_CTYPE, or LANG for UTF-8 encoding:
-if [ -n "$LC_ALL" ] ; then
-  LCALL="$LC_ALL"
-elif [ -n "$LC_CTYPE" ] ; then
-  LCALL="$LC_CTYPE"
-else
-  LCALL="$LANG"
-fi
-case "$LCALL" in
-  *UTF-8 | *UTF8 | *utf-8 | *utf8 ) ;;
-  * ) echo "WARNING: locale/LC_ALL has no UTF-8 encoding but value '$LCALL'"
-      echo "Since PAKCS might not work correctly with non-ASCII files,"
-      echo "LC_ALL is set to 'C.UTF-8' in generated executables."
-      echo "If this does not work, please set LC_ALL to another UTF-8 value."
-      LCALL=C.UTF-8 ;;
-esac
-
 # Compute home of PAKCS installation:
 PAKCSHOME=`(cd "\`dirname \"$0\"\`" > /dev/null ; pwd)`/..
 
@@ -80,13 +63,6 @@ if [ -z "$SICSTUSPROLOG" -a -z "$SWIPROLOG" ] ; then
   echo "SICSTUSPROLOG or SWIPROLOG as a parameter for 'make'!"
   exit 1
 fi
-
-# Configure `scripts/makesavedstate` which is used to generate executables:
-ORGMAKESTATE=scripts/pakcs-makesavedstate.sh
-MAKESTATE=scripts/makesavedstate
-# store the value of LCALL in script scripts/makesavedstate :
-cat "$ORGMAKESTATE" | sed "s|^LCALL=.*$|LCALL=$LCALL|" > "$MAKESTATE"
-chmod 755 "$MAKESTATE"
 
 # Create symbolic links in PAKCSHOME/bin and create scripts/makesavedstate:
 rm -f bin/sicstusprolog bin/swiprolog # delete old Prolog definitions
