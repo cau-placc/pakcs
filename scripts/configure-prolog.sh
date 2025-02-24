@@ -84,24 +84,18 @@ fi
 # Configure `scripts/makesavedstate` which is used to generate executables:
 ORGMAKESTATE=scripts/pakcs-makesavedstate.sh
 MAKESTATE=scripts/makesavedstate
+# store the value of LCALL in script scripts/makesavedstate :
+cat "$ORGMAKESTATE" | sed "s|^LCALL=.*$|LCALL=$LCALL|" > "$MAKESTATE"
+chmod 755 "$MAKESTATE"
+
 # Create symbolic links in PAKCSHOME/bin and create scripts/makesavedstate:
-rm -f bin/sicstusprolog bin/swiprolog "$MAKESTATE" # delete old definitions
+rm -f bin/sicstusprolog bin/swiprolog # delete old Prolog definitions
 if [ -n "$SICSTUSPROLOG" ] ; then
   ln -s "$SICSTUSPROLOG" bin/sicstusprolog
   SICSTUSBINDIR=`expr "$SICSTUSPROLOG" : '\(.*\)/sicstus'`
-  # store the value of SICSTUSBINDIR in script scripts/makesavedstate :
-  cat "$ORGMAKESTATE" |
-    sed "s|^LCALL=.*$|LCALL=$LCALL|" |
-    sed "s|^SICSTUSBINDIR=.*$|SICSTUSBINDIR=\"$SICSTUSBINDIR\"|" > "$MAKESTATE"
-  chmod 755 "$MAKESTATE"
 fi
 if [ -n "$SWIPROLOG" ] ; then
   ln -s "$SWIPROLOG" bin/swiprolog
-  # store the value of SWIPROLOG in script scripts/makesavedstate :
-  cat "$ORGMAKESTATE" |
-    sed "s|^LCALL=.*$|LCALL=$LCALL|" |
-    sed "s|^SWIPROLOG=.*$|SWIPROLOG=\"$SWIPROLOG\"|" > "$MAKESTATE"
-  chmod 755 "$MAKESTATE"
 fi
 
 # Report current values:

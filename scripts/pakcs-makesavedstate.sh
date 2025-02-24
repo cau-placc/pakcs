@@ -1,25 +1,36 @@
 #!/bin/sh
 
-# Transform an existing saved state of a Curry program into
-# a saved state that is executable independent of the
-# generation environment, i.e.,
+# IMPORTANT NOTE: after changing anything in `scripts/pakcs-makesavedstate.sh`
+# (like the definition of SWILIMITS), run `make config` in the home directory
+# of PAKCS to generate a new version into `scripts/makesavedstate`!
+
+# This script transform an existing saved state of a Curry program into a saved
+# state that is executable independent of the generation environment, i.e.,
 # - add path information to the saved state
 # - add locale information (LC_ALL) to the saved state
-
+#
 ##############################################################################
 # Global settings:
+
+PAKCSHOME=$(dirname $(dirname $(readlink -f "$0")))
+BINDIR=$PAKCSHOME/bin
 
 # The value of the locale environment variable LC_ALL when PAKCS is
 # configured. It must be a UTF-8 encoding and will be set in generated
 # executables (see below).
 LCALL=
 
+# (Possible) executable of SWI-Prolog:
+SWIPROLOG=$BINDIR/swiprolog
+
+# (Possible) executable of SICStus Prolog:
+SICSTUSPROLOG=$BINDIR/sicstusprolog
 # bin directory of the SICStus-Prolog installation, i.e.,
 # $SICSTUSBINDIR/sicstus should be the name of the interpreter executable:
 SICSTUSBINDIR=
-
-# Executable of SWI-Prolog
-SWIPROLOG=
+if [ -x "$SICSTUSPROLOG" ] ; then
+  SICSTUSBINDIR=$(dirname $(readlink -f "$SICSTUSPROLOG"))
+fi
 
 # Settings for memory limits for a SWI-Prolog saved state
 # (compare the SWI-Prolog manual for supported values).
@@ -30,7 +41,7 @@ SWIPROLOG=
 # by redefining the definition of SWILIMITS
 
 if [ -x "$SWIPROLOG" ] ; then
-  # determin major version of SWI-Prolog:
+  # determine major version of SWI-Prolog:
   SWIVERSION=`"$SWIPROLOG" --version`
   SWI_MAJOR_VERSION=`expr "$SWIVERSION" : '.*version \([0-9]*\).*'`
   # set limits according to SWI-Prolog version:
@@ -38,7 +49,7 @@ if [ -x "$SWIPROLOG" ] ; then
     # SWI-Prolog 7.*: use 4GB for the local stack
     7 ) SWILIMITS="-L4G -G0 -T0" ;;
     # SWI-Prolog 8.*: use 8GB for all stacks
-    8 | 9 ) SWILIMITS="--stack_limit=8g" ;;
+    8 | 9 ) SWILIMITS="--stack_limit=32g" ;;
     # no default for other versions:
     * ) SWILIMITS="" ;;
   esac
