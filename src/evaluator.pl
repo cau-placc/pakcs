@@ -639,6 +639,7 @@ writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
 writeBindingsWithFreeVarNames(Suspensions,Bindings,AllBindings) :-
 	\+ \+ (bindFreeVars(Suspensions,AllBindings), writeSubstitution(Bindings)),
 	write(' '), !.
+writeBindingsWithFreeVarNames(_,_,_). % write nothing if anything fails
 
 % filter anonymous bindings (introduced by top-level let expressions):
 filterAnonymousVars([],[]).
