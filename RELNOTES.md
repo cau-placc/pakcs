@@ -183,7 +183,7 @@ Changes to version 2.3.0: bug fixes and
   * The standard libraries has been changed in order to keep the names
     and structure more closely with Haskell. Specialized functionality
     is moved separate packages. There is a separate
-    [migration guide](https://git.ps.informatik.uni-kiel.de/curry/curry-libs/-/blob/master/MigrationGuide.md)
+    [migration guide](https://github.com/curry-packages/base/blob/master/MigrationGuide.md)
     describing the changes.
   * Libraries `FilePath`, `Directory`, `Distribution`, `Time`,
     `IOExts`, `ReadShowTerm` removed
@@ -733,4 +733,4 @@ Changes to version 1.10.1:
 
 -------------------------------------------------------------------------
 
-[Release notes for older versions](http://www.informatik.uni-kiel.de/~pakcs/download/OLDRELNOTES.html)
+[Release notes for older versions](https://www.curry-lang.org/pakcs/OLDRELNOTES.html)

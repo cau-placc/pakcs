@@ -37,4 +37,4 @@ similar to the standard
 
 -------------------------------------------------------------
 
-Contact: [Michael Hanus](http://www.informatik.uni-kiel.de/~mh/)
+Contact: [Michael Hanus](https://www.michaelhanus.de/)
