@@ -150,4 +150,4 @@ other system-oriented features should be used in Curry.
 
 -------------------------------------------------------------
 
-Contact: [Michael Hanus](http://www.informatik.uni-kiel.de/~mh/)
+Contact: [Michael Hanus](http://www.michaelhanus.de/)

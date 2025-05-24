@@ -6,10 +6,10 @@ Installation Instructions for the GIT Repository
 
 If you want to install the up-to-date version of PAKCS
 from the developer's repository, you have to clone the
-[git repository](https://git.ps.informatik.uni-kiel.de/curry/pakcs),
+[git repository](https://github.com/cau-placc/pakcs),
 e.g., by the shell command
 
-    git clone https://git.ps.informatik.uni-kiel.de/curry/pakcs.git
+    git clone https://github.com/cau-placc/pakcs.git
 
 This creates a new directory `pakcs` containing the current version.
 Go into this directory by
@@ -33,7 +33,7 @@ Now you can install the complete system by the command
     make
 
 similar to the standard
-[PAKCS installation instructions](https://git.ps.informatik.uni-kiel.de/curry/pakcs/-/blob/main/INSTALL.md).
+[PAKCS installation instructions](https://github.com/cau-placc/pakcs/blob/main/INSTALL.md).
 
 -------------------------------------------------------------
 

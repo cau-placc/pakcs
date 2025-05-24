@@ -1,6 +1,14 @@
 PAKCS: Release Notes
 ====================
 
+Release notes for PAKCS Version 3.9.0 (May 24, 2025)
+----------------------------------------------------
+
+Changes to version 3.8.0:
+
+  * Add library `Data.Monoid` to system libraries.
+
+
 Release notes for PAKCS Version 3.8.0 (April 7, 2025)
 -----------------------------------------------------
 
