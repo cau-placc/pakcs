@@ -6,6 +6,10 @@ Release notes for PAKCS Version 3.9.0 (May 24, 2025)
 
 Changes to version 3.8.0:
 
+  * Add options `+show` and `-show` to the REPL.
+    In the show mode, expressions evaluated in the REPL are
+    wrapped with `Prelude.show` so that the results are shown
+    as strings resulting from instances of class `Show`.
   * Add library `Data.Monoid` to system libraries.
 
 

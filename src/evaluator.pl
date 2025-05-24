@@ -6,7 +6,7 @@
 	   singlestep/0, tracemode/0, spymode/0, spypoints/1, spyFail/1,
 	   addSuspensionReason/1,
 	   printDepth/1, printAllFailures/0,
-	   profiling/1, suspendmode/1, interactiveMode/1,
+	   profiling/1, showmode/1, suspendmode/1, interactiveMode/1,
 	   firstSolutionMode/1, timemode/1,
            profileCall/1, profileFail/1, profileExit/1, profileRedo/1,
 	   evaluateGoalAndExit/1, evaluateMainExpression/3,
@@ -24,7 +24,7 @@
 :- dynamic numberOfCalls/1, numberOfExits/1, singlestep/0, tracemode/0,
 	   spypoints/1, spymode/0, spyFail/1, printDepth/1,
 	   profiling/1, profile_data/3, currentprogram/1,
-	   suspendmode/1, allsolutionmode/1, interactiveMode/1,
+	   showmode/1, suspendmode/1, allsolutionmode/1, interactiveMode/1,
 	   firstSolutionMode/1, timemode/1, nextIOproof/0,
 	   printAllFailures/0, errorAbort/0.
 
@@ -40,6 +40,7 @@ spypoints([]). % list of spy points
 spyFail(no). % show fail ports in spy mode
 printDepth(0). % maximal print depth of terms +1 (or 0 for infinity)
 profiling(no). % show profiling statistics in debug mode
+showmode(no). % yes if results should be shown with `Prelude.show`
 suspendmode(no). % yes if suspended goals should be shown
 allsolutionmode(no). % yes if all solutions should be shown without asking
 interactiveMode(no). % interactive mode?

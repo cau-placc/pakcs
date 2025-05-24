@@ -374,6 +374,7 @@ allOptions(["+allfails","-allfails",
             "+plprofile","-plprofile",
             "+printfail","-printfail",
             "+profile","-profile",
+            "+show","-show",
             "+suspend","-suspend",
             "+time","-time",
             "+verbose","-verbose",
@@ -457,7 +458,7 @@ processLetExpression(Input) :-
 
 processExpression(Input,ExprGoal) :-
         createNewTmpDir(MainExprDir),
-	(processExpressionIn(MainExprDir,Input,ExprGoal)
+	(processExpressionInDir(MainExprDir,Input,ExprGoal)
         -> deleteMainExpFiles(MainExprDir)
          ; failProcessExpression(MainExprDir)).
 
@@ -466,7 +467,20 @@ failProcessExpression(MainExprDir) :-
         !,
         failWithExitCode.
 
-processExpressionIn(MainExprDir,Input,ExprGoal) :-
+% process an expression and gettings its type: in show mode and if
+% it is neither a functional type nor an I/O, decorate it with Prelude.show
+processExpressionInDir(MainExprDir,Input,ExprGoal) :-
+        processExpressionInDir0(MainExprDir,Input,Term,Type,Vs),
+        ((showmode(no) ; Type='FuncType'(_,_) ; Type='TCons'('Prelude.IO',_))
+         -> ExprGoal = evaluateMainExpression(Term,Type,Vs)
+          ; % decorate with Prelude.show and process again:
+            ((append(" where ",_,WherePart), append(InpExp,WherePart,Input))
+             -> concat(["Prelude.show (",InpExp,")",WherePart],ShowInput)
+              ; concat(["Prelude.show (",Input,")"],ShowInput)),
+            processExpressionInDir0(MainExprDir,ShowInput,TermS,TypeS,VsS),
+	    ExprGoal = evaluateMainExpression(TermS,TypeS,VsS)).
+
+processExpressionInDir0(MainExprDir,Input,Term,Type,Vs) :-
         % read both acy and flat file of main expression:
         writeAndParseExpression(MainExprDir,yes,Input,none,'--acy --flat',
                                 MainExprMod,LCP,NewLCP,(AcyProg,FlatProg),
@@ -497,8 +511,7 @@ processExpressionIn(MainExprDir,Input,ExprGoal) :-
 	 -> write('Evaluating expression: '),
 	    writeCurryTermWithFreeVarNames(Vs,Term), nl,
 	    writeFreeVars(Vs) % print free goal variables if present
-	 ; true),
-	ExprGoal = evaluateMainExpression(Term,Type,Vs).
+	 ; true).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -666,6 +679,7 @@ replaceFreeEnvVar([FV|FreeVars],[RA|RuleArgs],V,NV) :-
         (V=RA -> appendAtoms(['_',FV],NV)
                ; replaceFreeEnvVar(FreeVars,RuleArgs,V,NV)).
 
+% split an input string of the form "Exp where Vs free"
 splitWhereFree(Input,Exp,Vs) :-
         append(IWOfree," free",Input),
 	append(IWOvars,Vars,IWOfree),
@@ -1315,6 +1329,12 @@ processSetOption("+trace") :- !, checkDebugMode, traceOn.
 processSetOption("-trace") :- !, checkDebugMode, traceOff.
 processSetOption("+spy") :- !, checkDebugMode, spyOn.
 processSetOption("-spy") :- !, checkDebugMode, spyOff.
+processSetOption("+show") :- !,
+	retract(showmode(_)),
+	asserta(showmode(yes)).
+processSetOption("-show") :- !,
+	retract(showmode(_)),
+	asserta(showmode(no)).
 processSetOption("+suspend") :- !,
 	retract(suspendmode(_)),
 	asserta(suspendmode(yes)).
@@ -1459,6 +1479,7 @@ printSetHelp :-
 	write('+/-plprofile    - use Prolog profiler'), nl,
 	write('+/-printfail    - show failures in top-level evaluation'), nl,
 	write('+/-profile      - show profile data in debug mode'), nl,
+	write('+/-show         - use "Prelude.show" to show evaluation results'), nl,
 	write('+/-suspend      - show suspended goals at end of suspended computation'), nl,
 	write('+/-time         - show execution time'), nl,
 	write('+/-warn         - show parser warnings'), nl,
@@ -1492,9 +1513,9 @@ printCurrentSettings :-
 	(PrintConsFail=no -> write('   ')
 	  ; write('('), write(PrintConsFail), write(') ')),
 	(compileWithDebug -> write('+') ; write('-')),
-	write(debug),	write('     '),
+	write(debug),	write('  '),
 	(echoMode(yes) -> write('+') ; write('-')),
-	write(echo), write('  '),
+	write(echo), write('     '),
 	(firstSolutionMode(yes) -> write('+') ; write('-')),
 	write(first), write('   '),
 	(interactiveMode(yes) -> write('+') ; write('-')),
@@ -1505,10 +1526,12 @@ printCurrentSettings :-
 	write(profile),	write('  '),
 	plprofiling(PLP), (PLP=yes -> write('+') ; write('-')),
 	write(plprofile), write('  '),
+	showmode(BM), (BM=yes -> write('+') ; write('-')),
+	write(show),	write('   '),
 	suspendmode(BM), (BM=yes -> write('+') ; write('-')),
-	write(suspend),	write('   '),
+	write(suspend),	write('  '),
 	timemode(T), (T=yes -> write('+') ; write('-')),
-	write(time),	write('   '),
+	write(time),	write('    '),
 	parser_warnings(W), (W=yes -> write('+') ; write('-')),
 	write(warn), write('  '),
 	nl,
