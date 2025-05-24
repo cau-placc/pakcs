@@ -96,10 +96,10 @@ the central package index (see Section~\ref{sec:internals}).
 This yields faster response times of various CPM commands.
 
 CPM is part of recent distributions of the Curry systems
-PAKCS\footnote{\url{https://www.informatik.uni-kiel.de/~pakcs/}}
+PAKCS\footnote{\url{https://www.curry-lang.org/pakcs/}}
 (since version 1.15.0)
 and
-KiCS2\footnote{\url{https://www-ps.informatik.uni-kiel.de/kics2/}}
+KiCS2\footnote{\url{https://www.curry-lang.org/kics2/}}
 (since version 0.6.0) so that it can directly be used with
 these Curry systems.
 If you use an older release of PAKCS or KiCS2 or you want to
@@ -1123,16 +1123,20 @@ which has been installed by the \code{install} command.
 Uninstalls a specific version
 of a package from the global package cache.
 
-\item[\fbox{\code{checkout $package$ [--$pre$]}}]\pindex{checkout}
+\item[\fbox{\code{checkout $package$ [--output $d$] [--$pre$]}}]\pindex{checkout}
 Checks out the newest version (compatible to the current compiler)
 of a package into the local directory \code{$package$}
-in order to test its operations or install a binary of the package.
+(if the option \code{--output} is not provided) or into the directory $d$.
 \code{--$pre$} enables the installation of pre-release versions.
+This command is useful to test the package operations
+or install a binary of the package.
 
-\item[\fbox{\code{checkout $package$ $version$}}]\pindex{checkout}
+\item[\fbox{\code{checkout $package$ $version$ [--output $d$]}}]\pindex{checkout}
 Checks out a specific version of a package
 into the local directory \code{$package$}
-in order to test its operations or install a binary of the package..
+(if the option \code{--output} is not provided) or into the directory $d$.
+This command is useful to test the package operations
+or install a binary of the package.
 
 \item[\fbox{\code{upgrade}}]\pindex{upgrade}
 Upgrades all dependencies of the current package to
