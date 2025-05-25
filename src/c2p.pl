@@ -16,15 +16,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic compileWithCompact/1,
-	   parser_warnings/1, parserOptions/1,
-	   addImports/1, safeMode/1, echoMode/1.
+	   parserWarnings/1, parserOptions/1,
+	   addImports/1, safeMode/1, echoMode/1, showMode/1.
 
 compileWithCompact([]).  % parsecurry options for compactification
-parser_warnings(yes). % no if the warnings of the parser should be suppressed
+parserWarnings(yes). % no if the warnings of the parser should be suppressed
 parserOptions(''). % additional options passed to front end
 addImports([]). % additional imports defined by the ":add" command
 safeMode(no). % safe execution without IO actions at top level?
 echoMode(no). % echo the current REPL input?
+showMode(no). % yes if results should be shown with `Prelude.show`
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % RC handling:
@@ -470,17 +471,29 @@ failProcessExpression(MainExprDir) :-
 % process an expression and gettings its type: in show mode and if
 % it is neither a functional type nor an I/O, decorate it with Prelude.show
 processExpressionInDir(MainExprDir,Input,ExprGoal) :-
-        processExpressionInDir0(MainExprDir,Input,Term,Type,Vs),
-        ((showmode(no) ; Type='FuncType'(_,_) ; Type='TCons'('Prelude.IO',_))
+        processExpIntoTermTypeVars(MainExprDir,Input,Term,Type,Vs),
+        ((showMode(no) ; Type = 'FuncType'(_,_) ;
+          Type = 'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]))
          -> ExprGoal = evaluateMainExpression(Term,Type,Vs)
-          ; % decorate with Prelude.show and process again:
-            ((append(" where ",_,WherePart), append(InpExp,WherePart,Input))
-             -> concat(["Prelude.show (",InpExp,")",WherePart],ShowInput)
-              ; concat(["Prelude.show (",Input,")"],ShowInput)),
-            processExpressionInDir0(MainExprDir,ShowInput,TermS,TypeS,VsS),
+          ; (Type='TCons'('Prelude.IO',_)
+             -> wrapExpWithPrint(Input,ShowInput)
+              ; wrapExpWithShow(Input,ShowInput)),
+            processExpIntoTermTypeVars(MainExprDir,ShowInput,TermS,TypeS,VsS),
 	    ExprGoal = evaluateMainExpression(TermS,TypeS,VsS)).
 
-processExpressionInDir0(MainExprDir,Input,Term,Type,Vs) :-
+% wrap initial expression with Prelude.show:
+wrapExpWithShow(Input,ShowInput) :-
+        (append(" where ",_,WherePart), append(InpExp,WherePart,Input))
+        -> concat(["Prelude.show (",InpExp,")",WherePart],ShowInput)
+         ; concat(["Prelude.show (",Input,")"],ShowInput).
+
+% wrap initial expression with ">>= Prelude.print":
+wrapExpWithPrint(Input,InputPrint) :-
+        (append(" where ",_,WherePart), append(InpExp,WherePart,Input))
+        -> concat(["(",InpExp,") >>= Prelude.print",WherePart],InputPrint)
+         ; concat(["(",Input,") >>= Prelude.print"],InputPrint).
+
+processExpIntoTermTypeVars(MainExprDir,Input,Term,Type,Vs) :-
         % read both acy and flat file of main expression:
         writeAndParseExpression(MainExprDir,yes,Input,none,'--acy --flat',
                                 MainExprMod,LCP,NewLCP,(AcyProg,FlatProg),
@@ -1231,7 +1244,7 @@ processCompile(ProgS,PrologFile) :-
 	atom_codes(Prog,ProgS),
         writeNQ('Compiling Curry program "'), writeNQ(Prog), writeLnNQ('"...'),
 	verbosity(Verbosity),
-	parser_warnings(PWarnings),
+	parserWarnings(PWarnings),
         (Verbosity=0 -> Warnings=no ; Warnings=PWarnings),
 	parseProgram(ProgS,Verbosity,Warnings,'--flat'),
 	prog2PrologFile(Prog,LocalPrologFile),
@@ -1330,31 +1343,31 @@ processSetOption("-trace") :- !, checkDebugMode, traceOff.
 processSetOption("+spy") :- !, checkDebugMode, spyOn.
 processSetOption("-spy") :- !, checkDebugMode, spyOff.
 processSetOption("+show") :- !,
-	retract(showmode(_)),
-	asserta(showmode(yes)).
+	retract(showMode(_)),
+	asserta(showMode(yes)).
 processSetOption("-show") :- !,
-	retract(showmode(_)),
-	asserta(showmode(no)).
+	retract(showMode(_)),
+	asserta(showMode(no)).
 processSetOption("+suspend") :- !,
-	retract(suspendmode(_)),
-	asserta(suspendmode(yes)).
+	retract(suspendMode(_)),
+	asserta(suspendMode(yes)).
 processSetOption("-suspend") :- !,
-	retract(suspendmode(_)),
-	asserta(suspendmode(no)).
+	retract(suspendMode(_)),
+	asserta(suspendMode(no)).
 processSetOption("+time") :- !,
-	retract(timemode(_)),
-	asserta(timemode(yes)).
+	retract(timeMode(_)),
+	asserta(timeMode(yes)).
 processSetOption("-time") :- !,
-	retract(timemode(_)),
-	asserta(timemode(no)).
+	retract(timeMode(_)),
+	asserta(timeMode(no)).
 processSetOption("+verbose") :- !, setVerbosity(2).
 processSetOption("-verbose") :- !, setVerbosity(1).
 processSetOption("+warn") :- !,
-	retract(parser_warnings(_)),
-	asserta(parser_warnings(yes)).
+	retract(parserWarnings(_)),
+	asserta(parserWarnings(yes)).
 processSetOption("-warn") :- !,
-	retract(parser_warnings(_)),
-	asserta(parser_warnings(no)).
+	retract(parserWarnings(_)),
+	asserta(parserWarnings(no)).
 
 processSetOption("+compact") :-
 	retract(compileWithCompact(_)),
@@ -1526,13 +1539,13 @@ printCurrentSettings :-
 	write(profile),	write('  '),
 	plprofiling(PLP), (PLP=yes -> write('+') ; write('-')),
 	write(plprofile), write('  '),
-	showmode(SM), (SM=yes -> write('+') ; write('-')),
+	showMode(SM), (SM=yes -> write('+') ; write('-')),
 	write(show), write('   '),
-	suspendmode(BM), (BM=yes -> write('+') ; write('-')),
+	suspendMode(BM), (BM=yes -> write('+') ; write('-')),
 	write(suspend),	write('  '),
-	timemode(T), (T=yes -> write('+') ; write('-')),
+	timeMode(T), (T=yes -> write('+') ; write('-')),
 	write(time),	write('    '),
-	parser_warnings(W), (W=yes -> write('+') ; write('-')),
+	parserWarnings(W), (W=yes -> write('+') ; write('-')),
 	write(warn), write('  '),
 	nl,
 	loadPath('.',LP),

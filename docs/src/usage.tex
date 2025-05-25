@@ -461,18 +461,15 @@ with \code{Prelude.show} in order to present the results with
 possible instances of class \code{Show}.
 Thus, results will be shown as strings in the show mode
 so that one can also show non-deterministic results.
-If the initial expression is of functional type or an I/O action,
+If the initial expression has type \code{IO a}, it will be wrapped
+with \ccode{>>= Prelude.print}.
+If the initial expression is of functional type,
 it will not be wrapped with \code{Prelude.show}.
+In other cases, a type error will be reported if the type
+of the initial expression has no \code{Show} instance.
 Note that the show mode should only be used if the results
 do not contain free variables, otherwise they are instantiated
 by the \code{show} operation or the evaluation might suspend.
-
-Instead of the show mode, one can also write the initial expression
-\begin{curry}
-print $exp$
-\end{curry}
-if it is ensured that $exp$ evaluates deterministically
-to a data term without free variables.
 
 \item[\fbox{\code{+/-suspend}}]\pindex{suspend}%
 \index{suspend mode}\index{mode!suspend}
@@ -482,7 +479,8 @@ If the suspend mode is on, all suspended expressions
 of a computation.
 
 \item[\fbox{\code{+/-time}}]\pindex{time}\index{time mode}\index{mode!time}
-Time mode. If the time mode is on, the cpu time and the elapsed time
+Time mode (initially, it is off).
+If the time mode is on, the cpu time and the elapsed time
 of the computation is always printed together with the result
 of an evaluation.
 

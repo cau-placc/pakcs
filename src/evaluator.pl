@@ -6,8 +6,8 @@
 	   singlestep/0, tracemode/0, spymode/0, spypoints/1, spyFail/1,
 	   addSuspensionReason/1,
 	   printDepth/1, printAllFailures/0,
-	   profiling/1, showmode/1, suspendmode/1, interactiveMode/1,
-	   firstSolutionMode/1, timemode/1,
+	   profiling/1, suspendMode/1, interactiveMode/1,
+	   firstSolutionMode/1, timeMode/1,
            profileCall/1, profileFail/1, profileExit/1, profileRedo/1,
 	   evaluateGoalAndExit/1, evaluateMainExpression/3,
 	   writeFailSource/1,
@@ -24,8 +24,8 @@
 :- dynamic numberOfCalls/1, numberOfExits/1, singlestep/0, tracemode/0,
 	   spypoints/1, spymode/0, spyFail/1, printDepth/1,
 	   profiling/1, profile_data/3, currentprogram/1,
-	   showmode/1, suspendmode/1, allsolutionmode/1, interactiveMode/1,
-	   firstSolutionMode/1, timemode/1, nextIOproof/0,
+	   suspendMode/1, allSolutionMode/1, interactiveMode/1,
+	   firstSolutionMode/1, timeMode/1, nextIOproof/0,
 	   printAllFailures/0, errorAbort/0.
 
 currentprogram("Prelude").
@@ -40,12 +40,11 @@ spypoints([]). % list of spy points
 spyFail(no). % show fail ports in spy mode
 printDepth(0). % maximal print depth of terms +1 (or 0 for infinity)
 profiling(no). % show profiling statistics in debug mode
-showmode(no). % yes if results should be shown with `Prelude.show`
-suspendmode(no). % yes if suspended goals should be shown
-allsolutionmode(no). % yes if all solutions should be shown without asking
+suspendMode(no). % yes if suspended goals should be shown
+allSolutionMode(no). % yes if all solutions should be shown without asking
 interactiveMode(no). % interactive mode?
 firstSolutionMode(no). % first solution printing mode?
-timemode(no).	 % yes if execution times should be shown
+timeMode(no).	 % yes if execution times should be shown
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Auxiliaries for showing suspension reasons:
@@ -85,10 +84,10 @@ evaluateGoalAndExit(Goal) :-
 evaluateMainExpression(Exp,Type,Vs) :-
 	setExitCode(2), % exit code = 2 if value cannot be computed
 	resetSuspensionReasons,
-	retract(allsolutionmode(_)),
+	retract(allSolutionMode(_)),
 	((interactiveMode(no), firstSolutionMode(no))
-           -> asserta(allsolutionmode(yes))
-            ; asserta(allsolutionmode(no))),
+           -> asserta(allSolutionMode(yes))
+            ; asserta(allSolutionMode(no))),
 	retract(numberOfCalls(_)), retract(numberOfExits(_)),
 	asserta(numberOfCalls(0)), asserta(numberOfExits(0)),
 	retractAllFacts(profile_data/3),
@@ -105,7 +104,7 @@ evaluateMainExp(E,Vs,RTime1,ETime1) :-
 	evalToken(Eval),
 	extractMakeShareInTerm(E,MSE),
 	on_exception(ErrorMsg,
-	             %(suspendmode(no)
+	             %(suspendMode(no)
 		     % -> normalizeAndCheck(MSE,V,Eval,Done), Suspended=[]
 		     %  ; callAndReturnSuspensions(
 		     %      user:normalizeAndCheck(MSE,V,Eval,Done),Suspended)),
@@ -141,7 +140,7 @@ evaluateMainExp(E,Vs,RTime1,ETime1) :-
 		        ; asserta(hasPrintedFailure)  % don't print failures
 		       ),                             % during IO ND checking
 		       asserta(nextIOproof), fail))
-             ; allsolutionmode(no), % backtrack in allsolutionmode
+             ; allSolutionMode(no), % backtrack in allSolutionMode
 	       askForMoreSolutions(More),
 	       \+ More = "y", % backtrack if user types wants to see more
 	       showProfileData,
@@ -172,7 +171,7 @@ evaluateMainExp(_,_,RTime1,ETime1) :-
 
 showStatistics(RTime1,ETime1) :-
 	getRunTime(RTime2), getElapsedTime(ETime2),
-	((timemode(yes), verbosityNotQuiet)
+	((timeMode(yes), verbosityNotQuiet)
            -> write('Execution time: '), RTime is RTime2-RTime1, write(RTime),
 	      write(' msec. / '),
 	      write('elapsed: '), ETime is ETime2-ETime1, write(ETime),
@@ -224,7 +223,7 @@ processReadMore([58|Cs],[58|Cs]) :- !. % 58=':'
 processReadMore("y","y") :- !.
 processReadMore("n","n") :- !.
 processReadMore("a","y") :-
- 	retract(allsolutionmode(_)), asserta(allsolutionmode(yes)), !.
+ 	retract(allSolutionMode(_)), asserta(allSolutionMode(yes)), !.
 processReadMore("","y") :- pakcsrc(moresolutions,yes), !.
 processReadMore("","n") :- pakcsrc(moresolutions,no), !.
 processReadMore("",More) :- pakcsrc(moresolutions,all), !,
@@ -355,7 +354,7 @@ writeFunctionFailureList(Stream,FTLen,[FCall|FailSrc]) :- !,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Write suspended goals if necessary:
 writeSuspendedGoals(Suspended) :-
-	suspendmode(no)
+	suspendMode(no)
 	-> writeLnErr('*** Warning: there are suspended constraints (for details: ":set +suspend")'),
 	   showSuspensionReasons
 	 ; write('Suspended goals (in internal representation):'), nl,
