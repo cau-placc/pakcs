@@ -128,7 +128,8 @@ c2p(Prog,PrologFile) :-
 	writeErr('ERROR during compilation of program "'),
 	writeErr(Prog),
 	writeLnErr('"!'),
-	deleteFileIfExists(PrologFile).
+	deleteFileIfExists(PrologFile),
+	setExitCode(1).
 
 % read all imported entities (types/functions/operators) of a set of modules:
 readImportedEntities(_,[],_,ImpTypes,ImpFuncs,ImpOps,ImpTypes,ImpFuncs,ImpOps) :- !.

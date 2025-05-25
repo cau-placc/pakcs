@@ -133,7 +133,7 @@ evaluateMainExp(E,Vs,RTime1,ETime1) :-
                 -> retract(nextIOproof),
                    writeLnErr('ERROR: non-determinism in I/O actions occurred!'),
 	           showProfileData,
-	           !, fail
+	           !, failWithExitCode
 	         ; (profiling(yes) % no IO ND checking during profiling
 		    -> showProfileData, !, fail
 		     ; (hasPrintedFailure -> true

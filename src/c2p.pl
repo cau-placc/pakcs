@@ -301,10 +301,11 @@ main :-
 	flush_output(user_output), flush_output(user_error),
 	readLine(Input),
         prompt(_,''),  % clear standard Prolog prompt for further getChar
-	(Input = end_of_file -> true
-            ; removeBlanks(Input,ShortInput),
-              echoInput(ShortInput),
-	      process(ShortInput)),
+	(Input = end_of_file
+         -> true
+          ; removeBlanks(Input,ShortInput),
+            echoInput(ShortInput),
+	    process(ShortInput)),
 	cleanupAtEnd,
 	exitCode(EC),
 	halt(EC).
