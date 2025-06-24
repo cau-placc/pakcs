@@ -511,14 +511,14 @@ processExpIntoTermTypeVars(MainExprDir,Input,Term,Type,Vs) :-
            nlErr,
            writeLnErr('Hint: add type annotation to specialize the type'),
            fail), !,
-        showAcyQualType(AcyType,InitExpType),!,
         (verbosityCommands
-         -> write('Defaulted type    : '), write(InitExpType), nl
+         -> showAcyQualType(AcyType,InitExpType,_),
+            write('Defaulted type    : '), write(InitExpType), nl
           ; true),
 	(AcyQualType = AcyType % no defaulting required
          -> postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
                                        Term,Type,Vs)
-          ; parseExpressionIn(MainExprDir,yes,Input,InitExpType,Term,Type,Vs)),
+          ; parseExpressionIn(MainExprDir,yes,Input,AcyType,Term,Type,Vs)),
 	!,
 	(isIoType(Type) -> ioAdmissible ; true),
 	(verbosityCommands
@@ -533,17 +533,17 @@ processExpIntoTermTypeVars(MainExprDir,Input,Term,Type,Vs) :-
 % and calling the front end.
 % If the first argument has value `yes`, free variables declared
 % in a "where...free" are transformed into arguments of the main operation.
-parseExpression(SplitFreeVars,Input,InitExpType,MainExp,Type,Vs) :-
+parseExpression(SplitFreeVars,Input,InitAcyType,MainExp,Type,Vs) :-
         createNewTmpDir(MainExprDir),
-	(parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitExpType,
+	(parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitAcyType,
                            MainExp,Type,Vs)
         -> deleteMainExpFiles(MainExprDir)
          ; failProcessExpression(MainExprDir)).
 
-parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
+parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitAcyType,
                   MainExp,Type,Vs) :-
         writeAndParseExpression(MainExprDir,SplitFreeVars,Input,
-                                InitMainFuncType,'--flat',MainExprMod,
+                                InitAcyType,'--flat',MainExprMod,
                                 LCP,NewLCP,FlatProg,FreeVars),
         postProcessMainFlatProgExp(MainExprMod,LCP,NewLCP,FlatProg,FreeVars,
                                    MainExp,Type,Vs),
@@ -553,15 +553,21 @@ parseExpressionIn(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
 
 % write a program containing the main expression and parse and load
 % it (according to the Target format: '--flat', '--acy', '--acy --flat'):
-writeAndParseExpression(MainExprDir,SplitFreeVars,Input,InitMainFuncType,
+writeAndParseExpression(MainExprDir,SplitFreeVars,Input,InitAcyType,
                         Target,MainExprMod,LCP,NewLCP,Prog,FreeVars) :-
+        (InitAcyType = none
+         -> InitMainFuncType = none, Mods = []
+          ; showAcyQualType(InitAcyType,InitMainFuncType,Mods)),
+        %write('MODULES: '), write(Mods), nl,
         getMainProgPath(MainProgName,MainPath),
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
         addCurrentLetBindings(Input,LetInput),
         (SplitFreeVars=yes -> splitWhereFree(LetInput,InputExp,FreeVars)
                             ; InputExp=LetInput, FreeVars=[]),
-	writeMainExprFile(MainExprModFile,MainProgName,InputExp,FreeVars,
+	(MainProgName='Prelude' -> MainImps = Mods
+                                 ; MainImps = [MainProgName|Mods]),
+	writeMainExprFile(MainExprModFile,MainImps,InputExp,FreeVars,
                           InitMainFuncType),
 	(verbosityIntermediate -> PVerb=2 ; PVerb=0),
 	workingDirectory(CurDir),
@@ -776,7 +782,7 @@ flatExps2MainExps(Vs,[FE|FEs],Vs2,[E|Es]) :-
 	flatExp2MainExp(Vs,FE,Vs1,E),
 	flatExps2MainExps(Vs1,FEs,Vs2,Es).
 
-writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainFuncType) :-
+writeMainExprFile(ExprFile,MainImps,Input,FreeVars,InitMainFuncType) :-
 	(verbosityIntermediate
           -> write('Writing Curry main expression file: '), write(ExprFile), nl
            ; true),
@@ -784,9 +790,9 @@ writeMainExprFile(ExprFile,MainProg,Input,FreeVars,InitMainFuncType) :-
 	open(ExprFile,write,S,FOptions),
 	% suppress parser warnings:
 	write(S,'{-# OPTIONS_CYMAKE -Wnone #-}'), nl(S),
-	(MainProg='Prelude' -> true
-          ; write(S,'import '), write(S,MainProg), nl(S)),
-	addImports(Imps), writeMainImports(S,Imps),
+	addImports(AddImps),
+        union(MainImps,AddImps,Imps),
+        writeImports(S,Imps),
         (InitMainFuncType = none -> true
          ; write(S,'pakcsMainExp :: '), write(S,InitMainFuncType), nl(S)),
 	write(S,'pakcsMainExp'),
@@ -803,10 +809,10 @@ writeFreeVarArgs(_,[]).
 writeFreeVarArgs(S,[V|Vs]) :-
         write(S,' '), write(S,V), writeFreeVarArgs(S,Vs).
 
-writeMainImports(_,[]).
-writeMainImports(S,[Imp|Imps]) :-
+writeImports(_,[]).
+writeImports(S,[Imp|Imps]) :-
 	write(S,'import '), write(S,Imp), nl(S),
-	writeMainImports(S,Imps).
+	writeImports(S,Imps).
 
 % convert variables into Prolog variables:
 addVar(V,[],NV,[(V=NV)]).
@@ -1800,14 +1806,54 @@ applyTSub(TSub,'CTApply'(T1,T2),'CTApply'(ST1,ST2)) :-
 % Pretty print a qualified type given as an AbstractCurry term:
 
 writeAcyQualType(QualType) :-
-        showAcyQualType(QualType,T),
+        showAcyQualType(QualType,T,_),
         write(T).
 
-showAcyQualType('CQualType'('CContext'(Ctxt),Type),T) :-
+% Transforms a ACY qualified type into a pretty-printed atom. In addition,
+% the last argument contains the list of modules (except for the Prelude)
+% occurring in the qualified type.
+showAcyQualType(AcyQualType,T,Mods) :-
+        AcyQualType = 'CQualType'('CContext'(Ctxt),Type),
         showAcyCtxt(Ctxt,TCtxt),
         showAcyType(Type,TType),
-        appendAtoms([TCtxt,TType],T).
+        appendAtoms([TCtxt,TType],T),
+        modsOfAcyQualType(AcyQualType,Mods).
 
+% Compute the list of all module names occurring in an ACY qualified type.
+modsOfAcyQualType('CQualType'('CContext'(Ctxt),Type),Mods) :-
+        modsOfAcyCtxt(Ctxt,Mods1),
+        modsOfAcyType(Type,Mods2),
+        union(Mods1,Mods2,Mods), !.
+modsOfAcyQualType(AcyQualType,[]) :- % just to be sure:
+        writeLnErr('WARNING: internal error when processing ACY type:'),
+        writeLnErr(AcyQualType).
+
+% Compute the list of all module names occurring in an ACY type context.
+modsOfAcyCtxt([],[]).
+modsOfAcyCtxt(['Prelude.(,)'(QN,CTs)|Cs],Ms) :-
+        modsOfAcyTypes(['CTCons'(QN)|CTs],Ms1),
+        modsOfAcyCtxt(Cs,Ms2),
+        union(Ms1,Ms2,Ms).
+
+% Compute the list of all module names occurring in an ACY type.
+modsOfAcyType('CTVar'(_),[]).
+modsOfAcyType('CFuncType'(Ty1,Ty2),Ms) :-
+        modsOfAcyType(Ty1,Ms1), modsOfAcyType(Ty2,Ms2),
+        union(Ms1,Ms2,Ms).
+modsOfAcyType('CTCons'('Prelude.(,)'(MS,_)),Ms) :-
+        string2Atom(MS,MA),
+        (MA='Prelude' -> Ms=[] ; Ms=[MA]).
+modsOfAcyType('CTApply'(Ty1,Ty2),Ms) :-
+        modsOfAcyType(Ty1,Ms1), modsOfAcyType(Ty2,Ms2),
+        union(Ms1,Ms2,Ms).
+
+modsOfAcyTypes([],[]).
+modsOfAcyTypes([Ty|Tys],Ms) :-
+        modsOfAcyType(Ty,Ms1),
+        modsOfAcyTypes(Tys,Ms2),
+        union(Ms1,Ms2,Ms).
+
+% Show an ACY type context as an atom:
 showAcyCtxt([],'').
 showAcyCtxt([C],T) :- !, showAcyTConstr(C,CA), appendAtoms([CA,' => '],T).
 showAcyCtxt(Cs,T) :-
