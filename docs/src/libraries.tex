@@ -378,7 +378,7 @@ Prog "test"
 \newcommand{\currydataconsstart}{\end{quote}%
 \begin{itemize}\item[] \hspace{-4ex}\emph{Exported constructors:}}
 \newcommand{\currydataconsstop}{\end{itemize}}
-\newcommand{\curryconsstart}[2]{\item {\tt #1~::~#2}\par}
+\newcommand{\curryconsstart}[2]{\item {\tt #1~::~#2}\pindex{#1}\par}
 \newcommand{\curryfunctionstart}[2]{#2\pindex{#1}\begin{quote}}
 \newcommand{\curryfunctionstop}{\end{quote}}
 \newcommand{\curryfuncsig}[2]{{\tt #1~::~#2}}
@@ -410,6 +410,8 @@ Prog "test"
 
 \subsection{System Libraries}
 
+\input{lib/Prelude}
+\newpage
 \input{lib/Control.Applicative}
 \newpage
 \input{lib/Control.Monad}
@@ -445,8 +447,6 @@ Prog "test"
 \input{lib/Debug.Trace}
 \newpage
 \input{lib/Numeric}
-\newpage
-\input{lib/Prelude}
 \newpage
 \input{lib/System.Console.GetOpt}
 \newpage
