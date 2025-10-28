@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.9.0 (October 13, 2025)
+Release notes for PAKCS Version 3.9.0 (October 28, 2025)
 --------------------------------------------------------
 
 Changes to version 3.8.0:
@@ -11,6 +11,7 @@ Changes to version 3.8.0:
     wrapped with `Prelude.show` so that the results are shown
     as strings resulting from instances of class `Show`.
   * Add library `Data.Monoid` to system libraries.
+  * Add operation `withFile` to library `System.IO`
   * Fix problem with occurrences of overloaded non-prelude types
     in top-level expressions.
 

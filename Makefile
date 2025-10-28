@@ -54,7 +54,7 @@ export MINORVERSION=9
 # The revision version number:
 export REVISIONVERSION=0
 # The build version number (if >0, then it is a pre-release)
-export BUILDVERSION=2
+export BUILDVERSION=3
 # Complete version:
 export VERSION=$(MAJORVERSION).$(MINORVERSION).$(REVISIONVERSION)
 # The version date:
