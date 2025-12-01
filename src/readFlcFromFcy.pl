@@ -92,7 +92,8 @@ fcy2flcExpr('Comb'(CT,QName,Es),'Comb'(FCT,FQName,FEs)) :-
 	fcy2flcQName(QName,FQName),
 	fcy2flcCombType(CT,FCT),
 	map2M(readFlcFromFcy:fcy2flcExpr,Es,FEs).
-fcy2flcExpr('Free'(Vars,Exp),'Free'(Vars,FExp)) :-
+fcy2flcExpr('Free'(TypedVars,Exp),'Free'(Vars,FExp)) :-
+	map2M(readFlcFromFcy:stripVarType,TypedVars,Vars),
 	fcy2flcExpr(Exp,FExp).
 fcy2flcExpr('Let'(Bindings,Exp),'Let'(FBindings,FExp)) :-
 	map2M(readFlcFromFcy:fcy2flcBinding,Bindings,FBindings),
@@ -110,9 +111,10 @@ fcy2flcCombType('FuncCall','FuncCall').
 fcy2flcCombType('ConsCall','ConsCall').
 fcy2flcCombType('FuncPartCall'(M),'FuncPartCall'(M)).
 fcy2flcCombType('ConsPartCall'(M),'ConsPartCall'(M)).
-%fcy2flcCombType('ConsPartCall'(m),'ConsCall').
 
-fcy2flcBinding('Prelude.(,)'(Var,Exp),'Prelude.(,)'(Var,FExp)) :-
+stripVarType('Prelude.(,)'(Var,_TExp),Var).
+
+fcy2flcBinding('Prelude.(,,)'(Var,_TExp,Exp),'Prelude.(,)'(Var,FExp)) :-
 	fcy2flcExpr(Exp,FExp).
 
 fcy2flcBranch('Branch'('LPattern'(L),Exp),'Branch'('LPattern'(FL),FExp)) :-
