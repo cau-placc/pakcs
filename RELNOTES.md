@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.10.0 (December 1, 2025)
+Release notes for PAKCS Version 3.10.0 (December 6, 2025)
 ---------------------------------------------------------
 
 Changes to version 3.9.0:
@@ -14,7 +14,7 @@ Changes to version 3.9.0:
 
         data Expr
           = ...
-          | Let [(VarIndex, TypeExpr,Expr)] Expr
+          | Let  [(VarIndex, TypeExpr,Expr)] Expr
           | Free [(VarIndex,TypeExpr)] Expr
           | ...
 
@@ -22,7 +22,7 @@ Changes to version 3.9.0:
     which require detailed type information in FlatCurry programs.
 
     There is also a new package `flatcurry-addtypes` which annotates
-    all FlatCurry expressions with their corresponding types.
+    FlatCurry expressions in a program with their corresponding types.
 
 
 Release notes for PAKCS Version 3.9.0 (October 29, 2025)
