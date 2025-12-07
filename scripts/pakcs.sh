@@ -58,10 +58,7 @@ USECPM=yes  # should we call CPM to compute the correct load path?
 # check REPL arguments that are relevant for this shell script:
 for i in $* ; do
   case $i in
-    --help | -h | -\? ) USECPM=no ; USERLWRAP=no ;;
-    --version | -V    ) USECPM=no ; USERLWRAP=no ;;
-    --numeric-version | --compiler-name | --base-version )
-                        USECPM=no ; USERLWRAP=no ;;
+    --help | -h | -\? | --version | -V | --numeric-version | --compiler-name | --base-version ) USECPM=no ; USERLWRAP=no ;;
     --nocypm | -n     ) USECPM=no ;;
     --noreadline      ) USERLWRAP=no ;;
     --quiet  | -q     ) QUIET=yes ;;
