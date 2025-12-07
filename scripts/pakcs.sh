@@ -55,18 +55,6 @@ fi
 QUIET=no    # quiet, i.e., no messages from this script?
 USECPM=yes  # should we call CPM to compute the correct load path?
 
-# check and remove arguments that should not be passed to the REPL:
-for arg do
-  shift
-  case $arg in
-    --nocypm | -n ) USECPM=no    ;;
-    --noreadline  ) USERLWRAP=no ;;
-    *             ) set -- "$@" "$arg" ;;
-  esac
-done
-#echo "ARGUMENTS PASSED TO REPL:"
-#printf '%s\n' "$@"
-
 # check REPL arguments that are relevant for this shell script:
 for i in $* ; do
   case $i in
@@ -74,6 +62,8 @@ for i in $* ; do
     --version | -V    ) USECPM=no ; USERLWRAP=no ;;
     --numeric-version | --compiler-name | --base-version )
                         USECPM=no ; USERLWRAP=no ;;
+    --nocypm | -n     ) USECPM=no ;;
+    --noreadline      ) USERLWRAP=no ;;
     --quiet  | -q     ) QUIET=yes ;;
   esac
 done

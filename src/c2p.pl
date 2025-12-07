@@ -160,6 +160,11 @@ processDArgs(Args,[],Args).
 
 % process the remaining run-time arguments:
 processArgs(Halt,[]) :- Halt=yes -> halt(0) ; true.
+% ignore '--nocypm|-n' or '--noreadline'
+% (since they already processed by separate script to invoke the REPL)
+processArgs(Halt,[Arg|Args]) :-
+        member(Arg,['--nocypm','-n','--noreadline']), !,
+	processArgs(Halt,Args).
 processArgs(Halt,['--cpm-version'|CArgs]) :-
         (CArgs = [CV|Args] -> retract(cpmVersion(_)), asserta(cpmVersion(CV))
                             ; Args = CArgs), % this case should not occur...
