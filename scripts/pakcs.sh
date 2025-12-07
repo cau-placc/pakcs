@@ -72,7 +72,8 @@ for i in $* ; do
   case $i in
     --help | -h | -\? ) USECPM=no ;;
     --version | -V    ) USECPM=no ;;
-    --numeric-version | --compiler-name | --base-version ) USECPM=no ;;
+    --numeric-version | --compiler-name | --base-version )
+                        USECPM=no ; USERLWRAP=no ;;
     --quiet  | -q     ) QUIET=yes ;;
   esac
 done
