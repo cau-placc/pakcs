@@ -1,22 +1,25 @@
 :load
-:add
 :reload
+:add
+:save
 :type
+:quit
+:!
 :browse
-:interface
+:cd
+:compile
+:coosy
 :edit
+:fork
+:help
+:info
+:interface
 :modules
+:peval
+:programs
+:set
 :show
 :source
-:cd
-:programs
-:!
-:save
-:fork
-:coosy
-:peval
-:set
-:help
-:quit
+:usedimports
 
-Control.Applicative Control.Monad Curry.Compiler.Distribution Data.Char Data.Either Data.Function Data.Functor.Compose Data.Functor.Const Data.Functor.Identity Data.IORef Data.List Data.Maybe Debug.Trace Numeric Prelude System.CPUTime System.Console.GetOpt System.Environment System.IO.Unsafe System.IO Test.Prop.Types Test.Prop Text.Show
+Control.Applicative Control.Monad Control.Search.AllValues Control.Search.SearchTree Control.Search.SetFunctions Control.Search.Unsafe Curry.Compiler.Distribution Data.Char Data.Either Data.Function Data.Functor.Compose Data.Functor.Const Data.Functor.Identity Data.IORef Data.List Data.Maybe Data.Monoid Debug.Trace Numeric Prelude System.CPUTime System.Console.GetOpt System.Environment System.IO.Unsafe System.IO Test.Prop.Types Test.Prop Text.Show
