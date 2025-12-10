@@ -39,7 +39,7 @@ Log into the Docker Hub from command line, tag and push the local image:
     > docker tag pakcs currylang/pakcs:<version>
     > docker push currylang/pakcs:<version>
 
-where <version> should be something like "3.9.0"
+where <version> should be something like "3.10.0"
 or "latest" to update the latest version.
 
 
