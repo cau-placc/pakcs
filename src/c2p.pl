@@ -170,6 +170,12 @@ processArgs(Halt,['--cpm-version'|CArgs]) :-
                             ; Args = CArgs), % this case should not occur...
         !,
 	processArgs(Halt,Args).
+processArgs(Halt,['--process-state'|CArgs]) :-
+        (CArgs = [Cmd|Args]
+         -> retract(processStateCmd(_)), asserta(processStateCmd(Cmd))
+          ; Args = CArgs), % this case should not occur...
+        !,
+	processArgs(Halt,Args).
 processArgs(Halt,['--nocolor'|Args]) :-
         retract(withColor(_)), asserta(withColor(no)), !,
 	processArgs(Halt,Args).
@@ -1132,6 +1138,10 @@ processCommand("save",Exp) :- !,
 	  ; CMD2=CMD1),
 	appendAtoms([CMD2,ProgStName,' ',ProgName],Cmd),
 	shellCmdWithReport(Cmd),
+        processStateCmd(PCmd),
+        (PCmd = '' -> true
+         ; appendAtoms([PCmd,' ',ProgName],PStCmd),
+           shellCmdWithReport(PStCmd)),
 	(verbosityNotQuiet
 	  -> write('Executable saved in: '), write(ProgName), nl
 	   ; true),
@@ -1579,8 +1589,10 @@ printCurrentSettings :-
 	  (tracemode  -> write('+') ; write('-')), write(trace), write('  '),
 	  write('/ spy points: '), spypoints(SPs), write(SPs), nl
 	 ; true),
-        (VL>1 -> nl, write('Current "pakcsrc" properties:'), nl, writeRCvalues
-               ; true).
+        (VL>1
+         -> write('process-state     : '), processStateCmd(PSC), write(PSC), nl,
+            nl, write('Current "pakcsrc" properties:'), nl, writeRCvalues
+          ; true).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

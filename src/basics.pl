@@ -2,8 +2,8 @@
 % Some basic data and predicates that are used by diffent modules.
 
 :- module(basics,[exitCode/1, setExitCode/1, failWithExitCode/0,
-		  noLoadMessage/0, withColor/1, cpmVersion/1, lastload/1,
-                  plprofiling/1,
+		  noLoadMessage/0, withColor/1, cpmVersion/1,
+                  processStateCmd/1, lastload/1, plprofiling/1,
 		  setVerbosity/1, verbosityQuiet/0, verbosityNotQuiet/0,
                   verbosityCommands/0,
 		  verbosityIntermediate/0, verbosityDetailed/0,
@@ -68,8 +68,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic withColor/1, cpmVersion/1, lastload/1, plprofiling/1,
-	   rtArgs/1, compileWithSharing/1,
+:- dynamic withColor/1, cpmVersion/1, processStateCmd/1, lastload/1,
+           plprofiling/1, rtArgs/1, compileWithSharing/1,
 	   compileWithDebug/0, compileWithFailPrint/0, hasPrintedFailure/0,
 	   printConsFailure/1, exitCode/1,
 	   user:dynamicPredInfo/2, orgDynamicPredInfo/2.
@@ -105,6 +105,7 @@ user:portray_message(informational,created(_,_)) :- !.
 
 withColor(yes).      % use colors for output
 cpmVersion('').      % the version string of CPM
+processStateCmd(''). % command to post-process a generated execution state
 lastload("Prelude"). % program in last load command
 plprofiling(no). % perform profiling with Prolog profiler
 rtArgs([]).	% run-time arguments from script call or ":set args" option
