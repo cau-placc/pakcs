@@ -17,6 +17,7 @@ DOCKEROPTS="$DOCKEROPTS -u $(id -u):$(id -g)"
 DOCKERTAG="currylang/pakcs"
 DOCKERBIN=""
 ENTRYPOINT=""
+CURRYENTRYPOINT="/pakcs/pakcs/bin/pakcs
 HELP=no
 PSOPT=""             # name of option to process saved executable
 PSCMD=""             # command to process saved executable
@@ -28,15 +29,15 @@ while [ $# -gt 0 -a -z "$ENTRYPOINT$DOCKERBIN" ]; do
     -x                ) shift ; ENTRYPOINT=$(realpath "$1") ; shift ;;
     -s                ) shift ; DOCKERBIN=$(realpath "$1") ;
                         ENTRYPOINT="$DOCKERBIN.bin" ; shift ;;
-    pakcs             ) shift ; ENTRYPOINT="/pakcs/pakcs/bin/pakcs" ;;
+    pakcs             ) shift ; ENTRYPOINT="$CURRYENTRYPOINT" ;;
     cypm              ) shift ; ENTRYPOINT="/pakcs/pakcs/bin/cypm" ;;
     curry-check       ) shift ; ENTRYPOINT="/pakcs/cpm/bin/curry-check" ;;
     curry-doc         ) shift ; ENTRYPOINT="/pakcs/cpm/bin/curry-doc" ;;
-    *                 ) ENTRYPOINT="/pakcs/pakcs/bin/pakcs" ;;
+    *                 ) ENTRYPOINT="$CURRYENTRYPOINT" ;;
   esac
 done
 if [ -z "$ENTRYPOINT" ] ; then
-  ENTRYPOINT="/pakcs/pakcs/bin/pakcs"
+  ENTRYPOINT="$CURRYENTRYPOINT"
 fi
 DOCKEROPTS="$DOCKEROPTS --entrypoint=$ENTRYPOINT"
 
@@ -57,7 +58,7 @@ if [ $HELP = yes ] ; then
   exit
 fi
 
-if [ "$ENTRYPOINT" = "/pakcs/pakcs/bin/pakcs" ] ; then
+if [ "$ENTRYPOINT" = "$CURRYENTRYPOINT" ] ; then
   PSOPT="--process-state"
   PSCMD="$(realpath "$0") -t $DOCKERTAG -s"
 fi

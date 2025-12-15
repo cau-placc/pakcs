@@ -1,7 +1,7 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.10.0 (December 6, 2025)
+Release notes for PAKCS Version 3.10.0 (December 15, 2025)
 ---------------------------------------------------------
 
 Changes to version 3.9.0:
@@ -23,6 +23,8 @@ Changes to version 3.9.0:
 
     There is also a new package `flatcurry-addtypes` which annotates
     FlatCurry expressions in a program with their corresponding types.
+  * Add option `process-state` to provide a command to process a generated
+    executable. This is used when invoking the docker image of PAKCS.
 
 
 Release notes for PAKCS Version 3.9.0 (October 29, 2025)
