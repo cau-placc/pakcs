@@ -40,10 +40,10 @@ DOCEXCLUDES  = CHRcompiled CPNS
 CURRYDOC := $(shell sh -c 'command -v curry-doc')
 
 .PHONY: all
-all: $(ALLLIBS).curry fcy acy
+all: fcy acy
 
 # create a program importing all libraries in order to re-compile them
-# so that all auxiliary files are up-to-date
+# so that all auxiliary files are up-to-date (no longer required)
 $(ALLLIBS).curry: $(LIB_CURRY) Makefile
 	rm -f $@
 	for i in $(filter-out Prelude, $(LIB_NAMES)) ; do echo "import $$i" >> $@ ; done
@@ -82,7 +82,7 @@ acy: $(LIB_ACY)
 # generate the compiled Prolog target files of all libraries:
 .NOTPARALLEL: pl
 .PHONY: pl
-pl: .curry/pakcs-$(VERSION)/$(ALLLIBS).pl $(LIB_PL)
+pl: $(LIB_PL)
 
 # generate FlatCurry file in subdirectory of .curry:
 .curry/pakcs-$(VERSION)/%.fcy: %.curry

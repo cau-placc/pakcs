@@ -132,9 +132,6 @@ all:
 ifeq ($(DISTPKGINSTALL),yes)
 	$(MAKE) config
 	$(MAKE) build
-	# if we build a package, we compile all libraries at the end
-	# so that their intermediate files are up to date:
-	$(REPL) --nocypm $(REPL_OPTS) :load AllLibraries :eval "3*13+3" :quit
 else ifeq ($(CI_BUILD),yes)
 	# don't need the log file and the pipe swallows non 0 exit codes
 	$(MAKE) config
@@ -180,8 +177,7 @@ kernel: scripts copylibs copytools
 	$(MAKE) -C src
 	# compile optimization tools:
 	@$(MAKE) -C currytools/optimize
-	# compile all libraries:
-	$(MAKE) -C lib AllLibraries.curry
+	# pre-compile all libraries to produce up-to-date intermediate files:
 	$(MAKE) compile-all-libs
 	# prepare for separate compilation: compile all libraries to Prolog
 	@if [ -r bin/pakcs ] ; then $(MAKE) -C lib pl ; fi

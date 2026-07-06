@@ -51,7 +51,6 @@ build_download_pakcs() {
 
   # build system
   make CI_BUILD=yes
-  bin/curry --nocypm :load AllLibraries :eval "3*13+3" :quit
 
   end_section "build_${PAKCSVERSION}_${DLVERSION}"
 
