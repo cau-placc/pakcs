@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 # Generate intermediate files of all libraries until everything is compiled
 #
 # The following environment variables are used (from the main Makefile):
@@ -17,7 +17,7 @@ echo "Pre-compiling the following system libraries:"
 echo $LIBNAMES
 
 FRONTEND="bin/$CURRYSYSTEM-frontend"
-FRONTENDPARAMS="-o .curry/$CURRYSYSTEM-$VERSION -D__KMCC__=$MAJORVERSION$(printf "%02d" $MINORVERSION) -i$LIBDIR $LIBNAMES"
+FRONTENDPARAMS="-o .curry/$CURRYSYSTEM-$VERSION -D__PAKCS__=$MAJORVERSION$(printf "%02d" $MINORVERSION) -i$LIBDIR $LIBNAMES"
 
 compile_all() {
   "$FRONTEND" --flat                       $FRONTENDPARAMS
