@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # Generate intermediate files of all libraries until everything is compiled
 #
 # The following environment variables are used (from the main Makefile):
