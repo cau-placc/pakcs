@@ -572,6 +572,7 @@ writeAndParseExpression(MainExprDir,SplitFreeVars,Input,InitAcyType,
           ; showAcyQualType(InitAcyType,InitMainFuncType,Mods)),
         %write('MODULES: '), write(Mods), nl,
         getMainProgPath(MainProgName,MainPath),
+        write(getMainProgPath(MainProgName,MainPath)), nl,
 	appendAtoms([MainExprDir,'/PAKCS_Main_Exp'],MainExprMod),
 	appendAtoms([MainExprMod,'.curry'],MainExprModFile),
         addCurrentLetBindings(Input,LetInput),
@@ -663,16 +664,17 @@ getMainProgPath(CurrMod,MainPath) :-
 	    writeLnErr(LoadProg),
 	    writeErr('    main expression parsed w.r.t. source module: '),
 	    writeLnErr(CurrMod)).
-getMainProgPath(CurrMod,MainPath) :-
+getMainProgPath(CurrMod,_) :-
 	currentModuleFile(CurrMod,_),
 	( atom(CurrMod) -> CurrModAtom = CurrMod
 	; atom_codes(CurrModAtom,CurrMod) ),
-	findFlatProgFileInLoadPath(CurrModAtom,FlatProg), !,
-	atom_codes(FlatProg,FlatProgS),
-	appendAtoms([FlatProgS,'/..'],MainPath),
+	findFlatProgFileInLoadPath(CurrModAtom,_), !,
 	(verbosityQuiet -> true ;
-	    writeErr('*** Warning: module loaded from FlatCurry without source: '),
-	    writeLnErr(CurrMod)).
+	    writeErr('*** ERROR: cannot compile expression since module "'),
+	    writeErr(CurrMod),
+            writeLnErr('"'),
+            writeLnErr('           was loaded from FlatCurry without source file')),
+        !, fail.
 getMainProgPath(_,_) :-
 	lastload(MainProgS), atom_codes(MainProg,MainProgS),
 	writeErr('Source program for module "'), writeErr(MainProg),
@@ -852,7 +854,7 @@ processCommand("help",[]) :- !,
         write('let <p> = <expr>    - add let binding for main expression'), nl,
 	write(':load <prog>        - compile and load program "<prog>.curry" and all imports'),nl,
 	write(':reload             - recompile currently loaded modules'), nl,
-	write(':main               - execute the current module\'s main function'), nl,
+	write(':main               - execute function "main" (of type "IO ()")'), nl,
 	write(':add <m1> .. <mn>   - add modules <m1>,...,<mn> to currently loaded modules'),nl,
 	write(':eval <expr>        - evaluate expression <expr>'), nl,
 	write(':save               - save executable with main expression "main"'), nl,
@@ -952,7 +954,8 @@ processCommand("main",[]) :- !,
 	          ; true),
 	atom_codes(ProgA,Prog),
 	appendAtoms([ProgA,'.main'],MainExp),
-	call(evaluateMainExpression(MainExp, 'TCons'('Prelude.IO',[_]), [])).
+	call(evaluateMainExpression(MainExp,
+                        'TCons'('Prelude.IO',['TCons'('Prelude.()',[])]), [])).
 
 processCommand("eval",ExprInput) :- !,
 	processExpression(ExprInput,ExprGoal),
