@@ -177,6 +177,14 @@ by typos.
 Same as $expr$. This command might be useful when putting
 commands as arguments when invoking \code{pakcs}.
 
+\item[\fbox{:main}]\pindex{:main}
+Execute the function \code{main} of the current module.
+It is assumed (but not checked) that this function exists and
+is of type \code{IO ()}.
+This command is useful to execute the main function of a module
+where the source file does not exist, i.e., which is loaded from
+a FlatCurry file.
+
 \item[\fbox{let $x$ = $e$}]
 Add a \code{let}\pindex{let} binding for the main expression
 where $x$ is a variable or a pattern and $e$ is some expression.
