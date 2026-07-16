@@ -1,7 +1,8 @@
 PAKCS: Release Notes
 ====================
 
-Release notes for PAKCS Version 3.10.0 (July 8, 2026)
+
+Release notes for PAKCS Version 3.10.0 (July 16, 2026)
 -----------------------------------------------------
 
 Changes to version 3.9.0:
@@ -25,6 +26,10 @@ Changes to version 3.9.0:
     FlatCurry expressions in a program with their corresponding types.
   * Add option `process-state` to provide a command to process a generated
     executable. This is used when invoking the docker image of PAKCS.
+  * Add command `:main` to execute the function `main` of the current module
+    (which must be of type `IO ()`).
+    This is useful to execute the main function of a module where the source
+    file does not exist, i.e., which is loaded from the FlatCurry file.
 
 
 Release notes for PAKCS Version 3.9.0 (October 29, 2025)
