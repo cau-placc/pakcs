@@ -1,9 +1,26 @@
 #!/bin/sh
-# generate intermediate files of all libraries until everything is compiled
+# Generate intermediate files of all libraries until everything is compiled
+#
+# The following environment variables are used (from the main Makefile):
+# CURRYSYSTEM
+# LIBDIR
+# VERSION
+# MAJORVERSION
+# MINORVERSION
 
-CURRY=pakcs
-FRONTEND="bin/$CURRY-frontend"
-FRONTENDPARAMS="-o .curry/pakcs-$VERSION -D__PAKCS__=$MAJORVERSION$(printf "%02d" $MINORVERSION) -ilib AllLibraries"
+# Hierarchical names of all system libraries:
+LIBNAMES=`cd $LIBDIR && find * -name "*.curry"| sed 's|.curry$||' | sed 's|/|.|g'`
+# put name of the Prelude at the front (to compile it first):
+LIBNAMES="Prelude `echo $LIBNAMES | sed 's|Prelude||'`"
+
+echo "Pre-compiling the following system libraries:"
+echo $LIBNAMES
+
+# name of Curry sstem in uppercase:
+CURRYUPPER=$(echo "$CURRYSYSTEM" | tr '[:lower:]' '[:upper:]')
+
+FRONTEND="bin/$CURRYSYSTEM-frontend"
+FRONTENDPARAMS="-o .curry/$CURRYSYSTEM-$VERSION -D__"$CURRYUPPER"__=$MAJORVERSION$(printf "%02d" $MINORVERSION) -i$LIBDIR $LIBNAMES"
 
 compile_all() {
   "$FRONTEND" --flat                       $FRONTENDPARAMS
@@ -20,11 +37,14 @@ CCODE=0
 
 while [ $CCODE = 0 ] ; do
   compile_all | tee "$TMPOUT"
-  echo NEW COMPILED LIBRARIES IN THIS ITERATION:
+  echo "NEW COMPILED LIBRARIES IN THIS ITERATION:"
   grep Compiling "$TMPOUT"
   CCODE=$?
 done
 /bin/rm -r "$TMPOUT"
 
-echo "Compile Prolog targets..."
-cd lib && "../bin/$CURRY" --nocypm :l AllLibraries :eval "42::Int" :quit
+echo "Compiling system libraries..."
+for LIB in $LIBNAMES ; do
+  "bin/$CURRYSYSTEM" --nocypm :compile $LIB :quit
+done
+
