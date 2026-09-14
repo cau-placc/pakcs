@@ -16,7 +16,7 @@ LIBNAMES="Prelude `echo $LIBNAMES | sed 's|Prelude||'`"
 echo "Pre-compiling the following system libraries:"
 echo $LIBNAMES
 
-# name of Curry sstem in uppercase:
+# name of Curry system in uppercase:
 CURRYUPPER=$(echo "$CURRYSYSTEM" | tr '[:lower:]' '[:upper:]')
 
 FRONTEND="bin/$CURRYSYSTEM-frontend"
