@@ -113,7 +113,8 @@ pakcsMain :-
 	split2words(DefParamS,DefParamsS),
 	map2M(prologbasics:atomCodes,DefParamsA,DefParamsS),
 	processArgs(no,DefParamsA), % process default parameters from .pakcsrc
-	processArgs(no,Args), % process current parameters
+        stripRTArgs(Args,ArgsWORTargs),
+	processArgs(no,ArgsWORTargs), % process current parameters
 	rtArgs(RTArgs),
         exitCode(EC),
         (EC=0 -> true ; halt(EC)), % halt if error occurred
@@ -157,6 +158,14 @@ processDArgs([Arg|DArgs],Props,[Arg|Args]) :-
 	!, % store other args
 	processDArgs(DArgs,Props,Args).
 processDArgs(Args,[],Args).
+
+% select the run-time arguments (starting with "--"), store them
+% and remove them from the paramters:
+stripRTArgs(Args,RArgs) :-
+        append(RArgs,['--'|RTArgs],Args), !,
+	retract(rtArgs(_)),
+	assertz(rtArgs(RTArgs)).
+stripRTArgs(Args,Args).
 
 % process the remaining run-time arguments:
 processArgs(Halt,[]) :- Halt=yes -> halt(0) ; true.
