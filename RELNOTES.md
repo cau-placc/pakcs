@@ -2,7 +2,7 @@ PAKCS: Release Notes
 ====================
 
 
-Release notes for PAKCS Version 3.10.0 (September 14, 2026)
+Release notes for PAKCS Version 3.10.0 (September 28, 2026)
 -----------------------------------------------------------
 
 Changes to version 3.9.0:
