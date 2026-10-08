@@ -2,8 +2,8 @@ PAKCS: Release Notes
 ====================
 
 
-Release notes for PAKCS Version 3.10.0 (September 28, 2026)
------------------------------------------------------------
+Release notes for PAKCS Version 3.10.0 (October 8, 2026)
+--------------------------------------------------------
 
 Changes to version 3.9.0:
 
@@ -24,12 +24,19 @@ Changes to version 3.9.0:
 
     There is also a new package `flatcurry-addtypes` which annotates
     FlatCurry expressions in a program with their corresponding types.
+
   * Add option `process-state` to provide a command to process a generated
     executable. This is used when invoking the docker image of PAKCS.
+
   * Add command `:main` to execute the function `main` of the current module
     (which must be of type `IO ()`).
     This is useful to execute the main function of a module where the source
     file does not exist, i.e., which is loaded from the FlatCurry file.
+
+  * Base libraries `Control.Search.Unsafe` and `Control.Search.AllValues`:
+    operations `...oneValueDFS` and `...allValuesDFS` added
+    (these are relevant only for Curry systems offering search staregies
+    which are more advanced than depth-first search).
 
 
 Release notes for PAKCS Version 3.9.0 (October 29, 2025)
